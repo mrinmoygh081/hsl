@@ -1,0 +1,117 @@
+.form-label span.star {
+  color: red;
+}
+
+.logo {
+  width: 100px; /* Adjust the width as needed */
+  height: auto; /* Maintain aspect ratio */
+}
+/* Add this to your CSS file */
+.certificate-box {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.box-item {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.box-value {
+  font-weight: bold;
+}
+
+/* Add your global styles if any */
+
+/* Style for the header box */
+.header-box {
+  background-color: #f0f0f0; /* Set your preferred background color */
+  padding: 20px; /* Adjust padding as needed */
+  margin-bottom: 20px; /* Add margin at the bottom */
+}
+
+/* Style for the box container */
+.box-container {
+  display: flex; /* Use flexbox for layout */
+  justify-content: space-between; /* Space items evenly */
+}
+
+/* Style for the logo container */
+.logo-container {
+  margin-right: 20px; /* Add margin to separate the logo from company info */
+}
+
+/* Style for the company info */
+.company-info {
+  flex-grow: 1; /* Allow it to grow and take remaining space */
+}
+
+/* Style for the company info text */
+.company-info h2 {
+  font-size: 24px; /* Set the font size for the heading */
+  margin-bottom: 10px; /* Add margin at the bottom of the heading */
+}
+
+.company-info p {
+  margin-bottom: 5px; /* Add margin at the bottom of paragraphs */
+}
+
+/* Add this CSS to your existing stylesheet or create a new one */
+.form-box {
+  background-color: #f0f0f0;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.form-box h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-part {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-part label {
+  flex-basis: 200px;
+  margin-right: 10px;
+}
+
+.form-part input {
+  flex-grow: 1;
+  padding: 8px;
+}
+.form-container {
+  display: flex;
+}
+
+.form-section {
+  flex: 1;
+}
+
+.right-section {
+  margin-left: 20px; /* Adjust the margin as needed */
+}
+.work_done .form-part label {
+  min-width: 160px;
+  flex-basis: auto;
+  width: 160px;
+}
+.table_content table {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+th,
+td {
+  border: 1px solid black;
+}
+.right_content {
+  text-align: center;
+}
+.left_content {
+  text-align: center;
+}

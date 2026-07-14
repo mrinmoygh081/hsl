@@ -1,0 +1,154 @@
+📘 QueryBuilder Documentation (PostgreSQL Only)
+-------------------------------------------------------
+
+### 🧱 Overview
+The `QueryBuilder` class helps dynamically build complex PostgreSQL SELECT queries using a chainable syntax.  
+It supports WHERE, JOIN, GROUP BY, ORDER, LIMIT, OFFSET, and nested grouped conditions.
+
+-------------------------------------------------------
+🔧 **Class: QueryBuilder**
+-------------------------------------------------------
+
+#### **Constructor**
+```js
+new QueryBuilder(tableName)
+```
+- `tableName`: Name of the database table.
+
+-------------------------------------------------------
+### 🧩 SELECT and COUNT
+```js
+qb.select(['id', 'name']);
+qb.count('*', 'total');
+```
+
+-------------------------------------------------------
+### 🔗 JOINs
+```js
+qb.joinTable('LEFT', 'users u', 'u.id = orders.user_id');
+qb.joinTable('INNER', 'categories c', 'c.id = p.category_id');
+```
+
+-------------------------------------------------------
+### ⚙️ WHERE Conditions
+#### AND Conditions
+```js
+qb.where('status', '=', 'active')
+  .whereLike('name', 'kamal')
+  .whereBetween('price', 100, 500)
+  .whereGreater('age', 18)
+  .whereLess('age', 60)
+  .whereGreaterOrEqual('points', 50)
+  .whereLessOrEqual('score', 90);
+```
+
+#### OR Conditions
+```js
+qb.orWhere('role', '=', 'admin')
+  .orWhereLike('email', '@gmail.com')
+  .orWhereBetween('amount', 1000, 5000);
+```
+
+-------------------------------------------------------
+### 🧩 WHERE IN / NOT IN
+```js
+qb.whereIn('id', [1, 2, 3]);
+qb.whereNotIn('status', ['inactive', 'banned']);
+qb.orWhereIn('type', ['A', 'B']);
+qb.orWhereNotIn('region', ['US', 'EU']);
+```
+
+-------------------------------------------------------
+### 🧠 GROUPED CONDITIONS (Parentheses)
+```js
+qb.whereGroup(g =>
+  g.where('status', '=', 'active').orWhere('status','=', 'pending')
+);
+qb.orWhereGroup(g =>
+  g.where('role','=', 'admin').where('active','=', true)
+);
+```
+
+This produces SQL like:
+```sql
+WHERE (status,  '=', 'active' OR status = 'pending')
+  OR (role = 'admin' AND active = true)
+```
+
+-------------------------------------------------------
+### 🧮 GROUP BY Support
+```js
+qb.groupBy(['category', 'type']);
+```
+
+Output example:
+```sql
+GROUP BY category, type
+```
+
+-------------------------------------------------------
+### 🔢 ORDER, LIMIT, OFFSET, PAGINATION
+```js
+qb.orderBy('created_at', 'DESC');
+qb.limit(10);
+qb.offset(20);
+qb.paginate(2, 10); // LIMIT 10 OFFSET 10
+```
+
+-------------------------------------------------------
+### 🧰 BUILDING THE QUERY
+```js
+const { sql, params } = qb.build();
+```
+
+Example Output:
+```js
+{
+  sql: "SELECT * FROM users WHERE age > $1 ORDER BY id ASC LIMIT 10",
+  params: [18]
+}
+```
+
+-------------------------------------------------------
+### 🧾 COUNT + PAGINATION
+```js
+const { dataQuery, countQuery } = qb.countAllWithPagination();
+```
+
+-------------------------------------------------------
+### 🧪 DEBUG SQL (toJSON)
+```js
+console.log(qb.toJSON());
+```
+Output:
+```js
+{
+  sql: "SELECT * FROM users WHERE name ILIKE $1",
+  params: ['%kamal%'],
+  debug: "SELECT * FROM users WHERE name ILIKE '%kamal%'"
+}
+```
+
+-------------------------------------------------------
+✅ Example Usage:
+```js
+const qb = new QueryBuilder('employees');
+qb.select(['id', 'name', 'department'])
+  .where('active','=', true)
+  .whereIn('department', ['IT', 'HR'])
+  .groupBy(['department'])
+  .orderBy('id', 'ASC')
+  .limit(5);
+
+console.log(qb.toJSON());
+```
+
+Output:
+```js
+{
+  sql: "SELECT id, name, department FROM employees WHERE active = $1 AND department IN ($2,$3) GROUP BY department ORDER BY id ASC LIMIT 5",
+  params: [true, 'IT', 'HR'],
+  debug: "SELECT id, name, department FROM employees WHERE active = true AND department IN ('IT','HR') GROUP BY department ORDER BY id ASC LIMIT 5"
+}
+```
+-------------------------------------------------------

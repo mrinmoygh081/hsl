@@ -1,0 +1,195 @@
+/* eslint-disable no-undef */
+const fs = require("fs");
+const path = require("path");
+const { google } = require("googleapis");
+
+class GmailApiSender {
+    constructor(credentialsPath = null, tokenPath = null) {
+        this.credentialsPath = credentialsPath || path.join(__dirname, "credentials.json");
+        this.tokenPath = tokenPath || path.join(__dirname, "token.json");
+
+        this.initializeClient();
+    }
+
+    /**
+     * Initialize OAuth2 client and Gmail service
+     */
+    async initializeClient() {
+        if (!fs.existsSync(this.credentialsPath) || !fs.existsSync(this.tokenPath)) {
+            throw new Error("Missing credentials.json or token.json files");
+        }
+
+        const credentials = JSON.parse(fs.readFileSync(this.credentialsPath));
+        let token = JSON.parse(fs.readFileSync(this.tokenPath));
+
+        const { client_id, client_secret, redirect_uris } = credentials.installed || credentials.web;
+
+        this.client = new google.auth.OAuth2(
+            client_id,
+            client_secret,
+            redirect_uris[0]
+        );
+
+        this.client.setCredentials(token);
+
+        // console.log("this.client", this.client);
+        
+        
+        // When Google refreshes the token automatically:
+        this.client.on("tokens", (newTokens) => {
+            token = { ...token, ...newTokens };
+            // console.log("token.token", token);
+
+            fs.writeFileSync(this.tokenPath, JSON.stringify(token));
+
+            console.log(`[${new Date().toISOString()}] Gmail token auto-refreshed`);
+        });
+
+        // Manual refresh if expired
+        // console.log("this.isAccessTokenExpired", this.isAccessTokenExpired());
+        
+        if (this.isAccessTokenExpired()) {
+            await this.refreshAccessToken();
+        }
+
+        this.service = google.gmail({ version: "v1", auth: this.client });
+        // console.log("this.service", this.service);
+        
+    }
+
+    /**
+     * Check if access token has expired
+     */
+    isAccessTokenExpired() {
+        const token = this.client.credentials;
+
+        if (!token || !token.expiry_date) return true;
+
+        const now = Date.now();
+
+        return now >= token.expiry_date;
+    }
+
+    /**
+     * Get refresh token
+     */
+    getRefreshToken() {
+        return this.client.credentials.refresh_token || null;
+    }
+
+    /**
+     * Force refresh the access token
+     */
+    async refreshAccessToken() {
+        const refreshToken = this.getRefreshToken();
+        if (!refreshToken) {
+            throw new Error("Token expired and no refresh token available. Re-generate token.json.");
+        }
+
+        // console.log("🔄 Refreshing Gmail access token...");
+
+        const newTokens = await this.client.refreshAccessToken();
+        // console.log("newTokens", newTokens);
+        
+        const updatedCredentials = {
+            ...this.client.credentials,
+            ...newTokens.credentials
+        };
+
+        this.client.setCredentials(updatedCredentials);
+
+        fs.writeFileSync(this.tokenPath, JSON.stringify(updatedCredentials));
+
+        // console.log("✔ Access token refreshed successfully.");
+
+        return updatedCredentials;
+    }
+
+    /**
+     * Encode raw message for Gmail API
+     */
+    base64urlEncode(str) {
+        return Buffer.from(str)
+            .toString("base64")
+            .replace(/\+/g, "-")
+            .replace(/\//g, "_")
+            .replace(/=+$/, "");
+    }
+
+    /**
+     * Send email
+     */
+    async sendEmail(from, to, subject, body, isHtml = false, replyTo = null) {
+        try {
+            // Build raw RFC 822 email
+            let raw =
+                `From: ${from}\r\n` +
+                `To: ${to}\r\n` +
+                `Subject: ${subject}\r\n` +
+                `MIME-Version: 1.0\r\n`;
+
+            if (replyTo) {
+                raw += `Reply-To: ${replyTo}\r\n`;
+            }
+
+            raw += isHtml
+                ? `Content-Type: text/html; charset=UTF-8\r\n\r\n`
+                : `Content-Type: text/plain; charset=UTF-8\r\n\r\n`;
+
+            raw += body;
+
+            const encoded = this.base64urlEncode(raw);
+            // console.log("this.service", this.service);   
+
+            const sent = await this.service?.users.messages.send({
+                userId: "me",
+                requestBody: { raw: encoded }
+            });
+
+            console.log(`[${new Date().toISOString()}] Email sent. ID: ${sent.data.id}`);
+
+            return {
+                success: true,
+                message_id: sent.data.id,
+                message: "Email sent successfully"
+            };
+        } catch (err) {
+            console.error(`[${new Date().toISOString()}] Gmail API Error: ${err.message}`);
+
+            return {
+                success: false,
+                error: err.message,
+                details: err.errors || null
+            };
+        }
+    }
+
+    /**
+     * Test Gmail API connection
+     */
+    async testConnection() {
+        try {
+            await this.service?.users?.getProfile({ userId: "me" });
+            return { success: true, message: "Gmail API connection successful" };
+        } catch (err) {
+            return { success: false, error: err.message };
+        }
+    }
+}
+
+
+// const gmail = new GmailApiSender();
+
+// (async() => {
+//     try {
+        
+//         const testConn = await gmail.testConnection();
+//         console.log("testConn",testConn);
+//     } catch (error) {
+//         console.error(`[${new Date().toISOString()}]`, error);
+//     }
+    
+// })();
+
+
+module.exports = GmailApiSender;

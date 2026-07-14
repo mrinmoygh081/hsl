@@ -1,0 +1,175 @@
+
+CREATE TABLE IF NOT EXISTS public.cron_log
+(
+    cron_name character varying(200) COLLATE pg_catalog."default" NOT NULL,
+    execute_datetime timestamp with time zone NOT NULL,
+    status character varying(100) COLLATE pg_catalog."default" NOT NULL,
+    created_by character varying(12) COLLATE pg_catalog."default",
+    remarks text COLLATE pg_catalog."default",
+    error text COLLATE pg_catalog."default",
+    sync boolean,
+    sync_id uuid NOT NULL DEFAULT gen_random_uuid(),
+    sync_updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT cron_log_sync_id_key UNIQUE (sync_id)
+)
+
+----------------------------------------------------
+
+
+-- Ensure pgcrypto for gen_random_uuid()
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+DO
+$$
+DECLARE
+    r RECORD;
+BEGIN
+    -- Loop over all tables in the public schema
+    FOR r IN
+        SELECT table_name
+        FROM information_schema.tables
+        WHERE table_schema = 'public'
+          AND table_type = 'BASE TABLE'
+    LOOP
+        -- Add column sync_id if it does not exist
+        IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+              AND table_name   = r.table_name
+              AND column_name  = 'sync_id'
+        ) THEN
+            EXECUTE format('ALTER TABLE public.%I ADD COLUMN sync_id UUID DEFAULT gen_random_uuid() UNIQUE NOT NULL;', r.table_name);
+        END IF;
+
+        -- Add column sync if it does not exist
+        IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+              AND table_name   = r.table_name
+              AND column_name  = 'sync'
+        ) THEN
+            EXECUTE format('ALTER TABLE public.%I ADD COLUMN sync BOOLEAN DEFAULT FALSE NOT NULL;', r.table_name);
+        END IF;
+
+        -- Add column sync_updated_at if it does not exist
+        IF NOT EXISTS (
+            SELECT 1
+            FROM information_schema.columns
+            WHERE table_schema = 'public'
+              AND table_name   = r.table_name
+              AND column_name  = 'sync_updated_at'
+        ) THEN
+            EXECUTE format('ALTER TABLE public.%I ADD COLUMN sync_updated_at TIMESTAMPTZ DEFAULT now() NOT NULL;', r.table_name);
+        END IF;
+    END LOOP;
+END
+$$;
+
+
+--------------------------------------------------------------------------------
+
+
+DO $$
+DECLARE
+    record RECORD;
+    trigger_exists BOOLEAN;
+    table_name TEXT;
+BEGIN
+    -- Replace with your actual list of tables
+    FOREACH table_name IN ARRAY ARRAY[
+        'actualsubmissiondate',
+        'auth',
+        'btn',
+        'btn_assign',
+        'btn_do',
+        'btn_list',
+        'btn_service_hybrid',
+        'btn_service_certify_authority',
+        'cdhdr',
+        'cdpos',
+        'demande_management',
+        'department_wise_log',
+        'depertment_master',
+        'drawing',
+        'ekko',
+        'ekpo',
+        'email_body',
+        'email_send_info',
+        'emp_department_list',
+        'essr',
+        'hr_compliance',
+        'ilms',
+        'inspection_call_letter',
+        'inspection_release_note',
+        'internal_role_master',
+        'lfa1',
+        'makt',
+        'mara',
+        'material_type',
+        'mkpf',
+        'mseg',
+        'pa0002',
+        'ppc_wbs_project_code',
+        'privilege',
+        'qals',
+        'qap_submission',
+        'qave',
+        'resb',
+        'sdbg',
+        'sdbg_entry',
+        'rkpf',
+        'shipping_documents',
+        'sub_dept',
+        'tnc_minutes',
+        'user_type',
+        'vendor_activities',
+        'wbs',
+        'zbtsm_st',
+        'zfi_pymt_advce_data_final',
+        'zmm_gate_entry_h',
+        'zbts_st',
+        'zfi_bgm_1',
+        'zfi_pymt_advce_final',
+        'zmm_gate_entry_d',
+        'zpo_milestone',
+        'ztfi_bil_deface',
+        'wdc',
+        'wdc_line',
+        'esll',
+        'btn_any_other_claim',
+        'btn_jcc',
+        'btn_jcc_certify_authority',
+        'hr_compliance_data',
+        'btn_pbg',
+        'btn_adv_bill_against_bg',
+        'btn_adv_bill_against_bg_do',
+        'btn_service_linkedwdc',
+        'zmm_gate_entry_d'
+    ]
+    LOOP
+        -- Check if the before_update_trigger exists for the given table
+        SELECT EXISTS (
+            SELECT 1
+            FROM pg_trigger t
+            JOIN pg_class c ON c.oid = t.tgrelid
+            WHERE t.tgname = 'before_update_trigger'
+            AND c.relname = table_name
+        ) INTO trigger_exists;
+
+        -- If the trigger exists, disable it
+        IF trigger_exists THEN
+            EXECUTE format('ALTER TABLE %I DISABLE TRIGGER before_update_trigger;', table_name);
+        END IF;
+    END LOOP;
+END $$;
+
+
+
+
+
+
+
+
+

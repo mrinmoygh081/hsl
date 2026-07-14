@@ -1,0 +1,43 @@
+-- Table: public.btn_adv_bill_against_bg
+
+-- DROP TABLE IF EXISTS public.btn_adv_bill_against_bg;
+
+CREATE TABLE IF NOT EXISTS public.btn_adv_bill_against_bg
+(
+    id integer NOT NULL DEFAULT nextval('btn_adv_bill_against_bg_id_seq'::regclass),
+    btn_num character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    purchasing_doc_no character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    invoice_no character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    invoice_filename text COLLATE pg_catalog."default",
+    invoice_file_path text COLLATE pg_catalog."default",
+    invoice_value character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    invoice_type character varying(200) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    invoice_supporting_filename text COLLATE pg_catalog."default",
+    invoice_supporting_file_path text COLLATE pg_catalog."default",
+    net_claim_amount character varying(15) COLLATE pg_catalog."default" NOT NULL DEFAULT NULL::character varying,
+    cgst character varying(4) COLLATE pg_catalog."default",
+    sgst character varying(4) COLLATE pg_catalog."default",
+    igst character varying(4) COLLATE pg_catalog."default",
+    c_sdbg_date character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    a_sdbg_date character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    c_drawing_date character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    a_drawing_date character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    c_qap_date character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    a_qap_date character varying(30) COLLATE pg_catalog."default" DEFAULT NULL::character varying,
+    vendor_code character varying(10) COLLATE pg_catalog."default" NOT NULL,
+    yard character varying(20) COLLATE pg_catalog."default",
+    stage character varying(20) COLLATE pg_catalog."default",
+    btn_type character varying(30) COLLATE pg_catalog."default",
+    net_with_gst character varying(15) COLLATE pg_catalog."default" NOT NULL DEFAULT NULL::character varying,
+    created_at bigint NOT NULL,
+    created_by_id character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    hsn_gstn_icgrn boolean,
+    invoice_date character varying(30) COLLATE pg_catalog."default",
+    bg_details text COLLATE pg_catalog."default",
+    CONSTRAINT btn_adv_bill_against_bg_pkey PRIMARY KEY (purchasing_doc_no, btn_num)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.btn_adv_bill_against_bg
+    OWNER to postgres;

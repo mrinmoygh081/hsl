@@ -1,0 +1,92 @@
+Dynamic Workflow Status Validation (Per Module)
+=================================================
+
+Overview:
+----------
+This document provides a reusable, dynamic system to validate workflow status
+transitions across multiple modules — each with its own valid status flow.
+
+----------------------------------------------
+1️⃣ Module Configuration (statusConfig.js)
+----------------------------------------------
+
+export const statusConfig = {
+  BILL: {
+    firstStatus: "SUBMIT",
+    allowedFlows: [
+      ["SUBMIT", "ASSIGN", "FORWARD_FINANCE", "APPROVED"],
+      ["SUBMIT", "FORWARD_FINANCE", "APPROVED"]
+    ],
+  },
+  BG_EXTENSION: {
+    firstStatus: "EXTENSION",
+    allowedFlows: [
+      ["EXTENSION", "VERIFY", "APPROVED"],
+      ["EXTENSION", "REJECTED", "RESUBMIT", "APPROVED"]
+    ],
+  },
+  WDC: {
+    firstStatus: "WDC_INIT",
+    allowedFlows: [
+      ["WDC_INIT", "CHECKED", "RELEASED"]
+    ],
+  },
+};
+
+
+----------------------------------------------
+2️⃣ Common Validation Function (validateStatusTransition.js)
+----------------------------------------------
+
+import { statusConfig } from "./statusConfig.js";
+
+function validateStatusTransition(moduleName, currentStatus, newStatus) {
+  const moduleRules = statusConfig[moduleName];
+  if (!moduleRules) {
+    return { isValid: false, message: `Unknown module: ${moduleName}` };
+  }
+
+  // First-time submission (no current status)
+  if (!currentStatus) {
+    return newStatus === moduleRules.firstStatus
+      ? { isValid: true, message: "Valid first status." }
+      : { isValid: false, message: `First status must be ${moduleRules.firstStatus}` };
+  }
+
+  // Validate transition sequence
+  const { allowedFlows } = moduleRules;
+  const isValid = allowedFlows.some(flow => {
+    const currentIndex = flow.indexOf(currentStatus);
+    const nextIndex = flow.indexOf(newStatus);
+    return currentIndex !== -1 && nextIndex === currentIndex + 1;
+  });
+
+  return isValid
+    ? { isValid: true, message: "Valid transition." }
+    : { isValid: false, message: `Invalid transition from ${currentStatus} → ${newStatus}` };
+}
+
+
+----------------------------------------------
+3️⃣ Example Usage
+----------------------------------------------
+
+validateStatusTransition("BILL", "SUBMIT", "ASSIGN");
+// ✅ Valid
+
+validateStatusTransition("BILL", "ASSIGN", "APPROVED");
+// ❌ Invalid (skipped FORWARD_FINANCE)
+
+validateStatusTransition("BG_EXTENSION", null, "EXTENSION");
+// ✅ First-time valid
+
+
+----------------------------------------------
+4️⃣ Key Features
+----------------------------------------------
+✅ Fully dynamic per module
+✅ Multiple valid workflows supported per module
+✅ First-time submission handling
+✅ Centralized configuration
+✅ Easy to extend for future modules
+

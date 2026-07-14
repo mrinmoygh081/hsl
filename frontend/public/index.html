@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="OBPS Portal | GRSE" />
+    <link rel="icon" type="image/jpg" href="%PUBLIC_URL%/assets/images/image001.jpg" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+    default-src 'self';
+   style-src 'self' 'unsafe-inline' 'unsafe-hashes';
+   script-src 'self' 'unsafe-inline';
+    img-src 'self' data: blob:;
+    font-src 'self';
+    connect-src 'self' https://obpsback.grse.in http://stageobpsback.grse.in http://localhost:4001 http://10.18.1.242:4001;
+    object-src 'none';
+    base-uri 'self';
+    form-action 'self';
+  "
+    />
+    <title>OBPS Portal | GRSE</title>
+    <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/loading.css" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/style.bundle.css" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/swal-custom.css" />
+    <link rel="stylesheet" href="%PUBLIC_URL%/assets/css/main.css" />
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>

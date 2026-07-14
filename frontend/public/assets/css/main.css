@@ -1,0 +1,113 @@
+body {
+  overflow-x: hidden;
+}
+label {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+.card_pos {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+}
+.card_headline {
+  font-size: 24px;
+  text-align: center;
+}
+.res_height {
+  height: calc(100vh - 100px);
+  overflow-y: scroll;
+}
+
+.table_styled tr button.btn_simple {
+  cursor: pointer;
+}
+.table_styled tr td {
+  font-size: 16px;
+}
+.table_styled tr td a {
+  text-decoration: none;
+  color: inherit;
+}
+.pos_bottom {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+}
+.aside-dark .menu .menu-item .menu-link {
+  text-decoration: none;
+}
+.card_header_data {
+  margin-bottom: 7px;
+  font-size: 16px;
+}
+.card_header_data .label {
+  font-weight: 600;
+  margin-right: 8px;
+}
+.screen_header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.table_center {
+  text-align: center;
+  vertical-align: middle;
+}
+.popup {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: max(50%, 300px);
+  background: #fff;
+  z-index: 99;
+  border-radius: 10px;
+  box-shadow: 1px 1px 16pc #1d1d1d;
+}
+.popup .card .row {
+  padding: 0 30px;
+  max-height: 75vh;
+  overflow-y: scroll;
+}
+.popup.active {
+  display: block;
+}
+
+/* footer */
+.footer {
+  padding: 15px 30px;
+  text-align: right;
+  margin-top: 90px;
+  border-top: 1px solid #ccc;
+  background-color: #f4f7fb;
+  /* position: fixed;
+  bottom: 0;
+  right: 0;
+  width: calc(100% - 265px); */
+}
+.card_headline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.input_search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  padding: 5px;
+}
+.input_search button {
+  background-color: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+}
+.log_in {
+  font-size: 14px;
+}

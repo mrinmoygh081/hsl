@@ -1,0 +1,30 @@
+-- Table: public.btn_adv_bill_against_bg_do
+
+-- DROP TABLE IF EXISTS public.btn_adv_bill_against_bg_do;
+
+CREATE TABLE IF NOT EXISTS public.btn_adv_bill_against_bg_do
+(
+    btn_num character varying(15) COLLATE pg_catalog."default" NOT NULL,
+    purchasing_doc_no character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    drg_penalty text COLLATE pg_catalog."default",
+    max_penalty text COLLATE pg_catalog."default",
+    total_penalty_amount text COLLATE pg_catalog."default",
+    estimated_penalty_amount text COLLATE pg_catalog."default",
+    retention_amount text COLLATE pg_catalog."default",
+    retention_remarks text COLLATE pg_catalog."default",
+    deduction_remarks text COLLATE pg_catalog."default",
+    retention_rate text COLLATE pg_catalog."default",
+    total_retention_and_penalty text COLLATE pg_catalog."default",
+    net_payable_amount text COLLATE pg_catalog."default" NOT NULL,
+    created_at bigint NOT NULL,
+    created_by character varying(15) COLLATE pg_catalog."default",
+    basic_amount text COLLATE pg_catalog."default",
+    drg_penalty_pct text COLLATE pg_catalog."default",
+    other_deduction text COLLATE pg_catalog."default",
+    CONSTRAINT btn_adv_bill_against_bg_do_pkey PRIMARY KEY (btn_num, purchasing_doc_no)
+)
+
+TABLESPACE pg_default;
+
+ALTER TABLE IF EXISTS public.btn_adv_bill_against_bg_do
+    OWNER to postgres;

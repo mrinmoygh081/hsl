@@ -1,0 +1,53 @@
+{
+  "registrationApprovedAuthority": [
+    {
+      "manNo": "600233",
+      "email": "naskar.sujitkumar@grse.co.in"
+    },
+    {
+      "manNo": "601824",
+      "email": "Chatterjee.Krishnakanta@grse.co.in"
+    },
+    {
+      "manNo": "602717",
+      "email": "maji.subhas@grse.co.in"
+    }
+  ],
+  "allBranches": [
+    "MAIN",
+    "RBD",
+    "FOJ",
+    "61PARK",
+    "TU",
+    "DEP"
+  ],
+  "qapDashBoardSpecialAccessUsers": [
+    {
+      "manNo": "600233",
+      "email": "naskar.sujitkumar@grse.co.in"
+    },
+    {
+      "manNo": "602717",
+      "email": "maji.subhas@grse.co.in"
+    },
+    {
+      "manNo": "601824",
+      "email": "Chatterjee.Krishnakanta@grse.co.in"
+    }
+  ],
+  "MONTH_LIST_OBJECT": {
+    "1": "January",
+    "2": "February",
+    "3": "March",
+    "4": "April",
+    "5": "May",
+    "6": "June",
+    "7": "July",
+    "8": "August",
+    "9": "September",
+    "10": "October",
+    "11": "November",
+    "12": "December"
+  },
+  "FI_PAYMENT_HEAD": "604090"
+}

@@ -1,0 +1,364 @@
+/* eslint-disable no-undef */
+const { resSend, responseSend } = require("../../lib/resSend");
+const { PAYMENT_ADVICE2, PAYMENT_VOUCHER } = require("../../lib/tableName");
+const {
+  paymentPayload,
+  ztfi_bil_defacePayload,
+  paymentAviceHeaderPayload,
+  paymentAviceLineItemsPayload
+} = require("../../services/sap.payment.services");
+const { INSERT } = require("../../lib/constant");
+const { getEpochTime, generateQuery, generateInsertUpdateQuery, generateQueryForMultipleData } = require("../../lib/utils");
+// const { query } = require("../../config/dbConfig");
+
+const path = require("path");
+const fs = require("fs");
+const { query, getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
+const Message = require("../../utils/messages");
+const { PAYMENT_ADVICE_DOC_GENERATE } = require("../../lib/event");
+const { sendMail } = require("../../services/mail.services");
+const { getUserDetailsQuery } = require("../../utils/mailFunc");
+const { updateBtnListTable } = require("./btnControllers");
+
+const addPaymentVoucher = async (req, res) => {
+  try {
+    // Handle Image Upload
+    let fileData = {};
+    if (req.file) {
+      fileData = {
+        fileName: req.file.filename,
+        filePath: req.file.path,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size,
+      };
+
+      const payload = { ...req.body, ...fileData, created_at: getEpochTime() };
+      if (!payload.purchasing_doc_no || !payload.action_by_id || !payload.vendor_code) {
+        // const directory = path.join(__dirname, '..', 'uploads', 'drawing');
+        // const isDel = handleFileDeletion(directory, req.file.filename);
+        return resSend(res, false, 400, Message.VALID_PARAMETER, null, null);
+      }
+
+      let insertObj = paymentPayload(payload);
+
+      const { q, val } = generateQuery(INSERT, PAYMENT_VOUCHER, insertObj);
+      await query({ query: q, values: val });
+      resSend(res, true, 200, "file uploaded!", fileData, null);
+    } else {
+      resSend(res, false, 400, "Please upload a valid File", fileData, null);
+    }
+  } catch (error) {
+    console.error("addPayment api", error);
+    return resSend(res, false, 500, "internal server error", [], null);
+  }
+};
+
+const addPaymentAdvise = async (req, res) => {
+  try {
+    // Handle Image Upload
+    let fileData = {};
+    if (req.file) {
+      fileData = {
+        fileName: req.file.filename,
+        filePath: req.file.path,
+        fileType: req.file.mimetype,
+        fileSize: req.file.size,
+      };
+
+      const payload = { ...req.body, ...fileData, created_at: getEpochTime() };
+      if (!payload.purchasing_doc_no || !payload.action_by_id || !payload.vendor_code) {
+        // const directory = path.join(__dirname, '..', 'uploads', 'drawing');
+        // const isDel = handleFileDeletion(directory, req.file.filename);
+        return resSend(res, false, 400, "Please send valid payload", null, null);
+      }
+
+      let insertObj = paymentPayload(payload);
+
+      const { q, val } = generateQuery(INSERT, PAYMENT_ADVICE2, insertObj);
+      await query({ query: q, values: val });
+
+      resSend(res, true, 200, "file uploaded!", fileData, null);
+    } else {
+      resSend(res, false, 400, "Please upload a valid File", fileData, null);
+    }
+  } catch (error) {
+    console.error("Drawing submission api", error);
+
+    return resSend(res, false, 500, "internal server error", [], null);
+  }
+  // payment payload
+
+  // "purchasing_doc_no": "4700013229",
+  // "file": "sample.pdf",
+  // "vendor_code": "50000437",
+  // "action_by_name": "S Roy",
+  // "action_by_id": "600224",
+};
+
+const ztfi_bil_deface = async (req, res) => {
+  const client = await poolClient();
+  try {
+    if (!req.body || typeof req.body != "object" || !Object.keys(req.body)?.length) {
+      return responseSend(res, "F", 400, "Please send a valid payload.", null, null);
+    }
+
+    const payload = req.body;
+    if (!payload || !payload.ZREGNUM || !payload.SEQNO || !payload.ZBILLPER) {
+      return responseSend(res, "F", 400, "Invalid payload.", null, null);
+    }
+
+    try {
+      const payloadObj = await ztfi_bil_defacePayload(payload);
+      const zdefaceInsertQuery = await generateInsertUpdateQuery(payloadObj, "ztfi_bil_deface", ["ZREGNUM", "SEQNO", "ZBILLPER"]);
+
+      const response = await poolQuery({
+        client,
+        query: zdefaceInsertQuery.q,
+        values: zdefaceInsertQuery.val,
+      });
+      await updateBtnListTable(client, payloadObj);
+
+      responseSend(res, "S", 200, Message.DATA_SEND_SUCCESSFULL, response, null);
+    } catch (error) {
+      responseSend(res, "F", 500, Message.DATA_INSERT_FAILED, error.toString(), null);
+    }
+  } catch (err) {
+    responseSend(res, "F", 500, Message.UNEXPECTED_ERROR, err, null);
+  } finally {
+    client.release();
+  }
+};
+const newPaymentAdvice = async (req, res) => {
+  try {
+    const client = await poolClient();
+
+    if (!req.body || typeof req.body != "object" || !Object.keys(req.body)?.length) {
+      return responseSend(res, "F", 400, "Please send a valid payload.", {}, null);
+    }
+
+    const payload = req.body;
+    if (!payload) {
+      return responseSend(res, "F", 400, "Invalid payload.", {}, null);
+    }
+
+    const { ZFI_PYMT_ADVCE_FINAL, ...obj } = payload;
+
+    try {
+      const payloadObj = await paymentAviceHeaderPayload(obj);
+      const paymentAviceHeaderQuery = await generateInsertUpdateQuery(payloadObj, "zfi_pymt_advce_data_final", ["id"]);
+
+      const response1 = await poolQuery({
+        client,
+        query: paymentAviceHeaderQuery.q,
+        values: paymentAviceHeaderQuery.val,
+      });
+
+      const lineItemPayloadObj = await paymentAviceLineItemsPayload(ZFI_PYMT_ADVCE_FINAL);
+      const paymentAviceLineItemsQuery = await generateQueryForMultipleData(lineItemPayloadObj, "zfi_pymt_advce_final", ["id"]);
+      const response2 = await poolQuery({
+        client,
+        query: paymentAviceLineItemsQuery.q,
+        values: paymentAviceLineItemsQuery.val,
+      });
+      handleEmail(payloadObj);
+      responseSend(res, "S", 200, Message.DATA_SEND_SUCCESSFULL, { response1, response2 }, null);
+    } catch (error) {
+      responseSend(res, "F", 400, Message.DATA_INSERT_FAILED, error.message, null);
+    } finally {
+      client.release();
+    }
+  } catch (err) {
+    responseSend(res, "F", 500, Message.SERVER_ERROR, err.message, null);
+  }
+};
+
+async function handleEmail(data) {
+  try {
+    const getDoQuery = getUserDetailsQuery("vendor", "$1");
+    const venodrDetails = await getQuery({
+      query: getDoQuery,
+      values: [data.lifnr],
+    });
+    const dataObj = {
+      ...data,
+      vendor_code: venodrDetails[0]?.u_id,
+      vendor_name: venodrDetails[0]?.u_name,
+    };
+    if (!venodrDetails.length) {
+      console.log("NO VALID VENDOR FOUND IN OBPS", data.lifnr);
+      return true;
+    }
+    await sendMail(PAYMENT_ADVICE_DOC_GENERATE, dataObj, { users: [] }, PAYMENT_ADVICE_DOC_GENERATE);
+  } catch (error) {
+    console.error("handleEmail", error.toString(), error.stack);
+  }
+}
+
+// const zbts_st = async (req, res) => {
+
+//     try {
+//         if (!req.body || typeof req.body != 'object' || !Object.keys(req.body)?.length) {
+//             return responseSend(res, "F", 400, "Please send a valid payload.", null, null);
+//         }
+
+//         const payload = req.body;
+//         if (!payload) {
+//             return responseSend(res, "F", 400, "Invalid payload.", null, null);
+//         }
+
+//         const { ZBTSM, ...obj } = payload;
+
+//         const payloadObj = await zbtsHeaderPayload(obj);
+//         const btnPaymentHeaderQuery = await generateInsertUpdateQuery(payloadObj, "zbts_st", "id");
+//         const response1 = await query({ query: btnPaymentHeaderQuery, values: [] });
+//         let response2;
+//         if (ZBTSM) {
+
+//             const lineItemPayloadObj = await zbtsLineItemsPayload(ZBTSM);
+//             const btnPaymentLineItemQuery = await generateInsertUpdateQuery(lineItemPayloadObj, "zbtsm_st", "id");
+//             response2 = await query({ query: btnPaymentLineItemQuery, values: [] });
+//         }
+
+
+//         if (response1.rowCount && response2.rowCount) {
+//             responseSend(res, "S", 200, "Data inserted successfully", { response1, response2 }, null);
+
+//         } else {
+//             // resSend(res, false, 400, "No data inserted", response, null);
+//             responseSend(res, "F", 400, "Data inserted failed", { response1, response2 }, null);
+
+//         }
+//         // responseSend(res, "S", 200, "Data inserted successfully", response, null);
+//     } catch (err) {
+//         responseSend(res, "0", 500, "Internal server errorR", err, null);
+//     }
+// }
+const ztfi_bil_deface_report = async (req, res) => {
+  try {
+    const payload = req.body;
+
+    if (!req.body.btn) {
+      return resSend(res, false, 200, "plese send btn", [], null);
+    }
+
+    let zdefaceInsertQuery = `SELECT 
+            deface.zregnum         AS btn,
+            deface.zregdate                AS "btnDate",
+            deface.zpono                   AS "purchesing_doc_no",
+            deface.zvendor                 AS "vendor_code",
+            deface.zbscval_m_s             AS "matValue",
+            deface.zntsupp_s               AS "nogrsrValue",
+            deface.znetvalue_s             AS "netValue",
+            deface.zcst_vat_txt            AS "taxesAndDutiesText",
+            deface.zcst_vat_s              AS "taxesAndDutiesValue",
+            deface.ztotalb_s               AS "totalValWithTaxDutiesValue",
+            deface.zadd_othrchrg_txt       AS "anyOtherPaybleText",
+            deface.zadd_othrchrg_s         AS "anyOtherPaybleValue",
+            deface.ztotala_s               AS "grossValue",
+            deface.ZADD_OTHRCHRG_1_S      AS "adjustmentOfAdvance",
+            deface.zles_retntn_txt         AS "pbgText",
+            deface.zles_retntn_s           AS "pbgValue",
+            deface.zles_sd_txt             AS "sdText",
+            deface.zles_sd_s               AS "sdValue",
+            deface.zles_othr_txt           AS "otherText",
+            deface.zles_othr_s             AS "otherValue",
+            deface.zles_gross_ret          AS "totalRetentions",
+            deface.zles_inctax_txt         AS "incomeTaxTDSText",
+            deface.zles_inctax_s           AS "incomeTaxTDSValue",
+            deface.zles_wrkcontax_txt      AS "gstTdsText",
+            deface.zles_wrkcontax_s        AS "gstTdsValue",
+            deface.zles_cstofcon_paint_txt AS "costOfConPaintText",
+            deface.zles_cstofcon_paint_s   AS "costOfConPaintValue",
+            deface.zles_ld_txt             AS "ldText",
+            deface.zles_ld_s               AS "ldValue",
+            deface.zles_penalty_txt        AS "penaltyText",
+            deface.zles_penalty_s          AS "penaltyValue",
+            deface.zles_intsd_txt          AS "interestChargeText",
+            deface.zles_intsd_s            AS "interestChargeValue",
+            deface.zles_othrded_txt        AS "otherDeductionText",
+            deface.zles_othrded_s          AS "otherDeductionValue",
+            deface.zles_gross_ded          AS "totalDeduction",
+            deface.znet_pymnt1_s           AS "netPayment"
+        FROM   
+            ztfi_bil_deface AS deface 
+        WHERE  1 = 1`;
+
+    const val = [];
+
+    if (payload.btn) {
+      zdefaceInsertQuery = zdefaceInsertQuery.concat(" AND deface.ZREGNUM = $1");
+      val.push(payload.btn);
+    }
+
+    try {
+      const response = await getQuery({
+        query: zdefaceInsertQuery,
+        values: val,
+      });
+
+      responseSend(res, "S", 200, Message.DATA_FETCH_SUCCESSFULL, response, null);
+    } catch (error) {
+      responseSend(res, "F", 500, Message.DATA_INSERT_FAILED, error.toString(), null);
+    }
+
+    // responseSend(res, "S", 200, "Data inserted successfully", response, null);
+  } catch (error) {
+    responseSend(res, "F", 500, Message.DATA_INSERT_FAILED, error.toString(), null);
+  }
+};
+
+const adviceDownload = async (req, res) => {
+  try {
+    // if (!req.query.poNo) {
+    //     return resSend(res, false, 400, "Please send PO number", null, null);
+    // }
+    let file = {};
+    try {
+      file = await POfileFilter(req.query.poNo);
+
+      if (file.success && file?.data?.length) {
+        const fileName = file.data;
+        const directoryPath = path.join(__dirname, "..", "..", "sapuploads", "paymentadvice");
+        // const file_path = path.join('sapuploads', 'paymentadvice', `${fileName}`)
+        const response = [{ full_file_path: directoryPath, file_name: fileName }];
+
+        // res.download(directoryPath, (err) => {
+        //     if (err)
+        //     return resSend(res, false, 404, "file not found", err, null)
+        // });
+
+        if (!fileName) {
+          return resSend(res, false, 404, "file not found", err, null);
+        }
+        resSend(res, true, 200, "File fetched successfully", response, null);
+      } else {
+        resSend(res, true, 200, file.msg, file.data, null);
+      }
+    } catch (error) {
+      return resSend(res, false, 500, "GET FILE ERROR", error, null);
+    }
+  } catch (error) {
+    console.error("download po api error", error);
+    return resSend(res, false, 500, "INTERNL SERVER ERROR", {}, null);
+  }
+};
+
+// eslint-disable-next-line no-unused-vars
+const POfileFilter = async (id) => {
+  try {
+    const directoryPath = path.join(__dirname, "..", "..", "sapuploads", "paymentadvice");
+    const files = await fs.promises.readdir(directoryPath); // Use promise-based readdir for async handling
+    return { success: true, msg: "file fetched", data: files }; // Return the array of most recent files
+  } catch (err) {
+    return { success: false, msg: err.message, data: null }; // Return an empty array on error
+  }
+};
+
+module.exports = {
+  addPaymentVoucher,
+  addPaymentAdvise,
+  ztfi_bil_deface,
+  ztfi_bil_deface_report,
+  newPaymentAdvice,
+  adviceDownload,
+};

@@ -1,0 +1,28 @@
+---------------DB NAME-------------------------
+
+LAN: grse_btn 
+AWS: obps_aws
+	
+------DB RESTART COMMAND-----------------------
+
+sudo systemctl restart postgresql@16-main
+
+----------------SAP TABLES DETAIS------------------------------
+---------------------------------------------------------------
+"pk": ["ENTRY_NO", "W_YEAR"]
+"tableName": "zmm_gate_entry_h"
+---------------------------------------------------------------
+"pk": ["ENTRY_NO", "EBELN", "EBELP", "W_YEAR"]
+"tableName": "zmm_gate_entry_d"
+---------------------------------------------------------------
+"pk": ["MBLNR", "MJAHR", "ZEILE"]
+"tableName": "mseg"
+---------------------------------------------------------------
+"pk": ["MBLNR", "MJAHR"]
+"tableName": "mkpf"
+---------------------------------------------------------------
+"pk": ["PRUEFLOS", "KZART", "ZAEHLER"],
+"tableName": "qave"
+---------------------------------------------------------------
+"pk": ["PRUEFLOS"],
+"tableName": "qals"

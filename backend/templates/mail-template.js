@@ -1,0 +1,100 @@
+/* eslint-disable no-undef */
+
+function getLocalIpAddress() {
+    // const networkInterfaces = os.networkInterfaces();
+    let ipAddress = process.env.SERVER_IP_ADDRESS;
+
+    // for (const name of Object.keys(networkInterfaces)) {
+    //     for (const net of networkInterfaces[name]) {
+    //         if (net.family === 'IPv4' && !net.internal) {
+    //             ipAddress = net.address;
+    //             break;
+    //         }
+    //     }
+    //     if (ipAddress) {
+    //         break;
+    //     }
+    // }
+
+
+    return ipAddress;
+
+
+}
+
+let myIpAppAdderess = getLocalIpAddress();
+
+// eslint-disable-next-line no-unused-vars
+const EMAIL_TEMPLAE = (text, link = "") => {
+    return `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>E-Mail OBPS Project</title>
+    <style>
+        .container {
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            /* background-color: #f4f4f4; */
+        }
+
+        .email {
+            width: 100%;
+            margin: 0 auto;
+            /* background-color: #fff; */
+            padding: 0 20px 0 20px;
+        }
+
+        .email-header {
+            /* background-color: #333; */
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+        }
+
+        .email-body {
+            padding: 10px 5px;
+        }
+
+        .email-footer {
+            padding: 5px;
+            text-align: left;
+        }
+        .source-ip {
+            font-size: 11px;
+        }
+
+        .link-details {
+            padding: 5px;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="email">
+            <div class="email-body">
+                <p>Dear Sir/Madam</p>
+                <p> <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>${text}</p>
+                <!-- <p class="link-details"><span>Please click <a href="https://google.com">here</a> to open the
+                          documnet</span></p> -->
+                <br>
+                <span>Note: This is system generated notification, kindly don't reply to this email. May please contact
+                    respective GRSE officer if you have any queries.</span>
+            </div>
+            <div class="email-footer">
+                <p> Thanks &amp; Regards, </p>
+                <span> OBPS Support, GRSE LTD. </span><br>
+                <span class="source-ip">Source IP: ${myIpAppAdderess}</span>
+            </div>
+        </div>
+       
+    </div>
+    </div>
+</body>
+</html>`};
+
+
+module.exports = { EMAIL_TEMPLAE };

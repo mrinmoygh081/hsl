@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS public.auth_login_attempts
+(
+    vendor_code character varying(30) COLLATE pg_catalog."default" NOT NULL,
+    attempt_count numeric,
+    is_locked character varying COLLATE pg_catalog."default",
+    lock_until timestamp without time zone,
+    CONSTRAINT auth_login_attempts_pkey PRIMARY KEY (vendor_code)
+)
