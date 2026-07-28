@@ -151,7 +151,7 @@ const SyncComponent = () => {
         <div className="card-header text-center" style={{ margin: "20px auto" }}>
           <img src={require("../images/image001.jpg")} alt="Logo" className="img-fluid" style={{ width: "60px", marginRight: "10px" }} />
           <h1 className="card-title mt-3" style={{ marginBottom: "10px" }}>
-            Garden Reach Shipbuilders & Engineers Ltd. <br /> (A GOVT.OF INDIA UNDERTAKING)
+            Hindustan Shipyard Limited <br /> (A GOVT.OF INDIA UNDERTAKING)
           </h1>
         </div>
         <div className="card-body">

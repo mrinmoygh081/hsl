@@ -68,7 +68,7 @@ function Gateentrypdf() {
         </div>
         <div className="col-10">
           <h3 className="m-0 text-center" style={{ width: "90%" }}>
-            Garden Reach Shipbuilders & Engineers Ltd.
+            Hindustan Shipyard Limited
           </h3>
           <p className="m-0 text-center" style={{ fontSize: "18px", width: "90%" }}>
             (A govt. of india undertaking)
