@@ -1,8 +1,4 @@
-const {
-  USER_TYPE_GRSE_DRAWING,
-  ASSIGNER,
-  USER_TYPE_GRSE_QAP,
-} = require("../lib/constant");
+const { USER_TYPE_HSL_DRAWING, ASSIGNER, USER_TYPE_HSL_QAP } = require("../lib/constant");
 
 const getUserDetailsQuery = (type, valueParameter) => {
   let getDeatilsQuery = "";
@@ -98,7 +94,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
                     users.pernr :: character varying = auth.vendor_code
                   ) 
                   where 
-                  department_id = ${USER_TYPE_GRSE_DRAWING} AND internal_role_id = ${ASSIGNER}
+                  department_id = ${USER_TYPE_HSL_DRAWING} AND internal_role_id = ${ASSIGNER}
               ) 
               UNION ALL 
                 (
@@ -180,7 +176,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
                 users.pernr :: character varying = auth.vendor_code
               ) 
               where 
-              department_id = ${USER_TYPE_GRSE_QAP} AND internal_role_id = ${ASSIGNER}
+              department_id = ${USER_TYPE_HSL_QAP} AND internal_role_id = ${ASSIGNER}
           ) `;
       break;
     case "qa_officers":
@@ -195,7 +191,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
                 users.pernr :: character varying = auth.vendor_code
               ) 
               where 
-              department_id = ${USER_TYPE_GRSE_QAP} AND internal_role_id = ${ASSIGNER}
+              department_id = ${USER_TYPE_HSL_QAP} AND internal_role_id = ${ASSIGNER}
           ) `;
 
       break;

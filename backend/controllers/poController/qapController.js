@@ -2,15 +2,10 @@ const { qapPayload, setActualSubmissionDate, create_reference_no } = require("..
 const { resSend } = require("../../lib/resSend");
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
-const { INSERT, USER_TYPE_GRSE_QAP, QAP_STAFF, USER_TYPE_VENDOR, ASSIGNER, A_QAP_DATE, MID_QAP } = require("../../lib/constant");
+const { INSERT, USER_TYPE_HSL_QAP, QAP_STAFF, USER_TYPE_VENDOR, ASSIGNER, A_QAP_DATE, MID_QAP } = require("../../lib/constant");
 const { QAP_SUBMISSION, QAP_SAVE } = require("../../lib/tableName");
 const { APPROVED, RE_SUBMITTED, ACCEPTED, REJECTED, SAVED, ASSIGNED, UPDATED, SUBMITTED } = require("../../lib/status");
-const {
-  QAP_UPLOAD_BY_VENDOR,
-  QAP_ASSIGNMENT,
-  QAP_APPROVE_REJECT,
-  QAP_ACCEPT_UPDATE,
-} = require("../../lib/event");
+const { QAP_UPLOAD_BY_VENDOR, QAP_ASSIGNMENT, QAP_APPROVE_REJECT, QAP_ACCEPT_UPDATE } = require("../../lib/event");
 // const { mailTrigger } = require("../sendMailController");
 // const { deptLogEntry } = require("../../log/deptActivities");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
@@ -30,7 +25,7 @@ const submitQAP = async (req, res) => {
     let fileName = payload.file?.fileName || "";
     let filePath = payload.file?.filePath || "";
 
-    if ((tokenData.user_type == USER_TYPE_VENDOR && payload.status === SUBMITTED) && (!filePath || !fileName)) {
+    if (tokenData.user_type == USER_TYPE_VENDOR && payload.status === SUBMITTED && (!filePath || !fileName)) {
       return resSend(res, false, 200, Messages.FILE_REQUIRED_MSG, Messages.MANDATORY_INPUTS_REQUIRED, null);
     }
 
@@ -49,9 +44,9 @@ const submitQAP = async (req, res) => {
       fileName,
       filePath,
       supporting_doc: supporting_doc,
-    }
+    };
 
-    payload.updated_by = tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "GRSE";
+    payload.updated_by = tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
     payload.action_by_id = tokenData.vendor_code;
     const activity_type = payload.status;
     const purchasing_doc_no = payload.purchasing_doc_no;
@@ -63,7 +58,7 @@ const submitQAP = async (req, res) => {
 
     let message = ``;
 
-    // Check if already accepted/rejected/approved and if GRSE
+    // Check if already accepted/rejected/approved and if HSL
 
     if (tokenData?.user_type !== USER_TYPE_VENDOR && payload.status !== "ASSIGNED") {
       if (!payload.reference_no || payload.reference_no == "") {
@@ -76,7 +71,7 @@ const submitQAP = async (req, res) => {
     }
 
     ///////// CHECK DEPERTMENT /////////////////
-    if (tokenData.department_id && tokenData.department_id === USER_TYPE_GRSE_QAP) {
+    if (tokenData.department_id && tokenData.department_id === USER_TYPE_HSL_QAP) {
       ///////// CHECK ROLE IS ASSIGNER /////////////////
       if (activity_type === ASSIGNED) {
         if (tokenData.internal_role_id === ASSIGNER) {
@@ -197,9 +192,8 @@ const submitQAP = async (req, res) => {
 
     return resSend(res, false, 500, Messages.SOMTHING_WENT_WRONG, null, null);
   } finally {
-   if(client) client.release();
+    if (client) client.release();
   }
-
 };
 
 const checkIsApprovedOrRejected = async (client, purchasing_doc_no, reference_no, status1, status2) => {
@@ -257,11 +251,11 @@ const list = async (req, res) => {
     //     qry = `( qap.purchasing_doc_no = ? AND qap.vendor_code = ? )`;
     //     valArr = [req.query.poNo, tokenData.vendor_code];
     // }
-    // if (tokenData.department_id === USER_TYPE_GRSE_QAP && tokenData.internal_role_id === QAP_ASSIGNER) {
+    // if (tokenData.department_id === USER_TYPE_HSL_QAP && tokenData.internal_role_id === QAP_ASSIGNER) {
     //     qry = `qap.purchasing_doc_no = ?`;
     //     valArr = [req.query.poNo];
     // }
-    // if (tokenData.department_id === USER_TYPE_GRSE_QAP && tokenData.internal_role_id === QAP_STAFF) {
+    // if (tokenData.department_id === USER_TYPE_HSL_QAP && tokenData.internal_role_id === QAP_STAFF) {
     //     qry = `( qap.purchasing_doc_no = ? AND qap.assigned_to = ? )`;
     //     valArr = [req.query.poNo, tokenData.vendor_code];
     // }
@@ -282,36 +276,35 @@ const list = async (req, res) => {
 };
 
 // async function poContactDetails(purchasing_doc_no) {
-//   const po_contact_details_query = `SELECT 
-//         t1.EBELN, 
-//         t1.ERNAM AS dealingOfficerId, 
-//         t1.LIFNR AS vendor_code, 
-//         t2.CNAME AS dealingOfficerName, 
-//         t3.USRID_LONG AS dealingOfficerMail, 
-//         t4.NAME1 as vendor_name, 
-//         t4.ORT01 as vendor_address, 
+//   const po_contact_details_query = `SELECT
+//         t1.EBELN,
+//         t1.ERNAM AS dealingOfficerId,
+//         t1.LIFNR AS vendor_code,
+//         t2.CNAME AS dealingOfficerName,
+//         t3.USRID_LONG AS dealingOfficerMail,
+//         t4.NAME1 as vendor_name,
+//         t4.ORT01 as vendor_address,
 //         t5.SMTP_ADDR as vendor_mail_id
-//     FROM 
-//         ekko AS t1 
-//     LEFT JOIN 
-//         pa0002 AS t2 
-//     ON 
-//         t1.ERNAM= t2.PERNR 
-//     LEFT JOIN 
-//         pa0105 AS t3 
-//     ON 
-//         (t2.PERNR = t3.PERNR AND t3.SUBTY = '0030') 
-//     LEFT JOIN 
-//         lfa1 AS t4 
-//     ON 
-//         t1.LIFNR = t4.LIFNR 
-//     LEFT JOIN 
+//     FROM
+//         ekko AS t1
+//     LEFT JOIN
+//         pa0002 AS t2
+//     ON
+//         t1.ERNAM= t2.PERNR
+//     LEFT JOIN
+//         pa0105 AS t3
+//     ON
+//         (t2.PERNR = t3.PERNR AND t3.SUBTY = '0030')
+//     LEFT JOIN
+//         lfa1 AS t4
+//     ON
+//         t1.LIFNR = t4.LIFNR
+//     LEFT JOIN
 //         adr6 AS t5
 //        ON
 //       t1.LIFNR = t5.PERSNUMBER
 
-
-//     WHERE 
+//     WHERE
 //         t1.EBELN = $1`;
 
 //   const result = await getQuery({
@@ -323,7 +316,6 @@ const list = async (req, res) => {
 // }
 
 const internalDepartmentList = async (req, res) => {
-
   try {
     const result = await getQuery({ query: `SELECT id, name FROM sub_dept`, values: [] });
     resSend(res, true, 200, "data fetched successfully.", result, null);
@@ -603,7 +595,7 @@ async function getQapSave(req, res) {
   try {
     const tokenData = req.tokenData;
 
-    if (!req.query.reference_no || tokenData.department_id != USER_TYPE_GRSE_QAP) {
+    if (!req.query.reference_no || tokenData.department_id != USER_TYPE_HSL_QAP) {
       return resSend(res, true, 200, "Please send valid payload!.", null, null);
     }
 
@@ -628,7 +620,7 @@ async function deleteQapSave(req, res) {
   try {
     const tokenData = req.tokenData;
 
-    if (!req.query.reference_no || tokenData.department_id != USER_TYPE_GRSE_QAP) {
+    if (!req.query.reference_no || tokenData.department_id != USER_TYPE_HSL_QAP) {
       return resSend(res, true, 200, "you dont have permination!.", null, null);
     }
 
@@ -641,7 +633,7 @@ async function deleteQapSave(req, res) {
     return resSend(res, true, 200, "delete successfully.", deleteQapSave, null);
   } catch (error) {
     console.error("[error]", error);
-    resSend(res, false, 500,Messages.SOMTHING_WENT_WRONG, null);
+    resSend(res, false, 500, Messages.SOMTHING_WENT_WRONG, null);
   }
 }
 

@@ -1,5 +1,5 @@
-const { poolQuery, poolClient, getQuery, withTransaction, } = require("../../config/pgDbConfig");
-const { INSERT, BTN_STATUS_HOLD_CODE, BTN_STATUS_PROCESS_ID, BTN_SERVICE_CONTRACT_BILL, YES_SORT_FORM, BTN_HYBRID_BILL_MATERIAL, } = require("../../lib/constant");
+const { poolQuery, poolClient, getQuery, withTransaction } = require("../../config/pgDbConfig");
+const { INSERT, BTN_STATUS_HOLD_CODE, BTN_STATUS_PROCESS_ID, BTN_SERVICE_CONTRACT_BILL, YES_SORT_FORM, BTN_HYBRID_BILL_MATERIAL } = require("../../lib/constant");
 const { BTN_RETURN_DO } = require("../../lib/event");
 const { responseSend } = require("../../lib/resSend");
 const {
@@ -12,18 +12,9 @@ const {
   BTN_STATUS_DRETURN,
 } = require("../../lib/status");
 const { BTN_LIST } = require("../../lib/tableName");
-const {
-  generateInsertUpdateQuery,
-  generateQueryForMultipleData,
-  generateQuery,
-  getEpochTime,
-} = require("../../lib/utils");
+const { generateInsertUpdateQuery, generateQueryForMultipleData, generateQuery, getEpochTime } = require("../../lib/utils");
 const { sendMail } = require("../../services/mail.services");
-const {
-  zbtsLineItemsPayload,
-  zbtsHeaderPayload,
-  zbtsHeaderPayloadUpdate,
-} = require("../../services/sap.payment.services");
+const { zbtsLineItemsPayload, zbtsHeaderPayload, zbtsHeaderPayloadUpdate } = require("../../services/sap.payment.services");
 const { isPresentInObps } = require("../../services/sap.services");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const Message = require("../../utils/messages");
@@ -34,11 +25,7 @@ const FI_PAYMENT_HEAD = localData.FI_PAYMENT_HEAD;
 const zbts_st = async (req, res) => {
   try {
     await withTransaction(async (client) => {
-      if (
-        !req.body ||
-        typeof req.body != "object" ||
-        !Object.keys(req.body)?.length
-      ) {
+      if (!req.body || typeof req.body != "object" || !Object.keys(req.body)?.length) {
         return responseSend(res, "F", 400, Message.INVALID_PAYLOAD, null, null);
       }
 
@@ -58,11 +45,7 @@ const zbts_st = async (req, res) => {
 
       // CHECKING THE PO/DATA IS NOT PART OF OBPS PROJECT
       const btn_num = payload.zbtno || payload.ZBTNO;
-      const isPresent = await isPresentInObps(
-        client,
-        `btn_num = '${btn_num}'`,
-        BTN_LIST
-      ).count();
+      const isPresent = await isPresentInObps(client, `btn_num = '${btn_num}'`, BTN_LIST).count();
       if (!isPresent) {
         return responseSend(res, "S", 200, Message.NON_OBPS_DATA, `THE BTN NO: ${btn_num} NOT IN OBPS SERVER`, null);
       }
@@ -73,11 +56,7 @@ const zbts_st = async (req, res) => {
 
       try {
         payloadObj = await zbtsHeaderPayload(obj);
-        const btnPaymentHeaderQuery = await generateInsertUpdateQuery(
-          payloadObj,
-          "zbts_st",
-          ["zbtno"]
-        );
+        const btnPaymentHeaderQuery = await generateInsertUpdateQuery(payloadObj, "zbts_st", ["zbtno"]);
         await poolQuery({
           client,
           query: btnPaymentHeaderQuery.q,
@@ -85,7 +64,7 @@ const zbts_st = async (req, res) => {
         });
       } catch (error) {
         console.error("Data insert failed, zbts_st api", error.message);
-        return responseSend(res, "F", 400, Message.DATA_INSERT_FAILED, error.message, null)
+        return responseSend(res, "F", 400, Message.DATA_INSERT_FAILED, error.message, null);
       }
       const zbtsmPayload = ZBTSM || zbtsm;
 
@@ -97,7 +76,6 @@ const zbts_st = async (req, res) => {
           const lineItemPayloadObj = await zbtsLineItemsPayload(zbtsmPayload, obj);
           const btnPaymentLineItemQuery = await generateQueryForMultipleData(lineItemPayloadObj, "zbtsm_st", ["zbtno", "srno"]);
           await poolQuery({ client, query: btnPaymentLineItemQuery.q, values: btnPaymentLineItemQuery.val });
-
         } catch (error) {
           console.error("Data insert failed, zbts_st api");
           return responseSend(res, "F", 400, Message.DATA_INSERT_FAILED, error.toString(), null);
@@ -108,7 +86,7 @@ const zbts_st = async (req, res) => {
       await updateBtnListTable(client, payloadObj);
 
       responseSend(res, "S", 200, "Data inserted successfully", {}, null);
-    })
+    });
   } catch (error) {
     console.error("[ERROR] zbts_st", error);
     responseSend(res, "F", 502, Message.SERVER_ERROR, error.toString(), null);
@@ -225,16 +203,15 @@ const updateBtnListTable = async (client, data) => {
     // blank status po list data insert return
     if (!btnListTablePaylod?.status) return;
 
-    // RECEIVED FORM GRSE(SAP)
+    // RECEIVED FORM HSL(SAP)
     if (btnListTablePaylod?.status == STATUS_RECEIVED) {
       currentStatus = STATUS_RECEIVED;
       btnListTablePaylod.assign_by = Number(data?.fpernr1) || data?.fpernr1; // selected finance aut
-      btnListTablePaylod.assign_to = Number(data?.fpernr1) || data?.fpernr1 // selected finance aut
+      btnListTablePaylod.assign_to = Number(data?.fpernr1) || data?.fpernr1; // selected finance aut
       btnListTablePaylod.remarks = data?.zrmk3;
-    };
+    }
 
-    if (!btnListTablePaylod?.status == STATUS_RECEIVED && (!btnListTablePaylod.assign_by && !btnListTablePaylod.assign_to)) return;
-
+    if (!btnListTablePaylod?.status == STATUS_RECEIVED && !btnListTablePaylod.assign_by && !btnListTablePaylod.assign_to) return;
 
     if (btnListTablePaylod.btn_type == BTN_SERVICE_CONTRACT_BILL) {
       const sBtnUpdatePayload = { status: currentStatus };
@@ -253,7 +230,6 @@ const updateBtnListTable = async (client, data) => {
       await updateBtnByBtnNumber(client, btnListTablePaylod, mBtnUpdatePayload);
     }
 
-
     const { q, val } = generateQuery(INSERT, "btn_list", btnListTablePaylod);
     await poolQuery({ client, query: q, values: val });
     if (data.fstatus == "5" || data.fstatus == 5) {
@@ -262,7 +238,6 @@ const updateBtnListTable = async (client, data) => {
   } else {
     // console.log("NO BTN FOUND IN LIST TO BE UPDATED btn controller");
   }
-
 };
 
 async function handelMail(payload, client) {
@@ -278,12 +253,7 @@ async function handelMail(payload, client) {
       values: [payload.purchasing_doc_no],
     });
     dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-    await sendMail(
-      BTN_RETURN_DO,
-      dataObj,
-      { users: emailUserDetails },
-      BTN_RETURN_DO
-    );
+    await sendMail(BTN_RETURN_DO, dataObj, { users: emailUserDetails }, BTN_RETURN_DO);
   } catch (error) {
     console.error("handelMail btn ctrl sap", error.toString(), error.stack);
   }
@@ -295,11 +265,7 @@ const zbts_bstatus_update = async (req, res) => {
     // let transactionSuccessful = false;
 
     try {
-      if (
-        !req.body ||
-        typeof req.body != "object" ||
-        !Object.keys(req.body)?.length
-      ) {
+      if (!req.body || typeof req.body != "object" || !Object.keys(req.body)?.length) {
         return responseSend(res, "F", 400, Message.INVALID_PAYLOAD, null, null);
       }
 
@@ -319,11 +285,7 @@ const zbts_bstatus_update = async (req, res) => {
 
       // CHECKING THE PO/DATA IS NOT PART OF OBPS PROJECT
       const btn_num = payload.zbtno || payload.ZBTNO;
-      const isPresent = await isPresentInObps(
-        client,
-        `btn_num = '${btn_num}'`,
-        BTN_LIST
-      ).count();
+      const isPresent = await isPresentInObps(client, `btn_num = '${btn_num}'`, BTN_LIST).count();
       if (!isPresent) {
         return responseSend(res, "S", 200, Message.NON_OBPS_DATA, `THE BTN NO: ${btn_num} NOT IN OBPS SERVER`, null);
       }
@@ -331,11 +293,7 @@ const zbts_bstatus_update = async (req, res) => {
       let payloadObj = {};
 
       payloadObj = await zbtsHeaderPayloadUpdate(payload);
-      const btnPaymentHeaderQuery = await generateInsertUpdateQuery(
-        payloadObj,
-        "zbts_st",
-        ["zbtno"]
-      );
+      const btnPaymentHeaderQuery = await generateInsertUpdateQuery(payloadObj, "zbts_st", ["zbtno"]);
       await poolQuery({
         client,
         query: btnPaymentHeaderQuery.q,

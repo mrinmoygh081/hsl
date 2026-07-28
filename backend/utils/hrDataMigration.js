@@ -1569,9 +1569,9 @@ const { createRefGroup } = require("../services/hr.services");
 //         hr_retailer_user_id: 903344,
 //         hr_user_id: 603432,
 //         hr_retailer_remarks:
-//             "Job commenced on 01-04-2025 in GRSE Guest House and 61 Park unit.\nEMPLOYEES COMPENSATION POLICY SUBMITTED\nWages register, ESI & PF complied upto June'25.\nAttendance Certified by user deprtment.",
+//             "Job commenced on 01-04-2025 in HSL Guest House and 61 Park unit.\nEMPLOYEES COMPENSATION POLICY SUBMITTED\nWages register, ESI & PF complied upto June'25.\nAttendance Certified by user deprtment.",
 //         hr_remarks:
-//             "Job commenced on 01-04-2025 in GRSE Guest House and 61 Park Unit. \nWages register, ESI & PF complied upto June'25. \nEmployees Compensation Policy submitted.\nAttendance Certified by User department.",
+//             "Job commenced on 01-04-2025 in HSL Guest House and 61 Park Unit. \nWages register, ESI & PF complied upto June'25. \nEmployees Compensation Policy submitted.\nAttendance Certified by User department.",
 //         updated_at: 1753502409275,
 //         updated_by: 603432,
 //         supporting_doc: "",
@@ -1592,9 +1592,9 @@ const { createRefGroup } = require("../services/hr.services");
 //         hr_retailer_user_id: 903344,
 //         hr_user_id: 603432,
 //         hr_retailer_remarks:
-//             "Job commenced on 01-04-2025 in GRSE Guest House and 61 Park unit.\nEMPLOYEES COMPENSATION POLICY SUBMITTED\nWages register, ESI & PF complied upto June'25.\nAttendance Certified by user deprtment.",
+//             "Job commenced on 01-04-2025 in HSL Guest House and 61 Park unit.\nEMPLOYEES COMPENSATION POLICY SUBMITTED\nWages register, ESI & PF complied upto June'25.\nAttendance Certified by user deprtment.",
 //         hr_remarks:
-//             "Job commenced on 01-04-2025 in GRSE Guest House and 61 Park Unit. \nWages register, ESI & PF complied upto June'25. \nEmployees Compensation Policy submitted.\nAttendance Certified by User department.",
+//             "Job commenced on 01-04-2025 in HSL Guest House and 61 Park Unit. \nWages register, ESI & PF complied upto June'25. \nEmployees Compensation Policy submitted.\nAttendance Certified by User department.",
 //         updated_at: 1753502409275,
 //         updated_by: 603432,
 //         supporting_doc: "",
@@ -1615,9 +1615,9 @@ const { createRefGroup } = require("../services/hr.services");
 //         hr_retailer_user_id: 903344,
 //         hr_user_id: 603432,
 //         hr_retailer_remarks:
-//             "Job commenced on 01-04-2025 in GRSE Guest House and 61 Park unit.\nEMPLOYEES COMPENSATION POLICY SUBMITTED\nWages register, ESI & PF complied upto June'25.\nAttendance Certified by user deprtment.",
+//             "Job commenced on 01-04-2025 in HSL Guest House and 61 Park unit.\nEMPLOYEES COMPENSATION POLICY SUBMITTED\nWages register, ESI & PF complied upto June'25.\nAttendance Certified by user deprtment.",
 //         hr_remarks:
-//             "Job commenced on 01-04-2025 in GRSE Guest House and 61 Park Unit. \nWages register, ESI & PF complied upto June'25. \nEmployees Compensation Policy submitted.\nAttendance Certified by User department.",
+//             "Job commenced on 01-04-2025 in HSL Guest House and 61 Park Unit. \nWages register, ESI & PF complied upto June'25. \nEmployees Compensation Policy submitted.\nAttendance Certified by User department.",
 //         updated_at: 1753502409275,
 //         updated_by: 603432,
 //         supporting_doc: "",
@@ -4992,4005 +4992,3996 @@ const { createRefGroup } = require("../services/hr.services");
 // ];
 
 const data = [
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700008565,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028846,
-        "created_at": 1753684002387,
-        "created_by": "0050009210"
-    },
-    {
-        "rc_no": 3000000735,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010300,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000740,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010301,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000809,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003669,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010322,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700009244,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000802,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010336,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000804,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028673,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000649,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028699,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000650,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010377,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010406,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010406,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000892,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010407,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000892,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010407,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000893,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010410,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000893,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010410,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000785,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010413,
-        "created_at": 1746847538268,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000759,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010416,
-        "created_at": 1747022500481,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000829,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003739,
-        "created_at": 1747022500481,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700008565,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700008565,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700008816,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700008816,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700008816,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700009389,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700009389,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6700009919,
-        "created_at": 1750141894594,
-        "created_by": "0050007337"
-    },
-    {
-        "rc_no": 3000000882,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003826,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000882,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003736,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028913,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000882,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750003779,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028913,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028889,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028812,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028849,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028849,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028849,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028870,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028870,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028863,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028863,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6800002036,
-        "created_at": 1750414210332,
-        "created_by": "0050009655"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750002970,
-        "created_at": 1753507859661,
-        "created_by": "0050007910"
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010785,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010785,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010661,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010661,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010661,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010754,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010754,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010754,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000907,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010785,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010789,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010789,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010790,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010790,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028607,
-        "created_at": 1754905016374,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010746,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010746,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010789,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010790,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010297,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010483,
-        "created_at": 1752732635688,
-        "created_by": "0050008342"
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028647,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028701,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028701,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028796,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010246,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010246,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010270,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010270,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010483,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010542,
-        "created_at": 1752734335919,
-        "created_by": "0050008342"
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010537,
-        "created_at": 1752734265301,
-        "created_by": "0050008342"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6800002040,
-        "created_at": 1751041715967,
-        "created_by": "0050007012"
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010537,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010606,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010606,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010636,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010636,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010681,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010681,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028608,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028608,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028627,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028627,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 7750003799,
-        "created_at": 1752303413419,
-        "created_by": "0050010172"
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010429,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010457,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010692,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000882,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004085,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000843,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010117,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700009084,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010341,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028796,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028863,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028667,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028889,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028667,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028812,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028846,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028870,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028557,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010746,
-        "created_at": 1752230064849,
-        "created_by": 493916
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7850000485,
-        "created_at": 1752646184235,
-        "created_by": "0050005572"
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700009163,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700009326,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700009092,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028889,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010213,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000788,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011009,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000788,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011009,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011015,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011015,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000896,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011016,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1752140042367,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011036,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6300000375,
-        "created_at": 1751367455958,
-        "created_by": "0050000449"
-    },
-    {
-        "rc_no": 3000003924,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004063,
-        "created_at": 1751544820515,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6700010457,
-        "created_at": 1751962174606,
-        "created_by": "0050001513"
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028666,
-        "created_at": 1753684046226,
-        "created_by": "0050009210"
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028623,
-        "created_at": 1753684094670,
-        "created_by": "0050009210"
-    },
-    {
-        "rc_no": 3000000759,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011026,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010445,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010445,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010484,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010484,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010612,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000870,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010612,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010272,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010272,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010282,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010282,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010536,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010536,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010607,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010607,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028623,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028666,
-        "created_at": 1752228128349,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6800002053,
-        "created_at": 1751645670105,
-        "created_by": "0050001264"
-    },
-    {
-        "rc_no": 3000000759,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011026,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000895,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011053,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011036,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010918,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000896,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011050,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003740,
-        "created_at": 1754905016374,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003658,
-        "created_at": 1753507859660,
-        "created_by": "0050007910"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "61-PARK",
-        "purchasing_doc_no": 7850000491,
-        "created_at": 1752583994834,
-        "created_by": "0050009981"
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028647,
-        "created_at": 1752558200947,
-        "created_by": "0050000572"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 7300000131,
-        "created_at": 1752558200947,
-        "created_by": "0050000572"
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028607,
-        "created_at": 1752558361594,
-        "created_by": "0050000572"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 4800025048,
-        "created_at": 1752558361594,
-        "created_by": "0050000572"
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010290,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700009085,
-        "created_at": 1753953434743,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "61PARK",
-        "purchasing_doc_no": 6800002045,
-        "created_at": 1754161879519,
-        "created_by": "0050000449"
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010405,
-        "created_at": 1753939237351,
-        "created_by": "0050007428"
-    },
-    {
-        "rc_no": 3000000896,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011016,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000896,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011050,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010993,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003867,
-        "created_at": 1754974537153,
-        "created_by": "0050007330"
-    },
-    {
-        "rc_no": 3000000924,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004059,
-        "created_at": 1752836696324,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010455,
-        "created_at": 1753679745117,
-        "created_by": "0050007428"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 4700028681,
-        "created_at": 1752656004546,
-        "created_by": "0050008011"
-    },
-    {
-        "rc_no": 3000000924,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004059,
-        "created_at": 1752836696324,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 4700028702,
-        "created_at": 1752665983628,
-        "created_by": "0050008011"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003758,
-        "created_at": 1754133355501,
-        "created_by": "0050008830"
-    },
-    {
-        "rc_no": 3000000924,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004063,
-        "created_at": 1753103175584,
-        "created_by": "0050008803"
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010383,
-        "created_at": 1753939134241,
-        "created_by": "0050007428"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 7750004027,
-        "created_at": 1752839732771,
-        "created_by": "0050004706"
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011034,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010405,
-        "created_at": 1753161237524,
-        "created_by": "0050007428"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010383,
-        "created_at": 1753161360359,
-        "created_by": "0050007428"
-    },
-    {
-        "rc_no": 3000000924,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004063,
-        "created_at": 1753117172244,
-        "created_by": "0050001264"
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011034,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010836,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010836,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010836,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000576,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004164,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000576,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004164,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700009389,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6800002035,
-        "created_at": 1753117172244,
-        "created_by": "0050001264"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "NA",
-        "purchasing_doc_no": 6700010425,
-        "created_at": 1753089637740,
-        "created_by": "0050010175"
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700009616,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700009616,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700009616,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010133,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7800000219,
-        "created_at": 1753103175584,
-        "created_by": "0050008803"
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010133,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010133,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010131,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010131,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010131,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010130,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010130,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010130,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010180,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010180,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010180,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010383,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010383,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010405,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010405,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010455,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010455,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010773,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010773,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010773,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000876",
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004158,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000840",
-        "unit": "RBD",
-        "purchasing_doc_no": 7700001140,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000876",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003877,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000876",
-        "unit": "RBD",
-        "purchasing_doc_no": 7750003877,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000876",
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750003877,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000876",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004158,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000876",
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004158,
-        "created_at": 1753091547350,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004034,
-        "created_at": 1753174564771,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003829,
-        "created_at": 1753508709500,
-        "created_by": "0050007910"
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1754460248188,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "61PARK",
-        "purchasing_doc_no": 6300000383,
-        "created_at": 1753373354608,
-        "created_by": "0050000449"
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "61PARK",
-        "purchasing_doc_no": 6800002029,
-        "created_at": 1753382574363,
-        "created_by": "0050007075"
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011032,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011032,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010394,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010394,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010394,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010395,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010395,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010395,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010378,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010378,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010378,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1754473372904,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011032,
-        "created_at": 1754991737065,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "DP2-3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1754904940705,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010530,
-        "created_at": 1753509384436,
-        "created_by": "0050007910"
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010783,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2- 3000000808",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1753875672115,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700006911,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700006911,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700006911,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700007008,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700007008,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700007008,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700007205,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700007205,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700007205,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700007770,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700007770,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700007770,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700008457,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700008457,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700008457,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700008477,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700008477,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700008477,
-        "created_at": 1753875388223,
-        "created_by": 492322
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011055,
-        "created_at": 1754027277588,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000576,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004164,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000608,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004193,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000608,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004193,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000608,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004193,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000634,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010912,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000634,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010912,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000634,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010912,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000702,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010997,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000827,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004166,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000873,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004181,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000873,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004181,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000788,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010896,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000826,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004165,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000702,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010997,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000702,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010997,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000703,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004184,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000703,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004184,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000703,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004184,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000723,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010938,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000723,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010938,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000723,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010938,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004113,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004113,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004113,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004203,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004203,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004203,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000735,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010875,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000735,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010875,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000894,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011057,
-        "created_at": 1754027277588,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000735,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010875,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000740,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010877,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000740,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010877,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000740,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010877,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000743,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004127,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011055,
-        "created_at": 1754027277588,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000874,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004182,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000874,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004182,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000788,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010896,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010658,
-        "created_at": 1753941003404,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010668,
-        "created_at": 1754024855905,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": 3000000743,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004127,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000743,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004127,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000746,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004220,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000746,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004220,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000746,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004220,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010831,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010831,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010831,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011036,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000759,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011026,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000788,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010896,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000788,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011009,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000791,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010928,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000791,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010928,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000791,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010928,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010784,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010784,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010784,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010815,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010815,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010815,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010851,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010851,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010851,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010917,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010917,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010917,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010918,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010918,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028557,
-        "created_at": 1754024855905,
-        "created_by": "0050005881"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010333,
-        "created_at": 1754041296913,
-        "created_by": "0050001513"
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010993,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010993,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000805,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011034,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010865,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010866,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010994,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011032,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011032,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000808,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011032,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010817,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010817,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010817,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010818,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010818,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010818,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010843,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010843,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000811,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010843,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000814,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010970,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000814,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010970,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000814,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010970,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000816,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010971,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000816,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010971,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000816,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010971,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000817,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004149,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000817,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004149,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000817,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004149,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000817,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004195,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000817,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004195,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000817,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004195,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000824,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004198,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000824,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004198,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000824,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004198,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000826,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004165,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000826,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004165,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000826,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004173,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000826,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004173,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000826,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004173,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000827,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004166,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000827,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004175,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000827,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004175,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000827,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004175,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000829,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004176,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000829,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004176,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000829,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004176,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7700001121,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "RBD",
-        "purchasing_doc_no": 7700001121,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7700001121,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7700001137,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "RBD",
-        "purchasing_doc_no": 7700001137,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7700001137,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7700001143,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "RBD",
-        "purchasing_doc_no": 7700001143,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7700001143,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7700001140,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "RBD",
-        "purchasing_doc_no": 7700001140,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000840,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7700001140,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000851,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004210,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000851,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004210,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000851,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004210,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000853,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7700001146,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000853,
-        "unit": "RBD",
-        "purchasing_doc_no": 7700001146,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000853,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7700001146,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010822,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010822,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010822,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010833,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010833,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010833,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010850,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010850,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010850,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010867,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010867,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010867,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010920,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010920,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010920,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011031,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011031,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011031,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7850000543,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "RBD",
-        "purchasing_doc_no": 7850000543,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000863,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7850000543,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028948,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028948,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028948,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028949,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028949,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000868,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028949,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010973,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010973,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000869,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010973,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010965,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010965,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000871,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010965,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000876,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004158,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000876,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004158,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000876,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004158,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000872,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028913,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000873,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004181,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000874,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004182,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004190,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004190,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004190,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7850000539,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "RBD",
-        "purchasing_doc_no": 7850000539,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7850000539,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7850000542,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "RBD",
-        "purchasing_doc_no": 7850000542,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000880,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7850000542,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000883,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004086,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000883,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004086,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000883,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004086,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000884,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004092,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000884,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004092,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000884,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004092,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000885,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004093,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000885,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004093,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000885,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004093,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000889,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7850000541,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000889,
-        "unit": "RBD",
-        "purchasing_doc_no": 7850000541,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000889,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7850000541,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010908,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010908,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010908,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000891,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011015,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000892,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010909,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000892,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010909,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000892,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010909,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000893,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010910,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000893,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010910,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000893,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010910,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000895,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011053,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000895,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011053,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000896,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011050,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000896,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700011016,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000897,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010911,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000897,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010911,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000897,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010911,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000898,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010827,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000898,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010827,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000898,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010827,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "MAIN",
-        "purchasing_doc_no": 4700028931,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "RBD",
-        "purchasing_doc_no": 4700028931,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000906,
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028931,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010940,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010940,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000908,
-        "unit": "FOJ",
-        "purchasing_doc_no": 6700010940,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004185,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004185,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004185,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004222,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004222,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004222,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004133,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004133,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000914,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004133,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "MAIN",
-        "purchasing_doc_no": 3000000932,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "RBD",
-        "purchasing_doc_no": 3000000932,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "FOJ",
-        "purchasing_doc_no": 3000000932,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004204,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004204,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004204,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004221,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004221,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000932,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004221,
-        "created_at": 1754034063751,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "DP2-3000000653",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010455,
-        "created_at": 1753938958951,
-        "created_by": "0050007428"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 6800002051,
-        "created_at": 1754321145877,
-        "created_by": "0050009929"
-    },
-    {
-        "rc_no": 3000003924,
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750004059,
-        "created_at": 1754539014908,
-        "created_by": "0050008011"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6800002069,
-        "created_at": 1754325858103,
-        "created_by": "0050007012"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 4800025150,
-        "created_at": 1753773253911,
-        "created_by": "0050003458"
-    },
-    {
-        "rc_no": 3000000900,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003873,
-        "created_at": 1754387704228,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000900,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003874,
-        "created_at": 1754387704228,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6800002033,
-        "created_at": 1753162944554,
-        "created_by": "0050010155"
-    },
-    {
-        "rc_no": 3000000827,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004166,
-        "created_at": 1754034063750,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "MAIN",
-        "purchasing_doc_no": 7350000322,
-        "created_at": 1754460513660,
-        "created_by": "0050007330"
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010333,
-        "created_at": 1754135977303,
-        "created_by": "0050001513"
-    },
-    {
-        "rc_no": 3000000757,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010421,
-        "created_at": 1753792307479,
-        "created_by": "0050008342"
-    },
-    {
-        "rc_no": 3000000803,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700010287,
-        "created_at": 1754687371855,
-        "created_by": "0050001513"
-    },
-    {
-        "rc_no": 3000000634,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011100,
-        "created_at": 1754465585554,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000634,
-        "unit": "RBD",
-        "purchasing_doc_no": 6700011100,
-        "created_at": 1754465585554,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 6800002048,
-        "created_at": 1754503845566,
-        "created_by": "0050006967"
-    },
-    {
-        "rc_no": 3000000894,
-        "unit": "MAIN",
-        "purchasing_doc_no": 6700011057,
-        "created_at": 1754974537153,
-        "created_by": "0050007330"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 4800025192,
-        "created_at": 1754632888884,
-        "created_by": "0050000534"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "RBD",
-        "purchasing_doc_no": 6700010212,
-        "created_at": 1754133060976,
-        "created_by": "0050008830"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "61PARK",
-        "purchasing_doc_no": 6800002028,
-        "created_at": 1754635818712,
-        "created_by": "0050000247"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "TU",
-        "purchasing_doc_no": 6800002092,
-        "created_at": 1754670521669,
-        "created_by": "0050007012"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "RBD",
-        "purchasing_doc_no": 7800000231,
-        "created_at": 1754677915640,
-        "created_by": "0050004674"
-    },
-    {
-        "rc_no": 300000817,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003685,
-        "created_at": 1754645611402,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 300000817,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004195,
-        "created_at": 1754645611402,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 300000817,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004149,
-        "created_at": 1754645611402,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 300000817,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003819,
-        "created_at": 1754645611402,
-        "created_by": 601824
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 4700028680,
-        "created_at": 1754539014908,
-        "created_by": "0050008011"
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750003738,
-        "created_at": 1753854041701,
-        "created_by": "0050008476"
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750004265,
-        "created_at": 1754898351167,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000729,
-        "unit": "RBD",
-        "purchasing_doc_no": 7750004265,
-        "created_at": 1754898351167,
-        "created_by": 601824
-    },
-    {
-        "rc_no": 3000000678,
-        "unit": "MAIN",
-        "purchasing_doc_no": 7750003798,
-        "created_at": 1754905633084,
-        "created_by": 485838
-    },
-    {
-        "rc_no": "NON_RC",
-        "unit": "FOJ",
-        "purchasing_doc_no": 7750003673,
-        "created_at": 1753854041701,
-        "created_by": "0050008476"
-    }
-]
-
-
-
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700008565,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028846,
+    created_at: 1753684002387,
+    created_by: "0050009210",
+  },
+  {
+    rc_no: 3000000735,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010300,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000740,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010301,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000809,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003669,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000757,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010322,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700009244,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000802,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010336,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000804,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028673,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000649,
+    unit: "RBD",
+    purchasing_doc_no: 4700028699,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000650,
+    unit: "RBD",
+    purchasing_doc_no: 6700010377,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010406,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "RBD",
+    purchasing_doc_no: 6700010406,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000892,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010407,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000892,
+    unit: "RBD",
+    purchasing_doc_no: 6700010407,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000893,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010410,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000893,
+    unit: "RBD",
+    purchasing_doc_no: 6700010410,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000785,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010413,
+    created_at: 1746847538268,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000759,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010416,
+    created_at: 1747022500481,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000829,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003739,
+    created_at: 1747022500481,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700008565,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700008565,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700008816,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700008816,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700008816,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700009389,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700009389,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6700009919,
+    created_at: 1750141894594,
+    created_by: "0050007337",
+  },
+  {
+    rc_no: 3000000882,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003826,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000882,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003736,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028913,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000882,
+    unit: "FOJ",
+    purchasing_doc_no: 7750003779,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "RBD",
+    purchasing_doc_no: 4700028913,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028889,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "RBD",
+    purchasing_doc_no: 4700028812,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028849,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "RBD",
+    purchasing_doc_no: 4700028849,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028849,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028870,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "RBD",
+    purchasing_doc_no: 4700028870,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "RBD",
+    purchasing_doc_no: 4700028863,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028863,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6800002036,
+    created_at: 1750414210332,
+    created_by: "0050009655",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7750002970,
+    created_at: 1753507859661,
+    created_by: "0050007910",
+  },
+  {
+    rc_no: 3000000907,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010785,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "RBD",
+    purchasing_doc_no: 6700010785,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010661,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "RBD",
+    purchasing_doc_no: 6700010661,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010661,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010754,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "RBD",
+    purchasing_doc_no: 6700010754,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010754,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000907,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010785,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010789,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "RBD",
+    purchasing_doc_no: 6700010789,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "RBD",
+    purchasing_doc_no: 6700010790,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010790,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028607,
+    created_at: 1754905016374,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: 3000000908,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010746,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010746,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010789,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010790,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010297,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010483,
+    created_at: 1752732635688,
+    created_by: "0050008342",
+  },
+  {
+    rc_no: 3000000868,
+    unit: "RBD",
+    purchasing_doc_no: 4700028647,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028701,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "RBD",
+    purchasing_doc_no: 4700028701,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "RBD",
+    purchasing_doc_no: 4700028796,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010246,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010246,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010270,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010270,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010483,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010542,
+    created_at: 1752734335919,
+    created_by: "0050008342",
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010537,
+    created_at: 1752734265301,
+    created_by: "0050008342",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6800002040,
+    created_at: 1751041715967,
+    created_by: "0050007012",
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010537,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010606,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010606,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010636,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010636,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010681,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010681,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028608,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "RBD",
+    purchasing_doc_no: 4700028608,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028627,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "RBD",
+    purchasing_doc_no: 4700028627,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 7750003799,
+    created_at: 1752303413419,
+    created_by: "0050010172",
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010429,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "RBD",
+    purchasing_doc_no: 6700010457,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010692,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000882,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004085,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000843,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010117,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "FOJ",
+    purchasing_doc_no: 6700009084,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010341,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028796,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028863,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028667,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "RBD",
+    purchasing_doc_no: 4700028889,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "RBD",
+    purchasing_doc_no: 4700028667,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028812,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "RBD",
+    purchasing_doc_no: 4700028846,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028870,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028557,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "RBD",
+    purchasing_doc_no: 6700010746,
+    created_at: 1752230064849,
+    created_by: 493916,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7850000485,
+    created_at: 1752646184235,
+    created_by: "0050005572",
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700009163,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700009326,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700009092,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028889,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010213,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000788,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011009,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000788,
+    unit: "RBD",
+    purchasing_doc_no: 6700011009,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011015,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "RBD",
+    purchasing_doc_no: 6700011015,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000896,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011016,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6700010783,
+    created_at: 1752140042367,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: 3000000757,
+    unit: "RBD",
+    purchasing_doc_no: 6700011036,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6300000375,
+    created_at: 1751367455958,
+    created_by: "0050000449",
+  },
+  {
+    rc_no: 3000003924,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004063,
+    created_at: 1751544820515,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6700010457,
+    created_at: 1751962174606,
+    created_by: "0050001513",
+  },
+  {
+    rc_no: 3000000872,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028666,
+    created_at: 1753684046226,
+    created_by: "0050009210",
+  },
+  {
+    rc_no: 3000000872,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028623,
+    created_at: 1753684094670,
+    created_by: "0050009210",
+  },
+  {
+    rc_no: 3000000759,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011026,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010445,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "RBD",
+    purchasing_doc_no: 6700010445,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010484,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "RBD",
+    purchasing_doc_no: 6700010484,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010612,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000870,
+    unit: "RBD",
+    purchasing_doc_no: 6700010612,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010272,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "RBD",
+    purchasing_doc_no: 6700010272,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010282,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "RBD",
+    purchasing_doc_no: 6700010282,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010536,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "RBD",
+    purchasing_doc_no: 6700010536,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010607,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "RBD",
+    purchasing_doc_no: 6700010607,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "RBD",
+    purchasing_doc_no: 4700028623,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "RBD",
+    purchasing_doc_no: 4700028666,
+    created_at: 1752228128349,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6800002053,
+    created_at: 1751645670105,
+    created_by: "0050001264",
+  },
+  {
+    rc_no: 3000000759,
+    unit: "RBD",
+    purchasing_doc_no: 6700011026,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000895,
+    unit: "RBD",
+    purchasing_doc_no: 6700011053,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000757,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011036,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010918,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000896,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011050,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7750003740,
+    created_at: 1754905016374,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7750003658,
+    created_at: 1753507859660,
+    created_by: "0050007910",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "61-PARK",
+    purchasing_doc_no: 7850000491,
+    created_at: 1752583994834,
+    created_by: "0050009981",
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028647,
+    created_at: 1752558200947,
+    created_by: "0050000572",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 7300000131,
+    created_at: 1752558200947,
+    created_by: "0050000572",
+  },
+  {
+    rc_no: 3000000868,
+    unit: "RBD",
+    purchasing_doc_no: 4700028607,
+    created_at: 1752558361594,
+    created_by: "0050000572",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 4800025048,
+    created_at: 1752558361594,
+    created_by: "0050000572",
+  },
+  {
+    rc_no: 3000000803,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010290,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000803,
+    unit: "FOJ",
+    purchasing_doc_no: 6700009085,
+    created_at: 1753953434743,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "61PARK",
+    purchasing_doc_no: 6800002045,
+    created_at: 1754161879519,
+    created_by: "0050000449",
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010405,
+    created_at: 1753939237351,
+    created_by: "0050007428",
+  },
+  {
+    rc_no: 3000000896,
+    unit: "RBD",
+    purchasing_doc_no: 6700011016,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000896,
+    unit: "RBD",
+    purchasing_doc_no: 6700011050,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010993,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7750003867,
+    created_at: 1754974537153,
+    created_by: "0050007330",
+  },
+  {
+    rc_no: 3000000924,
+    unit: "RBD",
+    purchasing_doc_no: 7750004059,
+    created_at: 1752836696324,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010455,
+    created_at: 1753679745117,
+    created_by: "0050007428",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 4700028681,
+    created_at: 1752656004546,
+    created_by: "0050008011",
+  },
+  {
+    rc_no: 3000000924,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004059,
+    created_at: 1752836696324,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 4700028702,
+    created_at: 1752665983628,
+    created_by: "0050008011",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7750003758,
+    created_at: 1754133355501,
+    created_by: "0050008830",
+  },
+  {
+    rc_no: 3000000924,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004063,
+    created_at: 1753103175584,
+    created_by: "0050008803",
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010383,
+    created_at: 1753939134241,
+    created_by: "0050007428",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 7750004027,
+    created_at: 1752839732771,
+    created_by: "0050004706",
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700011034,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "RBD",
+    purchasing_doc_no: 6700010405,
+    created_at: 1753161237524,
+    created_by: "0050007428",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010383,
+    created_at: 1753161360359,
+    created_by: "0050007428",
+  },
+  {
+    rc_no: 3000000924,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004063,
+    created_at: 1753117172244,
+    created_by: "0050001264",
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011034,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010836,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010836,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010836,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010783,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "RBD",
+    purchasing_doc_no: 6700010783,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010783,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000576,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004164,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000576,
+    unit: "RBD",
+    purchasing_doc_no: 7750004164,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700009389,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6800002035,
+    created_at: 1753117172244,
+    created_by: "0050001264",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "NA",
+    purchasing_doc_no: 6700010425,
+    created_at: 1753089637740,
+    created_by: "0050010175",
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700009616,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700009616,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700009616,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010133,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7800000219,
+    created_at: 1753103175584,
+    created_by: "0050008803",
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010133,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010133,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010131,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010131,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010131,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010130,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010130,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010130,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010180,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010180,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010180,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010383,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010383,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010405,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010405,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010455,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010455,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010773,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700010773,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010773,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010783,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010783,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010783,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000876",
+    unit: "FOJ",
+    purchasing_doc_no: 7750004158,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000840",
+    unit: "RBD",
+    purchasing_doc_no: 7700001140,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000876",
+    unit: "MAIN",
+    purchasing_doc_no: 7750003877,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000876",
+    unit: "RBD",
+    purchasing_doc_no: 7750003877,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000876",
+    unit: "FOJ",
+    purchasing_doc_no: 7750003877,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000876",
+    unit: "MAIN",
+    purchasing_doc_no: 7750004158,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000876",
+    unit: "RBD",
+    purchasing_doc_no: 7750004158,
+    created_at: 1753091547350,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "RBD",
+    purchasing_doc_no: 7750004034,
+    created_at: 1753174564771,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010865,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7750003829,
+    created_at: 1753508709500,
+    created_by: "0050007910",
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010865,
+    created_at: 1754460248188,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "61PARK",
+    purchasing_doc_no: 6300000383,
+    created_at: 1753373354608,
+    created_by: "0050000449",
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010865,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "61PARK",
+    purchasing_doc_no: 6800002029,
+    created_at: 1753382574363,
+    created_by: "0050007075",
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010866,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010866,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010866,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010994,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010994,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700011032,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700011032,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010668,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010668,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010394,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010394,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010394,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010395,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010395,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010395,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010378,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010378,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010378,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010668,
+    created_at: 1754473372904,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700011032,
+    created_at: 1754991737065,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "DP2-3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010994,
+    created_at: 1754904940705,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010530,
+    created_at: 1753509384436,
+    created_by: "0050007910",
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010668,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010668,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010668,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010783,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010783,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010783,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010865,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010865,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010865,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010866,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010866,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010866,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010994,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "RBD",
+    purchasing_doc_no: 6700010994,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2- 3000000808",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010994,
+    created_at: 1753875672115,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700006911,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700006911,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700006911,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700007008,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700007008,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700007008,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700007205,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700007205,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700007205,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700007770,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700007770,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700007770,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700008457,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700008457,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700008457,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700008477,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "RBD",
+    purchasing_doc_no: 6700008477,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "FOJ",
+    purchasing_doc_no: 6700008477,
+    created_at: 1753875388223,
+    created_by: 492322,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011055,
+    created_at: 1754027277588,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000576,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004164,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000608,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004193,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000608,
+    unit: "RBD",
+    purchasing_doc_no: 7750004193,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000608,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004193,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000634,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010912,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000634,
+    unit: "RBD",
+    purchasing_doc_no: 6700010912,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000634,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010912,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000702,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010997,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000827,
+    unit: "RBD",
+    purchasing_doc_no: 7750004166,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000873,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004181,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000873,
+    unit: "RBD",
+    purchasing_doc_no: 7750004181,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000788,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010896,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000826,
+    unit: "RBD",
+    purchasing_doc_no: 7750004165,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000702,
+    unit: "RBD",
+    purchasing_doc_no: 6700010997,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000702,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010997,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000703,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004184,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000703,
+    unit: "RBD",
+    purchasing_doc_no: 7750004184,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000703,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004184,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000723,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010938,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000723,
+    unit: "RBD",
+    purchasing_doc_no: 6700010938,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000723,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010938,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004113,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "RBD",
+    purchasing_doc_no: 7750004113,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004113,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004203,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "RBD",
+    purchasing_doc_no: 7750004203,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004203,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000735,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010875,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000735,
+    unit: "RBD",
+    purchasing_doc_no: 6700010875,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000894,
+    unit: "RBD",
+    purchasing_doc_no: 6700011057,
+    created_at: 1754027277588,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000735,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010875,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000740,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010877,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000740,
+    unit: "RBD",
+    purchasing_doc_no: 6700010877,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000740,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010877,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000743,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004127,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "RBD",
+    purchasing_doc_no: 6700011055,
+    created_at: 1754027277588,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000874,
+    unit: "RBD",
+    purchasing_doc_no: 7750004182,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000874,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004182,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000788,
+    unit: "RBD",
+    purchasing_doc_no: 6700010896,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010658,
+    created_at: 1753941003404,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6700010668,
+    created_at: 1754024855905,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: 3000000743,
+    unit: "RBD",
+    purchasing_doc_no: 7750004127,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000743,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004127,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000746,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004220,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000746,
+    unit: "RBD",
+    purchasing_doc_no: 7750004220,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000746,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004220,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000757,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010831,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000757,
+    unit: "RBD",
+    purchasing_doc_no: 6700010831,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000757,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010831,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000757,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011036,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000759,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011026,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000788,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010896,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000788,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011009,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000791,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010928,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000791,
+    unit: "RBD",
+    purchasing_doc_no: 6700010928,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000791,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010928,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010784,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010784,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010784,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010815,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010815,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010815,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010851,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010851,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010851,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010917,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010917,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010917,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010918,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010918,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028557,
+    created_at: 1754024855905,
+    created_by: "0050005881",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010333,
+    created_at: 1754041296913,
+    created_by: "0050001513",
+  },
+  {
+    rc_no: 3000000805,
+    unit: "RBD",
+    purchasing_doc_no: 6700010993,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010993,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000805,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011034,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010865,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "RBD",
+    purchasing_doc_no: 6700010865,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010865,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010866,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "RBD",
+    purchasing_doc_no: 6700010866,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010866,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010994,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "RBD",
+    purchasing_doc_no: 6700010994,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010994,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011032,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "RBD",
+    purchasing_doc_no: 6700011032,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000808,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011032,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010817,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "RBD",
+    purchasing_doc_no: 6700010817,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010817,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010818,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "RBD",
+    purchasing_doc_no: 6700010818,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010818,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010843,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "RBD",
+    purchasing_doc_no: 6700010843,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000811,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010843,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000814,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010970,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000814,
+    unit: "RBD",
+    purchasing_doc_no: 6700010970,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000814,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010970,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000816,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010971,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000816,
+    unit: "RBD",
+    purchasing_doc_no: 6700010971,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000816,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010971,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000817,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004149,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000817,
+    unit: "RBD",
+    purchasing_doc_no: 7750004149,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000817,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004149,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000817,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004195,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000817,
+    unit: "RBD",
+    purchasing_doc_no: 7750004195,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000817,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004195,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000824,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004198,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000824,
+    unit: "RBD",
+    purchasing_doc_no: 7750004198,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000824,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004198,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000826,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004165,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000826,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004165,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000826,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004173,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000826,
+    unit: "RBD",
+    purchasing_doc_no: 7750004173,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000826,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004173,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000827,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004166,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000827,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004175,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000827,
+    unit: "RBD",
+    purchasing_doc_no: 7750004175,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000827,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004175,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000829,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004176,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000829,
+    unit: "RBD",
+    purchasing_doc_no: 7750004176,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000829,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004176,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "MAIN",
+    purchasing_doc_no: 7700001121,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "RBD",
+    purchasing_doc_no: 7700001121,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "FOJ",
+    purchasing_doc_no: 7700001121,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "MAIN",
+    purchasing_doc_no: 7700001137,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "RBD",
+    purchasing_doc_no: 7700001137,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "FOJ",
+    purchasing_doc_no: 7700001137,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "MAIN",
+    purchasing_doc_no: 7700001143,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "RBD",
+    purchasing_doc_no: 7700001143,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "FOJ",
+    purchasing_doc_no: 7700001143,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "MAIN",
+    purchasing_doc_no: 7700001140,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "RBD",
+    purchasing_doc_no: 7700001140,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000840,
+    unit: "FOJ",
+    purchasing_doc_no: 7700001140,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000851,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004210,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000851,
+    unit: "RBD",
+    purchasing_doc_no: 7750004210,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000851,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004210,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000853,
+    unit: "MAIN",
+    purchasing_doc_no: 7700001146,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000853,
+    unit: "RBD",
+    purchasing_doc_no: 7700001146,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000853,
+    unit: "FOJ",
+    purchasing_doc_no: 7700001146,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010822,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 6700010822,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010822,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010833,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 6700010833,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010833,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010850,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 6700010850,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010850,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010867,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 6700010867,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010867,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010920,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 6700010920,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010920,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011031,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 6700011031,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011031,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "MAIN",
+    purchasing_doc_no: 7850000543,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "RBD",
+    purchasing_doc_no: 7850000543,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000863,
+    unit: "FOJ",
+    purchasing_doc_no: 7850000543,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028948,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "RBD",
+    purchasing_doc_no: 4700028948,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028948,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028949,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "RBD",
+    purchasing_doc_no: 4700028949,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000868,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028949,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010973,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "RBD",
+    purchasing_doc_no: 6700010973,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000869,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010973,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010965,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "RBD",
+    purchasing_doc_no: 6700010965,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000871,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010965,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000876,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004158,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000876,
+    unit: "RBD",
+    purchasing_doc_no: 7750004158,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000876,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004158,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000872,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028913,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000873,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004181,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000874,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004182,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004190,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "RBD",
+    purchasing_doc_no: 7750004190,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004190,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "MAIN",
+    purchasing_doc_no: 7850000539,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "RBD",
+    purchasing_doc_no: 7850000539,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "FOJ",
+    purchasing_doc_no: 7850000539,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "MAIN",
+    purchasing_doc_no: 7850000542,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "RBD",
+    purchasing_doc_no: 7850000542,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000880,
+    unit: "FOJ",
+    purchasing_doc_no: 7850000542,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000883,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004086,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000883,
+    unit: "RBD",
+    purchasing_doc_no: 7750004086,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000883,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004086,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000884,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004092,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000884,
+    unit: "RBD",
+    purchasing_doc_no: 7750004092,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000884,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004092,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000885,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004093,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000885,
+    unit: "RBD",
+    purchasing_doc_no: 7750004093,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000885,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004093,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000889,
+    unit: "MAIN",
+    purchasing_doc_no: 7850000541,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000889,
+    unit: "RBD",
+    purchasing_doc_no: 7850000541,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000889,
+    unit: "FOJ",
+    purchasing_doc_no: 7850000541,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010908,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "RBD",
+    purchasing_doc_no: 6700010908,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010908,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000891,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011015,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000892,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010909,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000892,
+    unit: "RBD",
+    purchasing_doc_no: 6700010909,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000892,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010909,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000893,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010910,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000893,
+    unit: "RBD",
+    purchasing_doc_no: 6700010910,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000893,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010910,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000895,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011053,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000895,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011053,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000896,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011050,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000896,
+    unit: "FOJ",
+    purchasing_doc_no: 6700011016,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000897,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010911,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000897,
+    unit: "RBD",
+    purchasing_doc_no: 6700010911,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000897,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010911,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000898,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010827,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000898,
+    unit: "RBD",
+    purchasing_doc_no: 6700010827,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000898,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010827,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "MAIN",
+    purchasing_doc_no: 4700028931,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "RBD",
+    purchasing_doc_no: 4700028931,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000906,
+    unit: "FOJ",
+    purchasing_doc_no: 4700028931,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010940,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "RBD",
+    purchasing_doc_no: 6700010940,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000908,
+    unit: "FOJ",
+    purchasing_doc_no: 6700010940,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004185,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "RBD",
+    purchasing_doc_no: 7750004185,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004185,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004222,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "RBD",
+    purchasing_doc_no: 7750004222,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004222,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004133,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "RBD",
+    purchasing_doc_no: 7750004133,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000914,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004133,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "MAIN",
+    purchasing_doc_no: 3000000932,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "RBD",
+    purchasing_doc_no: 3000000932,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "FOJ",
+    purchasing_doc_no: 3000000932,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004204,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "RBD",
+    purchasing_doc_no: 7750004204,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004204,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004221,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "RBD",
+    purchasing_doc_no: 7750004221,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000932,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004221,
+    created_at: 1754034063751,
+    created_by: 601824,
+  },
+  {
+    rc_no: "DP2-3000000653",
+    unit: "MAIN",
+    purchasing_doc_no: 6700010455,
+    created_at: 1753938958951,
+    created_by: "0050007428",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 6800002051,
+    created_at: 1754321145877,
+    created_by: "0050009929",
+  },
+  {
+    rc_no: 3000003924,
+    unit: "FOJ",
+    purchasing_doc_no: 7750004059,
+    created_at: 1754539014908,
+    created_by: "0050008011",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6800002069,
+    created_at: 1754325858103,
+    created_by: "0050007012",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 4800025150,
+    created_at: 1753773253911,
+    created_by: "0050003458",
+  },
+  {
+    rc_no: 3000000900,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003873,
+    created_at: 1754387704228,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000900,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003874,
+    created_at: 1754387704228,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6800002033,
+    created_at: 1753162944554,
+    created_by: "0050010155",
+  },
+  {
+    rc_no: 3000000827,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004166,
+    created_at: 1754034063750,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "MAIN",
+    purchasing_doc_no: 7350000322,
+    created_at: 1754460513660,
+    created_by: "0050007330",
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010333,
+    created_at: 1754135977303,
+    created_by: "0050001513",
+  },
+  {
+    rc_no: 3000000757,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010421,
+    created_at: 1753792307479,
+    created_by: "0050008342",
+  },
+  {
+    rc_no: 3000000803,
+    unit: "MAIN",
+    purchasing_doc_no: 6700010287,
+    created_at: 1754687371855,
+    created_by: "0050001513",
+  },
+  {
+    rc_no: 3000000634,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011100,
+    created_at: 1754465585554,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000634,
+    unit: "RBD",
+    purchasing_doc_no: 6700011100,
+    created_at: 1754465585554,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 6800002048,
+    created_at: 1754503845566,
+    created_by: "0050006967",
+  },
+  {
+    rc_no: 3000000894,
+    unit: "MAIN",
+    purchasing_doc_no: 6700011057,
+    created_at: 1754974537153,
+    created_by: "0050007330",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 4800025192,
+    created_at: 1754632888884,
+    created_by: "0050000534",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "RBD",
+    purchasing_doc_no: 6700010212,
+    created_at: 1754133060976,
+    created_by: "0050008830",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "61PARK",
+    purchasing_doc_no: 6800002028,
+    created_at: 1754635818712,
+    created_by: "0050000247",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "TU",
+    purchasing_doc_no: 6800002092,
+    created_at: 1754670521669,
+    created_by: "0050007012",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "RBD",
+    purchasing_doc_no: 7800000231,
+    created_at: 1754677915640,
+    created_by: "0050004674",
+  },
+  {
+    rc_no: 300000817,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003685,
+    created_at: 1754645611402,
+    created_by: 601824,
+  },
+  {
+    rc_no: 300000817,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004195,
+    created_at: 1754645611402,
+    created_by: 601824,
+  },
+  {
+    rc_no: 300000817,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004149,
+    created_at: 1754645611402,
+    created_by: 601824,
+  },
+  {
+    rc_no: 300000817,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003819,
+    created_at: 1754645611402,
+    created_by: 601824,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 4700028680,
+    created_at: 1754539014908,
+    created_by: "0050008011",
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 7750003738,
+    created_at: 1753854041701,
+    created_by: "0050008476",
+  },
+  {
+    rc_no: 3000000729,
+    unit: "MAIN",
+    purchasing_doc_no: 7750004265,
+    created_at: 1754898351167,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000729,
+    unit: "RBD",
+    purchasing_doc_no: 7750004265,
+    created_at: 1754898351167,
+    created_by: 601824,
+  },
+  {
+    rc_no: 3000000678,
+    unit: "MAIN",
+    purchasing_doc_no: 7750003798,
+    created_at: 1754905633084,
+    created_by: 485838,
+  },
+  {
+    rc_no: "NON_RC",
+    unit: "FOJ",
+    purchasing_doc_no: 7750003673,
+    created_at: 1753854041701,
+    created_by: "0050008476",
+  },
+];
 
 async function datasync(client) {
-    try {
-        console.log("---------------statt-------");
-        for (let cp of data) {
-            const { q, val } = generateQuery('INSERT', 'hr_compliance_copy', { ...cp, ref_group: createRefGroup(cp) });
-            // const { q, val } = await generateInsertUpdateQuery(cp, HR_COMPLIANCE_DATA, ['id']);
-            //  generateQuery('INSERT', 'hr_compliance_data2', cp);
-            await poolQuery({ client, query: q, values: val });
-            console.log("-----------DONE-----------");
-
-        }
-        console.log("-----------end-----------");
-    } catch (error) {
-        console.error("datasync errror ", error, error.message);
+  try {
+    console.log("---------------statt-------");
+    for (let cp of data) {
+      const { q, val } = generateQuery("INSERT", "hr_compliance_copy", { ...cp, ref_group: createRefGroup(cp) });
+      // const { q, val } = await generateInsertUpdateQuery(cp, HR_COMPLIANCE_DATA, ['id']);
+      //  generateQuery('INSERT', 'hr_compliance_data2', cp);
+      await poolQuery({ client, query: q, values: val });
+      console.log("-----------DONE-----------");
     }
+    console.log("-----------end-----------");
+  } catch (error) {
+    console.error("datasync errror ", error, error.message);
+  }
 }
-
 
 // ( async() => {
 //    await datasync(data);
 
 // })()
 
-module.exports = { datasync }
-
-
-
-
+module.exports = { datasync };

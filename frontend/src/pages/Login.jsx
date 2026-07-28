@@ -275,8 +275,8 @@ export default function Login() {
 
           <div className="w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto border">
             <div className="text-center mb-10">
-              <img src={require("../images/image001.jpg")} alt="GRSE Logo" className="img-fluid mb-4" style={{ width: "120px", height: "auto" }} />
-              <h3 className="text-dark mb-2">Login to OBPS Portal</h3>
+              <img src={require("../images/image001.jpg")} alt="HSL Logo" className="img-fluid mb-4" style={{ width: "120px", height: "auto" }} />
+              <h3 className="text-dark mb-2">Login to OVMS Portal</h3>
 
               {/* Stepper */}
               <div className="d-flex justify-content-center mb-8">

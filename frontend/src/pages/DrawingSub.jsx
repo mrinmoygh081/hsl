@@ -118,7 +118,7 @@ const DrawingSub = () => {
     if (userType === 1) {
       uType = "VENDOR";
     } else {
-      uType = "GRSE";
+      uType = "HSL";
     }
 
     try {

@@ -5,7 +5,7 @@ const basicAuth = require("express-basic-auth");
 // const ACCESS_TOKEN_SECRET = "accessTopSecret";
 // const REFRESH_TOKEN_SECRET = "refreshTopSecret";
 
-const TOKEN_ISSUER = "GRSE-OBPS";
+const TOKEN_ISSUER = "HSL-OBPS";
 
 /**
  * Access token issu
@@ -38,15 +38,11 @@ const getAccessToken = (payload, accessTokenValidity) => {
 
 const getRefreshToken = (payload, refreshTokenValidity) => {
   try {
-    const refreshToken = jwt.sign(
-      payload,
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: refreshTokenValidity || "1h",
-        subject: payload.username,
-        issuer: TOKEN_ISSUER,
-      }
-    );
+    const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET, {
+      expiresIn: refreshTokenValidity || "1h",
+      subject: payload.username,
+      issuer: TOKEN_ISSUER,
+    });
 
     //  storeRefreshToken(refreshToken, payload.username);
 
@@ -66,13 +62,12 @@ const verifiedAccessTokenData = (token) => {
   try {
     const decode = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     return decode;
-  // eslint-disable-next-line no-unused-vars
+    // eslint-disable-next-line no-unused-vars
   } catch (err) {
     // console.error("error", err);
     return null;
   }
 };
-
 
 /**
  * verify refresh token
@@ -81,7 +76,6 @@ const verifiedAccessTokenData = (token) => {
  */
 const verifiedRefreshTokenData = (token) => {
   try {
-
     const decode = jwt.verify(token, process.env.REFRESH_TOKEN_SECRET);
     return decode;
   } catch (err) {
@@ -90,9 +84,6 @@ const verifiedRefreshTokenData = (token) => {
     return null;
   }
 };
-
-
-
 
 // /**
 //  *
@@ -150,8 +141,8 @@ const verifyAccessToken = async (req, res, next) => {
       2: "general",
       3: "admin",
       4: "superadmin",
-      5: "god"
-    }
+      5: "god",
+    };
     tokenData["roles"] = [roleObj[tokenData["internal_role_id"]] || "vendor"];
     req["tokenData"] = tokenData;
 
@@ -191,7 +182,6 @@ const verifyOnlyAccessToken = async (req, res, next) => {
   }
 };
 
-
 // Middleware for Basic Authentication
 // const sap_username = process.env.SAP_API_AUTH_USERNAME;
 // const sap_password = process.env.SAP_API_AUTH_PASSWORD;
@@ -203,15 +193,11 @@ const basicAuthVerification = basicAuth({
   unauthorizedResponse: { status: false, message: "Unauthorized" },
 });
 
-
-
-
-
 module.exports = {
   getAccessToken,
   getRefreshToken,
   verifyAccessToken,
   verifyOnlyAccessToken,
   basicAuthVerification,
-  verifiedRefreshTokenData
+  verifiedRefreshTokenData,
 };

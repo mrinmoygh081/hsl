@@ -255,7 +255,7 @@ export default function Registration() {
       is_resend,
     };
 
-    if (regData.user_type === "GRSE") {
+    if (regData.user_type === "HSL") {
       payload.functional_area = regData.department;
       payload.role = regData.role;
 
@@ -314,14 +314,14 @@ export default function Registration() {
           <option value="">Choose User Type</option>
           {/* ✅ Show Vendor option only when SERVER_ENV = NIC */}
           {isNICEnv && <option value="vendor">Vendor</option>}
-          {!isNICEnv && <option value="GRSE">GRSE Employee</option>}
+          {!isNICEnv && <option value="HSL">HSL Employee</option>}
         </select>
       </div>
       {regData.user_type !== "" && (
         <>
-          {regData.user_type === "GRSE" && renderGRSEFields()}
+          {regData.user_type === "HSL" && renderHSLFields()}
           <div className="fv-row mb-3">
-            <label className="form-label fs-6 fw-bolder text-dark">{regData.user_type !== "GRSE" ? "Vendor Code" : "MAN Number"}</label>
+            <label className="form-label fs-6 fw-bolder text-dark">{regData.user_type !== "HSL" ? "Vendor Code" : "MAN Number"}</label>
             <input
               className="form-control form-control-lg form-control-solid"
               type="text"
@@ -337,7 +337,7 @@ export default function Registration() {
     </>
   );
 
-  const renderGRSEFields = () => (
+  const renderHSLFields = () => (
     <>
       <div className="fv-row mb-3">
         <label className="form-label fs-6 fw-bolder text-dark">Functional Area</label>
@@ -511,8 +511,8 @@ export default function Registration() {
           <div className="registration-container p-10 p-lg-15 mx-auto">
             <form onSubmit={showPassword ? passwordSubmit : showOtp ? otpSubmit : regSubmit} className="registration-form form w-100">
               <div className="text-center mb-3">
-                <img src={require("../images/image001.jpg")} alt="GRSE Logo" className="img-fluid mb-2 company-logo" />
-                <h3 className="text-dark registration-header">Registration Request for OBPS Portal</h3>
+                <img src={require("../images/image001.jpg")} alt="HSL Logo" className="img-fluid mb-2 company-logo" />
+                <h3 className="text-dark registration-header">Registration Request for OVMS Portal</h3>
               </div>
 
               {!showOtp && !showPassword && renderUserTypeSection()}

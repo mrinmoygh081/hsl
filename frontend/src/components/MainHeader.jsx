@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { reConfirm } from "../utils/reConfirm";
 import { logoutHandler } from "../redux/slices/loginSlice";
 import { poRemoveHandler } from "../redux/slices/poSlice";
-import { DEPT_DESIGN, DEPT_FI, DEPT_IT, DEPT_QAP, USER_GRSE_CONTRACT, USER_GRSE_HR, USER_GRSE_PURCHASE, USER_VENDOR } from "../constants/userConstants";
+import { DEPT_DESIGN, DEPT_FI, DEPT_IT, DEPT_QAP, USER_HSL_CONTRACT, USER_HSL_HR, USER_HSL_PURCHASE, USER_VENDOR } from "../constants/userConstants";
 import { toast } from "react-toastify";
 import { apiCallBack } from "../utils/fetchAPIs";
 import {
@@ -212,12 +212,12 @@ const MainHeader = ({ title }) => {
     user?.department_id === DEPT_IT || user?.department_id === DEPT_DESIGN || user?.vendor_code === "601824" || user?.vendor_code === "600233" || user?.vendor_code === "601824";
   const showBTN = user?.user_type !== USER_VENDOR;
   const showHR =
-    user?.department_id === USER_GRSE_PURCHASE ||
+    user?.department_id === USER_HSL_PURCHASE ||
     user?.department_id === DEPT_FI ||
-    user?.department_id === USER_GRSE_HR ||
+    user?.department_id === USER_HSL_HR ||
     user?.department_id === DEPT_IT ||
     user?.user_type === USER_VENDOR ||
-    user?.department_id === USER_GRSE_CONTRACT ||
+    user?.department_id === USER_HSL_CONTRACT ||
     user?.vendor_code === "199609";
 
   return (
@@ -227,7 +227,7 @@ const MainHeader = ({ title }) => {
           {/* LOGO + TITLE */}
           <div className="mh-brand">
             <Link to="/">
-              <img src={logoheader} alt="GRSE Logo" className="mh-logo" />
+              <img src={logoheader} alt="HSL Logo" className="mh-logo" />
             </Link>
             <div className="mh-title-block">
               <span className="mh-title">{title}</span>
@@ -324,10 +324,10 @@ const MainHeader = ({ title }) => {
                 </button>
               </div>
             </div>
-            <Link to="/support" className="mh-nav-item mh-nav-item--support">
+            {/* <Link to="/support" className="mh-nav-item mh-nav-item--support">
               <FaHeadset className="mh-nav-icon" />
               <span>Support</span>
-            </Link>
+            </Link> */}
           </div>
 
           {/* USER INFO */}

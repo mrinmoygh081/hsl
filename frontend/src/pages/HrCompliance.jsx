@@ -9,24 +9,14 @@ import { toast } from "react-toastify";
 import { reConfirm } from "../utils/reConfirm";
 import { clrLegend } from "../utils/clrLegend";
 import { groupedByRefNo } from "../utils/groupedByReq";
-import {
-  ASSIGNER,
-  USER_GRSE_HR,
-  USER_VENDOR,
-} from "../constants/userConstants";
+import { ASSIGNER, USER_HSL_HR, USER_VENDOR } from "../constants/userConstants";
 import { checkTypeArr } from "../utils/smallFun";
 import { formatDate, formatFilePath } from "../utils/getDateTimeNow";
 import DynamicButton from "../Helpers/DynamicButton";
 import SkeletonLoader from "../loader/SkeletonLoader";
 import FileUploadInfoIcon from "../Helpers/FileUploadInfoIcon";
 import DatePicker from "react-datepicker";
-import {
-  BONUS_COMP,
-  ESI_COMP,
-  LEAVE_COMP,
-  PF_COMP,
-  WAGE_COMP,
-} from "../constants/constants";
+import { BONUS_COMP, ESI_COMP, LEAVE_COMP, PF_COMP, WAGE_COMP } from "../constants/constants";
 
 const HrCompliance = () => {
   const inputFileRef = useRef(null);
@@ -53,12 +43,7 @@ const HrCompliance = () => {
   const getData = async () => {
     setIsLoading(true);
     try {
-      const data = await apiCallBack(
-        "GET",
-        `po/hr/complianceUploadedList?poNo=${id}`,
-        null,
-        token
-      );
+      const data = await apiCallBack("GET", `po/hr/complianceUploadedList?poNo=${id}`, null, token);
       // console.log(data);
       if (data?.status) {
         setData(data?.data);
@@ -82,20 +67,12 @@ const HrCompliance = () => {
       return toast.warn("Compliance date is required!");
     }
 
-    if (
-      flag === "SUBMITTED" &&
-      (actionType === "" || !fileData || remarks.trim() === "")
-    ) {
+    if (flag === "SUBMITTED" && (actionType === "" || !fileData || remarks.trim() === "")) {
       return toast.warn("Please fill all the required fields!");
     }
 
-    if (
-      (flag === "APPROVED" || flag === "REJECTED") &&
-      (actionType === "" || remarks.trim() === "")
-    ) {
-      return toast.warn(
-        "Action Type and remarks are mandatory for approval or rejection!"
-      );
+    if ((flag === "APPROVED" || flag === "REJECTED") && (actionType === "" || remarks.trim() === "")) {
+      return toast.warn("Action Type and remarks are mandatory for approval or rejection!");
     }
 
     try {
@@ -107,12 +84,7 @@ const HrCompliance = () => {
       formDataToSend.append("status", flag);
       formDataToSend.append("compliance_date", compliance_date);
 
-      const response = await apiCallBack(
-        "POST",
-        "po/hr/hrComplianceUpload",
-        formDataToSend,
-        token
-      );
+      const response = await apiCallBack("POST", "po/hr/hrComplianceUpload", formDataToSend, token);
 
       if (response?.status) {
         toast.success("Data sent successfully");
@@ -151,7 +123,7 @@ const HrCompliance = () => {
                   <div className="row g-5 g-xl-8">
                     <div className="col-12">
                       <div className="screen_header">
-                        {user?.department_id === USER_GRSE_HR && (
+                        {user?.department_id === USER_HSL_HR && (
                           <button
                             onClick={() => {
                               setIsPopup(true);
@@ -176,11 +148,9 @@ const HrCompliance = () => {
                                   <th>Action Type</th>
                                   <th>Action By</th>
                                   <th className="min-w-150px">Remarks</th>
-                                  <th className="min-w-150px">
-                                    Compliance Date
-                                  </th>
+                                  <th className="min-w-150px">Compliance Date</th>
                                   {/* <th>Status</th> */}
-                                  {/* {user?.department_id === USER_GRSE_HR && (
+                                  {/* {user?.department_id === USER_HSL_HR && (
                                     <th>Action</th>
                                   )} */}
                                 </tr>
@@ -207,32 +177,20 @@ const HrCompliance = () => {
                                               new Date(
                                                 item?.created_at
                                               ).toLocaleString()} */}
-                                                {item.created_at &&
-                                                  formatDate(item.created_at)}
+                                                {item.created_at && formatDate(item.created_at)}
                                               </td>
                                               <td className="table_center">
                                                 {item.file_name && (
-                                                  <a
-                                                    href={formatFilePath(
-                                                      item.file_path
-                                                    )}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                  >
+                                                  <a href={formatFilePath(item.file_path)} target="_blank" rel="noreferrer">
                                                     View File
                                                   </a>
                                                 )}
                                               </td>
                                               <td>{item?.action_type}</td>
-                                              <td className="table_center">
-                                                {item.created_by_id}
-                                              </td>
+                                              <td className="table_center">{item.created_by_id}</td>
+                                              <td className="align-middle">{item.remarks}</td>
                                               <td className="align-middle">
-                                                {item.remarks}
-                                              </td>
-                                              <td className="align-middle">
-                                                Year: {item.year}, Month:{" "}
-                                                {item.month}
+                                                Year: {item.year}, Month: {item.month}
                                               </td>
 
                                               {/* <td
@@ -244,7 +202,7 @@ const HrCompliance = () => {
                                         </td> */}
 
                                               {/* {user.department_id ===
-                                              USER_GRSE_HR && (
+                                              USER_HSL_HR && (
                                               <td>
                                                 {item.status ===
                                                   "SUBMITTED" && (
@@ -283,14 +241,12 @@ const HrCompliance = () => {
         </div>
       </div>
 
-      {user?.department_id === USER_GRSE_HR && (
+      {user?.department_id === USER_HSL_HR && (
         <div className={isPopup ? "popup active" : "popup"}>
           <div className="card card-xxl-stretch mb-5 mb-xxl-8">
             <div className="card-header border-0 pt-5">
               <h3 className="card-title align-items-start flex-column">
-                <span className="card-label fw-bold fs-3 mb-1">
-                  Take Action
-                </span>
+                <span className="card-label fw-bold fs-3 mb-1">Take Action</span>
               </h3>
               <button
                 className="btn fw-bold btn-danger"
@@ -343,9 +299,7 @@ const HrCompliance = () => {
                       dateFormat="dd/MM/yyyy"
                       className="form-control"
                       selected={formData?.compliance_date}
-                      onChange={(date) =>
-                        setFormData({ ...formData, compliance_date: date })
-                      }
+                      onChange={(date) => setFormData({ ...formData, compliance_date: date })}
                       placeholderText="Select Date"
                     />
                   </div>
@@ -380,9 +334,7 @@ const HrCompliance = () => {
                       id=""
                       rows="4"
                       className="form-control"
-                      onChange={(e) =>
-                        setFormData({ ...formData, remarks: e.target.value })
-                      }
+                      onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
                       value={formData?.remarks}
                     ></textarea>
                   </div>
@@ -396,15 +348,11 @@ const HrCompliance = () => {
                     >
                       SUBMIT
                     </button> */}
-                    <DynamicButton
-                      label="SUBMIT"
-                      onClick={() => actionHandler("SUBMITTED")}
-                      className="btn fw-bold btn-primary"
-                    />
+                    <DynamicButton label="SUBMIT" onClick={() => actionHandler("SUBMITTED")} className="btn fw-bold btn-primary" />
 
                     {/* <div className="d-flex gap-3">
                       {userType !== USER_VENDOR &&
-                        user?.department_id === USER_GRSE_HR && (
+                        user?.department_id === USER_HSL_HR && (
                           <button
                             onClick={() =>
                               reConfirm(
@@ -421,7 +369,7 @@ const HrCompliance = () => {
                         )}
 
                       {userType !== USER_VENDOR &&
-                        user?.department_id === USER_GRSE_HR &&
+                        user?.department_id === USER_HSL_HR &&
                         user?.internal_role_id === ASSIGNER && (
                           <button
                             onClick={() =>

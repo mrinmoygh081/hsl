@@ -2,7 +2,7 @@ import React, { Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logoutHandler } from "../redux/slices/loginSlice";
 import { Link } from "react-router-dom";
-import { sidebarData, sidebarGRSEData, sidebarServicePOData } from "../data/sidebarData";
+import { sidebarData, sidebarHSLData, sidebarServicePOData } from "../data/sidebarData";
 import { poRemoveHandler } from "../redux/slices/poSlice";
 import { reConfirm } from "../utils/reConfirm";
 
@@ -27,7 +27,7 @@ export default function SideBar({ id }) {
         <div className="aside-logo flex-column-auto" onClick={() => dispatch(poRemoveHandler())}>
           <Link to="/po" className="logo_link">
             <img src={require("../images/image001.jpg")} alt="" className="img-fluid" style={{ width: "80px" }} />
-            {/* <span>GRSE</span> */}
+            {/* <span>HSL</span> */}
           </Link>
         </div>
         {/* Aside menu */}

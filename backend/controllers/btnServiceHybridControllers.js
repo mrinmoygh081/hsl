@@ -2,7 +2,7 @@ const { getEpochTime, generateQuery, generateInsertUpdateQuery, getDateTime } = 
 const { BTN_SERVICE_HYBRID, BTN_SERVICE_CERTIFY_AUTHORITY, BTN_ASSIGN, WDC } = require("../lib/tableName");
 const { resSend } = require("../lib/resSend");
 const { SUBMITTED_BY_VENDOR, SUBMITTED_BY_CAUTHORITY, STATUS_RECEIVED, REJECTED, SUBMITTED, STATUS_DELEGATED, STATUS_RECOMMEND, NOT_RECOMMEND } = require("../lib/status");
-const { create_btn_no, } = require("../services/po.services");
+const { create_btn_no } = require("../services/po.services");
 const { poolClient, poolQuery, withTransaction } = require("../config/pgDbConfig");
 const Message = require("../utils/messages");
 const {
@@ -40,13 +40,11 @@ const { filesData, getLatestBTN } = require("../services/btn.services");
 const QueryBuilder = require("../utils/QueryBuilder");
 
 const getWdcInfoServiceHybrid = async (req, res) => {
-
   try {
     await withTransaction(async (client) => {
-
       let { purchasing_doc_no, reference_no, type } = req.query;
       if (type === "list") {
-        const wdcList = await checkAndGetWdc(client, { purchasing_doc_no })
+        const wdcList = await checkAndGetWdc(client, { purchasing_doc_no });
         return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, wdcList, null);
       }
 
@@ -65,17 +63,17 @@ const getWdcInfoServiceHybrid = async (req, res) => {
         return resSend(res, false, 200, "The WDC is not approved yet.", [], null);
       }
 
-      purchasing_doc_no = result[0]?.purchasing_doc_no
+      purchasing_doc_no = result[0]?.purchasing_doc_no;
       reference_no = result[0]?.reference_no;
 
       // SEPERATE WDC AND LINE ITEMS
       const wdcDetails = mergeWdcData(result);
       let responseData = {
-        ...wdcDetails
+        ...wdcDetails,
       };
       const line_item_array = wdcDetails?.line_item_array || [];
 
-      // OUTSIDE GRSE PO . . .
+      // OUTSIDE HSL PO . . .
       if (outside) {
         responseData = {
           ...responseData,
@@ -89,17 +87,24 @@ const getWdcInfoServiceHybrid = async (req, res) => {
         };
       } else {
         /** COMPLIANCE NEED POs */
-        /// GET LATEST DATE OF WDCs --- 
+        /// GET LATEST DATE OF WDCs ---
         const maxLatestDate = getMaxDate(line_item_array);
         const filterUnits = units ? units.map((unit) => unit.value) : [];
 
         if (!maxLatestDate || !purchasing_doc_no || !reference_no || !filterUnits.length) {
-          return resSend(res, false, 200, "MaxLatestDatePO/WDC ref number/Unit fetch error.", {
-            maxLatestDate,
-            purchasing_doc_no,
-            reference_no,
-            filterUnits
-          }, null);
+          return resSend(
+            res,
+            false,
+            200,
+            "MaxLatestDatePO/WDC ref number/Unit fetch error.",
+            {
+              maxLatestDate,
+              purchasing_doc_no,
+              reference_no,
+              filterUnits,
+            },
+            null,
+          );
         }
 
         // FILTER UNITS AND CHK COMPLINCE
@@ -115,11 +120,11 @@ const getWdcInfoServiceHybrid = async (req, res) => {
           ...responseData,
           ...complianceDetails.data,
           maxLatestDate,
-          wdc_number_no
+          wdc_number_no,
         };
       }
       resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, responseData, null);
-    })
+    });
   } catch (error) {
     console.error("[ERROR] getWdcInfoServiceHybrid", error);
     resSend(res, false, 500, Message.DATA_FETCH_ERROR, null, null);
@@ -132,17 +137,15 @@ const checkAndGetWdc = async (client, filteredData) => {
     .where("action_type", "=", "WDC")
     .where("purchasing_doc_no", "=", filteredData.purchasing_doc_no)
     .groupBy("wdc.reference_no")
-    .havingGroup(h => {
-      h.having("COUNT(*) FILTER (WHERE status = 'APPROVED')", ">", 0)
-        .having("COUNT(*) FILTER (WHERE status IN ('CANCELLED_REQ', 'CANCELLED'))", "=", 0)
+    .havingGroup((h) => {
+      h.having("COUNT(*) FILTER (WHERE status = 'APPROVED')", ">", 0).having("COUNT(*) FILTER (WHERE status IN ('CANCELLED_REQ', 'CANCELLED'))", "=", 0);
     });
 
   const buildQuery = qb.toJSON();
 
   const wdcList = await poolQuery({ client, query: buildQuery.sql, values: buildQuery.params });
   return wdcList;
-}
-
+};
 
 const submitBtnServiceHybrid = async (req, res) => {
   let client;
@@ -169,7 +172,6 @@ const submitBtnServiceHybrid = async (req, res) => {
     if (!tempPayload.invoice_value) {
       return resSend(res, false, 200, Message.MANDATORY_PARAMETR_MISSING, "Invoice Value is missing!", null);
     }
-
 
     if (!wdc_numbers || !Array.isArray(wdc_numbers) || !wdc_numbers?.length) {
       return resSend(res, false, 200, Message.MANDATORY_PARAMETR_MISSING, "WDC No is missing!", null);
@@ -234,7 +236,6 @@ const submitBtnServiceHybrid = async (req, res) => {
       vendor_code: tokenData.vendor_code,
     };
 
-
     // SERVICE BTN SAVE
     const { q, val } = generateQuery(INSERT, BTN_SERVICE_HYBRID, payload);
     await poolQuery({ client, query: q, values: val });
@@ -242,7 +243,7 @@ const submitBtnServiceHybrid = async (req, res) => {
     // SERVICE BTN WDC LINKED SAVE
     await wdcAndBtnLinedSave(client, wdc_numbers, btn_num);
 
-    // SAVE DATA TO BTN LIST 
+    // SAVE DATA TO BTN LIST
     await addToBTNListFn(
       client,
       {
@@ -250,9 +251,9 @@ const submitBtnServiceHybrid = async (req, res) => {
         net_payable_amount: payload.net_claim_amount,
         certifying_authority: payload.bill_certifing_authority,
         assign_to: payload.bill_certifing_authority,
-        assign_by: tokenData.vendor_code
+        assign_by: tokenData.vendor_code,
       },
-      SUBMITTED_BY_VENDOR
+      SUBMITTED_BY_VENDOR,
     );
     await client.query("COMMIT");
     serviceBtnMailSend(tokenData, { ...payload, status: SUBMITTED });
@@ -266,17 +267,16 @@ const submitBtnServiceHybrid = async (req, res) => {
   }
 };
 
-
 function convertWdcNoArrAndStr(str) {
   try {
     // Parse the string safely into an array
     const arr = JSON.parse(str.replace(/'/g, '"'));
     if (Array.isArray(arr)) {
-      return { wdcStr: arr.join(','), wdcArr: arr };
+      return { wdcStr: arr.join(","), wdcArr: arr };
     }
-    return { wdcStr: '', wdcArr: [] };
+    return { wdcStr: "", wdcArr: [] };
   } catch (e) {
-    console.error('Invalid wdc ref no input format:', e);
+    console.error("Invalid wdc ref no input format:", e);
     throw e;
   }
 }
@@ -299,7 +299,6 @@ const initServiceHybrid = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 const getBtnData = async (req, res) => {
@@ -351,7 +350,6 @@ const getBtnData = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 const actionByCertifyAuthority = async (req, res) => {
@@ -368,8 +366,6 @@ const actionByCertifyAuthority = async (req, res) => {
     // DB CONNECTIONS AND START TRANSITION
     client = await poolClient();
     await client.query("BEGIN");
-
-
 
     /*-----------------------------------------------------------------------------------------
       BTN DETAILS , BTN CURRENT STATUS, ASSIGN_BY, ASSIGN_TO DETAILS
@@ -400,7 +396,6 @@ const actionByCertifyAuthority = async (req, res) => {
 
     // HANDLE REJECT BTN
     if (payload.status === REJECTED) {
-
       // REJECTED BTN ASSIGN TO VENDOR
       payload.assign_to = btnDetails.vendor_code;
       const response1 = await btnReject(payload, tokenData, client);
@@ -408,7 +403,7 @@ const actionByCertifyAuthority = async (req, res) => {
       return resSend(res, true, 200, "Rejected successfully !!", response1, null);
     }
 
-    // BTN DELEGATE, RECOMEND, NON RECOMEND 
+    // BTN DELEGATE, RECOMEND, NON RECOMEND
     if (payload.status === STATUS_DELEGATED || payload.status === NOT_RECOMMEND || payload.status === STATUS_RECOMMEND) {
       const response2 = await btnDelegatedAndRecomend(client, btnDetails, payload, tokenData);
       await client.query("COMMIT");
@@ -434,7 +429,6 @@ const actionByCertifyAuthority = async (req, res) => {
     const assingPayload = await generateInsertUpdateQuery(btnAssignPaylaod, BTN_ASSIGN, ["btn_num", "purchasing_doc_no"]);
     await poolQuery({ client, query: assingPayload.q, values: assingPayload.val });
 
-
     // UPDATE SERVICE BTN TABLE
     await updateServiceBtn(client, payload.btn_num, { status: SUBMITTED_BY_CAUTHORITY, ca_remarks: payload.remarks });
 
@@ -442,14 +436,12 @@ const actionByCertifyAuthority = async (req, res) => {
     // const latesBtnData = await getLatestBTN(client, payload);
     await addToBTNListFn(client, { ...latesBtnData, ...payload, assign_to: payload.assign_to, assign_by: tokenData.vendor_code }, SUBMITTED_BY_CAUTHORITY);
 
-
-    /** SEND BTN DATA TO SAP SYSTEM 
+    /** SEND BTN DATA TO SAP SYSTEM
      * IF SAP SEND DATA ANY ISSUE THE WHOLE DATA WILL ROLLBACK
-    */
+     */
     // const sendSap = true;
     const sendSap = await btnSubmitToSAPF01(payload, tokenData);
     if (sendSap == false) {
-
       await client.query("ROLLBACK");
       return resSend(res, false, 200, Message.SAP_NOT_CONNECTED, null, null);
     } else if (sendSap == true) {
@@ -466,19 +458,15 @@ const actionByCertifyAuthority = async (req, res) => {
   }
 };
 
-
 async function validAccessCheck(client, tokenData, currentPayload, btnDetails, latesBtnDetails) {
-
   let accessDetails = { success: false, message: Message.YOU_ARE_UN_AUTHORIZED };
 
-  if (latesBtnDetails.status == STATUS_DELEGATED &&
-    (tokenData.vendor_code == latesBtnDetails.assign_to || tokenData.vendor_code == latesBtnDetails.assign_by)) {
+  if (latesBtnDetails.status == STATUS_DELEGATED && (tokenData.vendor_code == latesBtnDetails.assign_to || tokenData.vendor_code == latesBtnDetails.assign_by)) {
     accessDetails = { success: true, message: Message.AUTHORIZED_TO_TAKE_ACTION };
   }
 
   // FOR CERTIFY AUTHORITY
-  if (tokenData.vendor_code == btnDetails.certifying_authority &&
-    (tokenData.vendor_code == latesBtnDetails.assign_to || tokenData.vendor_code == btnDetails.delegate_to)) {
+  if (tokenData.vendor_code == btnDetails.certifying_authority && (tokenData.vendor_code == latesBtnDetails.assign_to || tokenData.vendor_code == btnDetails.delegate_to)) {
     accessDetails = { success: true, message: Message.AUTHORIZED_TO_TAKE_ACTION };
   }
   // FOR DELEGATE TO USER
@@ -490,11 +478,8 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
     accessDetails = { success: true, message: Message.AUTHORIZED_TO_TAKE_ACTION };
   }
 
-  return accessDetails
-
+  return accessDetails;
 }
-
-
 
 // async function validAccessCheck(client, tokenData, currentPayload, btnDetails) {
 //   const isCertifyAuthority = btnDetails.bill_certifing_authority == tokenData.vendor_code;
@@ -507,7 +492,6 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
 //   const btnIsDreturnCheck = await poolQuery({ client, query: btnIsDreturnQuery, values: [currentPayload.btn_num, BTN_STATUS_DRETURN] });
 //   const hasDReturnStatus = parseInt(btnIsDreturnCheck[0]?.count) ? true : false;
 
-
 //   /**
 //    * VALIDA AUTHORITY CHECK
 //    * IF DO && D-RETURN THEN PROCEED TO DO
@@ -516,7 +500,6 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
 //    */
 
 //   // BOTH DO AND AUTHORIZE CONDITTION CHECK
-
 
 //   // const doAndCerifyAuthortySame = parseInt(isDoCheck[0]?.count) && parseInt(isCertifyAuthority[0]?.count);
 
@@ -529,7 +512,6 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
 //   const onlyCertyfy = isCertifyAuthority && !isDoAuthority;
 //   // only do
 //   const onlyDo = isDoAuthority && !isCertifyAuthority;
-
 
 //   switch (currentPayload.status) {
 //     case STATUS_DELEGATED: {
@@ -581,10 +563,6 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
 
 // }
 
-
-
-
-
 /**
  * BTN DATA SEND TO SAP SERVER WHEN BTN SUBMIT BY FINNANCE STAFF
  * @param {Object} btnPayload
@@ -630,13 +608,11 @@ const serviceBtnAssignToFiStaff = async (req, res) => {
     const { q, val } = generateQuery(UPDATE, BTN_ASSIGN, payload, whereCon);
     await poolQuery({ client, query: q, values: val });
 
-
     let btn_list_q = ` SELECT * FROM btn_list WHERE btn_num = $1 
 	                      AND purchasing_doc_no = $2
 	                      AND status = $3
                         ORDER BY created_at DESC`;
     let btn_list = await poolQuery({ client, query: btn_list_q, values: [btn_num, purchasing_doc_no, SUBMITTED_BY_VENDOR] });
-
 
     if (!btn_list.length) {
       return resSend(res, false, 200, "Vendor have to submit BTN first.", btn_list, null);
@@ -672,7 +648,6 @@ const serviceBtnAssignToFiStaff = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 async function btnReject(data, tokenData, client) {
@@ -691,13 +666,9 @@ async function btnReject(data, tokenData, client) {
     // resSend(res, true, 200, "Finance Staff has been assigned!", null, null);
   }
   return { btn_num: data.btn_num };
-
 }
 
-
-
 async function btnDelegatedAndRecomend(client, existingData, currentPayload, tokenData) {
-
   const { btn_num, purchasing_doc_no, status, delegate_to, remarks } = currentPayload;
 
   if (!status || !remarks || !btn_num || !purchasing_doc_no) {
@@ -709,7 +680,7 @@ async function btnDelegatedAndRecomend(client, existingData, currentPayload, tok
   let assign_to = "NO_ASSIGN"; // for btn list table, next assign to
   const dtTmDetails = getDateTime();
   if (status == STATUS_DELEGATED) {
-    assign_to = delegate_to
+    assign_to = delegate_to;
     newDelegateRemarks += ` | [${tokenData.vendor_code}] ${dtTmDetails.dateTime}  : ${remarks} | `;
 
     if (existingData.remarks1 && typeof remarks === "string") {
@@ -718,7 +689,7 @@ async function btnDelegatedAndRecomend(client, existingData, currentPayload, tok
     btnDelegateRecomndPayload = btnDelegatePayload({
       ...currentPayload,
       remarks: newDelegateRemarks,
-      delegate_by: tokenData.vendor_code
+      delegate_by: tokenData.vendor_code,
     });
   }
   if (status == NOT_RECOMMEND) {
@@ -732,7 +703,7 @@ async function btnDelegatedAndRecomend(client, existingData, currentPayload, tok
       ...currentPayload,
       current_ca: assign_to,
       remarks: newRecomendRemarks,
-      delegate_action_by: tokenData.vendor_code
+      delegate_action_by: tokenData.vendor_code,
     });
   }
   if (status == STATUS_RECOMMEND) {
@@ -745,7 +716,7 @@ async function btnDelegatedAndRecomend(client, existingData, currentPayload, tok
       ...currentPayload,
       current_ca: assign_to,
       remarks: newRecomendRemarks,
-      delegate_action_by: tokenData.vendor_code
+      delegate_action_by: tokenData.vendor_code,
     });
   }
 
@@ -758,11 +729,6 @@ async function btnDelegatedAndRecomend(client, existingData, currentPayload, tok
   await addToBTNListFn(client, { ...latesBtnData, remarks, assign_to, assign_by: tokenData.vendor_code }, status);
   return { btn_num };
 }
-
-
-
-
-
 
 module.exports = {
   submitBtnServiceHybrid,

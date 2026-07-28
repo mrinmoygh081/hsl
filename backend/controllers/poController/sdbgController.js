@@ -5,7 +5,7 @@ const { setActualSubmissionDate, create_reference_no, getPoDetails } = require("
 const { resSend } = require("../../lib/resSend");
 const { query, getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime, getDateString, sapToGetEpochTime } = require("../../lib/utils");
-const { INSERT, UPDATE, USER_TYPE_VENDOR, ASSIGNER, STAFF, USER_TYPE_GRSE_FINANCE, ACTION_SDBG, ACTION_DD, ACTION_IB, MID_SDBG } = require("../../lib/constant");
+const { INSERT, UPDATE, USER_TYPE_VENDOR, ASSIGNER, STAFF, USER_TYPE_HSL_FINANCE, ACTION_SDBG, ACTION_DD, ACTION_IB, MID_SDBG } = require("../../lib/constant");
 const { EKKO, SDBG_ENTRY, SDBG, ACTUAL_SUBMISSION_DB, SDBG_SAVE, SDBG_RECOMMENDATION, EMPLAYEE_MASTER_PA0002 } = require("../../lib/tableName");
 const { FINANCE } = require("../../lib/depertmentMaster");
 const { ASSIGNED, RE_SUBMITTED, REJECTED, FORWARD_TO_FINANCE, RETURN_TO_DO, APPROVED, SUBMITTED, SAVED } = require("../../lib/status");
@@ -14,13 +14,7 @@ const { BG_UPLOAD_BY_VENDOR, BG_ACCEPT_REJECT, BG_ENTRY_BY_DO, BG_ASSIGN, BG_RET
 const { makeHttpRequest } = require("../../config/sapServerConfig");
 const { zfi_bgm_1_Payload } = require("../../services/sap.services");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
-const {
-  getLastAssignee,
-  getAssigneeList,
-  checkIsAssigned,
-  checkIsApprovedRejected,
-  insertSdbgEntrySave,
-} = require("../../services/lastassignee.servces");
+const { getLastAssignee, getAssigneeList, checkIsAssigned, checkIsApprovedRejected, insertSdbgEntrySave } = require("../../services/lastassignee.servces");
 const { sdbgPayloadVendor, sdbgEntryPayload } = require("../../services/sdbg.services");
 const Message = require("../../utils/messages");
 const QueryBuilder = require("../../utils/QueryBuilder");
@@ -38,7 +32,6 @@ const submitSDBG = async (req, res) => {
     if (tokenData.user_type != USER_TYPE_VENDOR) {
       return resSend(res, false, 200, Message.LOGIN_AS_VALID_USER, null, null);
     }
-
 
     let payload = {
       ...req.body,
@@ -65,7 +58,7 @@ const submitSDBG = async (req, res) => {
 
     const sdbgPayload1 = sdbgPayloadVendor(payload, "");
     const sdbgPayload2 = sdbgEntryPayload(payload, "");
-  
+
     // DYNAMIC ACTION TYPE FOR ALL BG TYPE
 
     const verifyStatus = new Set([SUBMITTED, RE_SUBMITTED]);
@@ -74,31 +67,28 @@ const submitSDBG = async (req, res) => {
       return resSend(res, false, 200, Message.VALIDATION_UNSUCCESSFULL, { sdbgPayload1, sdbgPayload2 });
     }
 
-
     const qb1 = generateQuery(INSERT, SDBG, sdbgPayload1.data);
     const qb2 = generateQuery(INSERT, SDBG_ENTRY, sdbgPayload2.data);
-    await Promise.all([
-      poolQuery({ client, query: qb1.q, values: qb1.val }),
-      poolQuery({ client, query: qb2.q, values: qb2.val })
-    ]);
+    await Promise.all([poolQuery({ client, query: qb1.q, values: qb1.val }), poolQuery({ client, query: qb2.q, values: qb2.val })]);
     await client.query("COMMIT");
 
     handelEmail(payload, tokenData);
     resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no }, null);
-
   } catch (error) {
     console.error("submitSDBG error", error, error.message);
-    if (client) { await client.query("ROLLBACK"); }
+    if (client) {
+      await client.query("ROLLBACK");
+    }
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   } finally {
-    if (client) { client.release(); }
+    if (client) {
+      client.release();
+    }
   }
 };
 
-
 const getSDBGData = async (req, res) => {
   try {
-
     if (!req.query.poNo) {
       return resSend(res, true, 200, "Please send PO Number.", null, null);
     }
@@ -124,12 +114,12 @@ const getSdbgEntry = async (req, res) => {
     }
     const { poNo, reference_no } = req.query;
 
-    // let Query = `SELECT 
+    // let Query = `SELECT
     // t1.*,t2.reference_no FROM sdbg_entry AS t1
-    //                         LEFT JOIN 
-    //                                 sdbg AS t2 
-    //                             ON 
-    //                         t2.reference_no= t1.reference_no 
+    //                         LEFT JOIN
+    //                                 sdbg AS t2
+    //                             ON
+    //                         t2.reference_no= t1.reference_no
     //                     WHERE t1.purchasing_doc_no = '${poNo}' AND t2.reference_no = '${reference_no}'`;
 
     const qb1 = new QueryBuilder("sdbg_entry AS t1");
@@ -141,11 +131,11 @@ const getSdbgEntry = async (req, res) => {
     const dealingOfficer = await checkIsDealingOfficer(poNo, tokenData.vendor_code);
 
     // let sufix;
-    if (tokenData.department_id === USER_TYPE_GRSE_FINANCE && tokenData.internal_role_id === ASSIGNER) {
+    if (tokenData.department_id === USER_TYPE_HSL_FINANCE && tokenData.internal_role_id === ASSIGNER) {
       // sufix = ` AND t2.status = '${FORWARD_TO_FINANCE}'`;
       qb1.where("t2.status", "=", FORWARD_TO_FINANCE);
       // Query = Query + sufix;
-    } else if (tokenData.department_id === USER_TYPE_GRSE_FINANCE && tokenData.internal_role_id === STAFF) {
+    } else if (tokenData.department_id === USER_TYPE_HSL_FINANCE && tokenData.internal_role_id === STAFF) {
       // sufix = ` AND t2.assigned_to = '${tokenData.vendor_code}'`;
       qb1.where("t2.assigned_to", "=", tokenData.vendor_code);
       // Query = Query + sufix;
@@ -160,7 +150,7 @@ const getSdbgEntry = async (req, res) => {
 
     resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result[0], null);
   } catch (error) {
-    console.error("GET SDBG ENTRY ERROR", error.message, error)
+    console.error("GET SDBG ENTRY ERROR", error.message, error);
     resSend(res, false, 400, Message.DATA_FETCH_ERROR, null, null);
   }
 };
@@ -270,9 +260,9 @@ const sdbgSubmitByDealingOfficer = async (req, res) => {
         created_at: getEpochTime(),
         created_by_name: "Dealing officer",
         created_by_id: tokenData.vendor_code,
-        updated_by: "GRSE",
+        updated_by: "HSL",
         action_by: tokenData.vendor_code,
-        action_on: obj.status == REJECTED ? sdbgDataResult?.vendor_code : "FINANCE_NODAL"
+        action_on: obj.status == REJECTED ? sdbgDataResult?.vendor_code : "FINANCE_NODAL",
       };
 
       let insertsdbg_q = generateQuery(INSERT, SDBG, insertPayloadForSdbg);
@@ -311,8 +301,6 @@ const sdbgUpdateByFinance = async (req, res) => {
       return resSend(res, false, 200, "please login as finance!", null, null);
     }
     if (tokenData.internal_role_id == ASSIGNER && obj.assigned_to && obj.status == ASSIGNED) {
-
-
       /**
        * checked already assigned to
        */
@@ -322,7 +310,6 @@ const sdbgUpdateByFinance = async (req, res) => {
         query: check_assign_to_query,
         values: [obj.purchasing_doc_no, obj.assigned_to],
       });
-
 
       if (check_assign_to_data.length) {
         return resSend(res, false, 200, `The BG is already assigned to : ${obj.assigned_to} `, null, null);
@@ -343,7 +330,7 @@ const sdbgUpdateByFinance = async (req, res) => {
         created_at: getEpochTime(),
         created_by_name: "finance dept",
         created_by_id: tokenData.vendor_code,
-        updated_by: "GRSE",
+        updated_by: "HSL",
       };
 
       let { q, val } = generateQuery(INSERT, SDBG, insertPayloadForSdbg);
@@ -435,7 +422,7 @@ const sdbgUpdateByFinance = async (req, res) => {
       created_at: getEpochTime(),
       created_by_name: "finance dept",
       created_by_id: tokenData.vendor_code,
-      updated_by: "GRSE",
+      updated_by: "HSL",
       bg_no: action_type_with_vendor_code[0]?.bg_no,
     };
     const insertsdbg_q = generateQuery(INSERT, SDBG, insertPayloadForSdbg);
@@ -556,8 +543,6 @@ const assigneeList = async (req, res) => {
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
   }
 };
-
-
 
 async function handelEmail(payload, tokenData) {
   let emailUserDetailsQuery;
@@ -723,7 +708,7 @@ async function recommendationBGextensionRelease(req, res) {
       ...req.body,
       created_at: getEpochTime(),
       created_by_id: tokenData.vendor_code,
-      updated_by: "GRSE",
+      updated_by: "HSL",
       status: "PENDING",
     };
 
@@ -737,7 +722,6 @@ async function recommendationBGextensionRelease(req, res) {
   } finally {
     if (client) client.release();
   }
-
 }
 
 async function UpdateBGextensionRelease(req, res) {
@@ -925,7 +909,6 @@ async function insertSdbgSave(req, res) {
   } finally {
     if (client) client.release();
   }
-
 }
 
 async function getSdbgSave(req, res) {
@@ -1038,7 +1021,7 @@ async function update_in_all_obps_sdbgs_table(payload) {
         created_at: getEpochTime(),
         created_by_name: "SAP Finaance.",
         created_by_id: `600200`,
-        updated_by: "GRSE",
+        updated_by: "HSL",
       };
 
       let insertsdbg_q = generateQuery(INSERT, SDBG, insertPayloadForSdbg);
@@ -1054,7 +1037,6 @@ async function update_in_all_obps_sdbgs_table(payload) {
   } finally {
     if (client) client.release();
   }
-
 }
 
 async function checkIsDEO(req, res) {

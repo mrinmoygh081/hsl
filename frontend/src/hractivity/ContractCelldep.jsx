@@ -6,7 +6,7 @@ import { IoClose } from "react-icons/io5";
 import { toast } from "react-toastify";
 import { apiCallBack } from "../utils/fetchAPIs";
 import sampleFile from "../samplefile/excel_file_hr2 (3).xlsx";
-import { USER_GRSE_CONTRACT } from "../constants/userConstants";
+import { USER_HSL_CONTRACT } from "../constants/userConstants";
 import FileUploadInfoIcon from "../Helpers/FileUploadInfoIcon";
 
 const ContractCelldep = () => {
@@ -84,7 +84,7 @@ const ContractCelldep = () => {
   };
 
   useEffect(() => {
-    if (user?.department_id === USER_GRSE_CONTRACT) {
+    if (user?.department_id === USER_HSL_CONTRACT) {
       fetchInitialData();
     }
   }, [user?.department_id, token]);
@@ -97,7 +97,7 @@ const ContractCelldep = () => {
           <div className="content d-flex flex-column flex-column-fluid">
             <div className="post d-flex flex-column-fluid">
               <div className="container">
-                {user?.department_id === USER_GRSE_CONTRACT && (
+                {user?.department_id === USER_HSL_CONTRACT && (
                   <div className="row g-5 g-xl-8">
                     <div className="col-12">
                       <div className="card p-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
@@ -158,8 +158,8 @@ const ContractCelldep = () => {
                                       row?.message === "Action taken successfully!"
                                         ? "success-message"
                                         : row?.message === "No such unit present"
-                                        ? "error-message"
-                                        : "default-message"
+                                          ? "error-message"
+                                          : "default-message"
                                     }
                                   >
                                     {row?.message || "--"}

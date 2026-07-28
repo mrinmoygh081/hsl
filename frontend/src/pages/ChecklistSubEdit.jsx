@@ -35,17 +35,11 @@ const ChecklistSubEdit = () => {
                                       <td>456788</td>
                                     </tr>
                                     <tr>
-                                      <td>
-                                        Whether Bill has been forwarded through
-                                        BTS:
-                                      </td>
+                                      <td>Whether Bill has been forwarded through BTS:</td>
                                       <td>456788</td>
                                     </tr>
                                     <tr>
-                                      <td>
-                                        Whether E-Invoice is provided, if
-                                        applicable for the vendor (Y/N):
-                                      </td>
+                                      <td>Whether E-Invoice is provided, if applicable for the vendor (Y/N):</td>
                                       <td>
                                         <select className="form-control">
                                           <option value="Y">Y</option>
@@ -98,40 +92,23 @@ const ChecklistSubEdit = () => {
                                     <tr>
                                       <td>Signed Original Tax Invoice:</td>
                                       <td>
-                                        <input
-                                          type="text"
-                                          className="form-control"
-                                        />
+                                        <input type="text" className="form-control" />
                                       </td>
                                     </tr>
                                     <tr>
+                                      <td>QAP/ BD schedule submission date as per PO-(DD/MM/YY)</td>
                                       <td>
-                                        QAP/ BD schedule submission date as per
-                                        PO-(DD/MM/YY)
-                                      </td>
-                                      <td>
-                                        <input
-                                          type="date"
-                                          className="form-control"
-                                        />
+                                        <input type="date" className="form-control" />
                                       </td>
                                     </tr>
                                     <tr>
+                                      <td>QAP/BD Actual date (DD/MM/YY) (Documents in support)</td>
                                       <td>
-                                        QAP/BD Actual date (DD/MM/YY) (Documents
-                                        in support)
-                                      </td>
-                                      <td>
-                                        <input
-                                          type="date"
-                                          className="form-control"
-                                        />
+                                        <input type="date" className="form-control" />
                                       </td>
                                     </tr>
                                     <tr>
-                                      <td>
-                                        Pre-despatch Inspection certificate
-                                      </td>
+                                      <td>Pre-despatch Inspection certificate</td>
                                       <td>456788</td>
                                     </tr>
                                     <tr>
@@ -139,22 +116,15 @@ const ChecklistSubEdit = () => {
                                       <td>Y</td>
                                     </tr>
                                     <tr>
-                                      <td>
-                                        Weight Certificate & Preservation cert.
-                                      </td>
+                                      <td>Weight Certificate & Preservation cert.</td>
                                       <td>656790</td>
                                     </tr>
                                     <tr>
-                                      <td>
-                                        GRSE Gate/Stores receipted
-                                        challan/Service Entry Sheet
-                                      </td>
+                                      <td>HSL Gate/Stores receipted challan/Service Entry Sheet</td>
                                       <td>325687</td>
                                     </tr>
                                     <tr>
-                                      <td>
-                                        Lot no in case delivery terms is in lots
-                                      </td>
+                                      <td>Lot no in case delivery terms is in lots</td>
                                       <td>65</td>
                                     </tr>
                                   </tbody>
@@ -193,9 +163,7 @@ const ChecklistSubEdit = () => {
                       </div>
                     </div>
                     <div className="text-center mt-4">
-                      <button className="btn fw-bold btn-primary me-3">
-                        SUBMIT
-                      </button>
+                      <button className="btn fw-bold btn-primary me-3">SUBMIT</button>
                     </div>
                   </form>
                 </div>
@@ -209,14 +177,9 @@ const ChecklistSubEdit = () => {
         <div className="card card-xxl-stretch mb-5 mb-xxl-8">
           <div className="card-header border-0 pt-5">
             <h3 className="card-title align-items-start flex-column">
-              <span className="card-label fw-bold fs-3 mb-1">
-                Upload Invoice
-              </span>
+              <span className="card-label fw-bold fs-3 mb-1">Upload Invoice</span>
             </h3>
-            <button
-              className="btn fw-bold btn-danger"
-              onClick={() => setIsPopup(false)}
-            >
+            <button className="btn fw-bold btn-danger" onClick={() => setIsPopup(false)}>
               Close
             </button>
           </div>
@@ -242,12 +205,7 @@ const ChecklistSubEdit = () => {
               <div className="col-12">
                 <div className="mb-3">
                   <label className="form-label">Remarks</label>
-                  <textarea
-                    name=""
-                    id=""
-                    rows="4"
-                    className="form-control"
-                  ></textarea>
+                  <textarea name="" id="" rows="4" className="form-control"></textarea>
                 </div>
               </div>
               <div className="col-12">
@@ -264,14 +222,9 @@ const ChecklistSubEdit = () => {
         <div className="card card-xxl-stretch mb-5 mb-xxl-8">
           <div className="card-header border-0 pt-5">
             <h3 className="card-title align-items-start flex-column">
-              <span className="card-label fw-bold fs-3 mb-1">
-                Upload PBG Copy (optionals)
-              </span>
+              <span className="card-label fw-bold fs-3 mb-1">Upload PBG Copy (optionals)</span>
             </h3>
-            <button
-              className="btn fw-bold btn-danger"
-              onClick={() => setIsSecPopup(false)}
-            >
+            <button className="btn fw-bold btn-danger" onClick={() => setIsSecPopup(false)}>
               Close
             </button>
           </div>
@@ -297,12 +250,7 @@ const ChecklistSubEdit = () => {
               <div className="col-12">
                 <div className="mb-3">
                   <label className="form-label">Remarks</label>
-                  <textarea
-                    name=""
-                    id=""
-                    rows="4"
-                    className="form-control"
-                  ></textarea>
+                  <textarea name="" id="" rows="4" className="form-control"></textarea>
                 </div>
               </div>
               <div className="col-12">

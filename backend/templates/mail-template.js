@@ -1,32 +1,29 @@
 /* eslint-disable no-undef */
 
 function getLocalIpAddress() {
-    // const networkInterfaces = os.networkInterfaces();
-    let ipAddress = process.env.SERVER_IP_ADDRESS;
+  // const networkInterfaces = os.networkInterfaces();
+  let ipAddress = process.env.SERVER_IP_ADDRESS;
 
-    // for (const name of Object.keys(networkInterfaces)) {
-    //     for (const net of networkInterfaces[name]) {
-    //         if (net.family === 'IPv4' && !net.internal) {
-    //             ipAddress = net.address;
-    //             break;
-    //         }
-    //     }
-    //     if (ipAddress) {
-    //         break;
-    //     }
-    // }
+  // for (const name of Object.keys(networkInterfaces)) {
+  //     for (const net of networkInterfaces[name]) {
+  //         if (net.family === 'IPv4' && !net.internal) {
+  //             ipAddress = net.address;
+  //             break;
+  //         }
+  //     }
+  //     if (ipAddress) {
+  //         break;
+  //     }
+  // }
 
-
-    return ipAddress;
-
-
+  return ipAddress;
 }
 
 let myIpAppAdderess = getLocalIpAddress();
 
 // eslint-disable-next-line no-unused-vars
 const EMAIL_TEMPLAE = (text, link = "") => {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
@@ -82,11 +79,11 @@ const EMAIL_TEMPLAE = (text, link = "") => {
                           documnet</span></p> -->
                 <br>
                 <span>Note: This is system generated notification, kindly don't reply to this email. May please contact
-                    respective GRSE officer if you have any queries.</span>
+                    respective HSL officer if you have any queries.</span>
             </div>
             <div class="email-footer">
                 <p> Thanks &amp; Regards, </p>
-                <span> OBPS Support, GRSE LTD. </span><br>
+                <span> OBPS Support, HSL LTD. </span><br>
                 <span class="source-ip">Source IP: ${myIpAppAdderess}</span>
             </div>
         </div>
@@ -94,7 +91,7 @@ const EMAIL_TEMPLAE = (text, link = "") => {
     </div>
     </div>
 </body>
-</html>`};
-
+</html>`;
+};
 
 module.exports = { EMAIL_TEMPLAE };

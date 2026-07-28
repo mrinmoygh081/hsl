@@ -1,4 +1,3 @@
-
 // module.exports = {
 //     "SDBG_VENDOR_MAIL_BODY":
 //         `Dear {{vendor_name}}, <br>
@@ -19,7 +18,7 @@
 //         Date : {{sendAt}} <br>
 //         `,
 
-//     "SDBG_GRSE_MAIL_BODY":
+//     "SDBG_HSL_MAIL_BODY":
 //         `Dear {{delingOfficerName}}, <br>
 //         Below are the details pertinent to submission of SDGBG for the PO - {{purchasing_doc_no}}.
 //         <br>
@@ -38,7 +37,7 @@
 //         Date : {{sendAt}} <br>
 //         `,
 
-//     "DRAWING_GRSE_MAIL_BODY":
+//     "DRAWING_HSL_MAIL_BODY":
 //         `Dear {{delingOfficerName}}, <br>
 //         Below are the details pertinent to submission of Drawing for the PO - {{purchasing_doc_no}}.
 //         <br>
@@ -56,7 +55,7 @@
 //         Date : {{sendAt}} <br>
 //         `,
 
-//     "QAP_GRSE_MAIL_BODY":
+//     "QAP_HSL_MAIL_BODY":
 //         `Dear {{delingOfficerName}}, <br>
 //         Below are the details pertinent to submission of QAP for the PO - {{purchasing_doc_no}}.
 //         <br>
@@ -64,7 +63,7 @@
 //         Vendor : {{vendor_name}} {{vendor_code}} <br>
 //         Remarks: {{remarks}} <br>
 //         Date : {{sendAt}} <br>`,
-//     "QAP_ASSIGN_BY_GRSE":
+//     "QAP_ASSIGN_BY_HSL":
 //         `Dear {{delingOfficerName}}, <br>
 //         Below are the details pertinent to submission of QAP for the PO - {{purchasing_doc_no}}.
 //         <br>

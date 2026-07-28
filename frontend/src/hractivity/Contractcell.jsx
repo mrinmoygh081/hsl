@@ -10,7 +10,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDate } from "../utils/getDateTimeNow";
-import { ASSIGNER, STAFF, USER_GRSE_CONTRACT, USER_GRSE_HR, USER_VENDOR } from "../constants/userConstants";
+import { ASSIGNER, STAFF, USER_HSL_CONTRACT, USER_HSL_HR, USER_VENDOR } from "../constants/userConstants";
 import { BsChatRightText } from "react-icons/bs";
 import MultiSearchableSelect from "../components/MultiSearchableSelect";
 import FileUploadInfoIcon from "../Helpers/FileUploadInfoIcon";
@@ -637,8 +637,8 @@ const Contractcell = () => {
             <div className="content d-flex flex-column flex-column-fluid">
               <div className="post d-flex flex-column-fluid">
                 <div className="container">
-                  {/* Rate Contract Master Data Section for USER_GRSE_CONTRACT */}
-                  {user?.department_id === USER_GRSE_CONTRACT && (
+                  {/* Rate Contract Master Data Section for USER_HSL_CONTRACT */}
+                  {user?.department_id === USER_HSL_CONTRACT && (
                     <div className="row g-5 g-xl-8">
                       <div className="col-12">
                         <div className="card p-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
@@ -675,7 +675,7 @@ const Contractcell = () => {
                   )}
 
                   {/* Statutory Compliances Section for all users */}
-                  {user?.internal_role_id === STAFF || user?.department_id === USER_GRSE_HR || user?.department_id === USER_GRSE_CONTRACT ? (
+                  {user?.internal_role_id === STAFF || user?.department_id === USER_HSL_HR || user?.department_id === USER_HSL_CONTRACT ? (
                     <div className="row g-5 g-xl-8 mt-5">
                       <div className="col-12">
                         <div className="card p-4">
@@ -689,12 +689,12 @@ const Contractcell = () => {
                                 ACTION
                               </button>
                             )}
-                            {user?.internal_role_id === ASSIGNER && user?.department_id === USER_GRSE_HR && (
+                            {user?.internal_role_id === ASSIGNER && user?.department_id === USER_HSL_HR && (
                               <button className="btn btn-primary" onClick={handleActionClickHR} style={{ marginRight: "10px", marginLeft: "auto" }}>
                                 ACTION
                               </button>
                             )}
-                            {user?.internal_role_id === STAFF && user?.department_id === USER_GRSE_HR && (
+                            {user?.internal_role_id === STAFF && user?.department_id === USER_HSL_HR && (
                               <button className="btn btn-primary md-2" onClick={handleActionClickRetailer} style={{ marginRight: "10px", marginLeft: "auto" }}>
                                 ACTION
                               </button>
@@ -832,7 +832,10 @@ const Contractcell = () => {
                                 </Form.Group>
                                 <Form.Group className="mb-3 d-flex align-items-center">
                                   <div style={{ flex: 1 }}>
-                                    <Form.Label className="d-flex align-items-center gap-2">Support File (PDF or ZIP)<FileUploadInfoIcon /></Form.Label>
+                                    <Form.Label className="d-flex align-items-center gap-2">
+                                      Support File (PDF or ZIP)
+                                      <FileUploadInfoIcon />
+                                    </Form.Label>
                                     <Form.Control type="file" accept=".pdf,.zip" onChange={handleFileChangepopup} />
                                   </div>
                                   <Button variant="primary" onClick={handleSubmitr} disabled={isUploading} style={{ marginLeft: "10px", marginTop: "32px" }}>
@@ -1088,12 +1091,12 @@ const Contractcell = () => {
                                 HOLD ACTION
                               </button>
                             )}
-                            {user?.internal_role_id === ASSIGNER && user?.department_id === USER_GRSE_HR && (
+                            {user?.internal_role_id === ASSIGNER && user?.department_id === USER_HSL_HR && (
                               <button className="btn btn-primary" onClick={handleActionClickHR} style={{ marginRight: "10px", marginLeft: "auto" }}>
                                 ACTION
                               </button>
                             )}
-                            {user?.internal_role_id === STAFF && user?.department_id === USER_GRSE_HR && (
+                            {user?.internal_role_id === STAFF && user?.department_id === USER_HSL_HR && (
                               <button className="btn btn-primary md-2" onClick={handleActionClickRetailer} style={{ marginRight: "10px", marginLeft: "auto" }}>
                                 ACTION
                               </button>
@@ -1266,7 +1269,10 @@ const Contractcell = () => {
                                 </Form.Group>
                                 <Form.Group className="mb-3 d-flex align-items-center">
                                   <div style={{ flex: 1 }}>
-                                    <Form.Label className="d-flex align-items-center gap-2">Support File (PDF or ZIP)<FileUploadInfoIcon /></Form.Label>
+                                    <Form.Label className="d-flex align-items-center gap-2">
+                                      Support File (PDF or ZIP)
+                                      <FileUploadInfoIcon />
+                                    </Form.Label>
                                     <Form.Control type="file" accept=".pdf,.zip" onChange={handleFileChangepopup} />
                                   </div>
                                   <Button variant="primary" onClick={handleSubmitr} disabled={isUploading} style={{ marginLeft: "10px", marginTop: "32px" }}>
@@ -1377,8 +1383,8 @@ const Contractcell = () => {
                     </div>
                   )}
 
-                  {/* Rate Contract Master Data Table for USER_GRSE_CONTRACT */}
-                  {user?.department_id === USER_GRSE_CONTRACT && (
+                  {/* Rate Contract Master Data Table for USER_HSL_CONTRACT */}
+                  {user?.department_id === USER_HSL_CONTRACT && (
                     <div className="row g-5 g-xl-8 mt-5">
                       <div className="col-12">
                         <div className="card p-4">
@@ -1490,7 +1496,10 @@ const Contractcell = () => {
                       <Form>
                         <Form.Group className="mb-3 d-flex align-items-center">
                           <div style={{ flex: 1 }}>
-                            <Form.Label className="d-flex align-items-center gap-2">Supporting Documents(PDF or ZIP)<FileUploadInfoIcon /></Form.Label>
+                            <Form.Label className="d-flex align-items-center gap-2">
+                              Supporting Documents(PDF or ZIP)
+                              <FileUploadInfoIcon />
+                            </Form.Label>
                             <Form.Control type="file" accept=".pdf,.zip" onChange={handleFileChangepopup} />
                           </div>
                           <Button variant="primary" onClick={handleSubmitHold} disabled={isUploading} style={{ marginLeft: "10px", marginTop: "32px" }}>

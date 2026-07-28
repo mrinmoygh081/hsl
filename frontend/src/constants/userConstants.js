@@ -1,7 +1,7 @@
 export const USER_VENDOR = 1;
-export const USER_GRSE_PURCHASE = 17;
-export const USER_GRSE_HR = 18;
-export const USER_GRSE_CONTRACT = 20;
+export const USER_HSL_PURCHASE = 17;
+export const USER_HSL_HR = 18;
+export const USER_HSL_CONTRACT = 20;
 export const USER_ADMIN = 5;
 export const USER_SUPER_ADMIN = 6;
 export const USER_PPNC_DEPARTMENT = 14;

@@ -3,7 +3,7 @@
 // const { getAccessToken, getRefreshToken } = require("../../services/jwt.services");
 // const { resSend } = require("../../lib/resSend");
 // const { AUTH, REGISTRATION_OTP, EMPLAYEE_MASTER_PA0002, VENDOR_MASTER_LFA1 } = require("../../lib/tableName");
-// const { USER_TYPE_VENDOR, INSERT, UPDATE, ASSIGNER, LAN_SERVER, USER_TYPE_VENDOR_TEXT, STAFF, USER_TYPE_GRSE_TEXT } = require("../../lib/constant");
+// const { USER_TYPE_VENDOR, INSERT, UPDATE, ASSIGNER, LAN_SERVER, USER_TYPE_VENDOR_TEXT, STAFF, USER_TYPE_HSL_TEXT } = require("../../lib/constant");
 // // const { authDataModify } = require("../services/auth.services");
 
 // const rolePermission = require("../../lib/role/deptWiseRolePermission");
@@ -74,24 +74,24 @@
 //         });
 //       }
 
-//       let login_Q = `SELECT 
+//       let login_Q = `SELECT
 //                 t1.vendor_code, t1.user_type, t1.username, t1.password, t1.department_id, t1.internal_role_id,
 //                     t2.name AS department_name, t3.name AS role
-//                 FROM 
+//                 FROM
 //                     auth
-//                 AS 
-//                     t1 
+//                 AS
+//                     t1
 // 			    LEFT JOIN
 //                 	depertment_master
-//                 AS 
+//                 AS
 //                     t2
 //                 ON
 //                 	t1.department_id = t2.id
 //                 LEFT JOIN
 //                 	internal_role_master
-//                 AS 
+//                 AS
 //                     t3
-//                 ON	
+//                 ON
 //                     t1.internal_role_id = t3.id
 //                 WHERE
 //                     t1.vendor_code = $1 AND t1.is_active = 1`;
@@ -108,7 +108,7 @@
 //       //             WHERE
 //       //         (t1.user_type = 1 AND t1.vendor_code = ?)`;
 //       // }
-//       // else if (req.body.userType === "GRSE") {
+//       // else if (req.body.userType === "HSL") {
 //       //     login_Q = `SELECT
 //       //         t1.vendor_code, t1.email, t1.user_type, t1.username, t1.password,
 //       //         t2.CNAME, t3.USRID_LONG
@@ -137,11 +137,11 @@
 //         return resSend(res, false, 200, "INCORRECT_PASSWORD");
 //       } else {
 //         if (result[0]["user_type"] === USER_TYPE_VENDOR) {
-//           const vendorDetailsQ = `SELECT 
+//           const vendorDetailsQ = `SELECT
 //                         t1.NAME1 AS name ,
 //                         t1.email
 //                     FROM
-//                         lfa1 AS t1 
+//                         lfa1 AS t1
 //                     WHERE
 //                         t1.LIFNR = $1`;
 
@@ -168,12 +168,12 @@
 
 //           // user = { user: { ...result[0] } };
 //         } else if (result[0]["user_type"] !== USER_TYPE_VENDOR) {
-//           const grseDetaisQ = `SELECT 
+//           const grseDetaisQ = `SELECT
 //                             t1.CNAME AS name,
 //                             t1.EMAIL AS email
-//                         FROM 
+//                         FROM
 //                             pa0002 AS t1
-//                         WHERE 
+//                         WHERE
 //                             t1.PERNR = $1`;
 //           // userDetails = await getQuery({
 //           //     query:
@@ -194,14 +194,14 @@
 //           }
 
 //           /**
-//                      *   LEFT JOIN 
+//                      *   LEFT JOIN
 //                     permission AS t3
-//                 ON 
+//                 ON
 //                     t3.user_id = t1.PERNR
 //                     if (permission?.length) {
 //                         name = permission[0].name;
 //                         email = permission[0].email;
-    
+
 //                         permission = permission?.map((el) => {
 //                             delete el.name,
 //                                 delete el.email
@@ -397,19 +397,19 @@
 //       let tableName = obj.user_code.length == 6 ? "pa0002" : "lfa1";
 //       let fieldName = obj.user_code.length == 6 ? "pernr" : "lifnr";
 
-//       let qry = `SELECT 
+//       let qry = `SELECT
 //                     t1.email,t2.user_type,t2.department_id,t2.internal_role_id
-//                     FROM 
+//                     FROM
 //                         ${tableName}
-//                     AS 
-//                         t1 
+//                     AS
+//                         t1
 //               LEFT JOIN
 //                       auth
-//                     AS 
+//                     AS
 //                         t2
 //                     ON
 //                       t2.vendor_code = t1.${fieldName} :: character varying
-                  
+
 //                     WHERE
 //                         t2.vendor_code = $1 AND t2.is_active = 1`;
 
@@ -443,7 +443,7 @@
 //         });
 //         // add otp record
 //         const insertRegistrationOtp = {
-//           user_type: validUser[0].user_type == USER_TYPE_VENDOR ? USER_TYPE_VENDOR_TEXT : "GRSE",
+//           user_type: validUser[0].user_type == USER_TYPE_VENDOR ? USER_TYPE_VENDOR_TEXT : "HSL",
 //           functional_area: validUser[0].department_id,
 //           role: validUser[0].internal_role_id,
 //           user_code: obj.user_code,
@@ -614,7 +614,7 @@
 //       const { q, val } = generateQuery(INSERT, AUTH, regData);
 //       const response = await poolQuery({ client, query: q, values: val });
 
-//       if (otpVefifyQueryRes[0].user_type == USER_TYPE_GRSE_TEXT && otpVefifyQueryRes[0].role === ASSIGNER) {
+//       if (otpVefifyQueryRes[0].user_type == USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === ASSIGNER) {
 //         // SEND MAIL TO NODAL OFFICERS //
 
 //         // let getNodalOfficersQ = `SELECT t1.vendor_code, t2.email FROM auth AS t1
@@ -657,7 +657,7 @@
 //         }
 //       }
 
-//       if (otpVefifyQueryRes[0].user_type === USER_TYPE_GRSE_TEXT && otpVefifyQueryRes[0].role === STAFF) {
+//       if (otpVefifyQueryRes[0].user_type === USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === STAFF) {
 //         const empDLQ = {
 //           dept_id: otpVefifyQueryRes[0].functional_area,
 //           internal_role_id: otpVefifyQueryRes[0].role,
@@ -698,19 +698,19 @@
 //       resSend(res, false, 200, Message.YOU_ARE_UN_AUTHORIZED, null, null);
 //     }
 //     const vefifyQuery = `SELECT t1.vendor_code, t2.name as depertment_name, t3.name as internal_role, t4.email, t4.cname as name FROM auth AS t1
-//                 LEFT JOIN 
-//                     depertment_master AS t2 
-//                 ON 
-//                     t1.department_id = t2.id  
-//                     LEFT JOIN 
-//                     internal_role_master AS t3 
-//                 ON 
+//                 LEFT JOIN
+//                     depertment_master AS t2
+//                 ON
+//                     t1.department_id = t2.id
+//                     LEFT JOIN
+//                     internal_role_master AS t3
+//                 ON
 //                     t1.internal_role_id = t3.id
-//                     LEFT JOIN 
-//                     pa0002 AS t4 
-//                 ON 
+//                     LEFT JOIN
+//                     pa0002 AS t4
+//                 ON
 //                     t1.vendor_code = t4.pernr :: character varying
-    
+
 //                     WHERE t1.is_active = $1`;
 //     const otpVefifyQueryRes = await getQuery({
 //       query: vefifyQuery,

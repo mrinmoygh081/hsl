@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import { apiCallBack } from "../utils/fetchAPIs";
 import { Modal, Button } from "react-bootstrap";
 import { BsChatRightText } from "react-icons/bs";
-import { DEPT_FI, DEPT_IT, USER_GRSE_CONTRACT, USER_GRSE_PURCHASE } from "../constants/userConstants";
+import { DEPT_FI, DEPT_IT, USER_HSL_CONTRACT, USER_HSL_PURCHASE } from "../constants/userConstants";
 import { Link } from "react-router-dom";
 import ReactPaginate from "react-paginate";
 import { formatDate } from "../utils/getDateTimeNow";
@@ -48,8 +48,8 @@ const HrContractvendorViewOnly = () => {
     user?.vendor_code === "600233" ||
     user?.vendor_code === "601824" ||
     user?.vendor_code === "199609" ||
-    user?.department_id === USER_GRSE_CONTRACT ||
-    user?.department_id === USER_GRSE_PURCHASE ||
+    user?.department_id === USER_HSL_CONTRACT ||
+    user?.department_id === USER_HSL_PURCHASE ||
     user?.department_id === DEPT_FI ||
     user?.department_id === DEPT_IT;
 

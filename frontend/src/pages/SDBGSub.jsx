@@ -57,7 +57,7 @@ const SDBGSub = () => {
   });
 
   const [entryState, setEntryState] = useState({});
-  const GRSE_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...";
+  const HSL_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...";
 
   let bg = { ...bgInputs, purchasing_doc_no: id };
   const [formDatainput, setFormDatainput] = useState(bg);
@@ -469,13 +469,13 @@ const SDBGSub = () => {
     let y = 40;
 
     try {
-      pdf.addImage(GRSE_LOGO_BASE64, "PNG", 10, 10, 50, 20);
+      pdf.addImage(HSL_LOGO_BASE64, "PNG", 10, 10, 50, 20);
     } catch (error) {
       console.warn("Error adding logo to PDF:", error);
     }
 
     pdf.setFontSize(18);
-    pdf.text(70, 20, "GRSE BG Entry");
+    pdf.text(70, 20, "HSL BG Entry");
 
     pdf.setFontSize(12);
 
@@ -1429,7 +1429,7 @@ const SDBGSub = () => {
                             }
                           />
                         ) : (
-                          <p>Waiting for Action from GRSE</p>
+                          <p>Waiting for Action from HSL</p>
                         )}
                       </>
                     )}

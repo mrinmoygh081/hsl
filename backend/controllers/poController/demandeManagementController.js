@@ -10,7 +10,6 @@ const { sendMail } = require("../../services/mail.services");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const Message = require("../../utils/messages");
 
-
 const insert = async (req, res) => {
   // return resSend(res, true, 200, "inserted!", req.body, null);
 
@@ -25,47 +24,23 @@ const insert = async (req, res) => {
     }
 
     if (tokenData.user_type == 1) {
-      return resSend(
-        res,
-        false,
-        200,
-        "Please login as GRSE users!",
-        null,
-        null
-      );
+      return resSend(res, false, 200, "Please login as HSL users!", null, null);
     }
 
-    const checkDo = await checkIsDealingOfficer(
-      obj.purchasing_doc_no,
-      tokenData.vendor_code
-    );
+    const checkDo = await checkIsDealingOfficer(obj.purchasing_doc_no, tokenData.vendor_code);
     if (checkDo == 1) {
       return resSend(res, false, 200, "Do can not raise demand!", null, null);
     }
 
     if (obj.status != SUBMITTED && obj.status != STATUS_RECEIVED) {
-      return resSend(
-        res,
-        false,
-        200,
-        "Please send a valid action type!",
-        null,
-        null
-      );
+      return resSend(res, false, 200, "Please send a valid action type!", null, null);
     }
 
     let payload;
 
     if (obj.status == SUBMITTED) {
       if (!obj.action_type || obj.action_type == "") {
-        return resSend(
-          res,
-          false,
-          200,
-          "please send a valid action_type!",
-          null,
-          null
-        );
+        return resSend(res, false, 200, "please send a valid action_type!", null, null);
       }
       // if(!obj.request_amount || obj.request_amount < 0) {
       //     return resSend(res, false, 200, "please send a valid request_amount!", null, null);
@@ -85,24 +60,13 @@ const insert = async (req, res) => {
       };
     } else if (obj.status == STATUS_RECEIVED) {
       if (!obj.reference_no || obj.reference_no == "") {
-        return resSend(
-          res,
-          false,
-          200,
-          "please send reference_no!",
-          null,
-          null
-        );
+        return resSend(res, false, 200, "please send reference_no!", null, null);
       }
       // if(!obj.recived_quantity || obj.recived_quantity < 0) {
       //     return resSend(res, false, 200, "please send a valid recived_quantity!", null, null);
       // }
 
-      let last_data = await get_latest_activity(null,
-        DEMAND_MANAGEMENT,
-        obj.purchasing_doc_no,
-        obj.reference_no
-      );
+      let last_data = await get_latest_activity(null, DEMAND_MANAGEMENT, obj.purchasing_doc_no, obj.reference_no);
       if (last_data) {
         delete last_data.id;
         last_data.demand = JSON.stringify(obj.demand);
@@ -114,14 +78,7 @@ const insert = async (req, res) => {
           created_by_id: tokenData.vendor_code,
         };
       } else {
-        return resSend(
-          res,
-          false,
-          200,
-          `No record found with this reference_no!`,
-          null,
-          null
-        );
+        return resSend(res, false, 200, `No record found with this reference_no!`, null, null);
       }
     }
 
@@ -141,14 +98,7 @@ const insert = async (req, res) => {
         handleEmail(payload);
       }
 
-      return resSend(
-        res,
-        true,
-        200,
-        `DEMAND MANAGEMENT ${obj.status} successfully !`,
-        response,
-        null
-      );
+      return resSend(res, true, 200, `DEMAND MANAGEMENT ${obj.status} successfully !`, response, null);
     } else {
       return resSend(res, false, 400, "something went wrong!", response, null);
     }
@@ -202,14 +152,7 @@ const list = async (req, res) => {
     });
 
     if (result.rows) {
-      return resSend(
-        res,
-        true,
-        200,
-        "Demande Management Data fetched succesfully!",
-        result.rows,
-        null
-      );
+      return resSend(res, true, 200, "Demande Management Data fetched succesfully!", result.rows, null);
     } else {
       return resSend(res, false, 200, "Data not fetched!", null, null);
     }
@@ -246,18 +189,13 @@ const getRestAmount = async (req, res) => {
         query: total_amount_query,
         values: [req.query.po_no, lineItem],
       });
-      total_amount_result =
-        total_amount_result[0].total_amount == null
-          ? 0
-          : total_amount_result[0].total_amount;
+      total_amount_result = total_amount_result[0].total_amount == null ? 0 : total_amount_result[0].total_amount;
 
       // const target_amount_query = `SELECT KTMNG AS target_amount from ekpo WHERE EBELN = ? AND EBELP = ?`;
       // let target_amount_result = await query({ query: target_amount_query, values: [req.query.po_no, req.query.line_item_no] });
       // target_amount_result = (target_amount_result[0].target_amount == null) ? 0 : target_amount_result[0].target_amount;
 
-      let target_amount_result = get_data_result[0].target_amount
-        ? get_data_result[0].target_amount
-        : 0;
+      let target_amount_result = get_data_result[0].target_amount ? get_data_result[0].target_amount : 0;
       // const total_requested_amount_query = `SELECT SUM(request_amount) AS total_requested_amount from demande_management WHERE purchasing_doc_no = '${req.query.po_no}' AND line_item_no = ${req.query.line_item_no} AND status = '${SUBMITTED}'`;
       // let total_requested_amount_result = await query({ query: total_requested_amount_query, values: [] });
       // total_requested_amount_result = (total_requested_amount_result[0].total_requested_amount == null) ? 0 : total_requested_amount_result[0].total_requested_amount;
@@ -299,48 +237,31 @@ const getRestAmount = async (req, res) => {
         values: [req.query.po_no, "WDC", APPROVED],
       });
 
-      if (
-        wdc_claim_amount_result.length &&
-        wdc_claim_amount_result.length === 0
-      ) {
+      if (wdc_claim_amount_result.length && wdc_claim_amount_result.length === 0) {
         rest_amount_wdc = target_amount_result;
       } else {
         let strArr = [];
         wdc_claim_amount_result.map((item) => {
           let datas = JSON.parse(item.line_item_array);
 
-
           if (datas && Array.isArray(datas) && datas.length) {
-            const find_line_item_no = datas.find(
-              ({ line_item_no }) => line_item_no == lineItem
-            );
+            const find_line_item_no = datas.find(({ line_item_no }) => line_item_no == lineItem);
             if (find_line_item_no) {
               strArr.push(find_line_item_no.claim_qty);
             }
           }
         });
 
-        let sum = strArr.reduce(
-          (accumulator, currentValue) => accumulator + parseFloat(currentValue),
-          0
-        );
+        let sum = strArr.reduce((accumulator, currentValue) => accumulator + parseFloat(currentValue), 0);
 
         rest_amount_wdc = target_amount_result - sum;
-
       }
       if (rest_amount_wdc < 0) {
         rest_amount_wdc = 0;
       }
       resData.rest_amount_wdc = parseFloat(rest_amount_wdc).toFixed(3);
 
-      resSend(
-        res,
-        true,
-        200,
-        "Rest Amount fetched succesfully!",
-        resData,
-        null
-      );
+      resSend(res, true, 200, "Rest Amount fetched succesfully!", resData, null);
       // } else {
       //     return resSend(res, false, 200, "something went wrong!", null, null);
       // }
@@ -370,12 +291,7 @@ async function handleEmail(data) {
       values: [data.purchasing_doc_no],
     });
     const dataObj = { ...data, vendor_name: vendorDetails[0]?.u_name };
-    await sendMail(
-      DEMAND_UPLOAD_BY_BEARTH,
-      dataObj,
-      { users: vendorDetails },
-      DEMAND_UPLOAD_BY_BEARTH
-    );
+    await sendMail(DEMAND_UPLOAD_BY_BEARTH, dataObj, { users: vendorDetails }, DEMAND_UPLOAD_BY_BEARTH);
   } catch (error) {
     console.log("handleEmail", error.toString(), error.stack);
   }

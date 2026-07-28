@@ -34,7 +34,7 @@ const SidebarDashboard = ({ title }) => {
       <div className="aside-logo flex-column-auto" onClick={() => dispatch(poRemoveHandler())}>
         <Link to="/po" className="logo_link">
           <img src={require("../images/image001.jpg")} alt="" className="img-fluid" style={{ width: "80px" }} />
-          {/* <span>GRSE</span> */}
+          {/* <span>HSL</span> */}
         </Link>
       </div>
       <div className="aside-menu flex-column-fluid">

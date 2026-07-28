@@ -27,7 +27,7 @@ const inspectionCallLetter = async (req, res) => {
     }
     const tokenData = { ...req.tokenData };
 
-    const by = tokenData.user_type === 1 ? "VENDOR" : "GRSE";
+    const by = tokenData.user_type === 1 ? "VENDOR" : "HSL";
 
     const payload = {
       ...req.body,
@@ -60,14 +60,7 @@ const inspectionCallLetter = async (req, res) => {
     if (response.rowCount) {
       handleEmail(insertObj);
 
-      resSend(
-        res,
-        true,
-        200,
-        "Ispection call letter inserted successfully !",
-        response,
-        null
-      );
+      resSend(res, true, 200, "Ispection call letter inserted successfully !", response, null);
     } else {
       resSend(res, false, 400, "No data inserted", null, null);
     }
@@ -106,8 +99,6 @@ const List = async (req, res) => {
   // resSend(res, true, 200, "oded!", req.query.dd, null);
 };
 
-
-
 async function handleEmail(data) {
   // Maill trigger to QA, user dept and dealing officer upon uploading of each inspection call letters.
 
@@ -120,12 +111,7 @@ async function handleEmail(data) {
       values: [data.purchasing_doc_no],
     });
     const dataObj = { ...data };
-    await sendMail(
-      INSP_CALL_LETTER_UPLOAD,
-      dataObj,
-      { users: doDetails },
-      INSP_CALL_LETTER_UPLOAD
-    );
+    await sendMail(INSP_CALL_LETTER_UPLOAD, dataObj, { users: doDetails }, INSP_CALL_LETTER_UPLOAD);
   } catch (error) {
     console.error("handleEmail", error.toString(), error.stack);
   }

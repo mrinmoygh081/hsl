@@ -172,7 +172,7 @@ WHERE     (
 function getMaxExpireDate(data) {
   data.forEach((item) => {
     const dates = [item.validity_date, item.extention_date1, item.extention_date2, item.extention_date3, item.extention_date4, item.extention_date5].filter(
-      (date) => date !== null
+      (date) => date !== null,
     );
 
     const maxDate = new Date(Math.max(...dates.map((date) => date.getTime())));
@@ -192,11 +192,10 @@ const vendorReminderMail = async () => {
     },
     {
       scheduled: true,
-    }
+    },
   );
 };
 const drawingAutoAcknowledgeCorn = () => {
-
   if (process.env.SERVER_ENV != LAN_SERVER) return;
   // "0 22 * * *",
   cron.schedule(
@@ -205,12 +204,12 @@ const drawingAutoAcknowledgeCorn = () => {
       try {
         await getDrawingData();
       } catch (error) {
-        console.error("drawingAutoAcknowledgeCorn", error, error.message)
+        console.error("drawingAutoAcknowledgeCorn", error, error.message);
       }
     },
     {
       scheduled: true,
-    }
+    },
   );
 };
 
@@ -244,7 +243,7 @@ function isOver3WorkingDaysOld(inputDate, currentDate) {
     //   if (saturdayCount === 2 || saturdayCount === 4) {
     //     count++;
     //   }
-    // } 
+    // }
     else {
       // Monday to Friday –> count
       count++;
@@ -254,8 +253,6 @@ function isOver3WorkingDaysOld(inputDate, currentDate) {
   }
   return count >= 3;
 }
-
-
 
 // inputDate = '2025-07-02'
 // currentDate = '2025-07-07';
@@ -278,7 +275,6 @@ async function getDrawingData() {
 
     const result = await poolQuery({ client, query: getDrawingDataQuery, values: [SUBMITTED, ACKNOWLEDGED, REJECTED] });
 
-
     if (result.length) {
       for await (let dw of result) {
         if (isOver3WorkingDaysOld(new Date(parseInt(dw.created_at)), new Date())) {
@@ -290,20 +286,19 @@ async function getDrawingData() {
             ...dw,
             created_at: getEpochTime(),
             remarks: "AUTO-ACKNOWLEDGE FORM SYSTEM",
-            updated_by: "GRSE",
+            updated_by: "HSL",
             created_by_id: "SYSTEM-AUTO",
             action_by: "SYSTEM-AUTO",
             action_on: "--",
-            status: ACKNOWLEDGED
+            status: ACKNOWLEDGED,
           };
 
-          const { q, val } = generateQuery(INSERT, 'drawing', payload);
+          const { q, val } = generateQuery(INSERT, "drawing", payload);
 
           // promiseArr.push(poolQuery({ client, query: q, values: val }));
           await poolQuery({ client, query: q, values: val });
           // promiseArr.push(setActualSubmissionDate(payload, MID_DRAWING, { vendor_code: dw.vendor_code }, SUBMITTED, client));
           await setActualSubmissionDate(payload, MID_DRAWING, { vendor_code: dw.vendor_code }, SUBMITTED, client);
-
         }
       }
 
@@ -311,19 +306,14 @@ async function getDrawingData() {
       return true;
     }
 
-
     return true;
-
   } catch (error) {
     console.error("error", error);
-    throw error
+    throw error;
   } finally {
     if (client) client.release();
   }
-
 }
-
-
 
 async function mailSendCornFn() {
   try {
@@ -344,10 +334,10 @@ async function mailSendCornFn() {
           isCompletedTask = false;
         }
       },
-      { scheduled: process.env.MAIL_TURN_ON === YES }
+      { scheduled: process.env.MAIL_TURN_ON === YES },
     );
   } catch (error) {
-    console.error("mailSendCornFn error", error)
+    console.error("mailSendCornFn error", error);
   }
 }
 

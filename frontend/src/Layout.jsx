@@ -264,7 +264,7 @@ function Layout() {
             <Route path="/dashboard/wdc" element={<WDCDashboard />} />
           )}
 
-          {/* {(user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.department_id === USER_GRSE_PURCHASE) && ( */}
+          {/* {(user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.department_id === USER_HSL_PURCHASE) && ( */}
           <>
             <Route path="/dashboard/task-list" element={<TaskList />} />
           </>

@@ -1,14 +1,8 @@
 const { TRUE } = require("../../lib/constant");
 const { responseSend, resSend } = require("../../lib/resSend");
 const { GATE_ENTRY_DATA, GATE_ENTRY_HEADER } = require("../../lib/tableName");
-const {
-  gateEntryHeaderPayload,
-  gateEntryDataPayload,
-} = require("../../services/sap.store.services");
-const {
-  generateInsertUpdateQuery,
-  generateQueryForMultipleData,
-} = require("../../lib/utils");
+const { gateEntryHeaderPayload, gateEntryDataPayload } = require("../../services/sap.store.services");
+const { generateInsertUpdateQuery, generateQueryForMultipleData } = require("../../lib/utils");
 const Message = require("../../utils/messages");
 const { poolClient, poolQuery, getQuery } = require("../../config/pgDbConfig");
 const { sendMail } = require("../../services/mail.services");
@@ -39,14 +33,8 @@ const insertGateEntryData = async (req, res) => {
 
       const { ITEM_TAB, ...obj } = payload[index];
 
-      if (
-        !obj ||
-        typeof obj !== "object" ||
-        !Object.keys(obj).length ||
-        !obj.ENTRY_NO ||
-        !obj.W_YEAR
-      ) {
-        return responseSend(res, "F", 400,  Message.INVALID_PAYLOAD, null, null);
+      if (!obj || typeof obj !== "object" || !Object.keys(obj).length || !obj.ENTRY_NO || !obj.W_YEAR) {
+        return responseSend(res, "F", 400, Message.INVALID_PAYLOAD, null, null);
         // throw new Error(Message.INVALID_PAYLOAD);
       }
 
@@ -54,11 +42,7 @@ const insertGateEntryData = async (req, res) => {
 
       try {
         insertPayload = await gateEntryHeaderPayload(obj);
-        const gate_entry_h_Insert = await generateInsertUpdateQuery(
-          insertPayload,
-          GATE_ENTRY_HEADER,
-          ["ENTRY_NO", "W_YEAR"]
-        );
+        const gate_entry_h_Insert = await generateInsertUpdateQuery(insertPayload, GATE_ENTRY_HEADER, ["ENTRY_NO", "W_YEAR"]);
         await poolQuery({
           client,
           query: gate_entry_h_Insert.q,
@@ -73,18 +57,13 @@ const insertGateEntryData = async (req, res) => {
         try {
           const zmilestonePayload = await gateEntryDataPayload(ITEM_TAB);
           // const insert_ekpo_table = `INSERT INTO ekpo (EBELN, EBELP, LOEKZ, STATU, AEDAT, TXZ01, MATNR, BUKRS, WERKS, LGORT, MATKL, KTMNG, MENGE, MEINS, NETPR, NETWR, MWSKZ) VALUES ?`;
-          const zmm_ge_line_item_q = await generateQueryForMultipleData(
-            zmilestonePayload,
-            GATE_ENTRY_DATA,
-            ["ENTRY_NO", "EBELN", "EBELP", "W_YEAR"]
-          );
+          const zmm_ge_line_item_q = await generateQueryForMultipleData(zmilestonePayload, GATE_ENTRY_DATA, ["ENTRY_NO", "EBELN", "EBELP", "W_YEAR"]);
           await poolQuery({
             client,
             query: zmm_ge_line_item_q.q,
             values: zmm_ge_line_item_q.val,
           });
         } catch (error) {
-
           // throw new Error(Message.DATA_INSERT_FAILED + JSON.stringify(error.toString()));
           throw new Error(`${Message.DATA_INSERT_FAILED} ${error.toString()}`);
         }
@@ -123,7 +102,7 @@ async function handelMail(data, ge_h) {
      */
     const geCount = await getQuery({
       query: "SELECT COUNT(*) FROM zmm_gate_entry_h WHERE ENTRY_NO = $1 AND W_YEAR = $2",
-      values: [ge_h?.ENTRY_NO, ge_h?.W_YEAR]
+      values: [ge_h?.ENTRY_NO, ge_h?.W_YEAR],
     });
 
     // CHAECK GE ALREAY IN DO
@@ -138,12 +117,7 @@ async function handelMail(data, ge_h) {
         purchasing_doc_no: data?.EBELN,
         vendor_name: mail_details[0]?.u_name,
       };
-      await sendMail(
-        GATE_ENTRY_DOC_CREATE,
-        dataObj,
-        { users: mail_details },
-        GATE_ENTRY_DOC_CREATE
-      );
+      await sendMail(GATE_ENTRY_DOC_CREATE, dataObj, { users: mail_details }, GATE_ENTRY_DOC_CREATE);
     }
   } catch (error) {
     console.error(error.message, error.stack);
@@ -163,7 +137,7 @@ const storeActionList = async (req, res) => {
      * issue
      * service enty sheet
      */
-    const client = await poolClient()
+    const client = await poolClient();
     try {
       let storeActionListQuery = `
                 (SELECT NULL         AS docNo,
@@ -771,9 +745,7 @@ FROM
       const queryParams = req.query;
       const val = [];
       if (queryParams.poNo) {
-        storeActionListQuery.concat(
-          " AND store_action_list.purchasing_doc_no = $1 "
-        );
+        storeActionListQuery.concat(" AND store_action_list.purchasing_doc_no = $1 ");
         val.push(queryParams.poNo);
       }
 
@@ -789,8 +761,8 @@ FROM
         getICGrn(client, val),
         // getReservation(client, val),
         // getGoodsIssueSlip(client, val),
-        getServiceEntry(client, val)
-      ])
+        getServiceEntry(client, val),
+      ]);
 
       // transactionSuccessful = true;
       let result2 = [];
@@ -810,7 +782,6 @@ FROM
         // SERVICE ENTRY SHEET
         result2 = result2.concat(results[3]);
       }
-
 
       resSend(res, true, 200, "data fetch success", result2, null);
       // if (transactionSuccessful === TRUE && results) {
@@ -860,9 +831,7 @@ const gateEntryReport = async (req, res) => {
                 WHERE 1 = 1`;
 
     if (req.body.gate_entry_no) {
-      ge_query = ge_query.concat(
-        ` AND zmm_gate_entry_h.ENTRY_NO = '${req.body.gate_entry_no}'`
-      );
+      ge_query = ge_query.concat(` AND zmm_gate_entry_h.ENTRY_NO = '${req.body.gate_entry_no}'`);
     }
 
     let results = await getQuery({ query: ge_query.q, values: ge_query.val });
@@ -875,16 +844,15 @@ const gateEntryReport = async (req, res) => {
       vehicle_no: null,
     };
     if (results && results.length) {
-      (obj.gate_entry_no = results[0].gate_entry_no),
+      ((obj.gate_entry_no = results[0].gate_entry_no),
         (obj.entry_date = results[0].entry_date),
         (obj.vendor = results[0].vendor),
         (obj.invoice_number = results[0].invoice_number),
         (obj.vehicle_no = results[0].vehicle_no),
         (obj.vendor_name = results[0].vendor_name),
         (obj.vendor_code = results[0].vendor_code),
-        (obj.line_items = results);
+        (obj.line_items = results));
     }
-
 
     if (results.length) {
       resSend(res, true, 200, "data fetch success", obj, null);
@@ -895,8 +863,6 @@ const gateEntryReport = async (req, res) => {
     resSend(res, false, 502, error.toString(), error.stack, null);
   }
 };
-
-
 
 async function getGateEntry(client, data) {
   let gateEntryQuery = `SELECT 
@@ -916,7 +882,6 @@ async function getGateEntry(client, data) {
             ZMM_GATE_ENTRY_D.ENTRY_DATE,
             ZMM_GATE_ENTRY_D.INV_DATE
     `;
-
 
   gateEntryQuery = `
     SELECT 
@@ -943,11 +908,9 @@ GROUP BY
     ZMM_GATE_ENTRY_D.INVNO`;
   const result = await poolQuery({ client, query: gateEntryQuery, values: data });
   return result;
-
 }
 
 async function getGrn(client, data) {
-
   let grnQuery = `
       SELECT 
         "matDocNo" AS "matDocNo", 
@@ -1032,7 +995,6 @@ async function getICGrn(client, data) {
             qals AS q 
         ) AS qals where 1 =1 and purchising_doc_no = $1`;
 
-
   icgrnQuery = `
           SELECT 
           	QALS.MBLNR AS "docNo",
@@ -1069,22 +1031,19 @@ async function getICGrn(client, data) {
 //   return String(lotNo).padStart(12, '0');
 // }
 
-
-
-
 // async function getReservation(client, data) {
 //     const reservationQuery = `
-//        SELECT 
-//               rk.rsnum::character varying AS "reservationNumber", 
-//               rk.rsdat::character varying AS "reservationDate", 
-//               rk.rsdat AS "dateTime", 
-//               rk.EBELN as "purchasing_doc_no", 
+//        SELECT
+//               rk.rsnum::character varying AS "reservationNumber",
+//               rk.rsdat::character varying AS "reservationDate",
+//               rk.rsdat AS "dateTime",
+//               rk.EBELN as "purchasing_doc_no",
 //               "serviceEntryNumber" as "serviceEntryNumber"
-//             FROM 
+//             FROM
 //               rkpf AS rk where 1 =1 and rk.EBELN = $1
 
-//             GROUP BY 
-//               rk.rsnum, 
+//             GROUP BY
+//               rk.rsnum,
 //               rk.rsdat`;
 
 //     const result = await poolQuery({ client, query: reservationQuery, values: data });
@@ -1093,27 +1052,27 @@ async function getICGrn(client, data) {
 // async function getGoodsIssueSlip(client, data) {
 
 //     const goods_issue_slipQuery = `
-//       SELECT 
-//             ms.mblnr AS "issueNo", 
-//             ms.mjahr::character varying AS "issueYear", 
-//             'grse' AS "updatedby", 
-//             ms.bwart, 
-//             budat_mkpf AS "dateTime", 
+//       SELECT
+//             ms.mblnr AS "issueNo",
+//             ms.mjahr::character varying AS "issueYear",
+//             'grse' AS "updatedby",
+//             ms.bwart,
+//             budat_mkpf AS "dateTime",
 //             ms.EBELN as "purchasing_doc_no",
-//             'goods_issue_slip' AS "documentType" 
-//           FROM 
-//             mseg AS ms WHERE 
-//             1 = 1 AND 
+//             'goods_issue_slip' AS "documentType"
+//           FROM
+//             mseg AS ms WHERE
+//             1 = 1 AND
 //             MS.bwart IN (
-//           '221', '281', '201', '321', '222', '202', 
+//           '221', '281', '201', '321', '222', '202',
 //           '122'
 //         ) AND ms.EBELN = $1
 
-//           GROUP BY 
-//             ms.mblnr, 
-//             ms.bwart, 
-//             budat_mkpf, 
-//             ms.mjahr, 
+//           GROUP BY
+//             ms.mblnr,
+//             ms.bwart,
+//             budat_mkpf,
+//             ms.mjahr,
 //             ms.EBELN`;
 
 //     const result = await poolQuery({ client, query: goods_issue_slipQuery, values: data });
@@ -1121,7 +1080,6 @@ async function getICGrn(client, data) {
 // }
 
 async function getServiceEntry(client, data) {
-
   const serviceEntryQuery = `
           SELECT 
             essr.lblni as "serviceEntryNumber", 
@@ -1130,12 +1088,11 @@ async function getServiceEntry(client, data) {
             '' as "storageLocation",
             'service_entry_report' AS "documentType" 
           FROM 
-            essr as essr where 1 = 1 AND ebeln = $1` ;
+            essr as essr where 1 = 1 AND ebeln = $1`;
 
   const result = await poolQuery({ client, query: serviceEntryQuery, values: data });
   return result;
 }
-
 
 const gateEngryHeaderTableDataInsert = async (req, res) => {
   let client;
@@ -1198,8 +1155,6 @@ const gateEngryDataTableDataInsert = async (req, res) => {
   }
 };
 
-
-
 // SELECT MBLNR,
 //        BWART,
 //        SMBLN
@@ -1211,7 +1166,6 @@ const gateEngryDataTableDataInsert = async (req, res) => {
 //       WHERE (m2.MBLNR = m1.SMBLN AND m1.BWART = '102')
 //          OR (m2.SMBLN = m1.MBLNR AND m2.BWART = '102')
 //   );
-
 
 module.exports = { insertGateEntryData, storeActionList, gateEntryReport, gateEngryDataTableDataInsert, gateEngryHeaderTableDataInsert };
 //     EBELN: "7777777777",
@@ -1233,7 +1187,7 @@ module.exports = { insertGateEntryData, storeActionList, gateEntryReport, gateEn
 //         AEDAT: "07.03.2014",
 //         TXZ01: "IncomeTax Rectification in SAP Payroll",
 //         MATNR: "",
-//         BUKRS: "GRSE",
+//         BUKRS: "HSL",
 //         WERKS: "100",
 //         LGORT: "",
 //         MATKL: "SE57",
@@ -1252,7 +1206,7 @@ module.exports = { insertGateEntryData, storeActionList, gateEntryReport, gateEn
 //         AEDAT: "20.06.2019",
 //         TXZ01: "6. Warranty Support",
 //         MATNR: "",
-//         BUKRS: "GRSE",
+//         BUKRS: "HSL",
 //         WERKS: "100",
 //         LGORT: "",
 //         MATKL: "SE74",

@@ -25,7 +25,7 @@ const inspectionReleaseNote = async (req, res) => {
     }
     const tokenData = { ...req.tokenData };
 
-    const by = tokenData.user_type === 1 ? "VENDOR" : "GRSE";
+    const by = tokenData.user_type === 1 ? "VENDOR" : "HSL";
 
     const payload = {
       ...req.body,
@@ -97,8 +97,6 @@ const list = async (req, res) => {
   // resSend(res, true, 200, "oded!", req.query.dd, null);
 };
 
-
-
 async function handleEmail(data) {
   // Maill trigger to QA, user dept and dealing officer upon uploading of each inspection call letters.
 
@@ -111,12 +109,7 @@ async function handleEmail(data) {
       values: [data.purchasing_doc_no],
     });
     const dataObj = { ...data };
-    await sendMail(
-      INSP_RELEASE_NOTE_UPLOAD,
-      dataObj,
-      { users: doDetails },
-      INSP_RELEASE_NOTE_UPLOAD
-    );
+    await sendMail(INSP_RELEASE_NOTE_UPLOAD, dataObj, { users: doDetails }, INSP_RELEASE_NOTE_UPLOAD);
   } catch (error) {
     console.error("handleEmail", error.toString(), error.stack);
   }

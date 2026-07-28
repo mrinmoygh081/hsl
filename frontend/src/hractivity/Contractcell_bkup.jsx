@@ -11,7 +11,7 @@ import Select from "react-select";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDate } from "../utils/getDateTimeNow";
-import { ASSIGNER, STAFF, USER_GRSE_CONTRACT, USER_GRSE_HR, USER_VENDOR } from "../constants/userConstants";
+import { ASSIGNER, STAFF, USER_HSL_CONTRACT, USER_HSL_HR, USER_VENDOR } from "../constants/userConstants";
 
 const Contractcell = () => {
   const [selectedOptions, setSelectedOptions] = useState([]);
@@ -469,7 +469,7 @@ const Contractcell = () => {
               <div className="post d-flex flex-column-fluid">
                 <div className="container">
                   {/* File Upload Section */}
-                  {user?.department_id === USER_GRSE_CONTRACT && (
+                  {user?.department_id === USER_HSL_CONTRACT && (
                     <div className="row g-5 g-xl-8">
                       <div className="col-12">
                         <div className="card p-4" style={{ maxWidth: "600px", margin: "0 auto" }}>
@@ -562,7 +562,7 @@ const Contractcell = () => {
                                           <td>{(row?.last_complient_date && formatDate(row?.last_complient_date)) || "--"}</td>
                                           <td>{(row?.compliance_till_date && formatDate(row?.compliance_till_date)) || "--"}</td>
 
-                                          {(user?.department_id === USER_GRSE_HR && user.internal_role_id === STAFF) ||
+                                          {(user?.department_id === USER_HSL_HR && user.internal_role_id === STAFF) ||
                                             (user.user_type === USER_VENDOR && (
                                               <td
                                                 style={{
@@ -573,7 +573,7 @@ const Contractcell = () => {
                                               </td>
                                             ))}
 
-                                          {user?.department_id === USER_GRSE_HR && (
+                                          {user?.department_id === USER_HSL_HR && (
                                             <>
                                               <td
                                                 style={{
@@ -659,13 +659,13 @@ const Contractcell = () => {
                                 </button>
                               )}
 
-                              {user?.internal_role_id === ASSIGNER && user?.department_id === USER_GRSE_HR && (
+                              {user?.internal_role_id === ASSIGNER && user?.department_id === USER_HSL_HR && (
                                 <button className="btn btn-primary" onClick={handleActionClickHR} style={{ marginRight: "10px", marginLeft: "auto" }}>
                                   ACTION
                                 </button>
                               )}
 
-                              {user?.internal_role_id === STAFF && user?.department_id === USER_GRSE_HR && (
+                              {user?.internal_role_id === STAFF && user?.department_id === USER_HSL_HR && (
                                 <button className="btn btn-primary md-2" onClick={handleActionClickRetailer} style={{ marginRight: "10px", marginLeft: "auto" }}>
                                   ACTION
                                 </button>
@@ -732,8 +732,8 @@ const Contractcell = () => {
                                     <th>OTHERS</th>
                                     <th>Compliances Upto</th>
                                     <th>New Compliances Date</th>
-                                    {(user?.department_id === USER_GRSE_HR && user.internal_role_id === STAFF) || (user.user_type === USER_VENDOR && <th>Vendor Status</th>)}
-                                    {user?.department_id === USER_GRSE_HR && <th>Is Recommended</th>}
+                                    {(user?.department_id === USER_HSL_HR && user.internal_role_id === STAFF) || (user.user_type === USER_VENDOR && <th>Vendor Status</th>)}
+                                    {user?.department_id === USER_HSL_HR && <th>Is Recommended</th>}
                                     <th>Status</th>
                                   </tr>
                                 </thead>
@@ -765,7 +765,7 @@ const Contractcell = () => {
                                           <td>{(row?.last_complient_date && formatDate(row?.last_complient_date)) || "--"}</td>
                                           <td>{(row?.compliance_till_date && formatDate(row?.compliance_till_date)) || "--"}</td>
 
-                                          {(user?.department_id === USER_GRSE_HR && user.internal_role_id === STAFF) ||
+                                          {(user?.department_id === USER_HSL_HR && user.internal_role_id === STAFF) ||
                                             (user.user_type === USER_VENDOR && (
                                               <td
                                                 style={{
@@ -776,7 +776,7 @@ const Contractcell = () => {
                                               </td>
                                             ))}
 
-                                          {user?.department_id === USER_GRSE_HR && (
+                                          {user?.department_id === USER_HSL_HR && (
                                             <>
                                               <td
                                                 style={{

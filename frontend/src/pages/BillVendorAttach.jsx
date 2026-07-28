@@ -25,15 +25,10 @@ const BillVendorAttach = () => {
                             <table className="table table-striped table-bordered table_height">
                               <tbody>
                                 <tr className="table_center">
-                                  <th colSpan={3}>
-                                    Checklist for Vendor bills
-                                  </th>
+                                  <th colSpan={3}>Checklist for Vendor bills</th>
                                 </tr>
                                 <tr className="table_center">
-                                  <td colSpan={3}>
-                                    (Filled up checklist to be enclosed with
-                                    every bill before submitting to Finance)
-                                  </td>
+                                  <td colSpan={3}>(Filled up checklist to be enclosed with every bill before submitting to Finance)</td>
                                 </tr>
                                 <tr className="table_center">
                                   <th className="w_50">A</th>
@@ -43,83 +38,54 @@ const BillVendorAttach = () => {
                                   <td className="w_50">A.1</td>
                                   <td className="w_400">PO No:</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.2</td>
                                   <td className="w_400">Vendor Name:</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.3</td>
                                   <td className="w_400">Vendor Code:</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.4</td>
                                   <td className="w_400">BTN:</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.5</td>
                                   <td className="w_400">Invoice no:</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.6</td>
-                                  <td className="w_400">
-                                    Ink signed PO (Required in case of 1st time
-                                    invoicing & on every amendment)
-                                  </td>
+                                  <td className="w_400">Ink signed PO (Required in case of 1st time invoicing & on every amendment)</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.7</td>
-                                  <td className="w_400">
-                                    Whether Bill has been forwarded through BTS
-                                  </td>
+                                  <td className="w_400">Whether Bill has been forwarded through BTS</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.8</td>
-                                  <td className="w_400">
-                                    Whether E-Invoice is provided, if applicable
-                                    for the vendor (Y/N)
-                                  </td>
+                                  <td className="w_400">Whether E-Invoice is provided, if applicable for the vendor (Y/N)</td>
                                   <td>
                                     <select className="form-control">
                                       <option>Choose options...</option>
@@ -130,38 +96,23 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td>A.9</td>
-                                  <td className="w_400">
-                                    Whether HSN code is as per PO
-                                  </td>
+                                  <td className="w_400">Whether HSN code is as per PO</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.10</td>
-                                  <td className="w_400">
-                                    Whether GSTIN is as per PO
-                                  </td>
+                                  <td className="w_400">Whether GSTIN is as per PO</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                                 <tr>
                                   <td>A.11</td>
-                                  <td className="w_400">
-                                    Whether Tax rate is as per PO
-                                  </td>
+                                  <td className="w_400">Whether Tax rate is as per PO</td>
                                   <td>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                    />
+                                    <input type="text" className="form-control" />
                                   </td>
                                 </tr>
                               </tbody>
@@ -199,10 +150,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 2</td>
-                                  <td>
-                                    QAP/ BD schedule submission date as per
-                                    PO-(DD/MM/YY)
-                                  </td>
+                                  <td>QAP/ BD schedule submission date as per PO-(DD/MM/YY)</td>
                                   <td>
                                     <input type="radio" name="idB2" />
                                   </td>
@@ -215,10 +163,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 3</td>
-                                  <td>
-                                    QAP/BD Actual date (DD/MM/YY) (Documents in
-                                    support)
-                                  </td>
+                                  <td>QAP/BD Actual date (DD/MM/YY) (Documents in support)</td>
                                   <td>
                                     <input type="radio" name="idB3" />
                                   </td>
@@ -257,9 +202,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 6</td>
-                                  <td>
-                                    Weight Certificate & Preservation cert.
-                                  </td>
+                                  <td>Weight Certificate & Preservation cert.</td>
                                   <td>
                                     <input type="radio" name="idB6" />
                                   </td>
@@ -272,10 +215,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 7</td>
-                                  <td>
-                                    GRSE Gate/Stores receipted challan/Service
-                                    Entry Sheet
-                                  </td>
+                                  <td>HSL Gate/Stores receipted challan/Service Entry Sheet</td>
                                   <td>
                                     <input type="radio" name="idB7" />
                                   </td>
@@ -288,9 +228,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 8</td>
-                                  <td>
-                                    Lot no in case delivery terms is in lots
-                                  </td>
+                                  <td>Lot no in case delivery terms is in lots</td>
                                   <td>
                                     <input type="radio" name="idB8" />
                                   </td>
@@ -303,10 +241,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 9</td>
-                                  <td>
-                                    Whether SDBG/CPBG submitted (If Yes, BG no
-                                    is to be mentioned)
-                                  </td>
+                                  <td>Whether SDBG/CPBG submitted (If Yes, BG no is to be mentioned)</td>
                                   <td>
                                     <input type="radio" name="idB9" />
                                   </td>
@@ -319,11 +254,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 10</td>
-                                  <td>
-                                    Whether PBG Submitted for entire PO value
-                                    (single BG is to be submitted for total PO
-                                    value to release 100% payment)
-                                  </td>
+                                  <td>Whether PBG Submitted for entire PO value (single BG is to be submitted for total PO value to release 100% payment)</td>
                                   <td>
                                     <input type="radio" name="idB10" />
                                   </td>
@@ -336,9 +267,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td className="table_center">B. 11</td>
-                                  <td>
-                                    Any other documents as per payment terms
-                                  </td>
+                                  <td>Any other documents as per payment terms</td>
                                   <td>
                                     <input type="radio" name="idB11" />
                                   </td>
@@ -396,8 +325,7 @@ const BillVendorAttach = () => {
                                 </tr>
                                 <tr>
                                   <td colSpan={5}>
-                                    <b>Note:</b> Invoice will be accepted on the
-                                    basis of checklist submitted.
+                                    <b>Note:</b> Invoice will be accepted on the basis of checklist submitted.
                                   </td>
                                 </tr>
                               </tbody>

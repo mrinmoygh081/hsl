@@ -114,9 +114,9 @@ const SupportTeam = () => {
       </main>
 
       <footer className="st-footer">
-        <p>All Rights Reserved by GRSE.</p>
+        <p>All Rights Reserved by HSL.</p>
         <p>Version: 1.1.0</p>
-        <span className="st-footer-copy">© {new Date().getFullYear()} GRSE OBPS Portal</span>
+        <span className="st-footer-copy">© {new Date().getFullYear()} HSL OVMS Portal</span>
       </footer>
     </div>
   );

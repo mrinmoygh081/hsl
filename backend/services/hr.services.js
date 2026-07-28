@@ -1,6 +1,6 @@
 /* eslint-disable no-useless-catch */
 const { poolQuery } = require("../config/pgDbConfig");
-const { USER_TYPE_GRSE_HR, ASSIGNER, USER_TYPE_VENDOR, STAFF, TYPE_RC, TYPE_PO } = require("../lib/constant");
+const { USER_TYPE_HSL_HR, ASSIGNER, USER_TYPE_VENDOR, STAFF, TYPE_RC, TYPE_PO } = require("../lib/constant");
 const { SUBMITTED, APPROVED, REJECTED, STATUS_RECOMMEND, NOT_RECOMMEND, STATUS_HOLD_BY_HR, STATUS_HOLD_BY_HR_RECIPIENT } = require("../lib/status");
 const { getEpochTime, generateSimpleSingleGetQuery } = require("../lib/utils");
 // const complianceLists = ["PF", "ESI", "WAGES", "LEAVE_SALARY", "BONUS", "OTHERS"];
@@ -8,7 +8,6 @@ const Message = require("../utils/messages");
 // const localData = require("../utils/localData.json");
 // const { create_reference_no } = require("./po.services");
 const { HR_COMPLIANCE, HR_COMPLIANCE_DATA } = require("../lib/tableName");
-
 
 function createRefGroup(hrPayload) {
   return `${hrPayload?.rc_no}${hrPayload?.purchasing_doc_no}${hrPayload?.unit}`;
@@ -48,7 +47,6 @@ const paylaodValidationForHr = (payloadArr) => {
   return true;
 };
 
-
 const setVendorPoPayload = (compliance_data, tokenData) => {
   const payload = [];
   compliance_data.forEach((element) => {
@@ -66,12 +64,11 @@ const setVendorPoPayload = (compliance_data, tokenData) => {
         compliance: compl,
         status: SUBMITTED,
         vendor_code: tokenData.vendor_code,
-
-      })
-    })
+      });
+    });
   });
   return payload;
-}
+};
 const setVendorRcPayload = (compliance_data, tokenData) => {
   const payload = [];
   compliance_data.forEach((element) => {
@@ -91,12 +88,12 @@ const setVendorRcPayload = (compliance_data, tokenData) => {
         status: SUBMITTED,
         vendor_code: tokenData.vendor_code,
         created_by: tokenData.vendor_code,
-        created_at: getEpochTime()
-      })
-    })
+        created_at: getEpochTime(),
+      });
+    });
   });
   return payload;
-}
+};
 const setHrPayload = (compliance_data, tokenData) => {
   const payload = [];
   compliance_data.forEach((element) => {
@@ -105,27 +102,22 @@ const setHrPayload = (compliance_data, tokenData) => {
       status: element.status,
       remarks: element.remarks,
       updated_by: tokenData.vendor_code,
-      updated_at: getEpochTime()
+      updated_at: getEpochTime(),
     });
   });
   return payload;
-}
-
-
+};
 
 async function checkCurrentData(client, data) {
   try {
-
     const { q, val } = generateSimpleSingleGetQuery(HR_COMPLIANCE_DATA, "*", data);
     const result = await poolQuery({ client, query: q, values: val });
 
-    return result[0] || {}
-
+    return result[0] || {};
   } catch (error) {
     throw error;
   }
 }
-
 
 function hrComplinceViewSimplyfy(data) {
   const grouped = {};
@@ -137,9 +129,9 @@ function hrComplinceViewSimplyfy(data) {
     [STATUS_RECOMMEND]: 2,
     [NOT_RECOMMEND]: 3,
     [APPROVED]: 4,
-    [REJECTED]: 5
-  }
-  data.forEach(item => {
+    [REJECTED]: 5,
+  };
+  data.forEach((item) => {
     const key = `${item.ref_group}_${item.compliance_month}_${item.compliance_year}`;
 
     if (!grouped[key]) {
@@ -148,7 +140,7 @@ function hrComplinceViewSimplyfy(data) {
     }
 
     // Add compliance flags
-    item.compliance_data.forEach(c => {
+    item.compliance_data.forEach((c) => {
       if (c.compliance && typeof c.compliance == "string") {
         grouped[key][c.compliance.toLowerCase()] = "Y";
       }
@@ -157,24 +149,21 @@ function hrComplinceViewSimplyfy(data) {
 
   let result = Object.values(grouped);
   if (result.length) {
-    result = result.sort((a, b) => a.statusCode - b.statusCode)
+    result = result.sort((a, b) => a.statusCode - b.statusCode);
   }
 
-  return result
+  return result;
 }
-
-
 
 async function complianceListFromRc(client, tokenData, data) {
   try {
-
     let q = `SELECT hrc.ref_group, hrc.rc_no, hrc.purchasing_doc_no, hrc.unit FROM  ${HR_COMPLIANCE} as hrc
       LEFT JOIN ekko as ekko on( hrc.purchasing_doc_no = ekko.ebeln )
     `;
     let conditionQuery = " WHERE 1 = 1 ";
 
     let count = 0;
-    const values = []
+    const values = [];
     if (data.docNo) {
       conditionQuery += ` AND hrc.rc_no LIKE $${++count}`;
       values.push(`%${data.docNo}%`);
@@ -191,14 +180,13 @@ async function complianceListFromRc(client, tokenData, data) {
   } catch (error) {
     throw error;
   }
-
 }
 async function complianceListFromPo(client, tokenData, data) {
   try {
     let q = "SELECT ebeln as purchasing_doc_no FROM ekko";
     let conditionQuery = " WHERE 1 = 1 ";
     let count = 0;
-    const values = []
+    const values = [];
     if (data.docNo) {
       conditionQuery += ` AND ekko.ebeln LIKE $${++count}`;
       values.push(`%${data.docNo}%`);
@@ -208,14 +196,12 @@ async function complianceListFromPo(client, tokenData, data) {
       values.push(tokenData.vendor_code);
     }
     let result = await poolQuery({ client, query: q + conditionQuery, values });
-    result = result.map((el) => ({ ...el, rc_no: "NON_RC", unit: null, ref_group: null }))
+    result = result.map((el) => ({ ...el, rc_no: "NON_RC", unit: null, ref_group: null }));
     return result;
   } catch (error) {
     throw error;
   }
-
 }
-
 
 async function complianceView(client, tokenData, data) {
   try {
@@ -256,7 +242,6 @@ FROM ${HR_COMPLIANCE} AS compliance
 LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data 
     ON (compliance.ref_group = compliance_data.ref_group AND is_active = 'F')`;
 
-
     let conditionQuery = " WHERE 1 = 1 ";
 
     conditionQuery += `
@@ -265,7 +250,7 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
     AND EXISTS (
       SELECT 1 
       FROM ${HR_COMPLIANCE} AS copy2
-      WHERE copy2.ref_group = compliance_data.ref_group)`
+      WHERE copy2.ref_group = compliance_data.ref_group)`;
 
     const groupBy = ` GROUP BY 
     compliance.purchasing_doc_no,
@@ -282,27 +267,22 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
     compliance_data.created_at,
     compliance_data.updated_at,
     compliance_data.vendor_code,
-    compliance_data.compliance_year `
-    // const orderBy = ` ORDER BY 
-    // compliance_data.created_at,  
-    // compliance_data.compliance_year,  
+    compliance_data.compliance_year `;
+    // const orderBy = ` ORDER BY
+    // compliance_data.created_at,
+    // compliance_data.compliance_year,
     // compliance_data.compliance_month DESC`;
     const orderBy = ` ORDER BY compliance_data.created_at DESC`;
 
-// [NEW] COUNT QUERY
+    // [NEW] COUNT QUERY
     let countQuery = `SELECT 
           count(*) as total
           FROM ${HR_COMPLIANCE} AS compliance
           LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data 
               ON (compliance.ref_group = compliance_data.ref_group AND is_active = 'F')`;
 
-
-
-
-
     let values = [];
     let count = 0;
-
 
     if (tokenData?.user_type == USER_TYPE_VENDOR) {
       values.push(tokenData.vendor_code);
@@ -359,25 +339,19 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
 
     const finalCountQuery = countQuery + conditionQuery + groupBy;
 
-
     let result = await poolQuery({ client, query: finalDataQuery, values });
     let countResult = await poolQuery({ client, query: finalCountQuery, values });
-
 
     result = hrComplinceViewSimplyfy(result);
     return { complianceData: result, totalCount: null };
   } catch (error) {
     throw error;
   }
-
 }
 
-
 const currentDataValidation = (tokenData, currntData, payloadData) => {
-
   const errorObj = { success: false, message: "", data: {} };
-  if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id == USER_TYPE_GRSE_HR && tokenData.internal_role_id == ASSIGNER) {
-
+  if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id == USER_TYPE_HSL_HR && tokenData.internal_role_id == ASSIGNER) {
     if (currntData.status === REJECTED) {
       return { ...errorObj, message: Message.COMPLIANCE_STATUS_WARNING_MSG + currntData.status, data: payloadData };
     }
@@ -401,7 +375,7 @@ const currentDataValidation = (tokenData, currntData, payloadData) => {
     return { success: true, message: "All ok", data: payloadData };
   }
 
-  if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id == USER_TYPE_GRSE_HR && tokenData.internal_role_id == STAFF) {
+  if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id == USER_TYPE_HSL_HR && tokenData.internal_role_id == STAFF) {
     if (currntData.status === APPROVED || currntData.status === REJECTED || currntData.status === STATUS_HOLD_BY_HR) {
       return { ...errorObj, message: "Alreday action taken by HR", data: payloadData };
     }
@@ -432,7 +406,6 @@ const currentDataValidation = (tokenData, currntData, payloadData) => {
   //     return { ...errorObj, message: "Can't upload compliane for month " + localData.MONTH_LIST_OBJECT[currntData.compliance_month], data: payloadData };
   //   }
 
-
   //   // if (
   //   //   currntData.compliance_month == getMonthFromVendorValidateDate(payloadData.compliance_till_date) &&
   //   //   (!currntData.hr_status && currntData.hr_retailer_status == STATUS_RECOMMEND)
@@ -443,36 +416,19 @@ const currentDataValidation = (tokenData, currntData, payloadData) => {
   // }
 };
 
-
 const findOutExistingAndNotExistingInNewData = (existingData, upcommingPayload) => {
-  const existingDataMap = new Set(
-    existingData.map(
-      item => `${item.compliance_group_id}__${item.compliance}`
-    )
-  );
+  const existingDataMap = new Set(existingData.map((item) => `${item.compliance_group_id}__${item.compliance}`));
 
-  const upcomingDataMap = new Set(
-    upcommingPayload.map(
-      item => `${item.compliance_group_id}__${item.compliance}`
-    )
-  );
-
+  const upcomingDataMap = new Set(upcommingPayload.map((item) => `${item.compliance_group_id}__${item.compliance}`));
 
   // 1️⃣ Find new items in upcoming that are not in existing
-  const newItems = upcommingPayload.filter(
-    item => !existingDataMap.has(`${item.compliance_group_id}__${item.compliance}`)
-  );
+  const newItems = upcommingPayload.filter((item) => !existingDataMap.has(`${item.compliance_group_id}__${item.compliance}`));
 
   // 2️⃣ Find items in existing that are not in upcoming
-  const removedItems = existingData.filter(
-    item => !upcomingDataMap.has(`${item.compliance_group_id}__${item.compliance}`)
-  );
+  const removedItems = existingData.filter((item) => !upcomingDataMap.has(`${item.compliance_group_id}__${item.compliance}`));
 
   return { newItems, removedItems };
-}
-
-
-
+};
 
 module.exports = {
   setVendorPoPayload,
@@ -488,11 +444,5 @@ module.exports = {
   setHrPayload,
   currentDataValidation,
   findOutExistingAndNotExistingInNewData,
-  createRefGroup
-}
-
-
-
-
-
-
+  createRefGroup,
+};

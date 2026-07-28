@@ -1,5 +1,5 @@
 /* ============================================================
-   MAIN HEADER — GRSE Vendor Portal
+   MAIN HEADER — HSL Vendor Portal
    Clean, compact, all nav items in ONE line
    ============================================================ */
 
@@ -78,7 +78,10 @@
   cursor: pointer;
   background: none;
   border: none;
-  transition: background 0.18s, color 0.18s, transform 0.15s;
+  transition:
+    background 0.18s,
+    color 0.18s,
+    transform 0.15s;
   letter-spacing: 0.4px;
   position: relative;
 }
@@ -91,7 +94,7 @@
 }
 
 .mh-nav-item::after {
-  content: '';
+  content: "";
   position: absolute;
   bottom: 0px;
   left: 50%;
@@ -99,7 +102,9 @@
   height: 3px;
   background: #2b6cb0;
   border-radius: 3px;
-  transition: width 0.2s, left 0.2s;
+  transition:
+    width 0.2s,
+    left 0.2s;
 }
 
 .mh-nav-item:hover::after,
@@ -115,19 +120,49 @@
 }
 
 /* ---- Color Variants ---- */
-.mh-nav-item--qap .mh-nav-icon  { color: #00b5d8; }
-.mh-nav-item--bg .mh-nav-icon   { color: #38a169; }
-.mh-nav-item--btn .mh-nav-icon  { color: #d69e2e; }
-.mh-nav-item--wdc .mh-nav-icon  { color: #805ad5; }
-.mh-nav-item--drawing .mh-nav-icon { color: #718096; }
-.mh-nav-item--hr .mh-nav-icon   { color: #e53e3e; }
+.mh-nav-item--qap .mh-nav-icon {
+  color: #00b5d8;
+}
+.mh-nav-item--bg .mh-nav-icon {
+  color: #38a169;
+}
+.mh-nav-item--btn .mh-nav-icon {
+  color: #d69e2e;
+}
+.mh-nav-item--wdc .mh-nav-icon {
+  color: #805ad5;
+}
+.mh-nav-item--drawing .mh-nav-icon {
+  color: #718096;
+}
+.mh-nav-item--hr .mh-nav-icon {
+  color: #e53e3e;
+}
 
-.mh-nav-item--qap:hover  { background: #e6fffa; color: #00b5d8; }
-.mh-nav-item--bg:hover   { background: #f0fff4; color: #38a169; }
-.mh-nav-item--btn:hover  { background: #fffff0; color: #d69e2e; }
-.mh-nav-item--wdc:hover  { background: #faf5ff; color: #805ad5; }
-.mh-nav-item--drawing:hover { background: #f7fafc; color: #4a5568; }
-.mh-nav-item--hr:hover   { background: #fff5f5; color: #e53e3e; }
+.mh-nav-item--qap:hover {
+  background: #e6fffa;
+  color: #00b5d8;
+}
+.mh-nav-item--bg:hover {
+  background: #f0fff4;
+  color: #38a169;
+}
+.mh-nav-item--btn:hover {
+  background: #fffff0;
+  color: #d69e2e;
+}
+.mh-nav-item--wdc:hover {
+  background: #faf5ff;
+  color: #805ad5;
+}
+.mh-nav-item--drawing:hover {
+  background: #f7fafc;
+  color: #4a5568;
+}
+.mh-nav-item--hr:hover {
+  background: #fff5f5;
+  color: #e53e3e;
+}
 
 /* ---- Setting Dropdown ---- */
 .mh-dropdown {
@@ -173,8 +208,14 @@
 }
 
 @keyframes dropFadeIn {
-  from { opacity: 0; transform: translateY(-6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .mh-dropdown:hover .mh-dropdown-menu,
@@ -204,7 +245,9 @@
   border: none;
   width: 100%;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
   letter-spacing: 0.3px;
 }
 
@@ -304,8 +347,14 @@
 }
 
 @keyframes modalPop {
-  from { opacity: 0; transform: scale(0.94) translateY(10px); }
-  to   { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.94) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .change-password-modal .modal-header {
@@ -333,7 +382,9 @@
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
-  transition: color 0.15s, background 0.15s;
+  transition:
+    color 0.15s,
+    background 0.15s;
 }
 
 .modal-close-btn:hover {

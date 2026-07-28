@@ -12,16 +12,14 @@ const { create_reference_no, get_latest_activity } = require("../../services/po.
 const { makeHttpRequest } = require("../../config/sapServerConfig");
 const { checkIsApprovedRejected } = require("../../services/lastassignee.servces");
 const Message = require("../../utils/messages");
-const Wdc = require('../../models/wdc.model');
+const Wdc = require("../../models/wdc.model");
 const { wdcVendorPayload, comparePreviousDataAndSetNewData, handeWdclMail, wdcTableCopyData, wdcLineTableCopyData } = require("../../services/wdc.servces");
 const { WDC_UPLOADING, WDC_APPROVAL_REJECT } = require("../../lib/event");
 const QueryBuilder = require("../../utils/QueryBuilder");
 
-
 const toMilliseconds = (dateString) => new Date(dateString).getTime();
 
 exports.submitByVendor = async (req, res) => {
-
   let client;
   try {
     client = await poolClient();
@@ -30,12 +28,11 @@ exports.submitByVendor = async (req, res) => {
     const tokenData = { ...req.tokenData };
     const { ...obj } = req.body;
 
-
     // Files payload
     let payloadFiles = req.files;
 
     // MANDATORY VALIDATION
-    if (!obj.purchasing_doc_no || typeof obj.purchasing_doc_no !== 'string' || !obj.status || typeof obj.status !== 'string') {
+    if (!obj.purchasing_doc_no || typeof obj.purchasing_doc_no !== "string" || !obj.status || typeof obj.status !== "string") {
       return resSend(res, false, 200, Message.PLEASE_SEND_VALID_PAYLOAD, null, null);
     }
 
@@ -47,7 +44,7 @@ exports.submitByVendor = async (req, res) => {
       return resSend(res, false, 200, "Vendor only can submit", null, null);
     }
 
-    if (!obj.action_type || typeof obj.action_type !== 'string') {
+    if (!obj.action_type || typeof obj.action_type !== "string") {
       return resSend(res, false, 200, "Action required!", Message.MANDATORY_INPUTS_REQUIRED, null);
     }
 
@@ -61,7 +58,6 @@ exports.submitByVendor = async (req, res) => {
     }
 
     let payload = { created_by_id: tokenData.vendor_code };
-
 
     let reference_no = create_reference_no(obj.action_type, tokenData.vendor_code);
 
@@ -99,10 +95,8 @@ exports.submitByVendor = async (req, res) => {
       payload = await processInput(client, payload);
     }
 
-
     const wdc_payload = { ...payload };
     delete wdc_payload.item;
-
 
     const { q, val } = generateQuery(INSERT, WDC, wdc_payload);
     const wdcInsert = await poolQuery({ client, query: q, values: val });
@@ -115,8 +109,6 @@ exports.submitByVendor = async (req, res) => {
       return resSend(res, true, 200, "The JCC is submited!", { reference_no }, null);
     }
     // JCC SAVED AND SEND RESPONSE [END JCC CODE]
-
-
 
     /**
      * HANDLING SUBLINE ITEMS [START]
@@ -149,18 +141,17 @@ exports.submitByVendor = async (req, res) => {
         sublineitem: item.sublineitem ? item.sublineitem : null,
         ...item,
       };
-      subLineItemPayloadArr.push(subLineItemPayload)
-
+      subLineItemPayloadArr.push(subLineItemPayload);
 
       // const { q, val } = generateQuery(INSERT, "wdc_line", subLineItemPayload);
       // await poolQuery({ client, query: q, values: val });
     }
     // WDC LINE ITEM TABLE SAVE
-    const wdcLineTableQuery = await generateQueryForMultipleData(subLineItemPayloadArr, 'wdc_line', ['id']);
+    const wdcLineTableQuery = await generateQueryForMultipleData(subLineItemPayloadArr, "wdc_line", ["id"]);
     await poolQuery({ client, query: wdcLineTableQuery["q"], values: wdcLineTableQuery["val"] });
     /**
-      * SUBLINE ITEMS SAVED [END]
-      */
+     * SUBLINE ITEMS SAVED [END]
+     */
 
     // AFTER SAVE ALL DATA..  DB COMMIT
     await client.query("COMMIT");
@@ -175,12 +166,9 @@ exports.submitByVendor = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
-
 exports.submitCancelRequest = async (req, res) => {
-
   let client;
   try {
     const { reference_no, purchasing_doc_no } = req.body;
@@ -189,7 +177,6 @@ exports.submitCancelRequest = async (req, res) => {
     await client.query("BEGIN");
 
     const usedCheck = await checkTheWdcIsUsed(client, { reference_no, purchasing_doc_no });
-
 
     if (usedCheck.success) {
       return resSend(res, false, 200, usedCheck.message, usedCheck);
@@ -205,29 +192,23 @@ exports.submitCancelRequest = async (req, res) => {
       status: STATUS_CANCEL_REQUESTED,
       created_by_id: tokenData.vendor_code,
       action_by: tokenData.vendor_code,
-      action_on: wdcDetailsData.status == SUBMITTED ? wdcDetailsData.action_on : wdcDetailsData.action_by
+      action_on: wdcDetailsData.status == SUBMITTED ? wdcDetailsData.action_on : wdcDetailsData.action_by,
     });
-    const filteredWdcLineTablePayload = wdcLineTableCopyData(item)
-      .map((el) => ({ ...el, reference_no, purchasing_doc_no, wdc_id: created_at }));
+    const filteredWdcLineTablePayload = wdcLineTableCopyData(item).map((el) => ({ ...el, reference_no, purchasing_doc_no, wdc_id: created_at }));
     const wdcSaveQuery = generateQuery(INSERT, WDC, filteredWdcTablePayload);
-    const wdcLineSaveQuery = await generateQueryForMultipleData(filteredWdcLineTablePayload, WDC_LINE, ['id']);
-    await Promise.all([
-      poolQuery({ client, query: wdcSaveQuery.q, values: wdcSaveQuery.val }),
-      poolQuery({ client, query: wdcLineSaveQuery.q, values: wdcLineSaveQuery.val })
-    ]);
+    const wdcLineSaveQuery = await generateQueryForMultipleData(filteredWdcLineTablePayload, WDC_LINE, ["id"]);
+    await Promise.all([poolQuery({ client, query: wdcSaveQuery.q, values: wdcSaveQuery.val }), poolQuery({ client, query: wdcLineSaveQuery.q, values: wdcLineSaveQuery.val })]);
 
     await client.query("COMMIT");
-    resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no })
-
+    resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no });
   } catch (error) {
     console.error("submitCancelRequest error", error);
     if (client) await client.query("ROLLBACK");
-    resSend(res, false, 200, error.message, error)
+    resSend(res, false, 200, error.message, error);
   } finally {
     if (client) client.release();
   }
-
-}
+};
 exports.cancelledByGrse = async (req, res) => {
   let client;
   try {
@@ -243,7 +224,6 @@ exports.cancelledByGrse = async (req, res) => {
     const latestWdcData = await getWdcData(client, reference_no, purchasing_doc_no);
     const { item, ...wdcDetailsData } = latestWdcData;
 
-
     if (!wdcDetailsData.status || wdcDetailsData.status !== STATUS_CANCEL_REQUESTED) {
       return resSend(res, false, 200, "WDC cancelled / no cancelled req submited by vendor");
     }
@@ -254,7 +234,7 @@ exports.cancelledByGrse = async (req, res) => {
     const filteredWdcTablePayload = wdcTableCopyData({
       ...wdcDetailsData,
       created_at,
-      updated_by: "GRSE",
+      updated_by: "HSL",
       status: STATUS_CANCELED,
       created_by_id: tokenData.vendor_code,
       action_by: tokenData.vendor_code,
@@ -263,14 +243,10 @@ exports.cancelledByGrse = async (req, res) => {
     const filteredWdcLineTablePayload = wdcLineTableCopyData(item).map((el) => ({ ...el, reference_no, purchasing_doc_no, wdc_id: created_at }));
     const wdcSaveQuery = generateQuery(INSERT, WDC, filteredWdcTablePayload);
     const wdcLineSaveQuery = await generateQueryForMultipleData(filteredWdcLineTablePayload, WDC_LINE, ["id"]);
-    await Promise.all([
-      poolQuery({ client, query: wdcSaveQuery.q, values: wdcSaveQuery.val }),
-      poolQuery({ client, query: wdcLineSaveQuery.q, values: wdcLineSaveQuery.val })
-    ]);
+    await Promise.all([poolQuery({ client, query: wdcSaveQuery.q, values: wdcSaveQuery.val }), poolQuery({ client, query: wdcLineSaveQuery.q, values: wdcLineSaveQuery.val })]);
 
     await client.query("COMMIT");
     resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no, purchasing_doc_no });
-
   } catch (error) {
     console.error("submitCancelRequest error", error);
     if (client) await client.query("ROLLBACK");
@@ -278,9 +254,7 @@ exports.cancelledByGrse = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
-}
-
+};
 
 exports.submitByGrse = async (req, res) => {
   let client;
@@ -289,13 +263,8 @@ exports.submitByGrse = async (req, res) => {
     const tokenData = { ...req.tokenData };
     const { purchasing_doc_no, reference_no, status, delegate_to, remarks, remarks2, remarks3, penalty_details, item } = req.body;
 
-
     // MANDATORY VALIDATION
-    if (
-      (!reference_no || typeof reference_no !== 'string') ||
-      (!status || typeof status !== 'string') ||
-      (!purchasing_doc_no || typeof purchasing_doc_no !== 'string')
-    ) {
+    if (!reference_no || typeof reference_no !== "string" || !status || typeof status !== "string" || !purchasing_doc_no || typeof purchasing_doc_no !== "string") {
       return resSend(res, false, 200, Message.PLEASE_SEND_VALID_PAYLOAD, {}, null);
     }
 
@@ -304,7 +273,6 @@ exports.submitByGrse = async (req, res) => {
     if (!validStatus.includes(status)) {
       return resSend(res, false, 200, Message.PLEASE_SEND_VALID_PAYLOAD, "Invalid status", null);
     }
-
 
     client = await poolClient();
     await client.query("BEGIN");
@@ -315,11 +283,10 @@ exports.submitByGrse = async (req, res) => {
       return resSend(res, false, 200, `No record found with this reference_no!`, last_data, null);
     }
 
-    if (status == STATUS_DELEGATED && (!delegate_to || typeof delegate_to !== 'string')) {
+    if (status == STATUS_DELEGATED && (!delegate_to || typeof delegate_to !== "string")) {
       return resSend(res, false, 200, Message.PLEASE_SEND_VALID_PAYLOAD, "Delegated to user missing", null);
     }
     // STAUS VALIDATION
-
 
     if (last_data.status === status) {
       return resSend(res, false, 200, `The WDC/JCC is already  ${last_data.status}`, null);
@@ -346,8 +313,6 @@ exports.submitByGrse = async (req, res) => {
       return resSend(res, false, 200, Message.YOU_ARE_UN_AUTHORIZED, null, null);
     }
 
-
-
     const wdc = { ...last_data };
 
     delete last_data.id;
@@ -362,9 +327,9 @@ exports.submitByGrse = async (req, res) => {
       item,
       created_by_id: tokenData.vendor_code,
       created_at: uniqueTimeStamp,
-      updated_by: "GRSE",
+      updated_by: "HSL",
       action_by: tokenData.vendor_code,
-      action_on: delegate_to
+      action_on: delegate_to,
     };
     if (status === STATUS_DELEGATED) {
       payload.delegate_to = delegate_to;
@@ -395,10 +360,9 @@ exports.submitByGrse = async (req, res) => {
     const { q, val } = generateQuery(INSERT, WDC, wdc_payload);
     const wdcInsert = await poolQuery({ client, query: q, values: val });
 
-
     /**
-    * JCC SAVE TO DB [START]
-    */
+     * JCC SAVE TO DB [START]
+     */
     if (wdc_payload.action_type === TYPE_JCC && wdcInsert) {
       await client.query("COMMIT");
       return resSend(res, true, 200, "The JCC is submited!", { reference_no }, null);
@@ -414,7 +378,6 @@ exports.submitByGrse = async (req, res) => {
     let wdcPayloadSap = [];
     let subLineItemPayloadArr = [];
     for (const item of itemData) {
-
       if (payload.status === APPROVED) {
         wdcPayloadSap.push({ slno: wdcId, ebeln: payload.purchasing_doc_no, ebelp: item.lineitem, wdc: payload.reference_no });
       }
@@ -440,11 +403,10 @@ exports.submitByGrse = async (req, res) => {
       delete subLineItemPayload?.sync_updated_at;
 
       subLineItemPayloadArr.push(subLineItemPayload);
-
     }
     // Remove duplicates using a Set and JSON stringification
     const uniqueData = Array.from(new Set(wdcPayloadSap.map(JSON.stringify))).map(JSON.parse);
-    const insetSublineItemQueryValue = await generateQueryForMultipleData(subLineItemPayloadArr, WDC_LINE, ['id']);
+    const insetSublineItemQueryValue = await generateQueryForMultipleData(subLineItemPayloadArr, WDC_LINE, ["id"]);
     await poolQuery({ client, query: insetSublineItemQueryValue["q"], values: insetSublineItemQueryValue["val"] });
 
     // send to sap
@@ -455,7 +417,6 @@ exports.submitByGrse = async (req, res) => {
         return resSend(res, false, 200, "WDC/JCC save in sap faild, please refer to wdcContorllerV2 submitToSapServer fn", [], null);
       }
     }
-
 
     await client.query("COMMIT");
 
@@ -471,15 +432,9 @@ exports.submitByGrse = async (req, res) => {
   }
 };
 
-
 const checkTheWdcIsUsed = async (client, wdcDetails) => {
-
   const qb = new QueryBuilder("wdc as wdc");
-  qb.select([
-    "wdc.reference_no",
-    "service_btn.status as btn_current_status",
-    "service_btn.btn_num"
-  ]);
+  qb.select(["wdc.reference_no", "service_btn.status as btn_current_status", "service_btn.btn_num"]);
   qb.joinTable("", `${BTN_SERVICE_LINKEDWDC} as wdc_btn_linked_table`, "wdc.reference_no = wdc_btn_linked_table.wdc_reference_no");
   qb.joinTable("", `${BTN_SERVICE_HYBRID} as service_btn`, "wdc_btn_linked_table.btn_num = service_btn.btn_num");
   qb.where("wdc.reference_no", "=", wdcDetails.reference_no);
@@ -490,24 +445,14 @@ const checkTheWdcIsUsed = async (client, wdcDetails) => {
   const result = await poolQuery({ client, query: buildQuery.sql, values: buildQuery.params });
   if (!result.length) {
     return successAndErrorObjectBulider(false, 200, "WDC is not use", result, result);
-  }
-  else if (result.length && result[0]?.btn_current_status === REJECTED) {
+  } else if (result.length && result[0]?.btn_current_status === REJECTED) {
     return successAndErrorObjectBulider(false, 200, "WDC is not use", result, result);
   }
   const msg = `WDC is alreay in use (${result[0]?.btn_num} | ${result[0]?.btn_current_status})`;
   return successAndErrorObjectBulider(true, 200, msg, result, result);
-}
+};
 
-
-const checkIsApprovedRejectedCancelled = async (
-  tableName,
-  poNo,
-  reference_no,
-  status1,
-  status2,
-  status3
-) => {
-
+const checkIsApprovedRejectedCancelled = async (tableName, poNo, reference_no, status1, status2, status3) => {
   const check = `SELECT COUNT(status) AS count_val FROM ${tableName} WHERE purchasing_doc_no = $1 AND reference_no = $2 AND (status = $3 OR status = $4 OR status = $5)`;
   const resAssigneQry = await getQuery({
     query: check,
@@ -515,10 +460,7 @@ const checkIsApprovedRejectedCancelled = async (
   });
 
   return resAssigneQry[0].count_val;
-
 };
-
-
 
 const processInput = async (client, payload) => {
   try {
@@ -550,7 +492,7 @@ const processInput = async (client, payload) => {
           ...item,
           claim_amount: claimAmount.toFixed(3),
         };
-      })
+      }),
     );
 
     // Add total_claim_amount to payload
@@ -635,7 +577,7 @@ exports.getOpenQty = async (req, res) => {
 
     resSend(res, true, 200, "WDC data fetched!", result, null);
   } catch (error) {
-    console.error("error", error, error.message)
+    console.error("error", error, error.message);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
   } finally {
     if (client) client.release();
@@ -643,7 +585,6 @@ exports.getOpenQty = async (req, res) => {
 };
 
 const processLineItems = async (client, poNo, lineItems, getWdcRejIds) => {
-
   return Promise.all(
     lineItems.map(async (item) => {
       if (item.sub_packno) {
@@ -660,7 +601,6 @@ const processLineItems = async (client, poNo, lineItems, getWdcRejIds) => {
         delete item.unit;
       } else {
         const consumedQty = await getlineOpenQty(client, poNo, item.lineitem, getWdcRejIds);
-        ;
         item.lineitem = item.lineitem.toString();
         item.open_qty = (parseFloat(item.targetqty) - parseFloat(consumedQty)).toFixed(3);
         delete item.subData; // Ensure no subData field for items without subData
@@ -669,7 +609,7 @@ const processLineItems = async (client, poNo, lineItems, getWdcRejIds) => {
       delete item.sub_packno; // Remove sub_packno as it's no longer needed
 
       return item;
-    })
+    }),
   );
 };
 
@@ -686,19 +626,18 @@ const fetchLineItems = async (client, poNo) => {
 
 // eslint-disable-next-line no-unused-vars
 const getConsumeQtyArray = async (client, consumeQtyPackNoArray, purchasingDocNo, getWdcRejIds) => {
-
   // const getConsumeQtyQuery = `
-      // SELECT
-      // 	ESSR.lblni AS service_entry_no,
-      // 	ESSR.packno AS related_packno,
-      //   ESSR.ebelp AS lineitem,
-      // 	essl_sub_packno.packno, 
-      //   essl_sub_packno.extrow AS sublineitem, 
-      //   essl_sub_packno.menge
-      // FROM ESSR AS ESSR
-      // 	LEFT JOIN esll AS essl_packno ON (essr.packno = essl_packno.packno)
-      // 	LEFT JOIN esll AS essl_sub_packno ON (essl_sub_packno.packno = essl_packno.sub_packno)
-      // WHERE ESSR.ebeln = $1 AND ESSR.KZABN = 'X'`;
+  // SELECT
+  // 	ESSR.lblni AS service_entry_no,
+  // 	ESSR.packno AS related_packno,
+  //   ESSR.ebelp AS lineitem,
+  // 	essl_sub_packno.packno,
+  //   essl_sub_packno.extrow AS sublineitem,
+  //   essl_sub_packno.menge
+  // FROM ESSR AS ESSR
+  // 	LEFT JOIN esll AS essl_packno ON (essr.packno = essl_packno.packno)
+  // 	LEFT JOIN esll AS essl_sub_packno ON (essl_sub_packno.packno = essl_packno.sub_packno)
+  // WHERE ESSR.ebeln = $1 AND ESSR.KZABN = 'X'`;
   const getConsumeQtyQuery = `
       SELECT
         	ESSR.lblni AS service_entry_no,
@@ -712,7 +651,7 @@ const getConsumeQtyArray = async (client, consumeQtyPackNoArray, purchasingDocNo
         	JOIN esll AS esll_pack ON (esll_pack.packno = essr.packno)
 		      JOIN esll AS esll_subpack ON (esll_subpack.packno = esll_pack.sub_packno)
         	JOIN esll AS esll_po_sub_li ON (esll_po_sub_li.introw = esll_subpack.pln_introw and esll_po_sub_li.packno = esll_subpack.pln_packno)
-      WHERE essr.ebeln = $1 AND essr.KZABN = 'X' `; 
+      WHERE essr.ebeln = $1 AND essr.KZABN = 'X' `;
 
   const consumeQtyArr = await poolQuery({ client, query: getConsumeQtyQuery, values: [purchasingDocNo] });
   const calcconsumeQtyArr = calculateConsumeQty(consumeQtyArr);
@@ -720,14 +659,13 @@ const getConsumeQtyArray = async (client, consumeQtyPackNoArray, purchasingDocNo
 };
 
 /**
- * CALCULATE THE SUM OF MENGE BASED ON 
+ * CALCULATE THE SUM OF MENGE BASED ON
  * PO-LINE-ITEM + PO-SUB-LINE-ITEM
- * @param {*} consumeQtyArray 
+ * @param {*} consumeQtyArray
  * @returns consumeQtyArray
  */
 
 function calculateConsumeQty(consumeQtyArray) {
-
   if (!consumeQtyArray.length) return;
   const merged = [];
   const map = new Map();
@@ -747,8 +685,6 @@ function calculateConsumeQty(consumeQtyArray) {
 
   return merged;
 }
-
-
 
 const getDistinctReferenceIds = async (client, purchasingDocNo) => {
   const query = `
@@ -857,11 +793,10 @@ const getTargetQtyArray = async (client, packNo, lineitem) => {
 };
 const calculateOpenQty = (targetQtyArray, consumeQtyArray) => {
   return targetQtyArray.map((targetItem) => {
-
     const consumeItem = consumeQtyArray?.find((consume) => consume.sublineitem === targetItem.sublineitem && consume.lineitem === targetItem.lineitem);
     let target_qty = isNaN(targetItem.target_qty) ? "0" : targetItem.target_qty;
     let open_qty = target_qty;
-    let menge_qty = "0"
+    let menge_qty = "0";
     if (consumeItem) {
       menge_qty = consumeItem.menge;
       open_qty = (parseFloat(target_qty) - parseFloat(menge_qty)).toFixed(3);
@@ -879,7 +814,6 @@ const calculateOpenQty = (targetQtyArray, consumeQtyArray) => {
     return obj;
   });
 };
-
 
 exports.getWdc = async (req, res) => {
   let client;
@@ -899,11 +833,11 @@ exports.getWdc = async (req, res) => {
     console.error("wdc error.message", error.message);
     resSend(res, false, 500, Message.SERVER_ERROR, null, null);
   } finally {
-    if (client) { client.release(); }
+    if (client) {
+      client.release();
+    }
   }
-
 };
-
 
 const getWdcData = async (client, refNo, poNo) => {
   try {
@@ -1022,7 +956,6 @@ GROUP BY
       delegate_to_user.cname
       `;
 
-
     // Execute the query to get the wdc data and related wdc_line data
     const result = await poolQuery({ client, query, values: [poNo, refNo] });
 
@@ -1100,10 +1033,10 @@ exports.list = async (req, res) => {
       data.map(async (item) => {
         return {
           ...item,
-          action_by_name: await getUserName(client, item.action_by || 0, item.updated_by === "VENDOR" ? "VENDOR" : "GRSE"),
-          action_on_name: await getUserName(client, item.action_on || 0, item.updated_by === "VENDOR" ? "GRSE" : "VENDOR"),
+          action_by_name: await getUserName(client, item.action_by || 0, item.updated_by === "VENDOR" ? "VENDOR" : "HSL"),
+          action_on_name: await getUserName(client, item.action_on || 0, item.updated_by === "VENDOR" ? "HSL" : "VENDOR"),
         };
-      })
+      }),
     );
     resSend(res, true, 200, "data fetched.", result, null);
   } catch (error) {
@@ -1113,7 +1046,6 @@ exports.list = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 const getUserName = async (client, userCode, userType) => {
@@ -1138,7 +1070,6 @@ const getUserName = async (client, userCode, userType) => {
   return getUserQry.length == 0 ? "" : getUserQry[0].name;
 };
 
-
 exports.wdcUpdate = async (req, res) => {
   let client;
   try {
@@ -1148,14 +1079,13 @@ exports.wdcUpdate = async (req, res) => {
     const tokenData = req.tokenData;
     const { penalty_details, item } = otherUpdates;
 
-
     const check = await checkIsApprovedRejected(WDC, purchasing_doc_no, reference_no, APPROVED, REJECTED);
 
     if (parseInt(check)) {
       return resSend(res, false, 200, `The WDC/JCC is already  ${APPROVED} / ${REJECTED}`, null, null);
     }
 
-    if (status == STATUS_DELEGATED && (!delegate_to || typeof delegate_to !== 'string')) {
+    if (status == STATUS_DELEGATED && (!delegate_to || typeof delegate_to !== "string")) {
       return resSend(res, false, 200, Message.PLEASE_SEND_VALID_PAYLOAD, "Delegated to user missing", null);
     }
 
@@ -1167,11 +1097,10 @@ exports.wdcUpdate = async (req, res) => {
     // INSERT WDC DATA IN TABEL WITH NEW STATUS AND MORE DATA...
 
     if (!lastestWdc.length) {
-      return resSend(res, false, 200, Message.INVOICE_NO_NOT_VALID, { reference_no })
+      return resSend(res, false, 200, Message.INVOICE_NO_NOT_VALID, { reference_no });
     }
 
     lastestWdc = { ...lastestWdc[0] };
-
 
     // UPDATED FIELDS
 
@@ -1188,12 +1117,9 @@ exports.wdcUpdate = async (req, res) => {
       lastestWdc.remarks2 = remarks2;
     }
 
-
-
     const wdcPayload = wdcVendorPayload(tokenData, { ...lastestWdc, status, penalty_details });
 
     await Wdc.createWdc(client, wdcPayload);
-
 
     // HANDLE WDC LINE ITEMS DATA
     const previousWdcData = await Wdc.getSavedWdcLineItems(client, { reference_no, wdc_id: lastestWdc.created_at }, "*");
@@ -1202,22 +1128,16 @@ exports.wdcUpdate = async (req, res) => {
 
     const removeExtraDataAndAddWdcId = itemData.map((el) => ({ ...el, wdc_id: wdcPayload.created_at }));
 
-    const insertWdcLineData = await generateQueryForMultipleData(removeExtraDataAndAddWdcId, WDC_LINE, ['id']);
+    const insertWdcLineData = await generateQueryForMultipleData(removeExtraDataAndAddWdcId, WDC_LINE, ["id"]);
     await poolQuery({ client, query: insertWdcLineData["q"], values: insertWdcLineData["val"] });
 
-
     await client.query("COMMIT");
-    resSend(res, true, 200, `Document ${reference_no} status changed to ${status}.`)
-
+    resSend(res, true, 200, `Document ${reference_no} status changed to ${status}.`);
   } catch (error) {
     console.error("error", error, error.message);
     if (client) await client.query("ROLLBACK");
-    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null)
-  }
-  finally {
+    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
+  } finally {
     if (client) client.release();
   }
-
-}
-
-
+};

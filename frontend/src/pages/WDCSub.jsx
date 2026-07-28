@@ -234,7 +234,7 @@ const WDCSub = () => {
 
     // Add logo and company name
     doc.addImage(logo, "PNG", 10, 10, 20, 20);
-    doc.text("Garden Reach Shipbuilders & Engineers (GRSE)", 35, 20);
+    doc.text("Garden Reach Shipbuilders & Engineers (HSL)", 35, 20);
 
     // Add title with bold font
     doc.setFont("helvetica", "bold");
@@ -353,7 +353,7 @@ const WDCSub = () => {
 
     // Add logo and company name
     doc.addImage(logo, "PNG", 10, 10, 20, 20);
-    doc.text("Garden Reach Shipbuilders & Engineers (GRSE)", 35, 20);
+    doc.text("Garden Reach Shipbuilders & Engineers (HSL)", 35, 20);
 
     // Add title with bold font
     doc.setFont("helvetica", "bold");
@@ -1776,8 +1776,7 @@ const WDCSub = () => {
                     <div className="col-12 col-md-4">
                       <div className="mb-3">
                         <label className="form-label d-flex align-items-center gap-2">
-                          Hinderence report cerified By Berth.{" "}
-                          <FileUploadInfoIcon />
+                          Hinderence report cerified By Berth. <FileUploadInfoIcon />
                         </label>
                         <div className="d-flex align-items-center gap-2">
                           <input
@@ -2878,9 +2877,9 @@ const WDCSub = () => {
           <div className="card-header border-0 pt-5 pb-3">
             <h3 className="card-title align-items-start flex-column">
               <div className="d-flex flex-column">
-                <img src={logo} alt="GRSE Logo" style={{ width: "100px", marginRight: "10px" }} />
+                <img src={logo} alt="HSL Logo" style={{ width: "100px", marginRight: "10px" }} />
                 <div className="d-flex">
-                  <span className="card-label fw-bold fs-3 mb-1">Garden Reach Shipbuilders & Engineers (GRSE)</span>
+                  <span className="card-label fw-bold fs-3 mb-1">Garden Reach Shipbuilders & Engineers (HSL)</span>
                   <span className="ms-3 fw-bold fs-3">
                     Supplier: {viewData?.vendor_name || "N/A"} ({viewData?.vendor_code || "N/A"})
                   </span>
@@ -3220,11 +3219,11 @@ const WDCSub = () => {
         <div className="card card-xxl-stretch mb-5 mb-xxl-8">
           <div className="card-header border-0 pt-5 pb-3">
             <h3 className="card-title d-flex align-items-center">
-              <img src={logo} alt="GRSE Logo" style={{ width: "100px", marginRight: "10px" }} />
+              <img src={logo} alt="HSL Logo" style={{ width: "100px", marginRight: "10px" }} />
 
               <div className="d-flex flex-column">
                 <div className="d-flex">
-                  <span className="card-label fw-bold fs-3 mb-1">Garden Reach Shipbuilders & Engineers (GRSE)</span>
+                  <span className="card-label fw-bold fs-3 mb-1">Garden Reach Shipbuilders & Engineers (HSL)</span>
                   <span className="ms-3 fw-bold fs-3">
                     Supplier: {viewData?.vendor_name || "N/A"} ({viewData?.vendor_code || "N/A"})
                   </span>

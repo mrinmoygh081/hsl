@@ -88,7 +88,7 @@ exports.wdc = async (req, res) => {
           ...last_data,
           ...payload,
           // ...fileData,
-          updated_by: "GRSE",
+          updated_by: "HSL",
           created_by_id: tokenData.vendor_code,
           created_by_name: tokenData.iss,
           created_at: getEpochTime(),
@@ -259,7 +259,7 @@ exports.list = async (req, res) => {
         let rest_amount = parseInt(els.target_amount) - parseInt(total_amount_result);
         rest_amount < 0 ? 0 : rest_amount;
         line_item_array2.push({ ...els, rest_amount: rest_amount });
-      })
+      }),
     );
     // SELECT * FROM ${WDC} WHERE purchasing_doc_no = $1
     //return;
@@ -298,15 +298,12 @@ exports.list = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
-
 
 exports.grseEmpList = async (req, res) => {
   try {
     const result = await getQuery({ query: "SELECT  PERNR as code, CNAME as name FROM pa0002" });
-    resSend(res, true, 200, "Data send successfull", result)
-
+    resSend(res, true, 200, "Data send successfull", result);
   } catch (err) {
     console.error("data not fetched", err);
   }
@@ -461,7 +458,7 @@ async function submitToSapServer(data) {
 // }
 
 ///////////// JCC //////////////////
-//// GRSE SUBMIT //////////
+//// HSL SUBMIT //////////
 // {
 //   "purchasing_doc_no": "",
 //   "remarks": "",

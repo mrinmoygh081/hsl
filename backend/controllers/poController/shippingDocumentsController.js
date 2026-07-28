@@ -1,7 +1,7 @@
 const { resSend } = require("../../lib/resSend");
 const { query, getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
-const { INSERT, USER_TYPE_GRSE_STORE, USER_TYPE_GRSE_RIC, USER_TYPE_VENDOR } = require("../../lib/constant");
+const { INSERT, USER_TYPE_HSL_STORE, USER_TYPE_HSL_RIC, USER_TYPE_VENDOR } = require("../../lib/constant");
 const { SHIPPINGDOCUMENTS } = require("../../lib/tableName");
 const { REJECTED, APPROVED, SUBMITTED } = require("../../lib/status");
 const { create_reference_no } = require("../../services/po.services");
@@ -27,7 +27,7 @@ const shippingDocuments = async (req, res) => {
 
     let payload = { ...req.body, ...fileData, created_at: getEpochTime() };
 
-    if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id != USER_TYPE_GRSE_STORE && tokenData.department_id != USER_TYPE_GRSE_RIC) {
+    if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id != USER_TYPE_HSL_STORE && tokenData.department_id != USER_TYPE_HSL_RIC) {
       return resSend(res, true, 200, "please login as Valid user!", null, null);
     }
 
@@ -35,7 +35,7 @@ const shippingDocuments = async (req, res) => {
       return resSend(res, false, 200, "Please send valid payload", null, null);
     }
 
-    if (tokenData.department_id === USER_TYPE_GRSE_STORE || tokenData.department_id === USER_TYPE_GRSE_RIC) {
+    if (tokenData.department_id === USER_TYPE_HSL_STORE || tokenData.department_id === USER_TYPE_HSL_RIC) {
       if (!payload.reference_no || payload.reference_no == "") {
         return resSend(res, false, 200, "Please send valid reference_no", null, null);
       }
@@ -53,7 +53,7 @@ const shippingDocuments = async (req, res) => {
     }
 
     payload.vendor_code = tokenData.vendor_code;
-    payload.updated_by = tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "GRSE";
+    payload.updated_by = tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
     payload.created_by_id = tokenData.vendor_code;
 
     const { q, val } = generateQuery(INSERT, SHIPPINGDOCUMENTS, payload);
@@ -77,7 +77,6 @@ const shippingDocuments = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 const List = async (req, res) => {
@@ -121,7 +120,7 @@ async function handleEmail(data) {
       });
       const dataObj = { ...data };
       await sendMail(SHIPPING_DOC_UPLOAD, dataObj, { users: doDetails }, SHIPPING_DOC_UPLOAD);
-    } else if (data.updated_by === "GRSE") {
+    } else if (data.updated_by === "HSL") {
       getDoQuery = getUserDetailsQuery("vendor_by_po", "$1");
       doDetails = await getQuery({
         query: getDoQuery,

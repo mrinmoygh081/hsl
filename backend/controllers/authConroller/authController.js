@@ -5,8 +5,20 @@ const svgCaptcha = require("svg-captcha");
 const { getAccessToken, getRefreshToken, verifiedRefreshTokenData } = require("../../services/jwt.services");
 const { resSend } = require("../../lib/resSend");
 const { AUTH, REGISTRATION_OTP, EMPLAYEE_MASTER_PA0002, VENDOR_MASTER_LFA1 } = require("../../lib/tableName");
-// const { USER_TYPE_VENDOR, INSERT, UPDATE, ASSIGNER, LAN_SERVER, USER_TYPE_VENDOR_TEXT, STAFF, USER_TYPE_GRSE_TEXT, YES_SORT_FORM, NIC_SERVER, SESSION_STAGE_AWAITING_OTP } = require("../../lib/constant");
-const { USER_TYPE_VENDOR, INSERT, UPDATE, ASSIGNER, LAN_SERVER, USER_TYPE_VENDOR_TEXT, STAFF, USER_TYPE_GRSE_TEXT, NIC_SERVER, SESSION_STAGE_AWAITING_OTP, USER_TYPE_GRSE } = require("../../lib/constant");
+// const { USER_TYPE_VENDOR, INSERT, UPDATE, ASSIGNER, LAN_SERVER, USER_TYPE_VENDOR_TEXT, STAFF, USER_TYPE_HSL_TEXT, YES_SORT_FORM, NIC_SERVER, SESSION_STAGE_AWAITING_OTP } = require("../../lib/constant");
+const {
+  USER_TYPE_VENDOR,
+  INSERT,
+  UPDATE,
+  ASSIGNER,
+  LAN_SERVER,
+  USER_TYPE_VENDOR_TEXT,
+  STAFF,
+  USER_TYPE_HSL_TEXT,
+  NIC_SERVER,
+  SESSION_STAGE_AWAITING_OTP,
+  USER_TYPE_HSL,
+} = require("../../lib/constant");
 // const rolePermission = require("../../lib/role/deptWiseRolePermission");
 // const { getEpochTime, generateQuery, maskEmailAddress, generateInsertUpdateQuery } = require("../../lib/utils");
 const { getEpochTime, generateQuery, maskEmailAddress } = require("../../lib/utils");
@@ -34,7 +46,7 @@ const captchaHandler = async (req, res) => {
     noise: 2,
     color: true,
     background: "#f0f0f0",
-    ignoreChars: '0o1il'
+    ignoreChars: "0o1il",
   });
 
   req.session.captcha = cap.text.toLowerCase();
@@ -165,9 +177,9 @@ const captchaHandler = async (req, res) => {
 //       return resSend(res, false, 200, Message.USER_NOT_APPROVED, { vendor_code });
 //     }
 
-//     const login_Q = `SELECT t1.vendor_code, t1.user_type, t1.username, t1.password, t1.department_id, 
+//     const login_Q = `SELECT t1.vendor_code, t1.user_type, t1.username, t1.password, t1.department_id,
 //                           t1.internal_role_id,  t2.name AS department_name, t3.name AS role
-//                   FROM auth AS t1 
+//                   FROM auth AS t1
 // 			              LEFT JOIN
 //                       depertment_master AS t2 ON (t1.department_id = t2.id)
 //                     LEFT JOIN 	internal_role_master AS t3 ON	(t1.internal_role_id = t3.id)
@@ -288,13 +300,13 @@ const sendOtp = async (req, res) => {
 
     /**
      * DYNAMIC TABLE AND FILED SELECTION FOR GET OTP
-    */
+     */
 
     let tableName = VENDOR_MASTER_LFA1;
     let fieldName = "lifnr";
     let filterValue = obj?.user_code;
 
-    if (obj.user_type === USER_TYPE_GRSE_TEXT) {
+    if (obj.user_type === USER_TYPE_HSL_TEXT) {
       tableName = EMPLAYEE_MASTER_PA0002;
       fieldName = "pernr";
       filterValue = parseInt(obj?.user_code);
@@ -305,9 +317,9 @@ const sendOtp = async (req, res) => {
     const validUser = await poolQuery({
       client,
       query: `SELECT email  FROM ${tableName} where ${fieldName} = $1`,
-      values: [filterValue]
+      values: [filterValue],
     });
-   
+
     if (!validUser.length) {
       return resSend(res, false, 200, Message.USER_NOT_FOUND, { user_code: obj?.user_code }, null);
     }
@@ -329,13 +341,10 @@ const sendOtp = async (req, res) => {
       // await SENDMAIL(mailOptions);
       if (process.env.SERVER_ENV == LAN_SERVER) {
         await SENDMAIL(mailOptions);
-
       } else if (process.env.SERVER_ENV == NIC_SERVER) {
         const mail_response = await SENDMAILFROMNIC(process.env.MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html);
         console.log("mail_response", mailOptions.to, mail_response);
-
       }
-
 
       // delete existing record on same user code
       let delOtp = `DELETE FROM ${REGISTRATION_OTP} WHERE user_code = '${obj.user_code}'`;
@@ -369,7 +378,7 @@ const sendOtp = async (req, res) => {
         200,
         `OTP has been sent to your registered email address: ${maskEmail}. Please check mailbox to complete registration.`,
         { username: obj.user_code, email: maskEmail, otpValidInSec },
-        null
+        null,
       );
     } catch (err) {
       console.error("error", err);
@@ -381,7 +390,6 @@ const sendOtp = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 const forgotPasswordOtp = async (req, res) => {
@@ -467,9 +475,8 @@ const forgotPasswordOtp = async (req, res) => {
       // await SENDMAIL(mailOptions);
       if (process.env.SERVER_ENV == LAN_SERVER) {
         await SENDMAIL(mailOptions);
-
       } else if (process.env.SERVER_ENV == NIC_SERVER) {
-        const mail_response = await SENDMAILFROMNIC(process.env.MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html)
+        const mail_response = await SENDMAILFROMNIC(process.env.MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html);
         console.log("mail_response", mailOptions.to, mail_response);
       }
 
@@ -482,7 +489,7 @@ const forgotPasswordOtp = async (req, res) => {
       });
       // add otp record
       const insertRegistrationOtp = {
-        user_type: validUser[0].user_type == USER_TYPE_VENDOR ? USER_TYPE_VENDOR_TEXT : "GRSE",
+        user_type: validUser[0].user_type == USER_TYPE_VENDOR ? USER_TYPE_VENDOR_TEXT : "HSL",
         functional_area: validUser[0].department_id,
         role: validUser[0].internal_role_id,
         user_code: obj.user_code,
@@ -505,7 +512,6 @@ const forgotPasswordOtp = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 const otpVefify = async (req, res) => {
@@ -561,7 +567,7 @@ const otpVefify = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-}
+};
 const setPassword = async (req, res) => {
   let client;
   try {
@@ -597,7 +603,7 @@ const setPassword = async (req, res) => {
     }
     const tableName = otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT ? VENDOR_MASTER_LFA1 : EMPLAYEE_MASTER_PA0002;
     const fieldName = otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT ? "lifnr" : "pernr";
-    const checkValidUserQuery = `SELECT * FROM ${tableName} where ${fieldName} = $1`
+    const checkValidUserQuery = `SELECT * FROM ${tableName} where ${fieldName} = $1`;
     const validUser = await poolQuery({ client, query: checkValidUserQuery, values: [obj.user_code] });
 
     if (validUser.length == 0) {
@@ -643,7 +649,7 @@ const setPassword = async (req, res) => {
     const { q, val } = generateQuery(INSERT, AUTH, regData);
     await poolQuery({ client, query: q, values: val });
 
-    if (otpVefifyQueryRes[0].user_type == USER_TYPE_GRSE_TEXT && otpVefifyQueryRes[0].role === ASSIGNER) {
+    if (otpVefifyQueryRes[0].user_type == USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === ASSIGNER) {
       // SEND MAIL TO NODAL OFFICERS //
 
       // let getNodalOfficersQ = `SELECT t1.vendor_code, t2.email FROM auth AS t1
@@ -677,17 +683,15 @@ const setPassword = async (req, res) => {
           from: process.env.MAIL_SEND_MAIL_ID,
           subject: `OBPS Registration Request.`,
           html: EMAIL_TEMPLAE(
-            `${name} (${username}) trying to register as a nodal officier in ${otpVefifyQueryRes[0].deptname} depertment as nodal officer in OBPS system. \n  Please login to your OBPS portal to take the necessary action.`
+            `${name} (${username}) trying to register as a nodal officier in ${otpVefifyQueryRes[0].deptname} depertment as nodal officer in OBPS system. \n  Please login to your OBPS portal to take the necessary action.`,
           ),
         };
         // await SENDMAIL(mailOptions);
 
-
         if (process.env.SERVER_ENV == LAN_SERVER) {
           await SENDMAIL(mailOptions);
-
         } else if (process.env.SERVER_ENV == NIC_SERVER) {
-          const mail_response = await SENDMAILFROMNIC(process.env.MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html)
+          const mail_response = await SENDMAILFROMNIC(process.env.MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html);
           console.log("mail_response", mailOptions.to, mail_response);
         }
       } else {
@@ -695,7 +699,7 @@ const setPassword = async (req, res) => {
       }
     }
 
-    if (otpVefifyQueryRes[0].user_type === USER_TYPE_GRSE_TEXT && otpVefifyQueryRes[0].role === STAFF) {
+    if (otpVefifyQueryRes[0].user_type === USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === STAFF) {
       const empDLQ = {
         dept_id: otpVefifyQueryRes[0].functional_area,
         internal_role_id: otpVefifyQueryRes[0].role,
@@ -719,7 +723,7 @@ const setPassword = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-}
+};
 const getListPendingEmp = async (req, res) => {
   try {
     const tokenData = { ...req.tokenData };
@@ -801,7 +805,6 @@ const updatePassword = async (req, res) => {
     const decripted_old_pw = decryptData(old_pw);
     const decripted_new_pw = decryptData(new_pw);
 
-
     if (!result.length) {
       return resSend(res, false, 200, Message.USER_NOT_FOUND, result);
     }
@@ -844,8 +847,6 @@ const getDepartmetList = async (req, res) => {
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   }
 };
-
-
 
 /**---------------------------------------------------------------------------------
                           LOGIN API START
@@ -892,7 +893,7 @@ const login = async (req, res) => {
     const match = await bcrypt.compare(decreptedPasseword.toString(), user.password);
 
     if (!match) {
-      // faild count record save . . . . . 
+      // faild count record save . . . . .
       // eslint-disable-next-line no-unused-vars
       const isLocked = await handleFailedAttempt(client, vendor_code);
       // if (isLocked) return resSend(res, false, 200, Message.TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED);
@@ -906,23 +907,22 @@ const login = async (req, res) => {
     if (!email) return resSend(res, false, 200, "Email not found.");
 
     // 2. Use Common Function (Generate, Save, Send)
-    await processAndSendOtp(client, vendor_code, user.user_type, email, 'LOGIN');
+    await processAndSendOtp(client, vendor_code, user.user_type, email, "LOGIN");
 
     // ✅ UPDATE 2: Store User in Temporary Session
     // This allows verify-otp to know WHO is logging in without trusting the client
     req.session.login_otp = {
       vendor_code: vendor_code,
       user_type: user.user_type,
-      stage: SESSION_STAGE_AWAITING_OTP
+      stage: SESSION_STAGE_AWAITING_OTP,
     };
 
     // 3. Response
     resSend(res, true, 200, `OTP Sent successfully : Email ID ${email}`, {
       vendor_code,
       user_type: user.user_type,
-      next_step: 'otp_verification'
+      next_step: "otp_verification",
     });
-
   } catch (err) {
     console.error("Login error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
@@ -930,7 +930,6 @@ const login = async (req, res) => {
     if (client) client.release();
   }
 };
-
 
 const verifyLoginOtp = async (req, res) => {
   let client;
@@ -966,18 +965,17 @@ const verifyLoginOtp = async (req, res) => {
 
     // --- 2. OTP Valid! Fetch User Details & Permissions ---
 
-    let user = await loggedInUserDetails(client, vendor_code)
+    let user = await loggedInUserDetails(client, vendor_code);
 
     if (user?.user_type == USER_TYPE_VENDOR) {
-      user.name = user?.vendor_name
-    } else if (user?.user_type == USER_TYPE_GRSE) {
-      user.name = user?.officer_name
+      user.name = user?.vendor_name;
+    } else if (user?.user_type == USER_TYPE_HSL) {
+      user.name = user?.officer_name;
     }
-
 
     // ⚠️ RESTORED LOGIC: You need this to get user name/email/permissions
     // If you haven't made the helper function, paste the original logic here.
-    // user = await attachUserDetailsAndPermissions(client, user, rolePermission); 
+    // user = await attachUserDetailsAndPermissions(client, user, rolePermission);
 
     // --- 3. Reset Login Attempts ---
     await resetAttempts(client, vendor_code);
@@ -1006,7 +1004,6 @@ const verifyLoginOtp = async (req, res) => {
 
     // --- 6. Final Response ---
     resSend(res, true, 200, Message.USER_AUTHENTICATION_SUCCESS, { user }, { accessToken, refreshToken });
-
   } catch (err) {
     console.error("Verify OTP error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG);
@@ -1014,7 +1011,6 @@ const verifyLoginOtp = async (req, res) => {
     if (client) client.release();
   }
 };
-
 
 async function loggedInUserDetails(client, vendor_code) {
   const userDeatilsQuery = `
@@ -1040,10 +1036,6 @@ FROM auth AS t1
   return userDeatilsData[0] || null;
 }
 
-
-
-
-
 const sendOtp2 = async (req, res) => {
   let client;
   try {
@@ -1053,7 +1045,7 @@ const sendOtp2 = async (req, res) => {
       return resSend(res, false, 200, "Vendor Code is required");
     }
 
-    const validAction = action_type || 'LOGIN';
+    const validAction = action_type || "LOGIN";
 
     client = await poolClient();
 
@@ -1078,7 +1070,6 @@ const sendOtp2 = async (req, res) => {
     await processAndSendOtp(client, vendor_code, user.user_type, email, validAction);
 
     resSend(res, true, 200, "OTP sent successfully", { vendor_code, action_type: validAction });
-
   } catch (err) {
     console.error("Send OTP Error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG);
@@ -1086,7 +1077,6 @@ const sendOtp2 = async (req, res) => {
     if (client) client.release();
   }
 };
-
 
 const refreshToken = async (req, res) => {
   let client;
@@ -1107,7 +1097,7 @@ const refreshToken = async (req, res) => {
     const sessionRows = await poolQuery({ client, query: sessionQuery, values: [refreshToken] });
 
     if (!sessionRows.length) {
-      // SECURITY ALERT: If a token is valid (signature wise) but not in DB, 
+      // SECURITY ALERT: If a token is valid (signature wise) but not in DB,
       // it means it was already used/rotated. This might be a reuse attack!
       // Optional: You could delete ALL sessions for this user here to force re-login.
       return resSend(res, false, 403, "Token already used. Please Login Again.");
@@ -1133,9 +1123,8 @@ const refreshToken = async (req, res) => {
     // 5. Send BOTH tokens back
     resSend(res, true, 200, "Token Rotated Successfully", null, {
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken // Client must update their local storage with this!
+      refreshToken: newRefreshToken, // Client must update their local storage with this!
     });
-
   } catch (err) {
     console.error("Refresh Token Error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
@@ -1143,7 +1132,6 @@ const refreshToken = async (req, res) => {
     if (client) client.release();
   }
 };
-
 
 const logout = async (req, res) => {
   let client;
@@ -1163,7 +1151,7 @@ const logout = async (req, res) => {
     await poolQuery({
       client,
       query: "DELETE FROM user_sessions WHERE refresh_token = $1",
-      values: [refreshToken]
+      values: [refreshToken],
     });
 
     resSend(res, true, 200, "Logged out successfully");
@@ -1178,8 +1166,6 @@ const logout = async (req, res) => {
 /**---------------------------------------------------------------------------------
                       LOGIN API END
  ------------------------------------------------------------------------------------*/
-
-
 
 module.exports = {
   captchaHandler,
@@ -1196,5 +1182,5 @@ module.exports = {
   refreshToken,
   sendOtp2,
   verifyLoginOtp,
-  logout
+  logout,
 };

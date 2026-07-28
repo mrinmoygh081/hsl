@@ -63,7 +63,7 @@ const tncdownload = async (req, res) => {
       return resSend(res, false, 200, "You dont have access", null, null);
     }
 
-    // if (tokenData.department_id == QAP || tokenData.department_id == RIC || tokenData.department_id == USER_TYPE_GRSE_PURCHASE) {
+    // if (tokenData.department_id == QAP || tokenData.department_id == RIC || tokenData.department_id == USER_TYPE_HSL_PURCHASE) {
     // const fileName = `${purchesing_doc_no}.pdf`;
     // const downloadPath = path.join(__dirname, "..", "..", "uploads", "tncminutes", fileName);
     const q = `SELECT file_name, file_path, file_type, purchasing_doc_no FROM tnc_minutes WHERE purchasing_doc_no = $1 order by id desc`;
@@ -208,7 +208,6 @@ const getPaymentAdvliceList = async (req, res) => {
           values: queryValues,
         });
 
-
         const resustFiles = result.map((ele) => {
           const realFileName = files?.data?.find((el) => el.includes(ele.documentNo));
           // const directoryPath = path.join(__dirname, '..', '..', '..', '..', '..', 'ftpgrse', 'pymtadvice', `${realFileName}`);
@@ -304,11 +303,8 @@ async function checkPdfFile(filePath) {
   }
 }
 const poListDownload = async (req, res) => {
-
   try {
     await withTransaction(async (client) => {
-
-
       let pageNo = parseInt(req.query.pageNo);
       let pageSize = parseInt(req.query.pageSize);
 
@@ -322,19 +318,15 @@ const poListDownload = async (req, res) => {
 
       const baseQuery = qb.toJSON();
 
-
       const result = await poolQuery({ client, query: baseQuery.sql, values: baseQuery.params });
 
       resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, "", pageSize, pageNo);
-    })
+    });
   } catch (error) {
     console.error("[ERROR] PO LIST Download API", error.message, error.stack);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   }
 };
-
-
-
 
 module.exports = {
   // download,

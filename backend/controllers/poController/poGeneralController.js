@@ -3,14 +3,14 @@ const { resSend } = require("../../lib/resSend");
 const { EKPO } = require("../../lib/tableName");
 const {
   USER_TYPE_VENDOR,
-  USER_TYPE_GRSE_QAP,
+  USER_TYPE_HSL_QAP,
   ASSIGNER,
   STAFF,
-  USER_TYPE_GRSE_FINANCE,
-  USER_TYPE_GRSE_PURCHASE,
+  USER_TYPE_HSL_FINANCE,
+  USER_TYPE_HSL_PURCHASE,
   USER_TYPE_PPNC_DEPARTMENT,
-  USER_TYPE_GRSE_DRAWING,
-  USER_TYPE_GRSE_CONTRACT_CELL,
+  USER_TYPE_HSL_DRAWING,
+  USER_TYPE_HSL_CONTRACT_CELL,
   PO_LINE_ITEM_DELETE_FLAG,
 } = require("../../lib/constant");
 
@@ -59,7 +59,6 @@ const details = async (req, res) => {
     const result = await poolQuery({ client, query: q, values: [queryParams.id] });
 
     if (!result?.length) return resSend(res, false, 404, "No PO number found !!", [], null);
-
 
     const timeLineQuery = `
         (SELECT a.*, sub.actualSubmissionDate, sub.milestoneText, sub.milestoneId FROM   zpo_milestone AS a 
@@ -138,8 +137,8 @@ const details = async (req, res) => {
     const [timeline, curret_data, acknowledgementnt_date] = await Promise.all([
       poolQuery({ client, query: timeLineQuery, values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id] }),
       poolQuery({ client, query: getLatest, values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id] }),
-      poolQuery({ client, query: getAcknowledgementntQry, values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id] })
-    ])
+      poolQuery({ client, query: getAcknowledgementntQry, values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id] }),
+    ]);
 
     let timelineData = [];
     if (timeline.length) {
@@ -206,8 +205,8 @@ const details = async (req, res) => {
       poolQuery({ client, query: materialQuery, values: [queryParams.id] }),
       poolQuery({ client, query: materialTypeQuery, values: [] }),
       currentStageHandleForAllActivity(client, [queryParams.id]),
-      doDetails(client, queryParams.id)
-    ])
+      doDetails(client, queryParams.id),
+    ]);
 
     let materialResult = materials;
 
@@ -249,11 +248,10 @@ const details = async (req, res) => {
   } catch (error) {
     console.error("[ERROR] PO details", error);
     resSend(res, false, 500, Message.SERVER_ERROR, null);
-  }
-  finally {
+  } finally {
     if (client) client.release();
   }
-}
+};
 
 function isDO(po, user_id) {
   return po.ERNAM == user_id;
@@ -318,7 +316,6 @@ function poTypeCheck(materialData, materialType) {
   //   }
   // }
   // // types.every(type => material.includes(type));
-
 
   if (isService && !isMaterial) {
     return "service";
@@ -387,7 +384,6 @@ const doDetails = async (client, poNo) => {
   return doArr;
 };
 
-
 function joinArrays(arr1, arr2) {
   return arr1.map((item1) => {
     const matchingItem = arr2.find((item2) => item1.eblel == item2.purchasing_doc_no && item1.mid == item2.flag);
@@ -449,7 +445,6 @@ const poList = async (req, res) => {
       return resSend(res, false, 400, "You don't have permission or no data found", null, null);
     }
 
-
     // Execute Main Query with parameterized values
     client = await poolClient();
     const poDetails = await poolQuery({ client, query: Query, values: queryValues });
@@ -484,8 +479,8 @@ const poList = async (req, res) => {
     const contractualDates = await getActualAndCurrentDetails(client, poArr);
     const currentActivity = await currentStageHandleForAllActivity(client, poArr);
     const materialType = await poolQuery({ client, query: materialTypeQuery, values: [] });
-    const poCountData =  await poolQuery({ client, query: CountQuery, values: countValues });
-    
+    const poCountData = await poolQuery({ client, query: CountQuery, values: countValues });
+
     const poCount = parseInt(poCountData[0]?.total_count || 0);
     const modifiedPOData = poDataModify2(poDetails);
 
@@ -695,7 +690,7 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
   const addTemp = (val) => addParam(tempValues, val);
 
   switch (tokenData.department_id) {
-    case USER_TYPE_GRSE_QAP:
+    case USER_TYPE_HSL_QAP:
       if (tokenData.internal_role_id === ASSIGNER) {
         Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
@@ -717,7 +712,7 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
       }
       break;
 
-    case USER_TYPE_GRSE_FINANCE:
+    case USER_TYPE_HSL_FINANCE:
       if (tokenData.internal_role_id === ASSIGNER) {
         Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
@@ -747,12 +742,12 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
       }
       break;
 
-    case USER_TYPE_GRSE_DRAWING:
+    case USER_TYPE_HSL_DRAWING:
       Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
       CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       break;
 
-    case USER_TYPE_GRSE_PURCHASE:
+    case USER_TYPE_HSL_PURCHASE:
       if (tokenData.internal_role_id === ASSIGNER) {
         Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
@@ -813,7 +808,7 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
       CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       break;
 
-    case USER_TYPE_GRSE_CONTRACT_CELL:
+    case USER_TYPE_HSL_CONTRACT_CELL:
       if (tokenData.internal_role_id === ASSIGNER) {
         Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);

@@ -466,7 +466,7 @@ export const actionHandlerServiceBTN = async (flag, token, user, id, form, setFo
       return toast.warn("At least one WDC number is mandatory.");
     }
     if (!bill_certifing_authority || bill_certifing_authority === "") {
-      return toast.warn("Please choose GRSE officer.");
+      return toast.warn("Please choose HSL officer.");
     }
     if (!invoice_type || invoice_type.trim() === "") {
       return toast.warning("Please choose Invoice Type.");
@@ -509,7 +509,7 @@ export const actionHandlerServiceBTN = async (flag, token, user, id, form, setFo
       return toast.warning("WAGES Compliance is mandatory!");
     }
     if (!outside && (!units || units.length === 0)) {
-      return toast.warn("Please select units or check OUTSIDE GRSE.");
+      return toast.warn("Please select units or check OUTSIDE HSL.");
     }
 
     // Use FormData to handle file uploads
@@ -594,7 +594,7 @@ export const actionHandlerServiceBTN = async (flag, token, user, id, form, setFo
 //     //   return toast.warn("Purchasing document number is mandatory.");
 //     // }
 //     // if (!bill_certifing_authority || bill_certifing_authority === "") {
-//     //   return toast.warn("Please choose a GRSE officer.");
+//     //   return toast.warn("Please choose a HSL officer.");
 //     // }
 //     // if (!invoice_type || invoice_type.trim() === "") {
 //     //   return toast.warning("Please choose Invoice Type.");

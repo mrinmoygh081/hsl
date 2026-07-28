@@ -212,7 +212,7 @@ const AdvanceBillHybridView = () => {
                         </div>
                       ) : (
                         <>
-                          <div className="col-12">Waiting for the action from GRSE.</div>
+                          <div className="col-12">Waiting for the action from HSL.</div>
                         </>
                       )}
                     </div>

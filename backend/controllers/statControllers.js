@@ -2,7 +2,17 @@ const { resSend } = require("../lib/resSend");
 const { poolClient, poolQuery, withTransaction } = require("../config/pgDbConfig");
 const { SDBG_ENTRY, QAP_SUBMISSION, DRAWING, WDC } = require("../lib/tableName");
 // const { checkPoType } = require("../services/lastassignee.servces");
-const { USER_TYPE_GRSE_QAP, ASSIGNER, STAFF, USER_TYPE_IT, USER_TYPE_GRSE_FINANCE, USER_TYPE_GRSE_DRAWING, USER_TYPE_VENDOR, DEFAULT_PAGE_NO, DEFAULT_PAGE_SIZE } = require("../lib/constant");
+const {
+  USER_TYPE_HSL_QAP,
+  ASSIGNER,
+  STAFF,
+  USER_TYPE_IT,
+  USER_TYPE_HSL_FINANCE,
+  USER_TYPE_HSL_DRAWING,
+  USER_TYPE_VENDOR,
+  DEFAULT_PAGE_NO,
+  DEFAULT_PAGE_SIZE,
+} = require("../lib/constant");
 const { ASSIGNED, ACCEPTED, APPROVED } = require("../lib/status");
 const localData = require("../utils/localData.json");
 const Message = require("../utils/messages");
@@ -30,9 +40,8 @@ const { LatestRecordQueryBuilder } = require("../utils/LatestRecordQueryBuilder"
 //       let offset = (pageNo - 1) * pageSize;
 //       let LIMIT_OFFSET = ` LIMIT ${pageSize} OFFSET ${offset} `;
 
-
 //       if (
-//         (tokenData.internal_role_id === ASSIGNER && tokenData.department_id === USER_TYPE_GRSE_FINANCE) ||
+//         (tokenData.internal_role_id === ASSIGNER && tokenData.department_id === USER_TYPE_HSL_FINANCE) ||
 //         tokenData.department_id === USER_TYPE_IT ||
 //         check.includes(tokenData.vendor_code)
 //       ) {
@@ -59,8 +68,8 @@ const { LatestRecordQueryBuilder } = require("../utils/LatestRecordQueryBuilder"
 //         // return resSend(res, true, 200, "Data fetched successfully.", result, null);
 //       }
 //       // For grse_FINANCE_STAFF
-//       if (tokenData.internal_role_id === STAFF && tokenData.department_id === USER_TYPE_GRSE_FINANCE) {
-//         Q = ` 
+//       if (tokenData.internal_role_id === STAFF && tokenData.department_id === USER_TYPE_HSL_FINANCE) {
+//         Q = `
 //           SELECT se.*
 //           FROM ${SDBG_ENTRY} se
 //           JOIN ${SDBG} s ON se.purchasing_doc_no = s.purchasing_doc_no
@@ -97,7 +106,6 @@ const { LatestRecordQueryBuilder } = require("../utils/LatestRecordQueryBuilder"
 //         return resSend(res, false, 200, Message.YOU_ARE_UN_AUTHORIZED, []);
 //       }
 
-
 //       const [result, dataCount] = await Promise.all(
 //         [
 //           poolQuery({ client, query: Q, values: val }),
@@ -114,7 +122,6 @@ const { LatestRecordQueryBuilder } = require("../utils/LatestRecordQueryBuilder"
 // }
 
 exports.stats = async (req, res) => {
-
   let client;
   try {
     client = await poolClient();
@@ -130,17 +137,14 @@ exports.stats = async (req, res) => {
     const TABLE = type;
     const ENTITY = type === QAP_SUBMISSION ? "QAP" : "DRAWING";
     const STATUS = type === QAP_SUBMISSION ? ACCEPTED : APPROVED;
-    const USER_DEPT_ID = type === QAP_SUBMISSION ? USER_TYPE_GRSE_QAP : USER_TYPE_GRSE_DRAWING;
+    const USER_DEPT_ID = type === QAP_SUBMISSION ? USER_TYPE_HSL_QAP : USER_TYPE_HSL_DRAWING;
     const ASSIGNED_FROM = type === QAP_SUBMISSION ? "assigned_from" : "assign_from";
     const ASSIGNED_TO = type === QAP_SUBMISSION ? "assigned_to" : "assign_to";
     const ASSIGN_STATUS = type === QAP_SUBMISSION ? "is_assign" : "last_assigned";
 
-
     let accessUserList = localData.qapDashBoardSpecialAccessUsers.map((el) => el.manNo) || [];
 
-    if (tokenData.department_id === USER_DEPT_ID ||
-      tokenData.department_id === USER_TYPE_IT ||
-      accessUserList.includes(tokenData.vendor_code)) {
+    if (tokenData.department_id === USER_DEPT_ID || tokenData.department_id === USER_TYPE_IT || accessUserList.includes(tokenData.vendor_code)) {
       let str = "";
       let q;
       let result;
@@ -342,7 +346,6 @@ exports.stats = async (req, res) => {
   } finally {
     if (client) client.release();
   }
-
 };
 
 exports.statsForBTN = async (req, res) => {
@@ -354,7 +357,7 @@ exports.statsForBTN = async (req, res) => {
     // let check = localData.registrationApprovedAuthority.map((el) => el.manNo) || [];
 
     // if (
-    //   tokenData.department_id != USER_TYPE_GRSE_FINANCE &&
+    //   tokenData.department_id != USER_TYPE_HSL_FINANCE &&
     //   tokenData.department_id != USER_TYPE_IT &&
     //   !check.includes(tokenData.vendor_code)
     // ) {
@@ -447,7 +450,6 @@ exports.statsForBTN = async (req, res) => {
       val.push(`${queryParams.status}`);
     }
 
-
     // if (tokenData.internal_role_id == STAFF) {
     //   whereClause += ` AND LIST.assign_to LIKE $${++count}`;
     //   val.push(`tokenData.vendor_code`);
@@ -462,7 +464,6 @@ exports.statsForBTN = async (req, res) => {
       )`;
       val.push(`%${queryParams.assign_to}%`);
     }
-
 
     // ORDER BY (required for DISTINCT ON)
     // const orderBy = ` ORDER BY LIST.btn_num DESC `;
@@ -483,14 +484,7 @@ exports.statsForBTN = async (req, res) => {
     // const result = await poolQuery({ client, query: Q, values: val });
     // const dataCount = await poolQuery({ client, query: countQuery, values: val });
 
-
-
-    const [result, dataCount] = await Promise.all(
-      [
-        poolQuery({ client, query: Q, values: val }),
-        poolQuery({ client, query: countQuery, values: val })
-      ]);
-
+    const [result, dataCount] = await Promise.all([poolQuery({ client, query: Q, values: val }), poolQuery({ client, query: countQuery, values: val })]);
 
     resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, null, parseInt(dataCount[0]?.count), pageNo);
   } catch (error) {
@@ -506,7 +500,7 @@ exports.statsForBgExtension = async (req, res) => {
   try {
     const tokenData = req.tokenData;
     const queryParams = req.query;
-    let bgData = {}
+    let bgData = {};
     client = await poolClient();
     bgData = await getDasboardBgExtensionList(client, queryParams, tokenData);
 
@@ -519,12 +513,9 @@ exports.statsForBgExtension = async (req, res) => {
   }
 };
 
-
 exports.statsForWDC = async (req, res) => {
   try {
-
     await withTransaction(async (client) => {
-
       const { tokenData, query: queryParams } = req;
 
       const pageNo = Number(queryParams.pageNo) || DEFAULT_PAGE_NO;
@@ -538,75 +529,62 @@ exports.statsForWDC = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = [
-        "reference_no",
-        "purchasing_doc_no",
-        "action_type",
-        "vendor_code",
-        "status",
-      ];
+      const filterableColumns = ["reference_no", "purchasing_doc_no", "action_type", "vendor_code", "status"];
 
       if (queryParams.poNo) {
         queryParams.purchasing_doc_no = queryParams.poNo;
       }
 
-
       if (queryParams.search) {
-
         filters.push({
           group: [
             {
               column: "purchasing_doc_no",
               operator: "ILIKE",
               condition: "OR",
-              value: queryParams.search
+              value: queryParams.search,
             },
             {
               column: "vendor_code",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "status",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "reference_no",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
-            }
-          ]
+              condition: "OR",
+            },
+          ],
         });
-
       }
 
-      filterableColumns.forEach(column => {
-
+      filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
 
         filters.push({
           column,
           operator: "=",
-          value: queryParams[column]
+          value: queryParams[column],
         });
-
       });
-
 
       //--------------------------------------------------
       // Mandatory Filters
       //--------------------------------------------------
 
-
       if (tokenData?.user_type === USER_TYPE_VENDOR) {
         filters.push({
           column: "vendor_code",
           operator: "=",
-          value: tokenData.vendor_code
+          value: tokenData.vendor_code,
         });
       }
 
@@ -614,11 +592,7 @@ exports.statsForWDC = async (req, res) => {
       // Query Builder
       //--------------------------------------------------
 
-      const {
-        dataQuery,
-        countQuery
-      } = LatestRecordQueryBuilder({
-
+      const { dataQuery, countQuery } = LatestRecordQueryBuilder({
         tableName: WDC,
 
         groupByColumn: "reference_no",
@@ -629,53 +603,34 @@ exports.statsForWDC = async (req, res) => {
 
         pageSize,
 
-        selectColumns: [
-          "lr.reference_no",
-          "lr.purchasing_doc_no",
-          "lr.action_type",
-          "lr.vendor_code",
-          "lr.unit",
-          "lr.status",
-          "lr.work_title"
-        ],
+        selectColumns: ["lr.reference_no", "lr.purchasing_doc_no", "lr.action_type", "lr.vendor_code", "lr.unit", "lr.status", "lr.work_title"],
 
-        filters
+        filters,
       });
-
-
 
       //--------------------------------------------------
       // Execute
       //--------------------------------------------------
 
-      const [rows, countRows] = await Promise.all(
-        [
-          poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
-          poolQuery({ client, query: countQuery.sql, values: countQuery.params })
-
-        ]);
+      const [rows, countRows] = await Promise.all([
+        poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
+        poolQuery({ client, query: countQuery.sql, values: countQuery.params }),
+      ]);
 
       const finalQapResult = rows;
 
       return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
-
     });
-
   } catch (error) {
-
     console.error("statsForQA Error:", error);
 
-    return resSend(res, false, 400, "Data not fetched!"
-    );
-
+    return resSend(res, false, 400, "Data not fetched!");
   }
 };
 
 exports.statsForQA = async (req, res) => {
   try {
-
     await withTransaction(async (client) => {
-
       const { tokenData, query: queryParams } = req;
 
       const pageNo = Number(queryParams.pageNo) || DEFAULT_PAGE_NO;
@@ -689,27 +644,20 @@ exports.statsForQA = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = [
-        "status",
-        "purchasing_doc_no",
-        "vendor_code",
-        "assigned_to"
-      ];
+      const filterableColumns = ["status", "purchasing_doc_no", "vendor_code", "assigned_to"];
 
       if (queryParams["poNo"]) {
-        queryParams["purchasing_doc_no"] = queryParams["poNo"]
+        queryParams["purchasing_doc_no"] = queryParams["poNo"];
       }
 
-      filterableColumns.forEach(column => {
-
+      filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
 
         filters.push({
           column,
           operator: "=",
-          value: queryParams[column]
+          value: queryParams[column],
         });
-
       });
 
       //--------------------------------------------------
@@ -717,42 +665,40 @@ exports.statsForQA = async (req, res) => {
       //--------------------------------------------------
 
       if (queryParams.search) {
-
         filters.push({
           group: [
             {
               column: "purchasing_doc_no",
               operator: "ILIKE",
               condition: "OR",
-              value: queryParams.search
+              value: queryParams.search,
             },
             {
               column: "vendor_code",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "assigned_to",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "status",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "reference_no",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
-            }
-          ]
+              condition: "OR",
+            },
+          ],
         });
-
       }
 
       //--------------------------------------------------
@@ -762,30 +708,22 @@ exports.statsForQA = async (req, res) => {
       filters.push({
         column: "reference_no",
         operator: "!=",
-        value: "QAP ASSIGNED"
+        value: "QAP ASSIGNED",
       });
 
-      if (
-        tokenData?.user_type === USER_TYPE_VENDOR
-      ) {
-
+      if (tokenData?.user_type === USER_TYPE_VENDOR) {
         filters.push({
           column: "vendor_code",
           operator: "=",
-          value: tokenData.vendor_code
+          value: tokenData.vendor_code,
         });
-
       }
 
       //--------------------------------------------------
       // Query Builder
       //--------------------------------------------------
 
-      const {
-        dataQuery,
-        countQuery
-      } = LatestRecordQueryBuilder({
-
+      const { dataQuery, countQuery } = LatestRecordQueryBuilder({
         tableName: QAP_SUBMISSION,
 
         groupByColumn: "reference_no",
@@ -797,7 +735,6 @@ exports.statsForQA = async (req, res) => {
         pageSize,
 
         selectColumns: [
-
           "lr.reference_no",
           "lr.purchasing_doc_no",
           "lr.vendor_code",
@@ -816,17 +753,16 @@ exports.statsForQA = async (req, res) => {
         ],
 
         joins: [
-
           {
             type: "LEFT",
             table: "ekko ekko",
-            on: "ekko.ebeln = lr.purchasing_doc_no"
+            on: "ekko.ebeln = lr.purchasing_doc_no",
           },
 
           {
             type: "LEFT",
             table: "lfa1 vendor",
-            on: "vendor.lifnr = ekko.lifnr"
+            on: "vendor.lifnr = ekko.lifnr",
           },
 
           // {
@@ -842,29 +778,22 @@ exports.statsForQA = async (req, res) => {
           // }
         ],
 
-        filters
+        filters,
       });
-
-
 
       //--------------------------------------------------
       // Execute
       //--------------------------------------------------
 
-      const [rows, countRows] = await Promise.all(
-        [
-          poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
-          poolQuery({ client, query: countQuery.sql, values: countQuery.params })
-
-        ]);
+      const [rows, countRows] = await Promise.all([
+        poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
+        poolQuery({ client, query: countQuery.sql, values: countQuery.params }),
+      ]);
 
       const AllPoNoArr = [...new Set(rows.map((el) => el.purchasing_doc_no))];
       let qapAssigndStatusData = [];
-   
+
       if (AllPoNoArr.length) {
-
-
-
         const qb = new QueryBuilder(`${QAP_SUBMISSION} as qap`)
           .select(["qap.*, assignedToUser.cname as assigned_to_name, assignedFromUser.cname as assigned_from_name "])
           .joinTable("LEFT", "pa0002 as assignedToUser", "assignedToUser.pernr ::CHARACTER varying = qap.assigned_to")
@@ -876,14 +805,12 @@ exports.statsForQA = async (req, res) => {
         const buildQuery = qb.toJSON();
 
         qapAssigndStatusData = await poolQuery({ client, query: buildQuery.sql, values: buildQuery.params });
-
-    
       }
       const finalQapResult = [];
 
       if (rows && rows.length) {
         rows.forEach((qaEle) => {
-          const foundData = qapAssigndStatusData.find((qaAssignedEle) => (qaAssignedEle.purchasing_doc_no == qaEle.purchasing_doc_no));
+          const foundData = qapAssigndStatusData.find((qaAssignedEle) => qaAssignedEle.purchasing_doc_no == qaEle.purchasing_doc_no);
 
           finalQapResult.push({
             ...qaEle,
@@ -891,26 +818,20 @@ exports.statsForQA = async (req, res) => {
             assigned_to_name: foundData?.assigned_to_name || null,
             assigned_from: foundData?.assigned_from || null,
             assigned_from_name: foundData?.assigned_from_name || null,
-          })
-        })
+          });
+        });
       }
       return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
-
-    })
+    });
   } catch (error) {
-
     console.error("statsForQA Error:", error);
 
-    return resSend(res, false, 400, "Data not fetched!"
-    );
-
+    return resSend(res, false, 400, "Data not fetched!");
   }
 };
 exports.statsForDrawing = async (req, res) => {
   try {
-
     await withTransaction(async (client) => {
-
       const { tokenData, query: queryParams } = req;
 
       const pageNo = Number(queryParams.pageNo) || DEFAULT_PAGE_NO;
@@ -924,23 +845,16 @@ exports.statsForDrawing = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = [
-        "status",
-        "purchasing_doc_no",
-        "vendor_code",
-        "assigned_to"
-      ];
+      const filterableColumns = ["status", "purchasing_doc_no", "vendor_code", "assigned_to"];
 
-      filterableColumns.forEach(column => {
-
+      filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
 
         filters.push({
           column,
           operator: "=",
-          value: queryParams[column]
+          value: queryParams[column],
         });
-
       });
 
       //--------------------------------------------------
@@ -948,70 +862,59 @@ exports.statsForDrawing = async (req, res) => {
       //--------------------------------------------------
 
       if (queryParams.search) {
-
         filters.push({
           group: [
             {
               column: "purchasing_doc_no",
               operator: "ILIKE",
               condition: "OR",
-              value: queryParams.search
+              value: queryParams.search,
             },
             {
               column: "vendor_code",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "action_by",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "action_on",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "status",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
-            }
-          ]
+              condition: "OR",
+            },
+          ],
         });
-
       }
 
       //--------------------------------------------------
       // Mandatory Filters
       //--------------------------------------------------
 
-
-      if (
-        tokenData?.user_type === USER_TYPE_VENDOR
-      ) {
-
+      if (tokenData?.user_type === USER_TYPE_VENDOR) {
         filters.push({
           column: "vendor_code",
           operator: "=",
-          value: tokenData.vendor_code
+          value: tokenData.vendor_code,
         });
-
       }
 
       //--------------------------------------------------
       // Query Builder
       //--------------------------------------------------
 
-      const {
-        dataQuery,
-        countQuery
-      } = LatestRecordQueryBuilder({
-
+      const { dataQuery, countQuery } = LatestRecordQueryBuilder({
         tableName: DRAWING,
 
         groupByColumn: "reference_no",
@@ -1023,7 +926,6 @@ exports.statsForDrawing = async (req, res) => {
         pageSize,
 
         selectColumns: [
-
           "lr.reference_no",
           "lr.purchasing_doc_no",
           "lr.vendor_code",
@@ -1038,71 +940,60 @@ exports.statsForDrawing = async (req, res) => {
 
           "emp_action_by.cname AS action_by_name",
 
-          "emp_action_on.cname AS action_on_name"
+          "emp_action_on.cname AS action_on_name",
         ],
 
         joins: [
-
           {
             type: "LEFT",
             table: "ekko ekko",
-            on: "ekko.ebeln = lr.purchasing_doc_no"
+            on: "ekko.ebeln = lr.purchasing_doc_no",
           },
 
           {
             type: "LEFT",
             table: "lfa1 vendor",
-            on: "vendor.lifnr = ekko.lifnr"
+            on: "vendor.lifnr = ekko.lifnr",
           },
 
           {
             type: "LEFT",
             table: "pa0002 emp_action_on",
-            on: "emp_action_on.pernr ::CHARACTER varying = lr.action_on"
+            on: "emp_action_on.pernr ::CHARACTER varying = lr.action_on",
           },
 
           {
             type: "LEFT",
             table: "pa0002 emp_action_by",
-            on: "emp_action_by.pernr ::CHARACTER varying = lr.action_by"
-          }
+            on: "emp_action_by.pernr ::CHARACTER varying = lr.action_by",
+          },
         ],
 
-        filters
+        filters,
       });
 
-    
       //--------------------------------------------------
       // Execute
       //--------------------------------------------------
 
-      const [rows, countRows] = await Promise.all(
-        [
-          poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
-          poolQuery({ client, query: countQuery.sql, values: countQuery.params })
-
-        ]);
+      const [rows, countRows] = await Promise.all([
+        poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
+        poolQuery({ client, query: countQuery.sql, values: countQuery.params }),
+      ]);
 
       const finalQapResult = rows;
 
       return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
-
     });
-
   } catch (error) {
-
     console.error("statsForQA Error:", error);
 
-    return resSend(res, false, 400, "Data not fetched!"
-    );
-
+    return resSend(res, false, 400, "Data not fetched!");
   }
 };
 exports.statsForBG = async (req, res) => {
   try {
-
     await withTransaction(async (client) => {
-
       const { tokenData, query: queryParams } = req;
 
       const pageNo = Number(queryParams.pageNo) || DEFAULT_PAGE_NO;
@@ -1116,25 +1007,19 @@ exports.statsForBG = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = [
-        "status",
-        "purchasing_doc_no",
-        "reference_no"
-      ];
-      if (queryParams.status == 'All') {
+      const filterableColumns = ["status", "purchasing_doc_no", "reference_no"];
+      if (queryParams.status == "All") {
         queryParams.status = "";
       }
 
-      filterableColumns.forEach(column => {
-
+      filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
 
         filters.push({
           column: `lr.${column}`,
           operator: "=",
-          value: queryParams[column]
+          value: queryParams[column],
         });
-
       });
 
       //--------------------------------------------------
@@ -1142,41 +1027,39 @@ exports.statsForBG = async (req, res) => {
       //--------------------------------------------------
 
       if (queryParams.search) {
-
         filters.push({
           group: [
             {
               column: "lr.purchasing_doc_no",
               operator: "ILIKE",
               condition: "OR",
-              value: queryParams.search
+              value: queryParams.search,
             },
             {
               column: "lr.status",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
+              condition: "OR",
             },
             {
               column: "lr.reference_no",
               operator: "ILIKE",
               value: queryParams.search,
-              condition: "OR"
-            }
-          ]
+              condition: "OR",
+            },
+          ],
         });
-
       }
 
       //--------------------------------------------------
       // Mandatory Filters
       //--------------------------------------------------
 
-      if (tokenData.internal_role_id === STAFF && tokenData.department_id === USER_TYPE_GRSE_FINANCE) {
+      if (tokenData.internal_role_id === STAFF && tokenData.department_id === USER_TYPE_HSL_FINANCE) {
         filters.push({
           column: "sdbg.assigned_to",
           operator: "=",
-          value: tokenData.vendor_code
+          value: tokenData.vendor_code,
         });
       }
 
@@ -1184,11 +1067,7 @@ exports.statsForBG = async (req, res) => {
       // Query Builder
       //--------------------------------------------------
 
-      const {
-        dataQuery,
-        countQuery
-      } = LatestRecordQueryBuilder({
-
+      const { dataQuery, countQuery } = LatestRecordQueryBuilder({
         tableName: SDBG_ENTRY,
 
         groupByColumn: "reference_no",
@@ -1199,46 +1078,35 @@ exports.statsForBG = async (req, res) => {
 
         pageSize,
 
-        selectColumns: [
-          "lr.*"
-        ],
+        selectColumns: ["lr.*"],
 
         joins: [
-
           {
             type: "LEFT",
             table: "sdbg",
-            on: "sdbg.reference_no = lr.reference_no"
+            on: "sdbg.reference_no = lr.reference_no",
           },
         ],
 
-        filters
+        filters,
       });
 
-      
       //--------------------------------------------------
       // Execute
       //--------------------------------------------------
 
-      const [rows, countRows] = await Promise.all(
-        [
-          poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
-          poolQuery({ client, query: countQuery.sql, values: countQuery.params })
-
-        ]);
+      const [rows, countRows] = await Promise.all([
+        poolQuery({ client, query: dataQuery.sql, values: dataQuery.params }),
+        poolQuery({ client, query: countQuery.sql, values: countQuery.params }),
+      ]);
 
       const finalQapResult = rows;
 
       return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
-
     });
-
   } catch (error) {
-
     console.error("[ERROR] statsForBG:", error);
 
-    return resSend(res, false, 400, "Data not fetched!"
-    );
-
+    return resSend(res, false, 400, "Data not fetched!");
   }
 };

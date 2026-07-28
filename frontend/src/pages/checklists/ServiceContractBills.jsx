@@ -131,7 +131,7 @@ const ServiceContractBills = () => {
       return toast.info("Select at least one WDC Number");
     }
     if (!form?.outside && form?.units.length === 0) {
-      return toast.info("Please select the units or choose OUTSIDE GRSE.");
+      return toast.info("Please select the units or choose OUTSIDE HSL.");
     }
     let fd = {
       outside: form?.outside,
@@ -233,7 +233,7 @@ const ServiceContractBills = () => {
                                             }
                                           />
                                           <label className="form-check-label me-2 mb-0" htmlFor="outside">
-                                            OUTSIDE GRSE
+                                            OUTSIDE HSL
                                           </label>
                                           {!form.outside && (
                                             <div className="d-flex align-items-center">
@@ -369,7 +369,10 @@ const ServiceContractBills = () => {
                                           </div>
                                           <div className="btn_value">
                                             <div className="me-4">
-                                              <label className="d-flex align-items-center gap-2">Invoice File<FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} /></label>
+                                              <label className="d-flex align-items-center gap-2">
+                                                Invoice File
+                                                <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
+                                              </label>
                                               <input
                                                 type="file"
                                                 className="form-control"
@@ -379,7 +382,10 @@ const ServiceContractBills = () => {
                                               />
                                             </div>
                                             <div>
-                                              <label className="d-flex align-items-center gap-2">Supporting Documents<FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} /></label>
+                                              <label className="d-flex align-items-center gap-2">
+                                                Supporting Documents
+                                                <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
+                                              </label>
                                               <input
                                                 type="file"
                                                 className="form-control"
@@ -425,7 +431,10 @@ const ServiceContractBills = () => {
                                           </div>
                                           <div className="btn_value">
                                             <div className="me-4">
-                                              <label className="d-flex align-items-center gap-2">Invoice File<FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} /></label>
+                                              <label className="d-flex align-items-center gap-2">
+                                                Invoice File
+                                                <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
+                                              </label>
                                               <input
                                                 type="file"
                                                 className="form-control"
@@ -435,7 +444,10 @@ const ServiceContractBills = () => {
                                               />
                                             </div>
                                             <div>
-                                              <label className="d-flex align-items-center gap-2">Supporting Documents<FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} /></label>
+                                              <label className="d-flex align-items-center gap-2">
+                                                Supporting Documents
+                                                <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
+                                              </label>
                                               <input
                                                 type="file"
                                                 className="form-control"
@@ -465,14 +477,14 @@ const ServiceContractBills = () => {
                                       <td>Debit/Credit Note:</td>
                                       <td className="btn_value">
                                         <div className="d-flex align-items-center gap-2">
-                                        <input
-                                          type="file"
-                                          className="form-control"
-                                          name="debit_credit_filename"
-                                          onChange={(e) => inputFileChange(e, form, setForm)}
-                                          accept=".pdf"
-                                        />
-                                        <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
+                                          <input
+                                            type="file"
+                                            className="form-control"
+                                            name="debit_credit_filename"
+                                            onChange={(e) => inputFileChange(e, form, setForm)}
+                                            accept=".pdf"
+                                          />
+                                          <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
                                         </div>
                                       </td>
                                     </tr>

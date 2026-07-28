@@ -1,25 +1,22 @@
-
 const { setActualSubmissionDate, create_reference_no, getPoDetails } = require("../../services/po.services");
 const { resSend } = require("../../lib/resSend");
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
 const { INSERT, USER_TYPE_VENDOR, MID_ILMS, BLANK_ASSIGN_USER_CODE } = require("../../lib/constant");
 const { ILMS } = require("../../lib/tableName");
-const { SUBMITTED, ACCEPTED,  REJECTED } = require("../../lib/status");
+const { SUBMITTED, ACCEPTED, REJECTED } = require("../../lib/status");
 const { sendMail } = require("../../services/mail.services");
-const { checkIsApprovedRejected} = require("../../services/lastassignee.servces");
+const { checkIsApprovedRejected } = require("../../services/lastassignee.servces");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const { ILMS_ACKNOWLEDGE_RECEIPT, ILMS_UPLOAD_TO_CDO } = require("../../lib/event");
 const Message = require("../../utils/messages");
-
-
 
 const submitILMS = async (req, res) => {
   let client;
   try {
     client = await poolClient();
 
-    const {  body, tokenData } = req;
+    const { body, tokenData } = req;
     const { purchasing_doc_no, type, status, reference_no } = body;
 
     // Basic validation
@@ -29,24 +26,18 @@ const submitILMS = async (req, res) => {
     }
 
     // Handle uploaded file
-    let fileData = {}
+    let fileData = {};
     if (req.file) {
       fileData = {
         file_name: req.file.filename || "",
         file_path: req.file.path || "",
         // fileType: req.file.mimetype,
         // fileSize: req.file.size,
-      }
+      };
     }
 
-
-
     // Get PO details
-    const poResult = await getPoDetails(
-      client,
-      { ebeln: purchasing_doc_no },
-      "ebeln as purchasing_doc_no, ernam as po_creator, lifnr as vendor_code"
-    );
+    const poResult = await getPoDetails(client, { ebeln: purchasing_doc_no }, "ebeln as purchasing_doc_no, ernam as po_creator, lifnr as vendor_code");
     const poDetails = poResult;
     const isDO = poDetails.po_creator === tokenData.vendor_code;
     const isVendor = tokenData.user_type === USER_TYPE_VENDOR;
@@ -54,7 +45,6 @@ const submitILMS = async (req, res) => {
     if (!isVendor && !isDO) {
       return resSend(res, false, 200, Message.LOGIN_AS_VALID_USER, Message.API_HAS_NO_ACCESS, null);
     }
-
 
     if (isVendor && !fileData.file_name) {
       return resSend(res, false, 200, Message.MANDATORY_INPUTS_REQUIRED, "File Missing", null);
@@ -68,7 +58,7 @@ const submitILMS = async (req, res) => {
       created_by_id: tokenData.vendor_code,
       action_by: tokenData.vendor_code,
       vendor_code: poDetails.vendor_code,
-      updated_by: isVendor ? "VENDOR" : "GRSE"
+      updated_by: isVendor ? "VENDOR" : "HSL",
     };
 
     // DO-specific logic
@@ -115,7 +105,6 @@ const submitILMS = async (req, res) => {
     }
 
     resSend(res, true, 200, `ILMS ${status}!`, fileData, null);
-
   } catch (error) {
     const code = client ? 500 : 502;
     const message = client ? Message.SERVER_ERROR : Message.DB_CONN_ERROR;
@@ -125,9 +114,6 @@ const submitILMS = async (req, res) => {
     if (client) client.release();
   }
 };
-
-
-
 
 const list = async (req, res) => {
   try {
@@ -162,7 +148,6 @@ const list = async (req, res) => {
   }
 };
 
-
 async function sendMailToDO(data) {
   try {
     let vendorDetails = getUserDetailsQuery("do", "$1");
@@ -171,12 +156,7 @@ async function sendMailToDO(data) {
       values: [data.purchasing_doc_no],
     });
     const dataObj = { ...data };
-    await sendMail(
-      ILMS_UPLOAD_TO_CDO,
-      dataObj,
-      { users: mail_details },
-      ILMS_UPLOAD_TO_CDO
-    );
+    await sendMail(ILMS_UPLOAD_TO_CDO, dataObj, { users: mail_details }, ILMS_UPLOAD_TO_CDO);
   } catch (error) {
     console.error("sendMailToCDOandDO", error.toString(), error.stack);
   }
@@ -190,12 +170,7 @@ async function sendMailToVendor(data) {
       values: [data.purchasing_doc_no],
     });
     const dataObj = { ...data };
-    await sendMail(
-      ILMS_ACKNOWLEDGE_RECEIPT,
-      dataObj,
-      { users: vendorDetails },
-      ILMS_ACKNOWLEDGE_RECEIPT
-    );
+    await sendMail(ILMS_ACKNOWLEDGE_RECEIPT, dataObj, { users: vendorDetails }, ILMS_ACKNOWLEDGE_RECEIPT);
   } catch (error) {
     console.error("sendMailToVendor error", error.toString(), error.stack);
   }

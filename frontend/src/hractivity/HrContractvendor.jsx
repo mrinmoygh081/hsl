@@ -10,7 +10,7 @@ import sampleFile from "../samplefile/excel_file_hr2 (3).xlsx";
 import { Modal, Button, Form } from "react-bootstrap";
 import "react-datepicker/dist/react-datepicker.css";
 import { formatDate } from "../utils/getDateTimeNow";
-import { ASSIGNER, DEPT_FI, DEPT_IT, STAFF, USER_GRSE_CONTRACT, USER_GRSE_HR, USER_GRSE_PURCHASE, USER_VENDOR } from "../constants/userConstants";
+import { ASSIGNER, DEPT_FI, DEPT_IT, STAFF, USER_HSL_CONTRACT, USER_HSL_HR, USER_HSL_PURCHASE, USER_VENDOR } from "../constants/userConstants";
 import { Link } from "react-router-dom";
 import debounce from "lodash/debounce";
 import Swal from "sweetalert2";
@@ -71,45 +71,45 @@ const HrContractvendor = () => {
   const fileInputRef = useRef();
   const hrUrl = "po/hr/compliance";
 
-  // const isAuthorized = user?.department_id === USER_GRSE_CONTRACT || user?.department_id === USER_GRSE_HR || user?.user_type === USER_VENDOR;
+  // const isAuthorized = user?.department_id === USER_HSL_CONTRACT || user?.department_id === USER_HSL_HR || user?.user_type === USER_VENDOR;
   // const isViewOnlyUser =
   //   user?.vendor_code === "602717" ||
   //   user?.vendor_code === "600233" ||
   //   user?.vendor_code === "601824" ||
   //   user?.department_id === DEPT_FI ||
   //   user?.department_id === DEPT_IT ||
-  //   user?.department_id === USER_GRSE_PURCHASE;
+  //   user?.department_id === USER_HSL_PURCHASE;
   // const isViewOnlyUser =
   //   (user?.vendor_code === "602717" || user?.vendor_code === "600233" || user?.vendor_code === "601824" || user?.vendor_code === "199609") &&
-  //   user?.department_id !== USER_GRSE_CONTRACT && // ← Added this condition
-  //   (user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.department_id === USER_GRSE_PURCHASE);
-  // const isContractUserWithUpload = user?.department_id === USER_GRSE_CONTRACT && !isViewOnlyUser;
-  //const isAuthorized = user?.department_id === USER_GRSE_CONTRACT || user?.department_id === USER_GRSE_HR || user?.user_type === USER_VENDOR;
+  //   user?.department_id !== USER_HSL_CONTRACT && // ← Added this condition
+  //   (user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.department_id === USER_HSL_PURCHASE);
+  // const isContractUserWithUpload = user?.department_id === USER_HSL_CONTRACT && !isViewOnlyUser;
+  //const isAuthorized = user?.department_id === USER_HSL_CONTRACT || user?.department_id === USER_HSL_HR || user?.user_type === USER_VENDOR;
   // BEFORE
   // Line ~50 ke aas paas ye dono update karo:
 
   const isViewOnlyUser =
-    !(user?.department_id === USER_GRSE_CONTRACT || user?.department_id === USER_GRSE_HR || user?.user_type === USER_VENDOR) &&
+    !(user?.department_id === USER_HSL_CONTRACT || user?.department_id === USER_HSL_HR || user?.user_type === USER_VENDOR) &&
     (user?.department_id === DEPT_FI ||
       user?.department_id === DEPT_IT ||
-      user?.department_id === USER_GRSE_PURCHASE ||
+      user?.department_id === USER_HSL_PURCHASE ||
       user?.vendor_code === "199609" ||
       user?.vendor_code === "602717" ||
       user?.vendor_code === "600233" ||
       user?.vendor_code === "601824");
 
   const isAuthorized =
-    user?.department_id === USER_GRSE_CONTRACT ||
-    user?.department_id === USER_GRSE_HR ||
+    user?.department_id === USER_HSL_CONTRACT ||
+    user?.department_id === USER_HSL_HR ||
     user?.user_type === USER_VENDOR ||
     user?.department_id === DEPT_FI ||
     user?.department_id === DEPT_IT ||
-    user?.department_id === USER_GRSE_PURCHASE ||
+    user?.department_id === USER_HSL_PURCHASE ||
     user?.vendor_code === "199609" ||
     user?.vendor_code === "602717" ||
     user?.vendor_code === "600233" ||
     user?.vendor_code === "601824";
-  const isContractUploadUser = user?.department_id === USER_GRSE_CONTRACT;
+  const isContractUploadUser = user?.department_id === USER_HSL_CONTRACT;
   const showStatus = (row) => row.status || row.hr_retailer_status || row.vendor_status || "--";
   const showRemarks = (row) => row.hr_remarks || row.hr_retailer_remarks || null;
 
@@ -176,7 +176,7 @@ const HrContractvendor = () => {
         setUploadedFile(response.data);
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
-        if (user?.department_id === USER_GRSE_CONTRACT) {
+        if (user?.department_id === USER_HSL_CONTRACT) {
           fetchInitialData();
         }
       } else {
@@ -936,10 +936,10 @@ const HrContractvendor = () => {
 
   // Updated useEffect to trigger fetchComplianceView on filter changes with pagination
   useEffect(() => {
-    if (user?.department_id === USER_GRSE_CONTRACT && !isViewOnlyUser) {
+    if (user?.department_id === USER_HSL_CONTRACT && !isViewOnlyUser) {
       fetchInitialData();
     }
-    if (!showTable && user?.department_id === USER_GRSE_CONTRACT) {
+    if (!showTable && user?.department_id === USER_HSL_CONTRACT) {
       debouncedFetchComplianceView();
     }
     return () => debouncedFetchComplianceView.cancel(); // Cleanup debounce on unmount
@@ -989,13 +989,13 @@ const HrContractvendor = () => {
   }, [filterMonth, filterYear, filterRcNo, filterStatus, filterPoNo, filtervendor_code, filterUnit, searchQuery, showTable, token, user?.user_type]);
 
   useEffect(() => {
-    if (user?.department_id === USER_GRSE_HR) {
+    if (user?.department_id === USER_HSL_HR) {
       fetchComplianceView();
     }
   }, [user?.department_id, token, currentPageView, itemsPerPageView]);
 
   useEffect(() => {
-    if (user?.department_id === USER_GRSE_HR) {
+    if (user?.department_id === USER_HSL_HR) {
       const timer = setTimeout(() => {
         fetchComplianceView();
       }, 1000);
@@ -1157,7 +1157,7 @@ const HrContractvendor = () => {
                     </div>
                   </div>
                 )}
-                {user?.department_id === USER_GRSE_CONTRACT && !showTable && (
+                {user?.department_id === USER_HSL_CONTRACT && !showTable && (
                   <div className="row g-5 g-xl-8 mt-3">
                     <div className="col-12">
                       <div className="card p-4">
@@ -1963,7 +1963,7 @@ const HrContractvendor = () => {
                     </div>
                   </div>
                 )}
-                {user?.department_id === USER_GRSE_HR && (user?.internal_role_id === ASSIGNER || user?.internal_role_id === STAFF) && (
+                {user?.department_id === USER_HSL_HR && (user?.internal_role_id === ASSIGNER || user?.internal_role_id === STAFF) && (
                   <div className="row g-5 g-xl-8 mt-3">
                     <div className="col-12">
                       <div className="card p-4">

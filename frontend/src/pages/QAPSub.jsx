@@ -290,7 +290,7 @@ const QAPSub = () => {
           : null,
         remarks,
         status,
-        updated_by: userType === 1 ? "VENDOR" : "GRSE",
+        updated_by: userType === 1 ? "VENDOR" : "HSL",
         vendor_code: user?.vendor_code || "",
         mailSendTo: user?.email || "default@example.com",
         action_by_name: user?.name || "",
