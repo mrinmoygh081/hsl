@@ -2,6 +2,7 @@
 /uploads
 .env
 dev.env
+.dev.env
 qa.env
 /sync
 error.log
