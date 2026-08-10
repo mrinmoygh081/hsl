@@ -1,0 +1,95 @@
+PORT=4001
+JWT_SECRET= TOP_SECRET_ACCESS_TOKEN
+ACCESS_TOKEN_SECRET= TOP_SECRET_ACCESS_TOKEN
+REFRESH_TOKEN_SECRET = TOP_SECRET_REFRESH_TOKEN
+SECRET=TOP_SECRECT_1
+# HOST_NAME=10.12.1.148
+# MAIL_SERVICE_NAME = outlook.office365.com
+# MAIL_HOST_URL = smtp-mail.outlook.com
+# MAIL_SEND_PORT = 587
+# MAIL_SEND_MAIL_ID = kamal.ruidas@datacoresystem.co.in
+# MAIL_SEND_MAIL_PASSWORD = password
+MAIL_SERVICE_NAME = gmail
+MAIL_HOST_URL = smtp.gmail.com
+MAIL_SEND_PORT = 587
+MAIL_SEND_MAIL_ID = kamal.sspur@gmail.com
+MAIL_SEND_MAIL_PASSWORD = vinf qodf tjks ilkj
+# MAIL_SERVICE_NAME=gmail
+# MAIL_HOST_URL=smtp.gmail.com
+# MAIL_SEND_PORT=587
+# MAIL_SEND_MAIL_ID=grseweb@gmail.com
+# MAIL_SEND_MAIL_PASSWORD=asrq yujy sxdd mqgw
+MAIL_TURN_ON=YES
+SAP_API_AUTH_USERNAME=
+SAP_API_AUTH_PASSWORD=
+SAP_HOST_URL=
+ 
+PG_DB_USER=postgres
+PG_DB_HOST=localhost
+# PG_DB_DATABASE_NAME=grse_dev_tools
+PG_DB_DATABASE_NAME=grse_btn_dev
+PG_DB_PASSWORD=postgres
+ 
+# PG_DB_USER="postgres"
+# PG_DB_HOST="10.101.111.206"
+# PG_DB_DATABASE_NAME="obps_dev"
+# PG_DB_PASSWORD="postgres"
+ 
+MAX_LOGIN_ATTEMPTS=5
+LOCK_TIME_AFTER_WRONG_PWD_ENTRY=3
+OTP_MAX_VALIDITY=90
+# PG_DB_USER=postgres
+# PG_DB_HOST=10.18.1.242
+# PG_DB_DATABASE_NAME=grse_btn
+# PG_DB_PASSWORD="obpsl#879"
+ 
+# PG_DB_USER=obpsa_user
+# PG_DB_HOST=13.127.155.2
+# PG_DB_DATABASE_NAME=obps_aws
+# PG_DB_PASSWORD=MriGh@2024
+ 
+PG_DB_PORT=5432
+PG_DB_MAX_CONNECTIONS=1000
+PG_DB_IDLE_TIMEOUT=10000
+PG_DB_CONNECTION_TIMEOUT=10000
+NODE_ENV=dev
+SERVER_ENV=NIC
+# SERVER_ENV=LOCAL
+SERVER_IP_ADDRESS=13.127.155.2
+MAX_REQUEST=100
+# OTP_MAX_VALIDITY=2
+# FOR DB SCRIPT
+# LAN_PG_DB_USER = "postgres";
+# LAN_PG_DB_HOST = "10.18.1.242";
+# LAN_PG_DB_DATABASE_NAME = "grse_btn";
+# LAN_PG_DB_PASSWORD = "obpsl#879";
+# AWS_PG_DB_USER = "obpsa_user";
+# AWS_PG_DB_HOST = "13.127.155.2";
+# AWS_PG_DB_DATABASE_NAME = "obps_aws";
+# AWS_PG_DB_PASSWORD = "MriGh@2024";
+GMAIL_CLIENT_ID=869966400208-0ai8i5pi60k12qg8jmrk6t9dc3qb74lr.apps.googleusercontent.com
+GMAIL_CLIENT_SECRET=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
+GMAIL_REDIRECT_URI="http://localhost"
+PWD_ENCRYPTION_KEY=grse_obps_2024_secure_key_32_char!!
+SESSION_SECRET=TOP_SECRET_SESSION_SECRET
+ACCESS_TOKEN_VALIDITY=30m
+REFRESH_TOKEN_VALIDITY=1h
+ 
+===================================================================================
+
+fontend
+=========================
+
+REACT_APP_BACKEND_API=http://localhost:4001/api/v1/
+REACT_APP_PDF_URL=http://localhost:4001
+REACT_APP_ROOT_URL=http://localhost:4001/
+REACT_APP_ENCRYPTION_KEY=grse_obps_2024_secure_key_32_char!!
+REACT_APP_ENV=vendor
+REACT_APP_ACCESS_TOKEN_VALIDITY=25
+REACT_APP_SERVER_ENV=NIC
+#REACT_APP_PDF_URL_OBPS=http://localhost:4001
+ 
+# REACT_APP_BACKEND_API=https://obpsback.grse.co.in/api/v1/
+# REACT_APP_PDF_URL=https://obpsback.grse.co.in/uploads/
+# REACT_APP_ROOT_URL=https://obpsback.grse.co.in/
+#REACT_APP_PDF_URL=http://localhost:4001/uploads/
