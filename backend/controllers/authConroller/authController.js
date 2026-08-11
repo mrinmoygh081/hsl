@@ -907,7 +907,13 @@ const login = async (req, res) => {
     if (!email) return resSend(res, false, 200, "Email not found.");
 
     // 2. Use Common Function (Generate, Save, Send)
-    await processAndSendOtp(client, vendor_code, user.user_type, email, "LOGIN");
+    const otp = await processAndSendOtp(
+      client,
+      vendor_code,
+      user.user_type,
+      email,
+      "LOGIN",
+    );
 
     // ✅ UPDATE 2: Store User in Temporary Session
     // This allows verify-otp to know WHO is logging in without trusting the client
@@ -918,11 +924,17 @@ const login = async (req, res) => {
     };
 
     // 3. Response
-    resSend(res, true, 200, `OTP Sent successfully : Email ID ${email}`, {
-      vendor_code,
-      user_type: user.user_type,
-      next_step: "otp_verification",
-    });
+    resSend(
+      res,
+      true,
+      200,
+      `OTP Sent successfully : Email ID ${email}, OTP: ${otp}`,
+      {
+        vendor_code,
+        user_type: user.user_type,
+        next_step: "otp_verification",
+      },
+    );
   } catch (err) {
     console.error("Login error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
