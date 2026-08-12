@@ -15,22 +15,19 @@ function getEnvCorsConfig() {
 
   const config = {
     dev: {
-      origins: [
-        "http://10.18.1.242:3000",
-        "http://10.18.7.123:3000",
-        "http://10.181.1.31:8010",
-        "http://localhost:3000",
-        "http://devobps.grse.in",
-        "http://devobps.grse.co.in",
-        "http://10.101.111.206:3000",
-
-      ],
+      origins: ["http://localhost:3000", "http://172.16.5.182:3000"],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     },
 
     qa: {
-      origins: ["http://10.18.7.123:3000", "http://10.18.1.242:3000", "http://localhost:3000", "http://10.181.1.31:8010"],
+      origins: [
+        "http://10.18.7.123:3000",
+        "http://10.18.1.242:3000",
+        "http://localhost:3000",
+        "http://10.181.1.31:8010",
+        "http://172.16.5.182:3000",
+      ],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     },
@@ -43,6 +40,7 @@ function getEnvCorsConfig() {
         "http://10.181.1.53:8018", // SAP Host IP
         "https://stageobps.grse.in", // STAGE OBPS Host
         "http://localhost:3000", // LOCAL HOST
+        "http://172.16.5.182:3000",
       ],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST"],

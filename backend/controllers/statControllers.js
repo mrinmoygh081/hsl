@@ -405,7 +405,8 @@ exports.statsForBTN = async (req, res) => {
         ) AS invoice_file_path,
 
         vendor_details.lifnr AS vendor_code,
-        vendor_details.name1 AS vendor_name
+        vendor_details.name1 AS vendor_name,
+        vendor_details.vendor_type AS vendor_type
 
       FROM btn_list LIST
 

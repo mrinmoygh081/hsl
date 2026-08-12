@@ -381,9 +381,10 @@ function poDataModify2(data) {
         MATNR: element.MATNR,
         vendor_code: element.vendor_code,
         vendor_name: element.vendor_name,
+        vendor_type: element.vendor_type,
         createdAt: element.createdAt,
         po_creator: element.po_creator,
-        po_creator_name: element.po_creator_name
+        po_creator_name: element.po_creator_name,
 
         // wbs_id: element.wbs_id,
         // project_code: element.project_code,
@@ -399,9 +400,10 @@ function poDataModify2(data) {
           MATNR: element.MATNR,
           vendor_code: element.vendor_code,
           vendor_name: element.vendor_name,
+          vendor_type: element.vendor_type,
           createdAt: element.createdAt,
           po_creator: element.po_creator,
-          po_creator_name: element.po_creator_name
+          po_creator_name: element.po_creator_name,
           // wbs_id: element.wbs_id,
           // project_code: element.project_code,
         },

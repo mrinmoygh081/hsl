@@ -63,16 +63,22 @@ app.use(session(sessionConfig));
 /* -------------------------------------------------------------
     CORS CONFIG
 -------------------------------------------------------------- */
-// const { corsOptions, corsErrorHandler } = require("./config/corsConfig2");
-// app.use(cors(corsOptions));
-// app.use(corsErrorHandler);
-app.use(cors("*"));
+const { corsOptions, corsErrorHandler } = require("./config/corsConfig2");
+app.use(cors(corsOptions));
+app.use(corsErrorHandler);
+// app.use(cors("*"));
 // const corsOptions = {
 //   origin: "https://obps.grse.in",
 //   credentials: true,
 //   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 //   allowedHeaders: ["Content-Type", "Authorization"],
 // };
+
+
+// app.use(cors({
+//   origin: 'http://172.16.5.182:3000',
+//   credentials: true
+// }));
 
 /* -------------------------------------------------------------
     REQUEST PARSERS
