@@ -530,7 +530,13 @@ exports.statsForWDC = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = ["reference_no", "purchasing_doc_no", "action_type", "vendor_code", "status"];
+      const filterableColumns = [
+        "reference_no",
+        "purchasing_doc_no",
+        "action_type",
+        "vendor_code",
+        "status",
+      ];
 
       if (queryParams.poNo) {
         queryParams.purchasing_doc_no = queryParams.poNo;
@@ -604,7 +610,24 @@ exports.statsForWDC = async (req, res) => {
 
         pageSize,
 
-        selectColumns: ["lr.reference_no", "lr.purchasing_doc_no", "lr.action_type", "lr.vendor_code", "lr.unit", "lr.status", "lr.work_title"],
+        selectColumns: [
+          "lr.reference_no",
+          "lr.purchasing_doc_no",
+          "lr.action_type",
+          "lr.vendor_code",
+          "lr.unit",
+          "lr.status",
+          "lr.work_title",
+          "lfa1.vendor_type",
+        ],
+
+        joins: [
+          {
+            type: "LEFT",
+            table: "lfa1",
+            on: "lfa1.lifnr = lr.vendor_code",
+          },
+        ],
 
         filters,
       });
@@ -620,7 +643,16 @@ exports.statsForWDC = async (req, res) => {
 
       const finalQapResult = rows;
 
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("statsForQA Error:", error);
@@ -631,6 +663,7 @@ exports.statsForWDC = async (req, res) => {
 
 exports.statsForQA = async (req, res) => {
   try {
+    // console.log(req);
     await withTransaction(async (client) => {
       const { tokenData, query: queryParams } = req;
 
@@ -645,10 +678,20 @@ exports.statsForQA = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = ["status", "purchasing_doc_no", "vendor_code", "assigned_to"];
+      const filterableColumns = [
+        "status",
+        "purchasing_doc_no",
+        "vendor_code",
+        "assigned_to",
+        "vendor_type",
+      ];
 
       if (queryParams["poNo"]) {
         queryParams["purchasing_doc_no"] = queryParams["poNo"];
+      }
+
+      if (queryParams["vendor_type"]) {
+        queryParams["vendor_type"];
       }
 
       filterableColumns.forEach((column) => {
@@ -664,7 +707,6 @@ exports.statsForQA = async (req, res) => {
       //--------------------------------------------------
       // Search Filter
       //--------------------------------------------------
-
       if (queryParams.search) {
         filters.push({
           group: [
@@ -747,6 +789,7 @@ exports.statsForQA = async (req, res) => {
           "lr.created_at AS accepted_on",
 
           "vendor.name1 AS vendor_name",
+          "vendor.vendor_type AS vendor_type",
 
           // "emp_assigned_to.cname AS assigned_to_name",
 
@@ -796,22 +839,39 @@ exports.statsForQA = async (req, res) => {
 
       if (AllPoNoArr.length) {
         const qb = new QueryBuilder(`${QAP_SUBMISSION} as qap`)
-          .select(["qap.*, assignedToUser.cname as assigned_to_name, assignedFromUser.cname as assigned_from_name "])
-          .joinTable("LEFT", "pa0002 as assignedToUser", "assignedToUser.pernr ::CHARACTER varying = qap.assigned_to")
-          .joinTable("LEFT", "pa0002 as assignedFromUser", "assignedFromUser.pernr ::CHARACTER varying = qap.assigned_from")
+          .select([
+            "qap.*, assignedToUser.cname as assigned_to_name, assignedFromUser.cname as assigned_from_name ",
+          ])
+          .joinTable(
+            "LEFT",
+            "pa0002 as assignedToUser",
+            "assignedToUser.pernr ::CHARACTER varying = qap.assigned_to",
+          )
+          .joinTable(
+            "LEFT",
+            "pa0002 as assignedFromUser",
+            "assignedFromUser.pernr ::CHARACTER varying = qap.assigned_from",
+          )
           .whereIn("purchasing_doc_no", AllPoNoArr)
           .where("is_assign", "=", 1)
           .where("reference_no", "=", "QAP ASSIGNED");
 
         const buildQuery = qb.toJSON();
 
-        qapAssigndStatusData = await poolQuery({ client, query: buildQuery.sql, values: buildQuery.params });
+        qapAssigndStatusData = await poolQuery({
+          client,
+          query: buildQuery.sql,
+          values: buildQuery.params,
+        });
       }
       const finalQapResult = [];
 
       if (rows && rows.length) {
         rows.forEach((qaEle) => {
-          const foundData = qapAssigndStatusData.find((qaAssignedEle) => qaAssignedEle.purchasing_doc_no == qaEle.purchasing_doc_no);
+          const foundData = qapAssigndStatusData.find(
+            (qaAssignedEle) =>
+              qaAssignedEle.purchasing_doc_no == qaEle.purchasing_doc_no,
+          );
 
           finalQapResult.push({
             ...qaEle,
@@ -822,7 +882,16 @@ exports.statsForQA = async (req, res) => {
           });
         });
       }
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("statsForQA Error:", error);
@@ -846,7 +915,12 @@ exports.statsForDrawing = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = ["status", "purchasing_doc_no", "vendor_code", "assigned_to"];
+      const filterableColumns = [
+        "status",
+        "purchasing_doc_no",
+        "vendor_code",
+        "assigned_to",
+      ];
 
       filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
@@ -938,6 +1012,7 @@ exports.statsForDrawing = async (req, res) => {
           "lr.created_at AS accepted_on",
 
           "vendor.name1 AS vendor_name",
+          "vendor.vendor_type AS vendor_type",
 
           "emp_action_by.cname AS action_by_name",
 
@@ -984,7 +1059,16 @@ exports.statsForDrawing = async (req, res) => {
 
       const finalQapResult = rows;
 
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("statsForQA Error:", error);
@@ -1056,7 +1140,10 @@ exports.statsForBG = async (req, res) => {
       // Mandatory Filters
       //--------------------------------------------------
 
-      if (tokenData.internal_role_id === STAFF && tokenData.department_id === USER_TYPE_HSL_FINANCE) {
+      if (
+        tokenData.internal_role_id === STAFF &&
+        tokenData.department_id === USER_TYPE_HSL_FINANCE
+      ) {
         filters.push({
           column: "sdbg.assigned_to",
           operator: "=",
@@ -1102,8 +1189,17 @@ exports.statsForBG = async (req, res) => {
       ]);
 
       const finalQapResult = rows;
-
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      // console.log(rows[1]);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("[ERROR] statsForBG:", error);

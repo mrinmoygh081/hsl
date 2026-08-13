@@ -480,10 +480,14 @@ const addParam = (values, value) => {
 };
 
 const poList = async (req, res) => {
+  // console.log(req);
+
   let client;
   try {
     const tokenData = req.tokenData;
-    const { search, po } = req.query;
+
+    const { search, po, vendor_type } = req.query;
+
     let pageNo = parseInt(req.query.pageNo) || 1;
     let pageSize = parseInt(req.query.pageSize) || 2000;
 
@@ -500,6 +504,7 @@ const poList = async (req, res) => {
         tokenData,
         search,
         po,
+        vendor_type,
         pageNo,
         pageSize,
         queryValues,
@@ -511,11 +516,13 @@ const poList = async (req, res) => {
         tokenData,
         search,
         po,
+        vendor_type,
         pageNo,
         pageSize,
         queryValues,
         countValues,
       );
+
       Query = q.Query;
       CountQuery = q.CountQuery;
     }
@@ -532,6 +539,7 @@ const poList = async (req, res) => {
 
     // Execute Main Query with parameterized values
     client = await poolClient();
+
     const poDetails = await poolQuery({
       client,
       query: Query,
@@ -626,7 +634,15 @@ const poList = async (req, res) => {
   }
 };
 
-function poListByEkko(tokenData, search, po, pageNo, limit, values) {
+function poListByEkko(
+  tokenData,
+  search,
+  po,
+  vendor_type,
+  pageNo,
+  limit,
+  values,
+) {
   let baseQuery = "WITH EKKO AS ( ";
 
   let selectedItem = `SELECT
@@ -696,6 +712,10 @@ function poListByEkko(tokenData, search, po, pageNo, limit, values) {
   LEFT JOIN LFA1 AS LFA1 ON (EKKO.LIFNR = LFA1.LIFNR) `;
 
   baseQuery += joiningTables;
+
+  if (vendor_type) {
+    baseQuery += ` WHERE LFA1.vendor_type = ${addParam(values, vendor_type)}`;
+  }
 
   return baseQuery;
 }
@@ -796,7 +816,16 @@ function poListCountForOtherUser(dependedQuery) {
   return countQuery;
 }
 
-const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, countValues) => {
+const poListQuery = (
+  tokenData,
+  searchValue,
+  po,
+  vendor_type,
+  pageNo,
+  pageSize,
+  queryValues,
+  countValues,
+) => {
   // We don't handle LIMIT/OFFSET here directly anymore, it's pushed to poListForOtherUser or poListByEkko
   // However, poListForOtherUser handles pagination, so we pass pageNo/pageSize there.
 
@@ -813,7 +842,15 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
   switch (tokenData.department_id) {
     case USER_TYPE_HSL_QAP:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListByEkko(
+          tokenData,
+          searchValue,
+          po,
+          vendor_type,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery = `SELECT DISTINCT(purchasing_doc_no), created_at from qap_submission WHERE 1 = 1 `;
@@ -823,54 +860,95 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
           tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(`%${searchValue}%`)}`;
         }
 
+        if (vendor_type) {
+          tempQuery += ` AND LFA1.vendor_type = ${addTemp(values, vendor_type)}`;
+        }
         // Sync tempValues to both main arrays
         queryValues.push(...tempValues);
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
         // tempQuery += orderByPo; // ordering handled in main function
-        Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListForOtherUser(
+          tempQuery,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
       }
       break;
 
     case USER_TYPE_HSL_FINANCE:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListByEkko(
+          tokenData,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         const vendorCode = tokenData.vendor_code;
         const searchPattern = searchValue ? `%${searchValue}%` : null;
 
         tempQuery += `SELECT DISTINCT(purchasing_doc_no) FROM sdbg WHERE assigned_to = ${addTemp(vendorCode)}`;
-        if (searchPattern) tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
+        if (searchPattern)
+          tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
 
         tempQuery += " UNION ";
 
         tempQuery += `SELECT DISTINCT(purchasing_doc_no) FROM btn_assign WHERE assign_to = ${addTemp(vendorCode)}`;
-        if (searchPattern) tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
+        if (searchPattern)
+          tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
 
         tempQuery += " UNION ";
 
         tempQuery += `SELECT DISTINCT(purchasing_doc_no) FROM btn_assign WHERE assign_to_fi= ${addTemp(vendorCode)}`;
-        if (searchPattern) tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
+        if (searchPattern)
+          tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
 
         // Sync values
         queryValues.push(...tempValues);
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListForOtherUser(
+          tempQuery,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
       }
       break;
 
     case USER_TYPE_HSL_DRAWING:
-      Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+      Query = poListByEkko(
+        tokenData,
+        searchValue,
+        po,
+        pageNo,
+        pageSize,
+        queryValues,
+      );
       CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       break;
 
     case USER_TYPE_HSL_PURCHASE:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListByEkko(
+          tokenData,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery += `SELECT DISTINCT(EBELN) as purchasing_doc_no, aedat as created_at from ekko AS EKKO WHERE 1 = 1 AND EKKO.ERNAM = ${addTemp(tokenData.vendor_code)} `;
@@ -888,13 +966,27 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(tempQuery, null, po, pageNo, pageSize, queryValues);
+        Query = poListForOtherUser(
+          tempQuery,
+          null,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
       }
       break;
 
     case USER_TYPE_PPNC_DEPARTMENT:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListByEkko(
+          tokenData,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         const pattern = searchValue ? `%${searchValue}%` : null;
@@ -919,19 +1011,40 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListForOtherUser(
+          tempQuery,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
       }
       break;
 
     case STORE:
     case RIC:
-      Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+      Query = poListByEkko(
+        tokenData,
+        searchValue,
+        po,
+        pageNo,
+        pageSize,
+        queryValues,
+      );
       CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       break;
 
     case USER_TYPE_HSL_CONTRACT_CELL:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+        Query = poListByEkko(
+          tokenData,
+          searchValue,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
         CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery += `SELECT DISTINCT(EBELN) as purchasing_doc_no, aedat as created_at from ekko AS EKKO WHERE 1 = 1 AND EKKO.ERNAM = ${addTemp(tokenData.vendor_code)} `;
@@ -949,12 +1062,27 @@ const poListQuery = (tokenData, searchValue, po, pageNo, pageSize, queryValues, 
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(tempQuery, null, po, pageNo, pageSize, queryValues);
+        Query = poListForOtherUser(
+          tempQuery,
+          null,
+          po,
+          pageNo,
+          pageSize,
+          queryValues,
+        );
       }
       break;
 
     default:
-      Query = poListByEkko(tokenData, searchValue, po, pageNo, pageSize, queryValues);
+      Query = poListByEkko(
+        tokenData,
+        searchValue,
+        po,
+        vendor_type,
+        pageNo,
+        pageSize,
+        queryValues,
+      );
       CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
   }
 
