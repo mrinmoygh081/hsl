@@ -271,6 +271,14 @@ const PODetails = () => {
                                             {po?.doInfo?.CNAME} ({po?.doInfo?.ERNAM})
                                           </span>
                                         </div>
+                                        {po?.vendor_type && (
+                                          <div className="card_header_data">
+                                            <span className="label">Vendor Type:</span>
+                                            <span className="label_data" style={{ textTransform: "uppercase" }}>
+                                              {po.vendor_type}
+                                            </span>
+                                          </div>
+                                        )}
                                         <div className="card_header_data">
                                           <span className="label_data">{/* PO Acceptance Date */}</span>
                                         </div>
