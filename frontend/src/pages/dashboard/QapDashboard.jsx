@@ -222,7 +222,7 @@ const QapDashboard = () => {
               <table className="table table-striped table-bordered table_height">
                 <thead>
                   <tr className="row-count">
-                    <td colSpan={11} style={{ textAlign: "left" }}>
+                    <td colSpan={10} style={{ textAlign: "left" }}>
                       {" "}
                       Number of QA {totalRecords || filteredData.length} {filteredData.length === 1 ? "" : ""}
                     </td>
@@ -232,6 +232,7 @@ const QapDashboard = () => {
                     <th className="min-w-150px">PO Number</th>
                     {/* <th className="min-w-150px">Material Description</th> */}
                     <th className="min-w-150px">Vendor Name</th>
+                    <th className="min-w-150px">Vendor Code</th>
                     <th className="min-w-150px">Assigned To</th>
                     <th className="min-w-150px">Assigned on</th>
                     <th className="min-w-150px">Accepted on</th>
@@ -246,7 +247,7 @@ const QapDashboard = () => {
                       <tr></tr>
                       <tr>
                         <td colSpan={10}>
-                          <SkeletonLoader col={11} row={6} />
+                          <SkeletonLoader col={10} row={6} />
                         </td>
                       </tr>
                     </>
@@ -263,6 +264,27 @@ const QapDashboard = () => {
                           <td>{file.purchasing_doc_no}</td>
                           {/* <td>{""}</td> */}
                           <td>{file.vendor_name}</td>
+                          <td>
+                            {file.vendor_code}
+                            {file?.vendor_type?.toLowerCase() === "msme" && (
+                              <span
+                                style={{
+                                  display: "inline-block",
+                                  marginLeft: "6px",
+                                  padding: "1px 7px",
+                                  fontSize: "10px",
+                                  fontWeight: "bold",
+                                  color: "#fff",
+                                  backgroundColor: "#28a745",
+                                  borderRadius: "10px",
+                                  textTransform: "uppercase",
+                                  verticalAlign: "middle",
+                                }}
+                              >
+                                MSME
+                              </span>
+                            )}
+                          </td>
                           <td>{file.assigned_to}</td>
                           <td>{file.assigned_on ? formatDateassign(new Date(parseInt(file.assigned_on, 10))) : "N/A"}</td>
 

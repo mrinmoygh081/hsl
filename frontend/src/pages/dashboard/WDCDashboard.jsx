@@ -271,7 +271,27 @@ const WDCDashboard = () => {
                           </button>
                         </td>
                         <td>{file.purchasing_doc_no}</td>
-                        <td>{file.vendor_code}</td>
+                        <td>
+                          {file.vendor_code}
+                          {file?.vendor_type?.toLowerCase() === "msme" && (
+                            <span
+                              style={{
+                                display: "inline-block",
+                                marginLeft: "6px",
+                                padding: "1px 7px",
+                                fontSize: "10px",
+                                fontWeight: "bold",
+                                color: "#fff",
+                                backgroundColor: "#28a745",
+                                borderRadius: "10px",
+                                textTransform: "uppercase",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              MSME
+                            </span>
+                          )}
+                        </td>
                         <td>{file.unit}</td>
                         <td>{file.work_title}</td>
                         <td>{file.action_type}</td>
