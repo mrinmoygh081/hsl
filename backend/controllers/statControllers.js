@@ -1166,13 +1166,18 @@ exports.statsForBG = async (req, res) => {
 
         pageSize,
 
-        selectColumns: ["lr.*"],
+        selectColumns: ["lr.*", "lfa1.vendor_type"],
 
         joins: [
           {
             type: "LEFT",
             table: "sdbg",
             on: "sdbg.reference_no = lr.reference_no",
+          },
+          {
+            type: "LEFT",
+            table: "lfa1",
+            on: "lfa1.lifnr = sdbg.vendor_code ",
           },
         ],
 

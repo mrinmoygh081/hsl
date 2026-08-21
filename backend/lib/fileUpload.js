@@ -56,8 +56,39 @@ const fileStore = multer.diskStorage({
   },
 });
 
+const invoiceStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    let uploadPath = `uploads/${req.path.split("/").pop()}`;
+    // let todayYYYYMMDD = formatDateYYDDMM(new Date());
+    // uploadPath += todayYYYYMMDD;
+
+    if (!existsSync(uploadPath)) {
+      mkdirSync(uploadPath, { recursive: true });
+    }
+
+    cb(null, uploadPath);
+  },
+
+  filename: (req, file, cb) => {
+    const uniqueSuffix =
+      BigInt(Date.now()) * 1000n + BigInt(Math.floor(performance.now() * 1000));
+    const lastParam = req.path.split("/").pop();
+
+    // console.log(99, fileNameType[lastParam]);
+    let fileNameTypeName = lastParam || "";
+    let newFileName = uniqueSuffix + "-" + fileNameTypeName;
+    // newFileName += purchasing_doc_no;
+    const extension = path.extname(file.originalname)?.toLowerCase();
+    newFileName += extension;
+
+    cb(null, newFileName);
+    // cb(null, `${uniqueSuffix}${extension}`);
+  },
+});
+
 const uploadSinglePdf = multer({
-  storage: fileStore,
+  storage: invoiceStorage, //removing po number
+  // storage: fileStore,
   fileFilter: dynamicFileFilter,
   limits: { fileSize: 100 * 1000 * 1000 },
 });

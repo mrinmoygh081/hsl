@@ -12,6 +12,7 @@ const {
   assignToFiStaffHandler,
   getFinanceEmpList,
   checkInvoceFile,
+  getExtractedData,
 } = require("../controllers/btnControllers");
 
 const {
@@ -26,11 +27,24 @@ const {
 const jccBtnController = require("../controllers/btnJccController");
 const abhController = require("../controllers/btnAdvPaymentAgainstBgController");
 const btnPbgControllers = require("../controllers/btnPbgControllers");
-const { submitIncorrectDuct, getGstnByPo, getIncorrectDeductionData } = require("../controllers/btnIncorrectDuctControllers");
-const { btnmw, btnAdvanceBillHybridUploadFile, serviceBtnFilesUpload, btnJccUploadFile } = require("../services/btnmw");
+const {
+  submitIncorrectDuct,
+  getGstnByPo,
+  getIncorrectDeductionData,
+} = require("../controllers/btnIncorrectDuctControllers");
+const {
+  btnmw,
+  btnAdvanceBillHybridUploadFile,
+  serviceBtnFilesUpload,
+  btnJccUploadFile,
+} = require("../services/btnmw");
 const { verifyAccessToken } = require("../services/jwt.services");
-const { checkVendorLogin, checkServerAccess } = require("../middleware/gatekeeper");
+const {
+  checkVendorLogin,
+  checkServerAccess,
+} = require("../middleware/gatekeeper");
 const { NIC_SERVER, LAN_SERVER } = require("../lib/constant");
+const { uploadSinglePdf } = require("../lib/fileUpload");
 
 /* -------------------- MATERIAL BTN -------------------- */
 router.get("/", verifyAccessToken, fetchBTNList);
@@ -39,22 +53,36 @@ router.get("/getBTNData", verifyAccessToken, getBTNData);
 router.get("/btn_num", verifyAccessToken, fetchBTNByNum);
 router.get("/btn_do", verifyAccessToken, fetchBTNByNumForDO);
 
-
 const upload = btnmw();
 
 // VENDOR SUBMIT BTN
-router.post("/BillsMaterialHybrid", verifyAccessToken, checkServerAccess(NIC_SERVER), submitBTN);
+router.post(
+  "/BillsMaterialHybrid",
+  verifyAccessToken,
+  checkServerAccess(NIC_SERVER),
+  submitBTN,
+);
 
 // DO SUBMIT BTN
 router.post("/BillsMaterialHybridByDO", verifyAccessToken, submitBTNByDO);
 // FINANCE ACTIVITY
-router.post("/assignToFiStaff", verifyAccessToken, checkServerAccess(LAN_SERVER), assignToFiStaffHandler);
-
-router.get(
-  "/getFinanceEmpList",
+router.post(
+  "/assignToFiStaff",
   verifyAccessToken,
-  getFinanceEmpList
+  checkServerAccess(LAN_SERVER),
+  assignToFiStaffHandler,
 );
+
+router.get("/getFinanceEmpList", verifyAccessToken, getFinanceEmpList);
+
+router.post(
+  "/extractInvoice",
+  verifyAccessToken,
+  uploadSinglePdf.single("file"),
+  getExtractedData,
+);
+
+
 
 router.post(
   "/getGrnIcgrnByInvoice",

@@ -1,10 +1,34 @@
 /* eslint-disable no-undef */
 /* eslint-disable no-unsafe-finally */
-const { getQuery, poolClient, poolQuery } = require("../config/pgDbConfig");
+const {
+  getQuery,
+  poolClient,
+  poolQuery,
+  executeQuery,
+} = require("../config/pgDbConfig");
+const path = require("path");
 const { makeHttpRequest } = require("../config/sapServerConfig");
-const { INSERT, USER_TYPE_VENDOR, UPDATE, MID_SDBG, MID_ILMS, MID_QAP, MID_DRAWING, USER_TYPE_HSL_FINANCE, ACTION_DD, ACTION_IB } = require("../lib/constant");
-const { BTN_RETURN_DO, BTN_FORWORD_FINANCE, BTN_UPLOAD_CHECKLIST, BTN_ASSIGN_TO_STAFF, BTN_REJECT } = require("../lib/event");
+const {
+  INSERT,
+  USER_TYPE_VENDOR,
+  UPDATE,
+  MID_SDBG,
+  MID_ILMS,
+  MID_QAP,
+  MID_DRAWING,
+  USER_TYPE_HSL_FINANCE,
+  ACTION_DD,
+  ACTION_IB,
+} = require("../lib/constant");
+const {
+  BTN_RETURN_DO,
+  BTN_FORWORD_FINANCE,
+  BTN_UPLOAD_CHECKLIST,
+  BTN_ASSIGN_TO_STAFF,
+  BTN_REJECT,
+} = require("../lib/event");
 const { resSend } = require("../lib/resSend");
+const fs = require("fs/promises");
 const {
   SUBMITTED,
   FORWARD_TO_FINANCE,
@@ -23,16 +47,41 @@ const {
   SUBMITTED_BY_CAUTHORITY,
   BTN_STATUS_PAYMENT_DONE_TEXT,
 } = require("../lib/status");
-const { BTN_MATERIAL, BTN_LIST, BTN_MATERIAL_DO, BTN_ASSIGN } = require("../lib/tableName");
-const { getEpochTime, getYyyyMmDd, generateQuery, generateInsertUpdateQuery } = require("../lib/utils");
+const {
+  BTN_MATERIAL,
+  BTN_LIST,
+  BTN_MATERIAL_DO,
+  BTN_ASSIGN,
+} = require("../lib/tableName");
+const {
+  getEpochTime,
+  getYyyyMmDd,
+  generateQuery,
+  generateInsertUpdateQuery,
+} = require("../lib/utils");
 const { sendMail } = require("../services/mail.services");
 const { create_btn_no } = require("../services/po.services");
-const { getSDBGApprovedFiles, getPBGApprovedFiles, fetchBTNListByPOAndBTNNum, getSDFiles, updateInvoiceDate, calculateTotalGrnValue } = require("../utils/btnUtils");
+const {
+  getSDBGApprovedFiles,
+  getPBGApprovedFiles,
+  fetchBTNListByPOAndBTNNum,
+  getSDFiles,
+  updateInvoiceDate,
+  calculateTotalGrnValue,
+} = require("../utils/btnUtils");
 const { convertToEpoch, formatDashedDate } = require("../utils/dateTime");
 const { getUserDetailsQuery } = require("../utils/mailFunc");
 const { checkTypeArr } = require("../utils/smallFun");
 const Message = require("../utils/messages");
-const { getGateEntryDetails, getGrnDetails, getIcgrnDetails, getAssociatePoList, checkInoiceFiles, getReturnedGrnDetails } = require("../services/btn.services");
+const {
+  getGateEntryDetails,
+  getGrnDetails,
+  getIcgrnDetails,
+  getAssociatePoList,
+  checkInoiceFiles,
+  getReturnedGrnDetails,
+  getGrnIcgrnByInvoiceService,
+} = require("../services/btn.services");
 const { getQueryForbtnSaveToSap } = require("../services/sap.btn.services");
 const {
   checkInvoice,
@@ -50,7 +99,14 @@ const {
 const fetchBTNByNum = async (req, res) => {
   const { id, btn_num } = req.query;
   if (!id || !btn_num) {
-    return resSend(res, false, 200, "PO number or BTN number is missing, please refresh and retry!", null, null);
+    return resSend(
+      res,
+      false,
+      200,
+      "PO number or BTN number is missing, please refresh and retry!",
+      null,
+      null,
+    );
   }
 
   let btnQ = `SELECT btn.*, ge_d.inv_date as invoice_date FROM btn as btn 
@@ -81,7 +137,14 @@ const fetchBTNByNum = async (req, res) => {
 const fetchBTNByNumForDO = async (req, res) => {
   const { btn_num } = req.query;
   if (!btn_num) {
-    return resSend(res, false, 200, "BTN number is missing, please refresh and retry!", null, null);
+    return resSend(
+      res,
+      false,
+      200,
+      "BTN number is missing, please refresh and retry!",
+      null,
+      null,
+    );
   }
 
   let btnDOQ = `SELECT * FROM ${BTN_MATERIAL_DO} WHERE btn_num = $1`;
@@ -179,7 +242,14 @@ const getBTNData = async (req, res) => {
     resSend(res, true, 200, "Succesfully fetched all data!", obj, null);
   } catch (error) {
     console.error(error);
-    resSend(res, false, 200, "Something went wrong when fetching the dates!", null, null);
+    resSend(
+      res,
+      false,
+      200,
+      "Something went wrong when fetching the dates!",
+      null,
+      null,
+    );
   }
 };
 
@@ -244,7 +314,14 @@ const fetchBTNList = async (req, res) => {
   try {
     const { id } = req.query;
     if (!id) {
-      return resSend(res, false, 200, "PO number is missing, please refresh and retry!", null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "PO number is missing, please refresh and retry!",
+        null,
+        null,
+      );
     }
     //     let btn_list_q = `SELECT LIST.BTN_NUM,
     // 	LIST.PURCHASING_DOC_NO,
@@ -327,7 +404,14 @@ const fetchBTNList = async (req, res) => {
       values: [id],
     });
     if (btn_list.length > 0) {
-      return resSend(res, true, 200, "BTN list has been fetched succesfully!", btn_list, null);
+      return resSend(
+        res,
+        true,
+        200,
+        "BTN list has been fetched succesfully!",
+        btn_list,
+        null,
+      );
     } else {
       return resSend(res, true, 200, "No btn found", btn_list, null);
     }
@@ -855,16 +939,38 @@ const fetchBTNList = async (req, res) => {
 const submitBTN = async (req, res) => {
   let client; // Declare client outside so finally block can see it
   try {
-    let { purchasing_doc_no, invoice_no, invoice_date, invoice_type, invoice_value, cgst, sgst, igst, debit_note, credit_note, associated_po } = req.body;
+    let {
+      purchasing_doc_no,
+      invoice_no,
+      invoice_date,
+      invoice_type,
+      invoice_value,
+      cgst,
+      sgst,
+      igst,
+      debit_note,
+      credit_note,
+      associated_po,
+    } = req.body;
 
     const tokenData = req.tokenData;
     const declaration1 = "I hereby declare that all the entries are correct";
     const declaration2 = "Whether HSN code, GSTIN, Tax rate is as per PO";
 
     // 1. INITIAL VALIDATION (Before DB connection even opens)
-    const initialPayload = materialBtnInitialPayload({ ...req.body, status: SUBMITTED_BY_VENDOR }, tokenData);
+    const initialPayload = materialBtnInitialPayload(
+      { ...req.body, status: SUBMITTED_BY_VENDOR },
+      tokenData,
+    );
     if (!initialPayload.success) {
-      return resSend(res, false, 200, Message.INVALID_PAYLOAD, {}, initialPayload.errors);
+      return resSend(
+        res,
+        false,
+        200,
+        Message.INVALID_PAYLOAD,
+        {},
+        initialPayload.errors,
+      );
     }
 
     // 2. START MANUAL TRANSACTION
@@ -872,17 +978,42 @@ const submitBTN = async (req, res) => {
     await client.query("BEGIN");
 
     // 3. CHECK INVOICE
-    let check_invoice = await checkInvoice(client, invoice_no, purchasing_doc_no);
+    let check_invoice = await checkInvoice(
+      client,
+      invoice_no,
+      purchasing_doc_no,
+    );
 
-    if (checkTypeArr(check_invoice) && check_invoice.length > 0 && check_invoice[0].status !== REJECTED) {
+    if (
+      checkTypeArr(check_invoice) &&
+      check_invoice.length > 0 &&
+      check_invoice[0].status !== REJECTED
+    ) {
       await client.query("ROLLBACK"); // <-- Crucial: Rollback before early return!
-      return resSend(res, false, 200, "BTN is already created under the invoice number.", null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "BTN is already created under the invoice number.",
+        null,
+        null,
+      );
     }
 
-    let resICGRN = await getGRNICGRNsValue(client, { purchasing_doc_no, invoice_no });
+    let resICGRN = await getGRNICGRNsValue(client, {
+      purchasing_doc_no,
+      invoice_no,
+    });
     if (!resICGRN) {
       await client.query("ROLLBACK"); // <-- Crucial: Rollback before early return!
-      return resSend(res, false, 200, `Invoice number is not valid!`, null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        `Invoice number is not valid!`,
+        null,
+        null,
+      );
     }
 
     if (!invoice_date) {
@@ -893,7 +1024,10 @@ const submitBTN = async (req, res) => {
     // INVOICE DATE CONVERT TO EPOCH TIME
     const inv_date = new Date(invoice_date).getTime();
     // 4. CALCULATIONS
-    let net_claim_amount = parseFloat(invoice_value) + parseFloat(debit_note) - parseFloat(credit_note);
+    let net_claim_amount =
+      parseFloat(invoice_value) +
+      parseFloat(debit_note) -
+      parseFloat(credit_note);
     net_claim_amount = net_claim_amount.toFixed(4);
 
     const totalGST = parseFloat(cgst) + parseFloat(sgst) + parseFloat(igst);
@@ -909,7 +1043,11 @@ const submitBTN = async (req, res) => {
     const c_dates = await getContractualDates(client, purchasing_doc_no);
     const a_dates = await getAactualDates(client, purchasing_doc_no);
     const btn_num = await create_btn_no(client);
-    const doDetails = await poolQuery({ client, query: getDoQuery, values: [purchasing_doc_no] });
+    const doDetails = await poolQuery({
+      client,
+      query: getDoQuery,
+      values: [purchasing_doc_no],
+    });
 
     // Validate milestones
     const checkMissingMilestone = checkActualDates(c_dates, a_dates);
@@ -943,8 +1081,15 @@ const submitBTN = async (req, res) => {
       created_at: getEpochTime(),
     };
 
-    const materialBtnFinalPayloadData = materialBtnFinalPayload(payload, tokenData);
-    const { q, val } = generateQuery(INSERT, BTN_MATERIAL, materialBtnFinalPayloadData);
+    const materialBtnFinalPayloadData = materialBtnFinalPayload(
+      payload,
+      tokenData,
+    );
+    const { q, val } = generateQuery(
+      INSERT,
+      BTN_MATERIAL,
+      materialBtnFinalPayloadData,
+    );
 
     // 7. EXECUTE DATABASE WRITES
     await poolQuery({ client, query: q, values: val });
@@ -956,7 +1101,11 @@ const submitBTN = async (req, res) => {
     };
     await addToBTNList(btnListTablePayload, SUBMITTED_BY_VENDOR, client);
 
-    await updateInvoiceDate(client, { inv_date: invoice_date }, { ...resICGRN, purchasing_doc_no, invoice_no });
+    await updateInvoiceDate(
+      client,
+      { inv_date: invoice_date },
+      { ...resICGRN, purchasing_doc_no, invoice_no },
+    );
 
     // 8. HANDLE ASSOCIATED POs (Using sequential loop to prevent connection errors)
     if (associated_po && associated_po !== "") {
@@ -966,9 +1115,21 @@ const submitBTN = async (req, res) => {
           if (item && item?.a_po !== "") {
             payload.purchasing_doc_no = item.a_po;
 
-            await addToBTNList({ ...payload, assign_to: doDetails[0]?.u_id }, SUBMITTED_BY_VENDOR, client);
-            const associatePoQuery = generateQuery(INSERT, BTN_MATERIAL, payload);
-            await poolQuery({ client, query: associatePoQuery.q, values: associatePoQuery.val });
+            await addToBTNList(
+              { ...payload, assign_to: doDetails[0]?.u_id },
+              SUBMITTED_BY_VENDOR,
+              client,
+            );
+            const associatePoQuery = generateQuery(
+              INSERT,
+              BTN_MATERIAL,
+              payload,
+            );
+            await poolQuery({
+              client,
+              query: associatePoQuery.q,
+              values: associatePoQuery.val,
+            });
           }
         }
       } catch (parseError) {
@@ -983,7 +1144,14 @@ const submitBTN = async (req, res) => {
 
     // Post-commit actions (emails, responses)
     handelMail(tokenData, { ...payload, status: SUBMITTED });
-    return resSend(res, true, 200, `BTN ${btn_num} is generated and saved successfully!`, null, null);
+    return resSend(
+      res,
+      true,
+      200,
+      `BTN ${btn_num} is generated and saved successfully!`,
+      null,
+      null,
+    );
   } catch (error) {
     console.error("[ERROR] submitBTN", error);
     if (client) await client.query("ROLLBACK"); // Safety net for unexpected code crashes
@@ -996,16 +1164,39 @@ const submitBTN = async (req, res) => {
 const submitBTNByDO = async (req, res) => {
   let client;
   try {
-    const { btn_num, purchasing_doc_no, net_payable_amount, assign_to, status } = req.body;
+    const {
+      btn_num,
+      purchasing_doc_no,
+      net_payable_amount,
+      assign_to,
+      status,
+    } = req.body;
     const tokenData = req.tokenData;
 
     // 1. FAIL-FAST VALIDATIONS
     if (!btn_num || typeof btn_num !== "string") {
-      return resSend(res, false, 200, "BTN number is missing!", "No BTN number", null);
+      return resSend(
+        res,
+        false,
+        200,
+        "BTN number is missing!",
+        "No BTN number",
+        null,
+      );
     }
 
-    if (status !== REJECTED && (!net_payable_amount || Number(net_payable_amount) <= 0)) {
-      return resSend(res, false, 200, "Net payable is missing or invalid.", null, null);
+    if (
+      status !== REJECTED &&
+      (!net_payable_amount || Number(net_payable_amount) <= 0)
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        "Net payable is missing or invalid.",
+        null,
+        null,
+      );
     }
 
     // Initialize base payload
@@ -1023,7 +1214,14 @@ const submitBTNByDO = async (req, res) => {
     const btnCurrentStatus = await btnCurrentDetailsCheck(client, { btn_num });
     if (btnCurrentStatus.isInvalid) {
       await client.query("ROLLBACK"); // Prevent dangling transaction transaction leaks
-      return resSend(res, false, 200, `BTN ${btn_num} ${btnCurrentStatus.message}`, btn_num, null);
+      return resSend(
+        res,
+        false,
+        200,
+        `BTN ${btn_num} ${btnCurrentStatus.message}`,
+        btn_num,
+        null,
+      );
     }
 
     // 4. HANDLE REJECTED STATUS BRANCH
@@ -1044,7 +1242,10 @@ const submitBTNByDO = async (req, res) => {
     }
 
     // 5. HANDLE SUBMIT/APPROVE FLOW (Non-Rejected)
-    const btnListTableData = await fetchBTNListByPOAndBTNNum(btn_num, purchasing_doc_no);
+    const btnListTableData = await fetchBTNListByPOAndBTNNum(
+      btn_num,
+      purchasing_doc_no,
+    );
     if (!btnListTableData?.status) {
       await client.query("ROLLBACK");
       return resSend(res, false, 200, btnListTableData?.message, null, null);
@@ -1059,13 +1260,24 @@ const submitBTNByDO = async (req, res) => {
     // SAVE DATA ONE BY ONE BECAUSE OF TRANSITION QUERY
 
     /** btn_assign table inserted */
-    const btnAssignPayload = materialBtnAssignPayload({ ...payload, assign_by: tokenData.vendor_code });
-    const assignQuery = await generateInsertUpdateQuery(btnAssignPayload, BTN_ASSIGN, ["btn_num", "purchasing_doc_no"]);
+    const btnAssignPayload = materialBtnAssignPayload({
+      ...payload,
+      assign_by: tokenData.vendor_code,
+    });
+    const assignQuery = await generateInsertUpdateQuery(
+      btnAssignPayload,
+      BTN_ASSIGN,
+      ["btn_num", "purchasing_doc_no"],
+    );
     await poolQuery({ client, query: assignQuery.q, values: assignQuery.val });
 
     /** btn_do table inserted */
     const btnDoPayload = materialBtnForwordToFinacePayload({ ...payload });
-    const btnDoQuery = await generateInsertUpdateQuery(btnDoPayload, BTN_MATERIAL_DO, ["btn_num", "purchasing_doc_no"]);
+    const btnDoQuery = await generateInsertUpdateQuery(
+      btnDoPayload,
+      BTN_MATERIAL_DO,
+      ["btn_num", "purchasing_doc_no"],
+    );
     await poolQuery({ client, query: btnDoQuery.q, values: btnDoQuery.val });
 
     /** btn_list table inserted */
@@ -1075,7 +1287,10 @@ const submitBTNByDO = async (req, res) => {
     await updateMaterialBtn(client, btn_num, { status: SUBMITTED_BY_DO });
 
     // 6. EXTERNAL SAP INTEGRATION
-    const isSapSynced = await btnSubmitByDo({ btn_num, purchasing_doc_no, assign_to }, tokenData);
+    const isSapSynced = await btnSubmitByDo(
+      { btn_num, purchasing_doc_no, assign_to },
+      tokenData,
+    );
     if (!isSapSynced) {
       await client.query("ROLLBACK");
       return resSend(res, false, 200, "SAP not connected.", null, null);
@@ -1094,7 +1309,14 @@ const submitBTNByDO = async (req, res) => {
   } catch (error) {
     console.error("[ERROR] submitBTNByDO:", error);
     if (client) await client.query("ROLLBACK");
-    return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, error.message, null);
+    return resSend(
+      res,
+      false,
+      500,
+      Message.SOMTHING_WENT_WRONG,
+      error.message,
+      null,
+    );
   } finally {
     if (client) client.release();
   }
@@ -1489,7 +1711,11 @@ async function btnSaveToSap(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -1561,7 +1787,9 @@ async function btnSubmitByDo(btnPayload, tokenData) {
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
       ZVBNO: btnDetails[0]?.invno, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE: getYyyyMmDd(new Date(btnDetails[0]?.invoice_date).getTime()), // GATE ENTRY INVOICE DATE
+      VEN_BILL_DATE: getYyyyMmDd(
+        new Date(btnDetails[0]?.invoice_date).getTime(),
+      ), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), //getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
@@ -1610,7 +1838,11 @@ async function btnSubmitByDo(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -1634,7 +1866,337 @@ async function btnSubmitByDo(btnPayload, tokenData) {
  * @param {*} res
  * @returns
  */
+
+const getExtractedData = async (req, res) => {
+  let client;
+
+  try {
+    // --------------------------------------------------
+    // 1. Validate uploaded file
+    // --------------------------------------------------
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No PDF file uploaded",
+      });
+    }
+
+    const { invoice_date } = req.body;
+
+    console.log("File:", req.file.originalname);
+    console.log("Invoice Date:", invoice_date);
+
+    console.log("File received:", req.file.originalname);
+    console.log("Mimetype:", req.file.mimetype);
+    console.log("Size:", req.file.size);
+    console.log("Path:", req.file.path);
+
+    client = await poolClient();
+    // #################### Save uploaded file in database starts ####################
+
+    // const query = `INSERT INTO files
+    //                             (id, file_name, file_path, used)
+    //                         VALUES
+    //                             ($1, $2, $3, $4)`;
+
+    // const values = [
+    //   "4000234573", // id
+    //   req.file.originalname, // file_name
+    //   req.file.path, // file_path
+    //   "N", // used
+    //   // "2026-08-18", // created_at
+    //   // "1234", // created_by
+    // ];
+
+    // const data = await executeQuery({ client, query: query, values: values });
+    // console.log(5454, "File saved successfully", data);
+    // //   try {
+    // //         const result = await query(sql, values);
+
+    // //         console.log("File saved successfully:", result.rows[0]);
+
+    // //       } catch (error) {
+    // //         console.error("Error saving file details:", error);
+
+    // //         return res.status(500).json({
+    // //           success: false,
+    // //           message: "Failed to save file details",
+    // //           error: error.message,
+    // //         });
+
+    /*
+    Save with existing function
+    */
+    // #################### Save uploaded file in database Ends ######################
+
+    // --------------------------------------------------
+    // 2. Read uploaded file
+    // --------------------------------------------------
+
+    const fileBuffer = await fs.readFile(req.file.path);
+
+    // --------------------------------------------------
+    // 3. Call extraction API
+    // --------------------------------------------------
+    const formData = new FormData();
+
+    // Converting Buffer -> Blob
+    const fileBlob = new Blob([fileBuffer], {
+      type: req.file.mimetype || "application/pdf",
+    });
+
+    formData.append("File", fileBlob, req.file.originalname);
+
+    const response = await fetch("http://localhost:8000/extract", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await response.json();
+
+    if (!result) {
+      console.error("Extraction API error:", error);
+      return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, "");
+    }
+
+    // --------------------------------------------------
+    // 4. Get po & invoice number
+    // --------------------------------------------------
+
+    const poNumber = result.data.po_no;
+    const invoiceNo = result.data.invoice_no;
+
+    if (!invoiceNo) {
+      return res.status(400).json({
+        success: false,
+        message: "Invoice number not found in extracted data",
+      });
+    }
+
+    // --------------------------------------------------
+    // 5. Rename uploaded file
+    // --------------------------------------------------
+
+    const oldPath = req.file.path;
+    const extension = path.extname(req.file.originalname).toLowerCase();
+
+    const normalizedInvoiceNo = String(invoiceNo).replace(
+      /[^a-zA-Z0-9_-]/g,
+      "_",
+    );
+
+    const uniqueId = `${Date.now()}-${Math.floor(performance.now() * 1000)}`;
+    const newFileName = `${normalizedInvoiceNo}-${uniqueId}${extension}`;
+
+    const newPath = path.join(path.dirname(oldPath), newFileName);
+
+    await fs.rename(oldPath, newPath);
+
+    console.log("New FileName:", newFileName);
+    console.log("Old file:", oldPath);
+    console.log("New file:", newPath);
+    // const uniqueId = BigInt(Date.now()) * 1000n + BigInt(Math.floor(performance.now() * 1000));
+
+    // ###############  Save extracted Data in temp file Starts ##################
+
+    const query = `
+          INSERT INTO temp_invoices (
+            company_name,
+            invoice_no,
+            invoice_date,
+            po_no,
+            gst_no,
+            sub_total,
+            file_name,
+            file_path
+          )
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+
+          ON CONFLICT (invoice_no)
+          DO UPDATE SET
+            company_name = EXCLUDED.company_name,
+            invoice_date = EXCLUDED.invoice_date,
+            po_no = EXCLUDED.po_no,
+            gst_no = EXCLUDED.gst_no,
+            sub_total = EXCLUDED.sub_total,
+            file_name = EXCLUDED.file_name,
+            file_path = EXCLUDED.file_path
+
+          RETURNING *;
+        `;
+
+    const values = [
+      result.data.company_name || null,
+      result.data.invoice_no || null,
+      result.data.invoice_date || "2026-08-20",
+      result.data.po_no || null,
+      result.data.gst_no || null,
+      result.data.subtotal || null,
+      newFileName,
+      newPath,
+    ];
+
+    // console.log(606, values);
+    const dbResult = await client.query(query, values);
+
+    // ###############  Save extracted Data in temp file Ends ##################
+
+    // #################### validation checking with database table starts ####################
+
+    const gstNo = result.data.gst_no;
+    // const invoiceDate = result.data.invoice_date ;
+    // const invoiceDate = "2026-07-19";
+    const invoiceDate = invoice_date;
+
+    if (!gstNo) {
+      return res.status(400).json({
+        success: false,
+        message: "GST number not found in extracted data",
+      });
+    }
+
+    if (!invoiceDate) {
+      return res.status(400).json({
+        success: false,
+        message: "Invoice date not found in extracted data",
+      });
+    }
+
+    //check extracted gstNo is in gst_records table
+
+    const gstQuery = `
+        SELECT
+          gstrec_id,
+          gst_no,
+          vendor_code,
+          vendor_name,
+          gstr_start_date,
+          gstr_end_date
+        FROM gst_records
+        WHERE gst_no = $1;
+      `;
+
+    const gstResult = await getQuery({ query: gstQuery, values: [gstNo] });
+
+    if (gstResult.length === 0) {
+      return {
+        valid: false,
+        status: 400,
+        message: "GST number does not exist in GST records",
+        gst_no: gstNo,
+      };
+    }
+    if (gstResult.length > 0) {
+      /* 
+      one gst can have multiple row with different date range
+      check if ok then find extracted gst_date >start_date and <end_date of table row record
+        if satisfied then -->Go forward
+        else return with message GST Return is out of date range
+  
+      */
+      const gstPeriodQuery = `
+      SELECT
+          gstrec_id,
+          gst_no,
+          vendor_code,
+          vendor_name,
+          gstr_start_date,
+          gstr_end_date
+        FROM gst_records
+        WHERE gst_no = $1
+          AND $2::date >= gstr_start_date
+          AND $2::date <= gstr_end_date
+        ORDER BY gstr_end_date DESC
+        LIMIT 1
+      `;
+
+      const gstPeriodResult = await getQuery({
+        query: gstPeriodQuery,
+        values: [gstNo, invoiceDate],
+      });
+
+      if (gstPeriodResult.length === 0) {
+        return res.status(400).json({
+          success: false,
+          message: "GST return is out of date range for invoice date",
+          gst_no: gstNo,
+          invoice_date: invoiceDate,
+          gst_records: gstPeriodResult,
+        });
+      }
+
+      const gstRecord = gstPeriodResult[0];
+
+      if (!gstRecord) {
+        return res.status(400).json({
+          success: false,
+          message: "GST record not found for invoice date",
+          gst_no: gstNo,
+          invoice_date: invoiceDate,
+        });
+      }
+
+      const grnData = await getGrnIcgrnByInvoiceService(
+        client,
+        poNumber,
+        invoiceNo,
+        // "4700026721",
+        // "302",
+      );
+
+      if (grnData.success === false)
+        return resSend(res, false, 400, grnData.message);
+
+      const fechedGrnData = grnData?.data?.icgrn_nos;
+
+      let totalAmount = 0;
+
+      fechedGrnData.forEach((e) => {
+        totalAmount += Number(e.accepted_quantity) * Number(e.price);
+      });
+      // console.log(302, grnData.data.icgrn_nos, totalAmount);
+
+      if (totalAmount != 20000) {
+        // return res.status(409).json({
+        //   success: false,
+        //   message: "Total claimed amount is not matched with ICGRN report",
+        // });
+
+        return resSend(
+          res,
+          true,
+          200,
+          "Total claimed amount is not matched with ICGRN report",
+        );
+      }
+      return resSend(res, true, 200, grnData.message, {
+        extractedData: result,
+        grnData,
+      });
+
+      /*
+       if gst records validation satisfied then check for amount matching
+      if amount does not match then return with error else go for btn submission
+      */
+    }
+
+    // #################### validation checking with database table Ends ######################
+  } catch (error) {
+    console.error("Error making the request:", error.message, error.stack);
+
+    return res.status(400).json({
+      success: false,
+      message: error.message,
+    });
+  } finally {
+    if (client) {
+      client.release();
+    }
+  }
+};
 const getGrnIcgrnByInvoice = async (req, res) => {
+  console.log(5, req);
   let client;
   try {
     client = await poolClient();
@@ -1645,12 +2207,29 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     // let totalReturnQuantity = 0;
     // let totalReturnPrice = 0;
     if (!purchasing_doc_no || !invoice_no) {
-      return resSend(res, true, 200, "Please send a valid payload!", null, null);
+      return resSend(
+        res,
+        true,
+        200,
+        "Please send a valid payload!",
+        null,
+        null,
+      );
     }
-    let gate_entry_v = await getGateEntryDetails(client, [purchasing_doc_no, invoice_no]);
+    let gate_entry_v = await getGateEntryDetails(client, [
+      purchasing_doc_no,
+      invoice_no,
+    ]);
 
     if (!gate_entry_v.length) {
-      return resSend(res, false, 200, "No record found under the invoice number!", { purchasing_doc_no, invoice_no }, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "No record found under the invoice number!",
+        { purchasing_doc_no, invoice_no },
+        null,
+      );
     }
     const grn_values = gate_entry_v.map((el) => el.grn_no);
     // gate_entry_v = gate_entry_v[0];
@@ -1658,13 +2237,22 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     // CHECK IF VALUE NEED ONLY FROM GRN
     const grn_value = (await getGrnDetails(client, grn_values)) || [];
     if (!grn_value.length) {
-      return resSend(res, false, 200, "Kindly complete the GRN for further processing of the BTN.", grn_value, gate_entry_v);
+      return resSend(
+        res,
+        false,
+        200,
+        "Kindly complete the GRN for further processing of the BTN.",
+        grn_value,
+        gate_entry_v,
+      );
     }
 
     // FOR GET VALID GE IF SAME GE OF MULTIPLE INV NO
     let geDetails;
     for (const grn of grn_value) {
-      const ge = gate_entry_v.find((gateentry) => gateentry.grn_no == grn.grn_no);
+      const ge = gate_entry_v.find(
+        (gateentry) => gateentry.grn_no == grn.grn_no,
+      );
       if (ge) {
         geDetails = ge;
         break;
@@ -1679,18 +2267,31 @@ const getGrnIcgrnByInvoice = async (req, res) => {
 
     /// get total grn value///
 
-    const onlyGrnItems = grn_value.filter((el) => el.grn_reqired == null || el.grn_reqired == "");
+    const onlyGrnItems = grn_value.filter(
+      (el) => el.grn_reqired == null || el.grn_reqired == "",
+    );
     const icgrnItems = grn_value.filter((el) => el.grn_reqired == "X");
     const icgrnNosArr = icgrnItems.map((igNo) => igNo.grn_no);
     const grnNosArr = grn_value.map((igNo) => igNo.grn_no);
 
-    const icgrn_no = await getIcgrnDetails(client, icgrnNosArr, { EBELN: purchasing_doc_no });
+    const icgrn_no = await getIcgrnDetails(client, icgrnNosArr, {
+      EBELN: purchasing_doc_no,
+    });
     if (icgrnItems.length && !icgrn_no.length) {
-      return resSend(res, false, 200, "Kindly complete the ICGRN for further processing of the BTN.", { grn_value, icgrn_no });
+      return resSend(
+        res,
+        false,
+        200,
+        "Kindly complete the ICGRN for further processing of the BTN.",
+        { grn_value, icgrn_no },
+      );
     }
 
     if (icgrn_no.length !== icgrnItems.length) {
-      return resSend(res, false, 200, "Plese check some item ICGRN pending!", { grn_value, icgrn_no });
+      return resSend(res, false, 200, "Plese check some item ICGRN pending!", {
+        grn_value,
+        icgrn_no,
+      });
     }
 
     // const icgrn_no = await getIcgrnDetails(client, grn_values);
@@ -1698,7 +2299,10 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     //   return resSend(res, false, 200, "Plese do ICGRN to Process BTN", null, null);
     // }
 
-    const associatePoList = await getAssociatePoList(client, [purchasing_doc_no, invoice_no]);
+    const associatePoList = await getAssociatePoList(client, [
+      purchasing_doc_no,
+      invoice_no,
+    ]);
 
     if (icgrn_no.length) {
       const totals = calculateTotals(icgrn_no);
@@ -1708,7 +2312,8 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     let CAPEX_IND = false;
     if (onlyGrnItems.length) {
       const totals = calculateTotalGrnValue(onlyGrnItems);
-      CAPEX_IND = totals.totalPrice.toFixed(2) !== totals.totalUnitPrice.toFixed(2);
+      CAPEX_IND =
+        totals.totalPrice.toFixed(2) !== totals.totalUnitPrice.toFixed(2);
       totalUnitPrice = totals.totalUnitPrice.toFixed(2);
       total_price += totals.totalPrice || 0;
       total_quantity += totals.totalQuantity;
@@ -1721,7 +2326,8 @@ const getGrnIcgrnByInvoice = async (req, res) => {
       // totalReturnPrice = (calcReturnGrnDetails.totalReturnPrice).toFixed(3);
       // totalReturnQuantity = (calcReturnGrnDetails.totalReturnQuantity).toFixed(3);
       total_price = total_price - calcReturnGrnDetails.totalReturnPrice;
-      total_quantity = total_quantity - calcReturnGrnDetails.totalReturnQuantity;
+      total_quantity =
+        total_quantity - calcReturnGrnDetails.totalReturnQuantity;
     }
 
     gate_entry_v.total_price = parseFloat(total_price.toFixed(2));
@@ -1764,7 +2370,10 @@ const getGRNICGRNsValue = async (client, data) => {
     return null;
     // return resSend(res, true, 200, "Please send a valid payload!", null, null);
   }
-  let gate_entry_v = await getGateEntryDetails(client, [purchasing_doc_no, invoice_no]);
+  let gate_entry_v = await getGateEntryDetails(client, [
+    purchasing_doc_no,
+    invoice_no,
+  ]);
 
   if (!gate_entry_v.length) {
     return null;
@@ -1782,11 +2391,15 @@ const getGRNICGRNsValue = async (client, data) => {
 
   /// get total grn value///
 
-  const onlyGrnItems = grn_value.filter((el) => el.grn_reqired == null || el.grn_reqired == "");
+  const onlyGrnItems = grn_value.filter(
+    (el) => el.grn_reqired == null || el.grn_reqired == "",
+  );
   const icgrnItems = grn_value.filter((el) => el.grn_reqired == "X");
 
   const icgrnNosArr = icgrnItems.map((igNo) => igNo.grn_no);
-  const icgrn_no = await getIcgrnDetails(client, icgrnNosArr, { EBELN: purchasing_doc_no });
+  const icgrn_no = await getIcgrnDetails(client, icgrnNosArr, {
+    EBELN: purchasing_doc_no,
+  });
   if (icgrnItems.length && !icgrn_no.length) {
     return null;
     // return resSend(res, false, 200, "Plese do ICGRN to Process BTN.", null, null);
@@ -1801,7 +2414,10 @@ const getGRNICGRNsValue = async (client, data) => {
   // if (icgrn_no.length == 0) {
   //   return resSend(res, false, 200, "Plese do ICGRN to Process BTN", null, null);
   // }
-  const associatePoList = await getAssociatePoList(client, [purchasing_doc_no, invoice_no]);
+  const associatePoList = await getAssociatePoList(client, [
+    purchasing_doc_no,
+    invoice_no,
+  ]);
 
   if (icgrn_no.length) {
     const totals = calculateTotals(icgrn_no);
@@ -1848,31 +2464,55 @@ async function handelMail(tokenData, payload, event) {
     let emailUserDetails;
     let dataObj = payload;
 
-    if (tokenData.user_type == USER_TYPE_VENDOR && payload.status == SUBMITTED) {
+    if (
+      tokenData.user_type == USER_TYPE_VENDOR &&
+      payload.status == SUBMITTED
+    ) {
       emailUserDetailsQuery = getUserDetailsQuery("vendor_and_do", "$1");
 
       emailUserDetails = await getQuery({
         query: emailUserDetailsQuery,
         values: [payload.purchasing_doc_no],
       });
-      await sendMail(BTN_UPLOAD_CHECKLIST, dataObj, { users: emailUserDetails }, BTN_UPLOAD_CHECKLIST);
+      await sendMail(
+        BTN_UPLOAD_CHECKLIST,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_UPLOAD_CHECKLIST,
+      );
     }
 
-    if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == FORWARD_TO_FINANCE) {
+    if (
+      tokenData.user_type != USER_TYPE_VENDOR &&
+      payload.status == FORWARD_TO_FINANCE
+    ) {
       emailUserDetailsQuery = getUserDetailsQuery("venode_by_po");
       emailUserDetails = await getQuery({
         query: emailUserDetailsQuery,
         values: [payload.purchasing_doc_no],
       });
-      await sendMail(BTN_FORWORD_FINANCE, dataObj, { users: emailUserDetails }, BTN_FORWORD_FINANCE);
+      await sendMail(
+        BTN_FORWORD_FINANCE,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_FORWORD_FINANCE,
+      );
     }
-    if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == STATUS_RECEIVED) {
+    if (
+      tokenData.user_type != USER_TYPE_VENDOR &&
+      payload.status == STATUS_RECEIVED
+    ) {
       emailUserDetailsQuery = getUserDetailsQuery("finance_staff", "$1");
       emailUserDetails = await getQuery({
         query: emailUserDetailsQuery,
         values: [payload.assign_to_fi],
       });
-      await sendMail(BTN_ASSIGN_TO_STAFF, dataObj, { users: emailUserDetails }, BTN_ASSIGN_TO_STAFF);
+      await sendMail(
+        BTN_ASSIGN_TO_STAFF,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_ASSIGN_TO_STAFF,
+      );
     }
 
     let buildQuery = "";
@@ -1886,7 +2526,12 @@ async function handelMail(tokenData, payload, event) {
         values: [payload.btn_num],
       });
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-      await sendMail(BTN_REJECT, dataObj, { users: emailUserDetails }, BTN_REJECT);
+      await sendMail(
+        BTN_REJECT,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_REJECT,
+      );
     }
     if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == ASSIGNED) {
       // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
@@ -1901,9 +2546,17 @@ async function handelMail(tokenData, payload, event) {
         values: [payload.purchasing_doc_no],
       });
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-      await sendMail(BTN_RETURN_DO, dataObj, { users: emailUserDetails }, BTN_RETURN_DO);
+      await sendMail(
+        BTN_RETURN_DO,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_RETURN_DO,
+      );
     }
-    if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == SUBMIT_BY_DO) {
+    if (
+      tokenData.user_type != USER_TYPE_VENDOR &&
+      payload.status == SUBMIT_BY_DO
+    ) {
       // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
 
       emailUserDetailsQuery = "SELECT * FROM (";
@@ -1918,7 +2571,12 @@ async function handelMail(tokenData, payload, event) {
         values: [payload.purchasing_doc_no, parseInt(payload.assign_to)],
       });
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-      await sendMail(BTN_FORWORD_FINANCE, dataObj, { users: emailUserDetails }, BTN_FORWORD_FINANCE);
+      await sendMail(
+        BTN_FORWORD_FINANCE,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_FORWORD_FINANCE,
+      );
     }
   } catch (error) {
     console.error("handelMail btn", error.toString(), error.stack);
@@ -1933,14 +2591,38 @@ const assignToFiStaffHandler = async (req, res) => {
 
     client = await poolClient();
     await client.query("BEGIN");
-    const btnCurrnetStatus = await btnCurrentDetailsCheck(client, { btn_num, status: STATUS_RECEIVED });
+    const btnCurrnetStatus = await btnCurrentDetailsCheck(client, {
+      btn_num,
+      status: STATUS_RECEIVED,
+    });
 
     if (btnCurrnetStatus.isInvalid) {
-      return resSend(res, false, 200, `BTN ${btn_num} ${btnCurrnetStatus.message}`, btn_num, null);
+      return resSend(
+        res,
+        false,
+        200,
+        `BTN ${btn_num} ${btnCurrnetStatus.message}`,
+        btn_num,
+        null,
+      );
     }
 
-    if (!btn_num || btn_num === "" || !purchasing_doc_no || purchasing_doc_no === "" || !assign_to_fi || assign_to_fi === "") {
-      return resSend(res, false, 200, "Assign To is the mandatory!", null, null);
+    if (
+      !btn_num ||
+      btn_num === "" ||
+      !purchasing_doc_no ||
+      purchasing_doc_no === "" ||
+      !assign_to_fi ||
+      assign_to_fi === ""
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        "Assign To is the mandatory!",
+        null,
+        null,
+      );
     }
 
     const assign_q = `SELECT * FROM ${BTN_ASSIGN} WHERE btn_num = $1 and last_assign = $2`;
@@ -1950,7 +2632,14 @@ const assignToFiStaffHandler = async (req, res) => {
       values: [btn_num, true],
     });
     if (!checkTypeArr(assign_fi_staff_v)) {
-      return resSend(res, false, 200, "You're not authorized to perform the action!", null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "You're not authorized to perform the action!",
+        null,
+        null,
+      );
     }
 
     const whereCon = {
@@ -1972,11 +2661,23 @@ const assignToFiStaffHandler = async (req, res) => {
     let btn_list = await poolQuery({
       client,
       query: btn_list_q,
-      values: [btn_num, purchasing_doc_no, SUBMITTED_BY_DO, SUBMITTED_BY_CAUTHORITY],
+      values: [
+        btn_num,
+        purchasing_doc_no,
+        SUBMITTED_BY_DO,
+        SUBMITTED_BY_CAUTHORITY,
+      ],
     });
 
     if (btn_list.length < 0) {
-      return resSend(res, false, 200, "Vendor have to submit BTN first.", btn_list, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "Vendor have to submit BTN first.",
+        btn_list,
+        null,
+      );
     }
 
     let data = {
@@ -2001,7 +2702,10 @@ const assignToFiStaffHandler = async (req, res) => {
         status: STATUS_RECEIVED,
       });
       try {
-        const sendSap = await btnSaveToSap({ ...req.body, ...payload }, tokenData);
+        const sendSap = await btnSaveToSap(
+          { ...req.body, ...payload },
+          tokenData,
+        );
         if (sendSap == false) {
           await client.query("ROLLBACK");
 
@@ -2035,7 +2739,11 @@ const assignToFiStaffHandler = async (req, res) => {
 
 function checkActualDates(c_dates, a_dates) {
   // const arr = new Set([parseInt(MID_SDBG), parseInt(MID_DRAWING), parseInt(MID_QAP), parseInt(MID_ILMS)]);
-  const arr = new Set([parseInt(MID_DRAWING), parseInt(MID_QAP), parseInt(MID_ILMS)]);
+  const arr = new Set([
+    parseInt(MID_DRAWING),
+    parseInt(MID_QAP),
+    parseInt(MID_ILMS),
+  ]);
   const c_dates_filter = c_dates.filter((el) => arr.has(parseInt(el.MID)));
   const a_dates_filter = a_dates.filter((el) => arr.has(parseInt(el.MID)));
   const mtextObj = {
@@ -2045,7 +2753,9 @@ function checkActualDates(c_dates, a_dates) {
     [MID_ILMS]: "ILMS",
   };
   for (const item of c_dates_filter) {
-    const i = a_dates_filter.findIndex((el) => parseInt(el.MID) == parseInt(item.MID));
+    const i = a_dates_filter.findIndex(
+      (el) => parseInt(el.MID) == parseInt(item.MID),
+    );
     if (i < 0) {
       return {
         success: false,
@@ -2133,7 +2843,15 @@ async function btnCurrentDetailsCheck(client, data) {
   //   valueArr.push(data.status);
   // }
 
-  const checkStatus = new Set([STATUS_RECEIVED, REJECTED, BTN_STATUS_BANK, BTN_STATUS_HOLD_TEXT, BTN_STATUS_PROCESS, SUBMIT_BY_DO, BTN_STATUS_PAYMENT_DONE_TEXT]);
+  const checkStatus = new Set([
+    STATUS_RECEIVED,
+    REJECTED,
+    BTN_STATUS_BANK,
+    BTN_STATUS_HOLD_TEXT,
+    BTN_STATUS_PROCESS,
+    SUBMIT_BY_DO,
+    BTN_STATUS_PAYMENT_DONE_TEXT,
+  ]);
 
   if (data.status === STATUS_RECEIVED) {
     checkStatus.add(BTN_STATUS_DRETURN);
@@ -2257,7 +2975,10 @@ const checkInvoceFile = async (req, res) => {
     const result = await checkInoiceFiles(queryParmas);
     if (result.length) {
       let finalReasponse = result[0] || {};
-      finalReasponse = { ...finalReasponse, invoice_no: queryParmas?.invoice_no };
+      finalReasponse = {
+        ...finalReasponse,
+        invoice_no: queryParmas?.invoice_no,
+      };
       resSend(res, true, 200, "File fetched", finalReasponse, "");
     } else {
       resSend(res, false, 200, "File not present in OBPS system", {}, "");
@@ -2274,6 +2995,7 @@ module.exports = {
   submitBTNByDO,
   fetchBTNByNum,
   fetchBTNByNumForDO,
+  getExtractedData,
   getGrnIcgrnByInvoice,
   btnSaveToSap,
   timeInHHMMSS,
