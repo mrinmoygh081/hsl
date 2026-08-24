@@ -1953,6 +1953,7 @@ const getExtractedData = async (req, res) => {
       body: formData,
     });
 
+
     const result = await response.json();
 
     if (!result) {
@@ -1963,10 +1964,26 @@ const getExtractedData = async (req, res) => {
     // --------------------------------------------------
     // 4. Get po & invoice number
     // --------------------------------------------------
+    if (result.success === false) {
+      console.log(`Error:${result.error}`);
+      return resSend(
+        res,
+        result.success,
+        result.code,
+        result.message,
+        result.data,
+      );
+    }
 
     const poNumber = result.data.po_no;
     const invoiceNo = result.data.invoice_no;
 
+    if (!poNumber) {
+      return res.status(400).json({
+        success: false,
+        message: "PO Number not found in extracted data",
+      });
+    }
     if (!invoiceNo) {
       return res.status(400).json({
         success: false,
@@ -1999,7 +2016,6 @@ const getExtractedData = async (req, res) => {
     // const uniqueId = BigInt(Date.now()) * 1000n + BigInt(Math.floor(performance.now() * 1000));
 
     // ###############  Save extracted Data in temp file Starts ##################
-
     const query = `
           INSERT INTO temp_invoices (
             company_name,
@@ -2078,14 +2094,22 @@ const getExtractedData = async (req, res) => {
       `;
 
     const gstResult = await getQuery({ query: gstQuery, values: [gstNo] });
+    // console.log(8, gstResult);
 
     if (gstResult.length === 0) {
-      return {
-        valid: false,
-        status: 400,
-        message: "GST number does not exist in GST records",
-        gst_no: gstNo,
-      };
+      // return {
+      //   valid: false,
+      //   status: 400,
+      //   message: "GST number does not exist in GST records",
+      //   gst_no: gstNo,
+      // };
+      return resSend(
+        res,
+        false,
+        400,
+        "GST number does not exist in GST records",
+        { gst_no: gstNo },
+      );
     }
     if (gstResult.length > 0) {
       /* 
