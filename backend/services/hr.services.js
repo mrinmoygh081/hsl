@@ -7,7 +7,11 @@ const { getEpochTime, generateSimpleSingleGetQuery } = require("../lib/utils");
 const Message = require("../utils/messages");
 // const localData = require("../utils/localData.json");
 // const { create_reference_no } = require("./po.services");
-const { HR_COMPLIANCE, HR_COMPLIANCE_DATA } = require("../lib/tableName");
+const {
+  HR_COMPLIANCE,
+  HR_COMPLIANCE_DATA,
+  VENDOR_MASTER_LFA1,
+} = require("../lib/tableName");
 
 function createRefGroup(hrPayload) {
   return `${hrPayload?.rc_no}${hrPayload?.purchasing_doc_no}${hrPayload?.unit}`;
@@ -110,7 +114,11 @@ const setHrPayload = (compliance_data, tokenData) => {
 
 async function checkCurrentData(client, data) {
   try {
-    const { q, val } = generateSimpleSingleGetQuery(HR_COMPLIANCE_DATA, "*", data);
+    const { q, val } = generateSimpleSingleGetQuery(
+      HR_COMPLIANCE_DATA,
+      "*",
+      data,
+    );
     const result = await poolQuery({ client, query: q, values: val });
 
     return result[0] || {};
@@ -136,7 +144,10 @@ function hrComplinceViewSimplyfy(data) {
 
     if (!grouped[key]) {
       const { ...rest } = item;
-      grouped[key] = { ...rest, statusCode: hrStatusCodeRank[item.status] || 10 };
+      grouped[key] = {
+        ...rest,
+        statusCode: hrStatusCodeRank[item.status] || 10,
+      };
     }
 
     // Add compliance flags
@@ -174,7 +185,11 @@ async function complianceListFromRc(client, tokenData, data) {
       values.push(tokenData.vendor_code);
     }
 
-    const result = await poolQuery({ client, query: q + conditionQuery, values });
+    const result = await poolQuery({
+      client,
+      query: q + conditionQuery,
+      values,
+    });
     //  result = result.map((el) => ({...el, rc_no: null, unit: null}))
     return result;
   } catch (error) {
@@ -196,7 +211,12 @@ async function complianceListFromPo(client, tokenData, data) {
       values.push(tokenData.vendor_code);
     }
     let result = await poolQuery({ client, query: q + conditionQuery, values });
-    result = result.map((el) => ({ ...el, rc_no: "NON_RC", unit: null, ref_group: null }));
+    result = result.map((el) => ({
+      ...el,
+      rc_no: "NON_RC",
+      unit: null,
+      ref_group: null,
+    }));
     return result;
   } catch (error) {
     throw error;
@@ -223,6 +243,7 @@ async function complianceView(client, tokenData, data) {
     compliance_data.created_at,
     compliance_data.updated_at,
     compliance_data.vendor_code,
+    vendor_master.vendor_type,
     json_agg(
         json_build_object(
             'reference_no', compliance_data.reference_no,
@@ -240,7 +261,9 @@ async function complianceView(client, tokenData, data) {
     ) AS compliance_data
 FROM ${HR_COMPLIANCE} AS compliance
 LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data 
-    ON (compliance.ref_group = compliance_data.ref_group AND is_active = 'F')`;
+    ON (compliance.ref_group = compliance_data.ref_group AND is_active = 'F')
+LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
+    ON vendor_master.lifnr = compliance_data.vendor_code`;
 
     let conditionQuery = " WHERE 1 = 1 ";
 
@@ -267,7 +290,8 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
     compliance_data.created_at,
     compliance_data.updated_at,
     compliance_data.vendor_code,
-    compliance_data.compliance_year `;
+    compliance_data.compliance_year,
+    vendor_master.vendor_type `;
     // const orderBy = ` ORDER BY
     // compliance_data.created_at,
     // compliance_data.compliance_year,
@@ -279,7 +303,9 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
           count(*) as total
           FROM ${HR_COMPLIANCE} AS compliance
           LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data 
-              ON (compliance.ref_group = compliance_data.ref_group AND is_active = 'F')`;
+              ON (compliance.ref_group = compliance_data.ref_group AND is_active = 'F')
+          LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
+              ON vendor_master.lifnr = compliance_data.vendor_code`;
 
     let values = [];
     let count = 0;
@@ -309,6 +335,10 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
       values.push(data?.vendor_code);
       conditionQuery += ` AND compliance_data.vendor_code = $${++count} `;
     }
+    if (data?.vendor_type) {
+      values.push(data?.vendor_type);
+      conditionQuery += ` AND vendor_master.vendor_type = $${++count} `;
+    }
     if (data?.poNo) {
       values.push(`%${data?.poNo}%`);
       conditionQuery += ` AND compliance.purchasing_doc_no LIKE $${++count} `;
@@ -335,12 +365,17 @@ LEFT JOIN ${HR_COMPLIANCE_DATA} AS compliance_data
       LIMIT_OFFSET = ` LIMIT ${pageSize} OFFSET ${offset} `;
     }
 
-    const finalDataQuery = q + conditionQuery + groupBy + orderBy + LIMIT_OFFSET;
+    const finalDataQuery =
+      q + conditionQuery + groupBy + orderBy + LIMIT_OFFSET;
 
     const finalCountQuery = countQuery + conditionQuery + groupBy;
 
     let result = await poolQuery({ client, query: finalDataQuery, values });
-    let countResult = await poolQuery({ client, query: finalCountQuery, values });
+    let countResult = await poolQuery({
+      client,
+      query: finalCountQuery,
+      values,
+    });
 
     result = hrComplinceViewSimplyfy(result);
     return { complianceData: result, totalCount: null };
