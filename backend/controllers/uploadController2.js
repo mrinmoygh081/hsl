@@ -128,145 +128,185 @@ const uploaFileStreamController2 = async (req, res) => {
         });
 
         busboy.on("file", async (fieldname, file, info) => {
-            const { filename } = info;
+          const { filename } = info;
 
-            if (fileUploaded) {
-                file.resume();
-                return resSend(res, false, 400, "Multiple files not allowed.");
-            }
-            fileUploaded = true;
+          if (fileUploaded) {
+            file.resume();
+            return resSend(res, false, 400, "Multiple files not allowed.");
+          }
+          fileUploaded = true;
 
-            // ✅ 2. Quarantine: Write to temporary path
-            const randomName = `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-            tempFilePath = path.join(QUARANTINE_DIR, randomName);
+          // ✅ 2. Quarantine: Write to temporary path
+          const randomName = `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
+          tempFilePath = path.join(QUARANTINE_DIR, randomName);
 
-            const writeStream = fs.createWriteStream(tempFilePath);
+          // console.log(Date.now());
 
-            file.on("error", (err) => {
-                if (fs.existsSync(tempFilePath)) fs.unlink(tempFilePath, () => { });
-                console.error("error", err);
-                resSend(res, false, 500, "Upload stream failed.");
-            });
+          const writeStream = fs.createWriteStream(tempFilePath);
 
-            file.pipe(writeStream);
+          file.on("error", (err) => {
+            if (fs.existsSync(tempFilePath)) fs.unlink(tempFilePath, () => {});
+            console.error("error", err);
+            resSend(res, false, 500, "Upload stream failed.");
+          });
 
-            writeStream.on("finish", async () => {
-                try {
-                    // ✅ 3. Security Check: Magic Bytes
-                    const fileStream = fs.createReadStream(tempFilePath);
-                    const realType = await fileTypeFromStream(fileStream);
-                    fileStream.destroy();
+          file.pipe(writeStream);
 
-                    // GAP 3 FIX: Strict MIME checking
-                    const allowedMime = {
-                        pdf: 'application/pdf',
-                        zip: ['application/zip', 'application/x-zip-compressed']
-                    };
-                    const allowedExtensions = ['pdf', 'zip'];
+          writeStream.on("finish", async () => {
+            try {
+              // ✅ 3. Security Check: Magic Bytes
+              const fileStream = fs.createReadStream(tempFilePath);
+              const realType = await fileTypeFromStream(fileStream);
+              fileStream.destroy();
 
-                    // Check if extension is allowed AND matches the correct MIME type
-                    const isValidType = realType && allowedExtensions.includes(realType.ext) && (
-                        realType.ext === 'pdf'
-                            ? realType.mime === allowedMime.pdf
-                            : allowedMime.zip.includes(realType.mime)
-                    );
+              // GAP 3 FIX: Strict MIME checking
+              const allowedMime = {
+                pdf: "application/pdf",
+                zip: ["application/zip", "application/x-zip-compressed"],
+              };
+              const allowedExtensions = ["pdf", "zip"];
 
-                    if (!isValidType) {
-                        throw new Error("SECURITY_RISK: Mime-type mismatch or forbidden file.");
-                    }
+              // Check if extension is allowed AND matches the correct MIME type
+              const isValidType =
+                realType &&
+                allowedExtensions.includes(realType.ext) &&
+                (realType.ext === "pdf"
+                  ? realType.mime === allowedMime.pdf
+                  : allowedMime.zip.includes(realType.mime));
 
-                    // ✅ 4. Security Check: Virus Scan (Uncomment when ClamAV is ready)
-                    // await scanFileForVirus(tempFilePath);
+              if (!isValidType) {
+                throw new Error(
+                  "SECURITY_RISK: Mime-type mismatch or forbidden file.",
+                );
+              }
 
-                    // ✅ 5. Extension Specific Security Logic
-                    if (realType.ext === 'pdf') {
-                        // CHECK EMBADED FILES
-                        if (hasEmbeddedFiles(tempFilePath)) {
-                            throw new Error("SECURITY_RISK: Embedded files not allowed in PDF");
-                        }
-                        // GAP 2 FIX: Check for malicious JS keywords
-                        if (hasActivePdfContent(tempFilePath)) {
-                            throw new Error("SECURITY_RISK: Active PDF content (JS/Actions) detected.");
-                        }
+              // ✅ 4. Security Check: Virus Scan (Uncomment when ClamAV is ready)
+              // await scanFileForVirus(tempFilePath);
 
-                        const cleanPdfPath = tempFilePath + "_clean";
-                        // Sanitize Structure with QPDF
-                        // console.log("tempFilePath, cleanPdfPath", tempFilePath, cleanPdfPath);
-
-                        await sanitizePdf(tempFilePath, cleanPdfPath);
-
-                        // Swap Files
-                        fs.unlinkSync(tempFilePath);
-                        if (!fs.existsSync(cleanPdfPath)) fs.mkdirSync(cleanPdfPath, { recursive: true });
-                        fs.renameSync(cleanPdfPath, tempFilePath);
-                    }
-                    else if (realType.ext === 'zip') {
-                        // GAP 1 & 4 FIX: Check Zip Contents & Size
-                        const isZipSafe = await validateZipContents(tempFilePath);
-                        if (!isZipSafe) {
-                            throw new Error("SECURITY_RISK: Zip contains forbidden files or is too large.");
-                        }
-                    }
-
-                    // ✅ 6. Final Move: To Permanent Storage
-                    const todayYYYYMMDD = formatDateYYDDMM(new Date());
-                    let finalDir = path.join(STORE_UPLOAD_ROOT, todayYYYYMMDD);
-
-
-
-                    let cleanType = (formFields.type || "doc").replace(/[^a-zA-Z0-9]/g, "_");
-                    const cleanRef = (formFields.ref || "gen").replace(/[^a-zA-Z0-9]/g, "_");
-                    // FOR ONLY FOR HR COMPLIANCE
-
-                    let hrReleventPath = "";
-
-                    console.log("cleanType", cleanType);
-                    if (cleanType == 'hr' || cleanType == 'HR') {
-                        cleanType = cleanType.toLocaleUpperCase();
-                        const basePath = "compliances";
-                        const now = new Date();
-                        const todayYYYYMMDD = formatDateYYYYMM(now); // YYYYMM
-                        const day = formatDateDD(now); // DD
-                        finalDir = path.join(STORE_UPLOAD_ROOT, basePath, todayYYYYMMDD, day);
-                        hrReleventPath = path.join("uploads", "compliances", todayYYYYMMDD, day);
-                    }
-                    console.log("finalDirfinalDirfinalDir", finalDir);
-                    if (!fs.existsSync(finalDir)) fs.mkdirSync(finalDir, { recursive: true });
-
-                    const finalFileName = `${formatDateYYYYMMDDHHMMSSMS()}-${cleanType}-${cleanRef}.${realType.ext}`;
-                    const finalPath = path.join(finalDir, finalFileName);
-
-                    fs.renameSync(tempFilePath, finalPath);
-                    let releventPath = path.join("uploads", todayYYYYMMDD, finalFileName);
-
-                    if (cleanType == 'hr' || cleanType == 'HR') {
-                        releventPath = path.join(hrReleventPath, finalFileName)
-                    }
-
-                    // ✅ 7. DB Save
-                    const fileAckData = {
-                        fileName: finalFileName,
-                        filePath: releventPath,
-                        fileType: realType.mime,
-                        fileSize: fs.statSync(finalPath).size,
-                        originalName: filename
-                    };
-
-                    const { id } = await fileAcknowledgementSave(req.tokenData, { ...fileAckData, formattedDateTime: formatDateYYYYMMDDHHMMSSMS() });
-                    // file ID ATTACHED 
-
-
-                    resSend(res, true, 200, "File uploaded securely.", { id, ...fileAckData });
-
-                } catch (err) {
-                    // CLEANUP ON FAILURE
-                    if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
-                    if (fs.existsSync(tempFilePath + "_clean")) fs.unlinkSync(tempFilePath + "_clean");
-
-                    console.error("Security Check Failed:", err.message, err);
-                    resSend(res, false, 200, `${Message.FILE_UPLOAD_SECURITY_FAIL_MSG} [ERROR]  ${err.message}`);
+              // ✅ 5. Extension Specific Security Logic
+              if (realType.ext === "pdf") {
+                // CHECK EMBADED FILES
+                if (hasEmbeddedFiles(tempFilePath)) {
+                  throw new Error(
+                    "SECURITY_RISK: Embedded files not allowed in PDF",
+                  );
                 }
-            });
+                // GAP 2 FIX: Check for malicious JS keywords
+                if (hasActivePdfContent(tempFilePath)) {
+                  throw new Error(
+                    "SECURITY_RISK: Active PDF content (JS/Actions) detected.",
+                  );
+                }
+
+                const cleanPdfPath = tempFilePath + "_clean";
+                // Sanitize Structure with QPDF
+                // console.log("tempFilePath, cleanPdfPath", tempFilePath, cleanPdfPath);
+
+                // await sanitizePdf(tempFilePath, cleanPdfPath);
+
+                // Swap Files
+                fs.unlinkSync(tempFilePath);
+                if (!fs.existsSync(cleanPdfPath))
+                  fs.mkdirSync(cleanPdfPath, { recursive: true });
+                fs.renameSync(cleanPdfPath, tempFilePath);
+              } else if (realType.ext === "zip") {
+                // GAP 1 & 4 FIX: Check Zip Contents & Size
+                const isZipSafe = await validateZipContents(tempFilePath);
+                if (!isZipSafe) {
+                  throw new Error(
+                    "SECURITY_RISK: Zip contains forbidden files or is too large.",
+                  );
+                }
+              }
+
+              // ✅ 6. Final Move: To Permanent Storage
+              const todayYYYYMMDD = formatDateYYDDMM(new Date());
+              let finalDir = path.join(STORE_UPLOAD_ROOT, todayYYYYMMDD);
+
+              let cleanType = (formFields.type || "doc").replace(
+                /[^a-zA-Z0-9]/g,
+                "_",
+              );
+              const cleanRef = (formFields.ref || "gen").replace(
+                /[^a-zA-Z0-9]/g,
+                "_",
+              );
+              // FOR ONLY FOR HR COMPLIANCE
+
+              let hrReleventPath = "";
+
+              console.log("cleanType", cleanType);
+              if (cleanType == "hr" || cleanType == "HR") {
+                cleanType = cleanType.toLocaleUpperCase();
+                const basePath = "compliances";
+                const now = new Date();
+                const todayYYYYMMDD = formatDateYYYYMM(now); // YYYYMM
+                const day = formatDateDD(now); // DD
+                finalDir = path.join(
+                  STORE_UPLOAD_ROOT,
+                  basePath,
+                  todayYYYYMMDD,
+                  day,
+                );
+                hrReleventPath = path.join(
+                  "uploads",
+                  "compliances",
+                  todayYYYYMMDD,
+                  day,
+                );
+              }
+              console.log("finalDirfinalDirfinalDir", finalDir);
+              if (!fs.existsSync(finalDir))
+                fs.mkdirSync(finalDir, { recursive: true });
+
+              const finalFileName = `${formatDateYYYYMMDDHHMMSSMS()}-${cleanType}-${cleanRef}.${realType.ext}`;
+              const finalPath = path.join(finalDir, finalFileName);
+
+              fs.renameSync(tempFilePath, finalPath);
+              let releventPath = path.join(
+                "uploads",
+                todayYYYYMMDD,
+                finalFileName,
+              );
+
+              if (cleanType == "hr" || cleanType == "HR") {
+                releventPath = path.join(hrReleventPath, finalFileName);
+              }
+
+              // ✅ 7. DB Save
+              const fileAckData = {
+                fileName: finalFileName,
+                filePath: releventPath,
+                fileType: realType.mime,
+                fileSize: fs.statSync(finalPath).size,
+                originalName: filename,
+              };
+
+              const { id } = await fileAcknowledgementSave(req.tokenData, {
+                ...fileAckData,
+                formattedDateTime: formatDateYYYYMMDDHHMMSSMS(),
+              });
+              // file ID ATTACHED
+
+              resSend(res, true, 200, "File uploaded securely.", {
+                id,
+                ...fileAckData,
+              });
+            } catch (err) {
+              // CLEANUP ON FAILURE
+              if (fs.existsSync(tempFilePath)) fs.unlinkSync(tempFilePath);
+              if (fs.existsSync(tempFilePath + "_clean"))
+                fs.unlinkSync(tempFilePath + "_clean");
+
+              console.error("Security Check Failed:", err.message, err);
+              resSend(
+                res,
+                false,
+                200,
+                `${Message.FILE_UPLOAD_SECURITY_FAIL_MSG} [ERROR]  ${err.message}`,
+              );
+            }
+          });
         });
 
         req.pipe(busboy);
