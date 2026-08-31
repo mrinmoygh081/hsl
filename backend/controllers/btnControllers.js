@@ -2163,10 +2163,10 @@ const getExtractedData = async (req, res) => {
 
       const grnData = await getGrnIcgrnByInvoiceService(
         client,
-        poNumber,
-        invoiceNo,
-        // "4700026721",
-        // "302",
+        // poNumber,
+        // invoiceNo,
+        "4700026721",
+        "302",
       );
 
       if (grnData.success === false)
