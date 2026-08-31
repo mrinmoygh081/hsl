@@ -21,6 +21,7 @@ import { D_S_INVOICE, E_INVOICE } from "../../constants/BTNContants";
 import MultiSearchableSelect from "../../components/MultiSearchableSelect";
 import FileUploadWithProgress from "../../utils/FileUploadWithProgress";
 import { BTN_UPLOAD_WARNING } from "../../Helpers/FileUploadInfoIcon";
+import { uploadFileStream } from "../../utils/uploadFile";
 
 const BillsMaterialHybrid = () => {
   const navigate = useNavigate();
@@ -29,6 +30,128 @@ const BillsMaterialHybrid = () => {
   const [data, setData] = useState(null);
   const [form, setForm] = useState(() => structuredClone(initialData || {}));
   const [associated, setAssociated] = useState([]);
+  const [invoiceFile, setInvoiceFile] = useState(null);
+
+  const handleExtractInvoice = async (e) => {
+    if (e && typeof e.preventDefault === "function") {
+      e.preventDefault();
+    }
+    if (!invoiceFile) {
+      toast.warning("Please upload the Invoice File.");
+      return;
+    }
+    if (!form?.invoice_date || form?.invoice_date === "--") {
+      toast.warning("Please select the Invoice Date.");
+      return;
+    }
+
+    try {
+      const dateVal = form.invoice_date;
+      let invoiceDateString = "";
+      if (typeof dateVal === "string" && dateVal.includes("/")) {
+        const [dd, mm, yyyy] = dateVal.split("/");
+        invoiceDateString = `${yyyy}-${mm}-${dd}`;
+      } else {
+        const date = new Date(Number(dateVal) * 1000);
+        if (!isNaN(date.getTime())) {
+          const dd = String(date.getDate()).padStart(2, "0");
+          const mm = String(date.getMonth() + 1).padStart(2, "0");
+          const yyyy = date.getFullYear();
+          invoiceDateString = `${yyyy}-${mm}-${dd}`;
+        }
+      }
+
+      if (!invoiceDateString) {
+        toast.warning("Invalid Invoice Date.");
+        return;
+      }
+
+      // Step 1: Upload the file first to the existing unmodified backend fileStream API
+      // to register it and obtain a valid file_id.
+      let uploadedFileMetadata = null;
+      
+      const uploadSuccessPromise = new Promise((resolve) => {
+        uploadFileStream({
+          file: invoiceFile,
+          token,
+          vendorCode: id,
+          type: "BTN",
+          onSuccess: (uploadedFile) => {
+            uploadedFileMetadata = uploadedFile;
+            resolve(uploadedFile);
+          },
+        }).catch((err) => {
+          console.error("Upload error", err);
+          resolve(null);
+        });
+      });
+
+      toast.info("Uploading file...");
+      const uploadResult = await uploadSuccessPromise;
+
+      if (!uploadResult || !uploadedFileMetadata) {
+        toast.error("File upload failed, cannot extract invoice.");
+        return;
+      }
+
+      // Step 2: Hit the extractInvoice API
+      const formData = new FormData();
+      formData.append("file", invoiceFile);
+      formData.append("invoice_date", invoiceDateString);
+
+      toast.info("Extracting invoice data...");
+      const response = await apiCallBack("POST", "po/btn/extractInvoice", formData, token);
+
+      if (response && response.status && response.data) {
+        const { extractedData, grnData } = response.data;
+        const invoice_no = extractedData?.data?.invoice_no || "";
+
+        if (grnData && grnData.status && grnData.data) {
+          const { gate_entry_no, grn_nos, icgrn_nos, gate_entry_date, total_price, invoice_date, CAPEX_IND, associatePoList } = grnData.data;
+
+          setForm({
+            ...form,
+            invoice_no,
+            invoice_filename: uploadedFileMetadata, // Set the uploaded file metadata with valid file_id
+            gate_entry_no,
+            gate_entry_date: formatDate(gate_entry_date),
+            grn_nos,
+            icgrn_nos,
+            total_price,
+            invoice_date: formatDate(invoice_date),
+            CAPEX_IND,
+          });
+
+          setData({
+            ...data,
+            invoice_date: formatDate(invoice_date),
+            CAPEX_IND,
+          });
+
+          let options =
+            checkTypeArr(associatePoList) &&
+            associatePoList.map((item) => {
+              return {
+                value: item.purchasing_doc_no,
+                label: item.purchasing_doc_no,
+              };
+            });
+
+          setAssociated(options || []);
+          toast.success(response.message || "Invoice details extracted successfully!");
+        } else {
+          toast.warn(grnData?.message || "Invalid GRN data returned");
+        }
+      } else if (response && response.message) {
+        toast.warn(response.message);
+      } else {
+        toast.warn("Unexpected response structure");
+      }
+    } catch (error) {
+      console.error("Error extracting invoice", error);
+      toast.error("Error extracting invoice details");
+    }
+  };
 
   const calNetClaimAmount = (invoice_value, debit_note, credit_note) => {
     invoice_value = parseFloat(invoice_value) || 0;
@@ -158,6 +281,7 @@ const BillsMaterialHybrid = () => {
       grn_nos: "",
       icgrn_nos: "",
     });
+    setInvoiceFile(null);
   }, [form?.invoice_type]);
 
   console.log("form", form);
@@ -251,62 +375,39 @@ const BillsMaterialHybrid = () => {
                                       <tr>
                                         <td>Digitally Signed Invoice:</td>
                                         <td>
-                                          <div className="btn_value">
-                                            <input
-                                              type="text"
-                                              className="form-control me-3"
-                                              name="invoice_no"
-                                              value={form?.invoice_no}
-                                              placeholder="invoice number"
-                                              onChange={(e) =>
-                                                setForm({
-                                                  ...form,
-                                                  invoice_no: e.target.value,
-                                                })
-                                              }
-                                            />
-                                            <DynamicButton label="CHECK" onClick={getGrnIcgrnHandler} className="btn btn-primary btn-sm m-4" />
-                                          </div>
-                                          <div className="btn_value">
-                                            <div className="me-4">
-                                              <label htmlFor="">Invoice File</label>
-                                              <FileUploadWithProgress
-                                                warningText={BTN_UPLOAD_WARNING}
-                                                token={token}
-                                                vendorCode={id}
-                                                uploadedFile={form?.invoice_filename || null}
-                                                 onUploadSuccess={(response) => {
-                                                   const fileData = {
-                                                     file_id: response?.id || response?.data?.id || response?.file_id || "",
-                                                     fileName: response?.fileName || response?.data?.fileName || "",
-                                                     filePath: response?.filePath || response?.data?.filePath || "",
-                                                     file_name: response?.file_name || response?.data?.originalName || "",
-                                                     file_path: response?.file_path || response?.data?.filePath || "",
-                                                   };
-                                                   setForm((prev) => ({ ...prev, invoice_filename: fileData }));
-                                                 }}
-                                                 onDelete={() => setForm((prev) => ({ ...prev, invoice_filename: null }))}
+                                          <div className="d-flex align-items-center">
+                                            <div className="me-4" style={{ width: "250px" }}>
+                                              <label className="form-label fw-bold">Invoice File</label>
+                                              <input
+                                                type="file"
+                                                className="form-control"
+                                                accept=".pdf"
+                                                onChange={(e) => setInvoiceFile(e.target.files[0] || null)}
                                               />
                                             </div>
-                                            <div>
-                                              <label htmlFor="">Supporting Documents</label>
-                                              <FileUploadWithProgress
-                                                warningText={BTN_UPLOAD_WARNING}
-                                                token={token}
-                                                vendorCode={id}
-                                                uploadedFile={form?.invoice_supporting_doc || null}
-                                                onUploadSuccess={(response) => {
-                                                  const fileData = {
-                                                    file_id: response?.id || response?.data?.id || response?.file_id || "",
-                                                    fileName: response?.fileName || response?.data?.fileName || "",
-                                                    filePath: response?.filePath || response?.data?.filePath || "",
-                                                    file_name: response?.file_name || response?.data?.originalName || "",
-                                                    file_path: response?.file_path || response?.data?.filePath || "",
-                                                  };
-                                                  setForm((prev) => ({ ...prev, invoice_supporting_doc: fileData }));
+                                            <div className="me-4" style={{ width: "200px" }}>
+                                              <label className="form-label fw-bold">Invoice Date</label>
+                                              <DatePicker
+                                                selected={form?.invoice_date && form?.invoice_date !== "--" ? (typeof form.invoice_date === "number" ? new Date(form.invoice_date * 1000) : new Date(form.invoice_date)) : null}
+                                                onChange={(date) => {
+                                                  setForm({
+                                                    ...form,
+                                                    invoice_date: convertToEpoch(date),
+                                                  });
                                                 }}
-                                                onDelete={() => setForm((prev) => ({ ...prev, invoice_supporting_doc: null }))}
+                                                dateFormat="dd/MM/yyyy"
+                                                className="form-control"
+                                                placeholderText="Select date"
+                                                maxDate={new Date()}
                                               />
+                                            </div>
+                                            <div className="align-self-end d-flex align-items-center">
+                                              <DynamicButton label="CHECK" onClick={handleExtractInvoice} className="btn btn-primary btn-sm m-4" />
+                                              {form?.invoice_filename && (
+                                                <span className="text-success ms-2 fw-bold" style={{ fontSize: "12px" }}>
+                                                  Uploaded: {form.invoice_filename.file_name || form.invoice_filename.fileName}
+                                                </span>
+                                              )}
                                             </div>
                                           </div>
                                         </td>
@@ -316,60 +417,39 @@ const BillsMaterialHybrid = () => {
                                       <tr>
                                         <td>E-Invoice No :</td>
                                         <td>
-                                          <div className="btn_value">
-                                            <input
-                                              type="text"
-                                              className="form-control me-2"
-                                              name="invoice_no"
-                                              placeholder="E-Invoice number"
-                                              value={form?.invoice_no}
-                                              onChange={(e) => inputTypeChange(e, form, setForm)}
-                                            />
-                                            <DynamicButton label="CHECK" onClick={getGrnIcgrnHandler} className="btn btn-primary btn-sm m-4" />
-                                          </div>
-                                          <div className="btn_value">
-                                            {/* <div className="me-4">
-                                              <label htmlFor="">Invoice File</label>
+                                          <div className="d-flex align-items-center">
+                                            <div className="me-4" style={{ width: "250px" }}>
+                                              <label className="form-label fw-bold">Invoice File</label>
                                               <input
                                                 type="file"
                                                 className="form-control"
-                                                name="invoice_filename"
-                                                onChange={(e) => inputFileChange(e, form, setForm)}
                                                 accept=".pdf"
+                                                onChange={(e) => setInvoiceFile(e.target.files[0] || null)}
                                               />
                                             </div>
-                                            <div>
-                                              <label htmlFor="">Supporting Documents</label>
-                                              <input
-                                                type="file"
+                                            <div className="me-4" style={{ width: "200px" }}>
+                                              <label className="form-label fw-bold">Invoice Date</label>
+                                              <DatePicker
+                                                selected={form?.invoice_date && form?.invoice_date !== "--" ? (typeof form.invoice_date === "number" ? new Date(form.invoice_date * 1000) : new Date(form.invoice_date)) : null}
+                                                onChange={(date) => {
+                                                  setForm({
+                                                    ...form,
+                                                    invoice_date: convertToEpoch(date),
+                                                  });
+                                                }}
+                                                dateFormat="dd/MM/yyyy"
                                                 className="form-control"
-                                                name="invoice_supporting_doc"
-                                                onChange={(e) => inputFileChange(e, form, setForm)}
-                                                accept=".pdf"
-                                              />
-                                            </div> */}
-
-                                            <div className="me-4">
-                                              <label htmlFor="">Invoice File</label>
-                                              <FileUploadWithProgress
-                                                warningText={BTN_UPLOAD_WARNING}
-                                                token={token}
-                                                vendorCode={id}
-                                                uploadedFile={form?.invoice_filename || null}
-                                                onUploadSuccess={(file) => setForm({ ...form, invoice_filename: file })}
-                                                onDelete={() => setForm({ ...form, invoice_filename: null })}
+                                                placeholderText="Select date"
+                                                maxDate={new Date()}
                                               />
                                             </div>
-                                            <div>
-                                              <label htmlFor="">Supporting Documents</label>
-                                              <FileUploadWithProgress
-                                                warningText={BTN_UPLOAD_WARNING}
-                                                token={token}
-                                                vendorCode={id}
-                                                uploadedFile={form?.invoice_supporting_doc || null}
-                                                onUploadSuccess={(file) => setForm({ ...form, invoice_supporting_doc: file })}
-                                                onDelete={() => setForm({ ...form, invoice_supporting_doc: null })}
-                                              />
+                                            <div className="align-self-end d-flex align-items-center">
+                                              <DynamicButton label="CHECK" onClick={handleExtractInvoice} className="btn btn-primary btn-sm m-4" />
+                                              {form?.invoice_filename && (
+                                                <span className="text-success ms-2 fw-bold" style={{ fontSize: "12px" }}>
+                                                  Uploaded: {form.invoice_filename.file_name || form.invoice_filename.fileName}
+                                                </span>
+                                              )}
                                             </div>
                                           </div>
                                         </td>
