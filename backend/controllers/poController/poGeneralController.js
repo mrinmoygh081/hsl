@@ -509,7 +509,12 @@ const poList = async (req, res) => {
         pageSize,
         queryValues,
       );
-      CountQuery = poListCountByEkko(tokenData, search, countValues);
+      CountQuery = poListCountByEkko(
+        tokenData,
+        search,
+        vendor_type,
+        countValues,
+      );
     } else {
       // Pass both arrays to the main query builder to handle complex logic
       const q = poListQuery(
@@ -590,6 +595,8 @@ const poList = async (req, res) => {
       query: CountQuery,
       values: countValues,
     });
+
+    console.log(poCountData);
 
     const poCount = parseInt(poCountData[0]?.total_count || 0);
     const modifiedPOData = poDataModify2(poDetails);
@@ -679,6 +686,15 @@ function poListByEkko(
     conditionQuery += ")";
   }
 
+  if (vendor_type) {
+    conditionQuery += ` AND EXISTS (
+      SELECT 1
+      FROM LFA1
+      WHERE LFA1.LIFNR = EKKO.LIFNR
+      AND LFA1.vendor_type = ${addParam(values, vendor_type)}
+    )`;
+  }
+
   selectedItem += conditionQuery;
   // const orderBy = " ORDER BY EKKO.AEDAT, EKKO.EBELN DESC";
   const orderBy = " ORDER BY EKKO.AEDAT DESC";
@@ -713,19 +729,19 @@ function poListByEkko(
 
   baseQuery += joiningTables;
 
-  if (vendor_type) {
-    baseQuery += ` WHERE LFA1.vendor_type = ${addParam(values, vendor_type)}`;
-  }
-
   return baseQuery;
 }
 
-function poListCountByEkko(tokenData, search, values) {
+function poListCountByEkko(tokenData, search, vendor_type, values) {
   let baseQuery = "";
   const selectedItem = `SELECT COUNT(DISTINCT EKKO.EBELN) AS total_count FROM EKKO AS EKKO `;
 
   baseQuery += selectedItem;
   let conditionQuery = " WHERE 1 = 1 ";
+
+  const joiningTables = `LEFT JOIN LFA1 AS LFA1 ON (EKKO.LIFNR = LFA1.LIFNR)`;
+
+  baseQuery += joiningTables;
 
   if (tokenData.user_type == USER_TYPE_VENDOR) {
     conditionQuery += ` AND EKKO.LIFNR = ${addParam(values, tokenData.vendor_code)}`;
@@ -742,7 +758,15 @@ function poListCountByEkko(tokenData, search, values) {
     conditionQuery += ")";
   }
 
+  if (vendor_type) {
+    const searchByVendorType = `%${vendor_type}%`;
+    conditionQuery += " AND (";
+    conditionQuery += ` LFA1.vendor_type ilike ${addParam(values, searchByVendorType)}`;
+    conditionQuery += ")";
+  }
+
   baseQuery += conditionQuery;
+
   return baseQuery;
 }
 
@@ -851,7 +875,12 @@ const poListQuery = (
           pageSize,
           queryValues,
         );
-        CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+        CountQuery = poListCountByEkko(
+          tokenData,
+          searchValue,
+          vendor_type,
+          countValues,
+        );
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery = `SELECT DISTINCT(purchasing_doc_no), created_at from qap_submission WHERE 1 = 1 `;
         tempQuery += ` AND assigned_to = ${addTemp(tokenData.vendor_code)} AND is_assign = 1`;
@@ -891,7 +920,12 @@ const poListQuery = (
           pageSize,
           queryValues,
         );
-        CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+        CountQuery = poListCountByEkko(
+          tokenData,
+          searchValue,
+          vendor_type,
+          countValues,
+        );
       } else if (tokenData.internal_role_id === STAFF) {
         const vendorCode = tokenData.vendor_code;
         const searchPattern = searchValue ? `%${searchValue}%` : null;
@@ -938,7 +972,12 @@ const poListQuery = (
         pageSize,
         queryValues,
       );
-      CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+      CountQuery = poListCountByEkko(
+        tokenData,
+        searchValue,
+        vendor_type,
+        countValues,
+      );
       break;
 
     case USER_TYPE_HSL_PURCHASE:
@@ -952,7 +991,12 @@ const poListQuery = (
           pageSize,
           queryValues,
         );
-        CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+        CountQuery = poListCountByEkko(
+          tokenData,
+          searchValue,
+          vendor_type,
+          countValues,
+        );
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery += `SELECT DISTINCT(EBELN) as purchasing_doc_no, aedat as created_at from ekko AS EKKO WHERE 1 = 1 AND EKKO.ERNAM = ${addTemp(tokenData.vendor_code)} `;
 
@@ -991,7 +1035,12 @@ const poListQuery = (
           pageSize,
           queryValues,
         );
-        CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+        CountQuery = poListCountByEkko(
+          tokenData,
+          searchValue,
+          vendor_type,
+          countValues,
+        );
       } else if (tokenData.internal_role_id === STAFF) {
         const pattern = searchValue ? `%${searchValue}%` : null;
 
@@ -1037,7 +1086,12 @@ const poListQuery = (
         pageSize,
         queryValues,
       );
-      CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+      CountQuery = poListCountByEkko(
+        tokenData,
+        searchValue,
+        vendor_type,
+        countValues,
+      );
       break;
 
     case USER_TYPE_HSL_CONTRACT_CELL:
@@ -1051,7 +1105,12 @@ const poListQuery = (
           pageSize,
           queryValues,
         );
-        CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+        CountQuery = poListCountByEkko(
+          tokenData,
+          searchValue,
+          vendor_type,
+          countValues,
+        );
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery += `SELECT DISTINCT(EBELN) as purchasing_doc_no, aedat as created_at from ekko AS EKKO WHERE 1 = 1 AND EKKO.ERNAM = ${addTemp(tokenData.vendor_code)} `;
 
@@ -1089,7 +1148,12 @@ const poListQuery = (
         pageSize,
         queryValues,
       );
-      CountQuery = poListCountByEkko(tokenData, searchValue, countValues);
+      CountQuery = poListCountByEkko(
+        tokenData,
+        searchValue,
+        vendor_type,
+        countValues,
+      );
   }
 
   return { Query, CountQuery };
