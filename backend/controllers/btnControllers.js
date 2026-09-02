@@ -1953,7 +1953,6 @@ const getExtractedData = async (req, res) => {
       body: formData,
     });
 
-
     const result = await response.json();
 
     if (!result) {
@@ -2002,6 +2001,22 @@ const getExtractedData = async (req, res) => {
       /[^a-zA-Z0-9_-]/g,
       "_",
     );
+
+    // Check if any file already exists with the same invoice_no prefix
+    const files = await fs.readdir(path.dirname(oldPath));
+
+    const existingFiles = files.filter((file) => {
+      return file.startsWith(`${normalizedInvoiceNo}-`);
+    });
+
+    if (existingFiles.length > 0) {
+      // console.log(101, "file already exist need to delete before save new one");
+      await Promise.all(
+        existingFiles.map((file) =>
+          fs.unlink(path.join(path.dirname(oldPath), file)),
+        ),
+      );
+    }
 
     const uniqueId = `${Date.now()}-${Math.floor(performance.now() * 1000)}`;
     const newFileName = `${normalizedInvoiceNo}-${uniqueId}${extension}`;
