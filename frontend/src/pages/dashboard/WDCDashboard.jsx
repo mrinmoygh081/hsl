@@ -33,6 +33,7 @@ const WDCDashboard = () => {
   const [poNoSearch, setPoNoSearch] = useState("");
   const [vendorCodeSearch, setVendorCodeSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedVendorType, setSelectedVendorType] = useState("All");
 
   // Debounced versions
   const debouncedWdcNum = useDebounce(wdcNumSearch, 800);
@@ -50,6 +51,7 @@ const WDCDashboard = () => {
     if (debouncedPoNo) params.append("poNo", debouncedPoNo);
     if (debouncedVendorCode) params.append("vendor_code", debouncedVendorCode);
     if (selectedStatus && selectedStatus !== "All") params.append("status", selectedStatus);
+    if (selectedVendorType && selectedVendorType !== "All") params.append("vendor_type", selectedVendorType);
     const queryString = params.toString();
     return queryString ? `?${queryString}` : "";
   };
@@ -79,11 +81,16 @@ const WDCDashboard = () => {
 
   useEffect(() => {
     if (token) fetchWDCData(currentPage, recordsPerPage);
-  }, [token, currentPage, recordsPerPage, debouncedWdcNum, debouncedPoNo, debouncedVendorCode, selectedStatus]);
+  }, [token, currentPage, recordsPerPage, debouncedWdcNum, debouncedPoNo, debouncedVendorCode, selectedStatus, selectedVendorType]);
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [debouncedWdcNum, debouncedPoNo, debouncedVendorCode, selectedStatus, recordsPerPage]);
+  }, [debouncedWdcNum, debouncedPoNo, debouncedVendorCode, selectedStatus, selectedVendorType, recordsPerPage]);
+
+  const handleVendorTypeChange = (e) => {
+    setSelectedVendorType(e.target.value);
+    setCurrentPage(0);
+  };
 
   const handleRowClick = (poNumber, referenceNo) => {
     dispatch(poHandler({ poNumber }));
@@ -92,10 +99,17 @@ const WDCDashboard = () => {
     });
   };
 
-  const filteredData = [...wdcData].sort((a, b) => {
-    if (a.reference_no && b.reference_no) return b.reference_no.localeCompare(a.reference_no);
-    return 0;
-  });
+  const filteredData = [...wdcData]
+    .filter((file) => {
+      if (selectedVendorType !== "All") {
+        return file?.vendor_type?.toLowerCase() === selectedVendorType.toLowerCase();
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.reference_no && b.reference_no) return b.reference_no.localeCompare(a.reference_no);
+      return 0;
+    });
 
   const handleRecordsPerPageChange = (e) => {
     setRecordsPerPage(e.target.value);
@@ -183,6 +197,21 @@ const WDCDashboard = () => {
                       onChange={(e) => setVendorCodeSearch(e.target.value)}
                       placeholder="Search by Vendor Code..."
                     />
+                  </div>
+                </div>
+              </div>
+
+              {/* Vendor Type Filter */}
+              <div className="card_headline">
+                <div>
+                  <div className="search_top">
+                    <label htmlFor="vendorTypeSelect">Select Vendor Type</label>
+                  </div>
+                  <div className="input_search">
+                    <select id="vendorTypeSelect" className="form-select" value={selectedVendorType} onChange={handleVendorTypeChange}>
+                      <option value="All">All</option>
+                      <option value="msme">MSME</option>
+                    </select>
                   </div>
                 </div>
               </div>

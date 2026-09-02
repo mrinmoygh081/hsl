@@ -37,6 +37,7 @@ const BTNfinance = () => {
   const [poNoSearch, setPoNoSearch] = useState("");
   const [assignToSearch, setAssignToSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("All");
+  const [selectedVendorType, setSelectedVendorType] = useState("All");
 
   const debouncedBtnNum = useDebounce(btnNumSearch, 800);
   const debouncedPoNo = useDebounce(poNoSearch, 800);
@@ -54,6 +55,7 @@ const BTNfinance = () => {
     if (debouncedPoNo) params.append("poNo", debouncedPoNo);
     if (debouncedAssignTo) params.append("assign_to", debouncedAssignTo);
     if (selectedStatus && selectedStatus !== "All") params.append("status", selectedStatus);
+    if (selectedVendorType && selectedVendorType !== "All") params.append("vendor_type", selectedVendorType);
 
     const queryString = params.toString();
     return queryString ? `?${queryString}` : "";
@@ -84,11 +86,16 @@ const BTNfinance = () => {
 
   useEffect(() => {
     if (token) createPayment(currentPage, recordsPerPage);
-  }, [token, currentPage, recordsPerPage, debouncedBtnNum, debouncedPoNo, debouncedAssignTo, selectedStatus]);
+  }, [token, currentPage, recordsPerPage, debouncedBtnNum, debouncedPoNo, debouncedAssignTo, selectedStatus, selectedVendorType]);
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [debouncedBtnNum, debouncedPoNo, debouncedAssignTo, selectedStatus, recordsPerPage]);
+  }, [debouncedBtnNum, debouncedPoNo, debouncedAssignTo, selectedStatus, selectedVendorType, recordsPerPage]);
+
+  const handleVendorTypeChange = (e) => {
+    setSelectedVendorType(e.target.value);
+    setCurrentPage(0);
+  };
 
   // ✅ Fetch PO details aur isDO check karo
   const checkIsDO = async (poNumber) => {
@@ -272,10 +279,17 @@ const BTNfinance = () => {
     }
   };
 
-  const filteredData = paymentdata.sort((a, b) => {
-    if (a.btn_num && b.btn_num) return b.btn_num.localeCompare(a.btn_num);
-    return 0;
-  });
+  const filteredData = paymentdata
+    .filter((file) => {
+      if (selectedVendorType !== "All") {
+        return file?.vendor_type?.toLowerCase() === selectedVendorType.toLowerCase();
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      if (a.btn_num && b.btn_num) return b.btn_num.localeCompare(a.btn_num);
+      return 0;
+    });
 
   const handleRecordsPerPageChange = (e) => {
     setRecordsPerPage(e.target.value);
@@ -357,6 +371,20 @@ const BTNfinance = () => {
                   </div>
                   <div className="input_search">
                     <input type="text" className="form-control" value={assignToSearch} onChange={(e) => setAssignToSearch(e.target.value)} placeholder="Search by Assign To..." />
+                  </div>
+                </div>
+              </div>
+
+              <div className="card_headline">
+                <div>
+                  <div className="search_top">
+                    <label htmlFor="vendorTypeSelect">Select Vendor Type</label>
+                  </div>
+                  <div className="input_search">
+                    <select id="vendorTypeSelect" className="form-select" value={selectedVendorType} onChange={handleVendorTypeChange}>
+                      <option value="All">All</option>
+                      <option value="msme">MSME</option>
+                    </select>
                   </div>
                 </div>
               </div>

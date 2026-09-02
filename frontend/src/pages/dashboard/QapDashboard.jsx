@@ -27,6 +27,7 @@ const QapDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
+  const [selectedVendorType, setSelectedVendorType] = useState("All");
   const [error, setError] = useState(null);
   const [totalRecords, setTotalRecords] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -36,7 +37,8 @@ const QapDashboard = () => {
   const createPayment = async (page, pageSize) => {
     setLoading(true);
     try {
-      const pageQuery = `/qap?pageNo=${page + 1}&pageSize=${pageSize}&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}`;
+      const vendorTypeParam = selectedVendorType !== "All" ? `&vendor_type=${selectedVendorType}` : "";
+      const pageQuery = `/qap?pageNo=${page + 1}&pageSize=${pageSize}&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}${vendorTypeParam}`;
       // const pageQuery =
       //   pageSize === "All"
       //     ? `?type=qap_submission&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}`
@@ -75,11 +77,11 @@ const QapDashboard = () => {
 
   useEffect(() => {
     if (token) createPayment(currentPage, recordsPerPage);
-  }, [token, currentPage, recordsPerPage, debouncedSearchQuery, selectedStatus]);
+  }, [token, currentPage, recordsPerPage, debouncedSearchQuery, selectedStatus, selectedVendorType]);
 
   useEffect(() => {
     setCurrentPage(0);
-  }, [debouncedSearchQuery, selectedStatus]);
+  }, [debouncedSearchQuery, selectedStatus, selectedVendorType]);
 
   const handleRecordsPerPageChange = (e) => {
     setRecordsPerPage(e.target.value);
@@ -88,6 +90,11 @@ const QapDashboard = () => {
 
   const handlePageClick = (event) => {
     setCurrentPage(event.selected);
+  };
+
+  const handleVendorTypeChange = (e) => {
+    setSelectedVendorType(e.target.value);
+    setCurrentPage(0);
   };
 
   const handleRowClick = (poNumber) => {
@@ -99,7 +106,12 @@ const QapDashboard = () => {
     navigate(`/qap/${poNumber}`);
   };
 
-  const filteredData = paymentdata;
+  const filteredData = paymentdata.filter((file) => {
+    if (selectedVendorType !== "All") {
+      return file?.vendor_type?.toLowerCase() === selectedVendorType.toLowerCase();
+    }
+    return true;
+  });
 
   const generateExcel = () => {
     const data = [
@@ -161,6 +173,19 @@ const QapDashboard = () => {
                   <button onClick={generateExcel} className="btn fw-bold btn-primary">
                     Download QA
                   </button>
+                </div>
+              </div>
+              <div className="card_headline">
+                <div>
+                  <div className="search_top">
+                    <label htmlFor="vendorTypeSelect">Select Vendor Type</label>
+                  </div>
+                  <div className="input_search">
+                    <select id="vendorTypeSelect" className="form-select" value={selectedVendorType} onChange={handleVendorTypeChange}>
+                      <option value="All">All</option>
+                      <option value="msme">MSME</option>
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="card_headline">
