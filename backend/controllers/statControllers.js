@@ -429,7 +429,7 @@ exports.statsForBTN = async (req, res) => {
         ON LIST.purchasing_doc_no = ekko.ebeln
 
       LEFT JOIN lfa1 AS vendor_details 
-        ON ekko.lifnr = vendor_details.lifnr
+        ON LIST.vendor_code = vendor_details.lifnr
     `;
 
     // WHERE clause
@@ -466,6 +466,18 @@ exports.statsForBTN = async (req, res) => {
       val.push(`%${queryParams.assign_to}%`);
     }
 
+    if (queryParams.vendor_type) {
+      whereClause += ` AND EXISTS (
+        SELECT 1
+        FROM lfa1 vendor_details
+        WHERE vendor_details.lifnr = LIST.vendor_code
+        AND vendor_details.vendor_type ilike $${++count}
+      )`;
+
+      val.push(`%${queryParams.vendor_type}%`);
+    }
+
+  
     // ORDER BY (required for DISTINCT ON)
     // const orderBy = ` ORDER BY LIST.btn_num DESC `;
     const orderBy = ` ORDER BY LIST.btn_num DESC, LIST.created_at DESC `;
