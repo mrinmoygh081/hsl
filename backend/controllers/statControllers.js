@@ -585,6 +585,19 @@ exports.statsForWDC = async (req, res) => {
         });
       }
 
+      if (queryParams.vendor_type) {
+        filters.push({
+          group: [
+            {
+              column: "vendor_type",
+              operator: "ILIKE",
+              value: queryParams.vendor_type,
+              condition: "AND",
+            },
+          ],
+        });
+      }
+
       filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
 
@@ -947,7 +960,6 @@ exports.statsForDrawing = async (req, res) => {
       //--------------------------------------------------
       // Search Filter
       //--------------------------------------------------
-
       if (queryParams.search) {
         filters.push({
           group: [
@@ -980,6 +992,19 @@ exports.statsForDrawing = async (req, res) => {
               operator: "ILIKE",
               value: queryParams.search,
               condition: "OR",
+            },
+          ],
+        });
+      }
+
+      if (queryParams.vendor_type) {
+        filters.push({
+          group: [
+            {
+              column: "vendor_type",
+              operator: "ILIKE",
+              value: queryParams.vendor_type,
+              condition: "AND",
             },
           ],
         });
