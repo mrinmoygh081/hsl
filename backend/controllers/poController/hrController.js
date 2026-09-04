@@ -265,8 +265,10 @@ const updoadExcelFileController = async (req, res) => {
 
 const complianceDetails = async (req, res) => {
   let client;
+  // console.log(req);
+  
+  
   try {
-
     const tokenData = req.tokenData;
     const { type, docNo } = req.query;
 
@@ -277,20 +279,28 @@ const complianceDetails = async (req, res) => {
     // await datasync(client)
 
     switch (type) {
-      case "rc": {
-        result = await complianceListFromRc(client, tokenData, { docNo });
-      }
+      case "rc":
+        {
+          result = await complianceListFromRc(client, tokenData, { docNo });
+        }
         break;
-      case "po": {
-        result = await complianceListFromPo(client, tokenData, { docNo });
-      }
+      case "po":
+        {
+          result = await complianceListFromPo(client, tokenData, { docNo });
+        }
         break;
 
-      case "view": {
-        const { complianceData, totalCount } = await complianceView(client, tokenData, req.query);
-        result = complianceData;
-        count = totalCount;
-      }
+      case "view":
+        {
+          
+          const { complianceData, totalCount } = await complianceView(
+            client,
+            tokenData,
+            req.query,
+          );
+          result = complianceData;
+          count = totalCount;
+        }
         break;
 
       default:
@@ -298,14 +308,22 @@ const complianceDetails = async (req, res) => {
         break;
     }
 
-    resSend(res, true, 200, "HR Compliance Uploaded List fetched", result, "",count );
+    resSend(
+      res,
+      true,
+      200,
+      "HR Compliance Uploaded List fetched",
+      result,
+      "",
+      count,
+    );
   } catch (error) {
-    console.error("error", error)
+    console.error("error", error);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
   } finally {
     if (client) client.release();
   }
-};
+};;
 
 
 const submitHrComplients = async (req, res) => {

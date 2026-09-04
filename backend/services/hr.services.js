@@ -337,7 +337,7 @@ LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
     }
     if (data?.vendor_type) {
       values.push(data?.vendor_type);
-      conditionQuery += ` AND vendor_master.vendor_type = $${++count} `;
+      conditionQuery += ` AND vendor_master.vendor_type ilike $${++count} `;
     }
     if (data?.poNo) {
       values.push(`%${data?.poNo}%`);
@@ -371,6 +371,7 @@ LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
     const finalCountQuery = countQuery + conditionQuery + groupBy;
 
     let result = await poolQuery({ client, query: finalDataQuery, values });
+
     let countResult = await poolQuery({
       client,
       query: finalCountQuery,
@@ -378,7 +379,7 @@ LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
     });
 
     result = hrComplinceViewSimplyfy(result);
-    return { complianceData: result, totalCount: null };
+    return { complianceData: result, totalCount: result.length };
   } catch (error) {
     throw error;
   }
