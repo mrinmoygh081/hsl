@@ -233,9 +233,11 @@ function Layout() {
           <Route path="/support" element={<SupportTeam />} />
           {/* <Route path="/contract-cell" element={<Contractcell />} /> */}
           <Route path="/contract-cell" element={<HrContractvendor />} />
-          {(user?.department_id === DEPT_QAP || user?.department_id === DEPT_IT || user?.vendor_code === "600233" || user?.vendor_code === "601824") && (
-            <Route path="/dashboard/qa" element={<QapDashboard />} />
-          )}
+          {(user?.department_id === DEPT_QAP ||
+            user?.department_id === DEPT_DESIGN ||
+            user?.department_id === DEPT_IT ||
+            user?.vendor_code === "600233" ||
+            user?.vendor_code === "601824") && <Route path="/dashboard/qa" element={<QapDashboard />} />}
           {(user?.department_id === DEPT_DESIGN || user?.department_id === DEPT_IT || user?.vendor_code === "600233" || user?.vendor_code === "601824") && (
             <Route path="/dashboard/drawing" element={<QapDrawing />} />
           )}

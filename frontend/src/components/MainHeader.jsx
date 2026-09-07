@@ -205,7 +205,12 @@ const MainHeader = ({ title }) => {
   );
 
   const showQAP =
-    user?.department_id === DEPT_IT || user?.department_id === DEPT_QAP || user?.vendor_code === "601824" || user?.vendor_code === "600233" || user?.vendor_code === "601824";
+    user?.department_id === DEPT_IT ||
+    user?.department_id === DEPT_QAP ||
+    user?.department_id === DEPT_DESIGN ||
+    user?.vendor_code === "601824" ||
+    user?.vendor_code === "600233" ||
+    user?.vendor_code === "601824";
   const showBGBTN =
     user?.department_id === DEPT_IT || user?.department_id === DEPT_FI || user?.vendor_code === "601824" || user?.vendor_code === "600233" || user?.vendor_code === "601824";
   const showDrawing =
