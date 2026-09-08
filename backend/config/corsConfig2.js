@@ -18,7 +18,7 @@ function getEnvCorsConfig() {
       origins: [
         "http://localhost:3000",
         "http://172.16.5.182:3000",
-        "http://43.204.173.109:3001/",
+        "http://43.204.173.109:3001",
       ],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
@@ -31,6 +31,7 @@ function getEnvCorsConfig() {
         "http://localhost:3000",
         "http://10.181.1.31:8010",
         "http://172.16.5.182:3000",
+        "http://43.204.173.109:3001",
       ],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
@@ -45,6 +46,7 @@ function getEnvCorsConfig() {
         "https://stageobps.grse.in", // STAGE OBPS Host
         "http://localhost:3000", // LOCAL HOST
         "http://172.16.5.182:3000",
+        "http://43.204.173.109:3001",
       ],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST"],
