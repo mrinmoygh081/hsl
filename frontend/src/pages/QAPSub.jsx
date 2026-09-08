@@ -14,6 +14,7 @@ import { formatDate, formatFilePath } from "../utils/getDateTimeNow";
 import { uploadFileStream } from "../utils/uploadFile";
 import HrSearchableSelect from "../components/HrSearchableSelect";
 import FileUploadInfoIcon from "../Helpers/FileUploadInfoIcon";
+import { DEPT_DESIGN, DEPT_QAP, USER_VENDOR, ASSIGNER } from "../constants/userConstants";
 
 const QAPSub = () => {
   const qapFileRef = useRef(null);
@@ -21,20 +22,27 @@ const QAPSub = () => {
   const { id } = useParams();
   const { user, token, userType } = useSelector((state) => state.auth);
 
+  const isQapDeptOrDesign = user?.department_id === DEPT_QAP || user?.department_id === DEPT_DESIGN;
+  const isQapHandler = userType === USER_VENDOR || isQapDeptOrDesign;
+  const isQapAssigner = userType !== USER_VENDOR && isQapDeptOrDesign && user?.internal_role_id === ASSIGNER;
+
   const [isPopup, setIsPopup] = useState(false);
   const [isPopupAssign, setIsPopupAssign] = useState(false);
   const [allQap, setAllQap] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isQapUploading, setIsQapUploading] = useState(false);
   const [isSupportingUploading, setIsSupportingUploading] = useState(false);
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     reference_no: null,
     action_type: "",
     QapFile: null, // { file_name, file_path }
     remarks: "",
     supporting_doc: [], // [ { file_name, file_path }, ... ]
-  });
+    assign_to: "",
+  };
+  const [formData, setFormData] = useState(initialFormData);
   const [pendingSupportingFiles, setPendingSupportingFiles] = useState([]);
+  const [empOption, setEmpOption] = useState([]);
   const [assignData, setAssignData] = useState({
     purchasing_doc_no: id,
     assigned_from: user?.vendor_code || "",
@@ -47,11 +55,28 @@ const QAPSub = () => {
   });
   const [selectedDept, setSelectedDept] = useState(null);
 
+  const getEmpList = async () => {
+    try {
+      const res = await apiCallBack("GET", "po/drawing/assigneeList", null, token);
+      if (res?.status) {
+        let options =
+          res?.data &&
+          res.data.map((item) => ({
+            value: item.emp_id,
+            label: `${item.cname} (${item.emp_id})`,
+          }));
+        setEmpOption(options || []);
+      }
+    } catch (error) {
+      console.error("Error fetching drawing assignee list:", error);
+    }
+  };
+
   const groupedData = useMemo(() => {
     return allQap.length > 0 ? groupedByRefNo(allQap) : {};
   }, [allQap]);
 
-  const tableColumns = userType === 1 || user?.department_id === 3 ? 8 : 7;
+  const tableColumns = isQapHandler ? 8 : 7;
 
   const fetchDepartments = async () => {
     try {
@@ -107,7 +132,7 @@ const QAPSub = () => {
     try {
       const res = await apiCallBack("GET", `po/getQapSave?reference_no=${formData.reference_no}`, null, token);
       if (res?.status && res.data?.length > 0) {
-        const { remarks, action_type, QapFile, supporting_doc } = res.data[0];
+        const { remarks, action_type, QapFile, supporting_doc, assign_to, assigned_to } = res.data[0];
         let parsedQapFile = null;
         if (QapFile) {
           const parsed = JSON.parse(QapFile);
@@ -120,6 +145,7 @@ const QAPSub = () => {
           ...prev,
           remarks: remarks || "",
           action_type: action_type || "",
+          assign_to: assign_to || assigned_to || prev.assign_to || "",
           QapFile: parsedQapFile,
           supporting_doc: supporting_doc
             ? JSON.parse(supporting_doc).map((doc) => ({
@@ -130,21 +156,15 @@ const QAPSub = () => {
         }));
       } else {
         setFormData((prev) => ({
-          ...prev,
-          remarks: "",
-          action_type: "",
-          QapFile: null,
-          supporting_doc: [],
+          ...initialFormData,
+          reference_no: prev.reference_no,
         }));
       }
     } catch (error) {
       toast.error("Error fetching saved QAP data");
       setFormData((prev) => ({
-        ...prev,
-        remarks: "",
-        action_type: "",
-        QapFile: null,
-        supporting_doc: [],
+        ...initialFormData,
+        reference_no: prev.reference_no,
       }));
     }
   };
@@ -270,10 +290,15 @@ const QAPSub = () => {
   };
 
   const updateQAP = async (status) => {
-    const { action_type, QapFile, remarks, supporting_doc, reference_no } = formData;
+    const { action_type, QapFile, remarks, supporting_doc, reference_no, assign_to } = formData;
 
     if (!action_type.trim() || !remarks.trim()) {
       toast.warn("Action type and remarks are mandatory!");
+      return;
+    }
+
+    if (userType === USER_VENDOR && !reference_no && !assign_to) {
+      toast.warn("Please select an Assign Officer!");
       return;
     }
 
@@ -297,19 +322,15 @@ const QAPSub = () => {
         action_by_id: user?.email || "",
         action_type,
         supporting_doc,
+        assign_to: assign_to || null,
+        assigned_to: assign_to || null,
       };
 
       const res = await apiCallBack("POST", "po/qap", payload, token);
       if (res?.status) {
         toast.success("QAP uploaded successfully!");
         setIsPopup(false);
-        setFormData({
-          reference_no: null,
-          action_type: "",
-          QapFile: null,
-          remarks: "",
-          supporting_doc: [],
-        });
+        setFormData(initialFormData);
         setPendingSupportingFiles([]);
         qapFileRef.current && (qapFileRef.current.value = null);
         supportingDocRef.current && (supportingDocRef.current.value = null);
@@ -323,7 +344,7 @@ const QAPSub = () => {
   };
 
   const saveQAP = async () => {
-    const { remarks, action_type, QapFile, supporting_doc, reference_no } = formData;
+    const { remarks, action_type, QapFile, supporting_doc, reference_no, assign_to } = formData;
 
     if (!id) {
       toast.error("PO Number is required!");
@@ -345,6 +366,10 @@ const QAPSub = () => {
       payload.append("remarks", remarks);
       payload.append("reference_no", reference_no || "");
       payload.append("action_type", action_type);
+      if (assign_to) {
+        payload.append("assign_to", assign_to);
+        payload.append("assigned_to", assign_to);
+      }
       if (QapFile) {
         payload.append(
           "file",
@@ -359,13 +384,7 @@ const QAPSub = () => {
       const res = await apiCallBack("POST", "po/insertQapSave", payload, token);
       if (res?.status) {
         toast.success("QAP saved successfully!");
-        setFormData({
-          reference_no: null,
-          action_type: "",
-          QapFile: null,
-          remarks: "",
-          supporting_doc: [],
-        });
+        setFormData(initialFormData);
         setPendingSupportingFiles([]);
         qapFileRef.current && (qapFileRef.current.value = null);
         supportingDocRef.current && (supportingDocRef.current.value = null);
@@ -418,13 +437,7 @@ const QAPSub = () => {
 
   const closePopup = () => {
     setIsPopup(false);
-    setFormData({
-      reference_no: null,
-      action_type: "",
-      QapFile: null,
-      remarks: "",
-      supporting_doc: [],
-    });
+    setFormData(initialFormData);
     setPendingSupportingFiles([]);
     qapFileRef.current && (qapFileRef.current.value = null);
     supportingDocRef.current && (supportingDocRef.current.value = null);
@@ -433,6 +446,10 @@ const QAPSub = () => {
   useEffect(() => {
     fetchDepartments();
   }, []);
+
+  useEffect(() => {
+    getEmpList();
+  }, [token]);
 
   useEffect(() => {
     if (selectedDept) fetchEmployees(selectedDept);
@@ -458,7 +475,7 @@ const QAPSub = () => {
                 <div className="row g-5 g-xl-8">
                   <div className="col-12">
                     <div className="screen_header d-flex align-items-center">
-                      {userType !== 1 && user?.department_id === 3 && user?.internal_role_id === 1 && (
+                      {isQapAssigner && (
                         <>
                           <p className="m-0 p-2">
                             {allQap.length > 0 ? (!allQap[allQap.length - 1]?.assigned_to ? "(Not Assigned)" : `Assigned to ${allQap[allQap.length - 1]?.assigned_to}`) : ""}
@@ -470,7 +487,10 @@ const QAPSub = () => {
                         <DynamicButton
                           label="ACTION"
                           onClick={() => {
-                            setFormData((prev) => ({ ...prev, reference_no: null }));
+                            setFormData({
+                              ...initialFormData,
+                              reference_no: null,
+                            });
                             setIsPopup(true);
                           }}
                           className="btn btn-sm fw-bold btn-primary"
@@ -494,7 +514,7 @@ const QAPSub = () => {
                                   Remarks
                                 </th>
                                 <th scope="col">Status</th>
-                                {(userType === 1 || user?.department_id === 3) && (
+                                {isQapHandler && (
                                   <th scope="col" className="min-w-150px">
                                     Action
                                   </th>
@@ -518,13 +538,18 @@ const QAPSub = () => {
                                         <td colSpan={7}>
                                           <b>{refNo}</b>
                                         </td>
-                                        {(userType === 1 || user?.department_id === 3) && !allAssigned && (
+                                        {isQapHandler && !allAssigned && (
                                           <td>
                                             <DynamicButton
                                               label="ACTION"
                                               onClick={() => {
+                                                const lastAssignedItem = items.slice().reverse().find((item) => item.assigned_to);
                                                 setIsPopup(true);
-                                                setFormData((prev) => ({ ...prev, reference_no: refNo }));
+                                                setFormData((prev) => ({
+                                                  ...prev,
+                                                  reference_no: refNo,
+                                                  assign_to: lastAssignedItem?.assigned_to || "",
+                                                }));
                                               }}
                                               className="btn btn-sm fw-bold btn-primary"
                                             />
@@ -583,7 +608,7 @@ const QAPSub = () => {
         </div>
       </div>
 
-      {(userType === 1 || user?.department_id === 3) && (
+      {isQapHandler && (
         <div className={isPopup ? "popup active" : "popup"} aria-hidden={!isPopup}>
           <div className="card card-xxl-stretch mb-5 mb-xl-8">
             <div className="card-header border-0 pt-5">
@@ -696,6 +721,23 @@ const QAPSub = () => {
                     )}
                   </div>
                   <div className="mb-3">
+                    <label className="form-label">Assign Officer</label>
+                    &nbsp;&nbsp;
+                    {!formData?.reference_no && <span className="text-danger">*</span>}
+                    <HrSearchableSelect
+                      options={empOption}
+                      value={formData?.assign_to}
+                      onChange={(val) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          assign_to: val?.value || "",
+                        }))
+                      }
+                      placeholder="Select officer"
+                      isClearable={true}
+                    />
+                  </div>
+                  <div className="mb-3">
                     <label htmlFor="remarks" className="form-label">
                       Remarks <span className="text-danger">*</span>
                     </label>
@@ -742,7 +784,7 @@ const QAPSub = () => {
         </div>
       )}
 
-      {userType !== 1 && user?.department_id === 3 && user?.internal_role_id === 1 && (
+      {isQapAssigner && (
         <div className={isPopupAssign ? "popup active" : "popup"} aria-hidden={!isPopupAssign}>
           <div className="card card-xxl-stretch mb-5 mb-xl-8">
             <div className="card-header border-0 pt-5">
