@@ -15,7 +15,11 @@ function getEnvCorsConfig() {
 
   const config = {
     dev: {
-      origins: ["http://localhost:3000", "http://172.16.5.182:3000"],
+      origins: [
+        "http://localhost:3000",
+        "http://172.16.5.182:3000",
+        "http://43.204.173.109:3001/",
+      ],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     },
