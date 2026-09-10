@@ -2,10 +2,33 @@ const { qapPayload, setActualSubmissionDate, create_reference_no } = require("..
 const { resSend } = require("../../lib/resSend");
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
-const { INSERT, USER_TYPE_HSL_QAP, QAP_STAFF, USER_TYPE_VENDOR, ASSIGNER, A_QAP_DATE, MID_QAP } = require("../../lib/constant");
+const {
+  INSERT,
+  USER_TYPE_HSL_QAP,
+  QAP_STAFF,
+  USER_TYPE_VENDOR,
+  ASSIGNER,
+  A_QAP_DATE,
+  MID_QAP,
+  USER_TYPE_HSL_DRAWING,
+} = require("../../lib/constant");
 const { QAP_SUBMISSION, QAP_SAVE } = require("../../lib/tableName");
-const { APPROVED, RE_SUBMITTED, ACCEPTED, REJECTED, SAVED, ASSIGNED, UPDATED, SUBMITTED } = require("../../lib/status");
-const { QAP_UPLOAD_BY_VENDOR, QAP_ASSIGNMENT, QAP_APPROVE_REJECT, QAP_ACCEPT_UPDATE } = require("../../lib/event");
+const {
+  APPROVED,
+  RE_SUBMITTED,
+  ACCEPTED,
+  REJECTED,
+  SAVED,
+  ASSIGNED,
+  UPDATED,
+  SUBMITTED,
+} = require("../../lib/status");
+const {
+  QAP_UPLOAD_BY_VENDOR,
+  QAP_ASSIGNMENT,
+  QAP_APPROVE_REJECT,
+  QAP_ACCEPT_UPDATE,
+} = require("../../lib/event");
 // const { mailTrigger } = require("../sendMailController");
 // const { deptLogEntry } = require("../../log/deptActivities");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
@@ -15,6 +38,7 @@ const Messages = require("../../utils/messages");
 // add new post
 const submitQAP = async (req, res) => {
   let client;
+
   try {
     client = await poolClient();
     const tokenData = { ...req.tokenData };
@@ -25,8 +49,20 @@ const submitQAP = async (req, res) => {
     let fileName = payload.file?.fileName || "";
     let filePath = payload.file?.filePath || "";
 
-    if (tokenData.user_type == USER_TYPE_VENDOR && payload.status === SUBMITTED && (!filePath || !fileName)) {
-      return resSend(res, false, 200, Messages.FILE_REQUIRED_MSG, Messages.MANDATORY_INPUTS_REQUIRED, null);
+    if (
+      tokenData.user_type == USER_TYPE_VENDOR &&
+      payload.status === SUBMITTED &&
+      !payload.assign_to &&
+      (!filePath || !fileName)
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        Messages.FILE_REQUIRED_MSG,
+        Messages.MANDATORY_INPUTS_REQUIRED,
+        null,
+      );
     }
 
     let supporting_doc;
@@ -38,7 +74,9 @@ const submitQAP = async (req, res) => {
     //     return value;
     //   });
     // }
-    supporting_doc = payload.supporting_doc ? JSON.stringify(payload.supporting_doc) : "";
+    supporting_doc = payload.supporting_doc
+      ? JSON.stringify(payload.supporting_doc)
+      : "";
     payload = {
       ...payload,
       fileName,
@@ -46,13 +84,26 @@ const submitQAP = async (req, res) => {
       supporting_doc: supporting_doc,
     };
 
-    payload.updated_by = tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
+    payload.updated_by =
+      tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
     payload.action_by_id = tokenData.vendor_code;
     const activity_type = payload.status;
     const purchasing_doc_no = payload.purchasing_doc_no;
-    const verifyStatusForStaff = new Set([REJECTED, ACCEPTED, SAVED, APPROVED, UPDATED]);
+    const verifyStatusForStaff = new Set([
+      REJECTED,
+      ACCEPTED,
+      SAVED,
+      APPROVED,
+      UPDATED,
+    ]);
 
-    if (!payload.purchasing_doc_no || !payload.remarks || payload.remarks.trim() === "" || !payload.status || payload.status.trim() === "") {
+    if (
+      !payload.purchasing_doc_no ||
+      !payload.remarks ||
+      payload.remarks.trim() === "" ||
+      !payload.status ||
+      payload.status.trim() === ""
+    ) {
       return resSend(res, false, 200, "Remarks is mandotory!", null, null);
     }
 
@@ -60,18 +111,43 @@ const submitQAP = async (req, res) => {
 
     // Check if already accepted/rejected/approved and if HSL
 
-    if (tokenData?.user_type !== USER_TYPE_VENDOR && payload.status !== "ASSIGNED") {
+    if (
+      tokenData?.user_type !== USER_TYPE_VENDOR &&
+      payload.status !== "ASSIGNED"
+    ) {
       if (!payload.reference_no || payload.reference_no == "") {
-        return resSend(res, false, 200, "reference_no is mandotory!", null, null);
+        return resSend(
+          res,
+          false,
+          200,
+          "reference_no is mandotory!",
+          null,
+          null,
+        );
       }
-      let count_val = await checkIsApprovedOrRejected(client, purchasing_doc_no, payload.reference_no, APPROVED, REJECTED);
+      let count_val = await checkIsApprovedOrRejected(
+        client,
+        purchasing_doc_no,
+        payload.reference_no,
+        APPROVED,
+        REJECTED,
+      );
       if (count_val > 0) {
-        return resSend(res, false, 200, `You can't take any action against this reference no.`, null, null);
+        return resSend(
+          res,
+          false,
+          200,
+          `You can't take any action against this reference no.`,
+          null,
+          null,
+        );
       }
     }
-
     ///////// CHECK DEPERTMENT /////////////////
-    if (tokenData.department_id && tokenData.department_id === USER_TYPE_HSL_QAP) {
+    if (
+      tokenData.department_id &&
+      tokenData.department_id === USER_TYPE_HSL_DRAWING
+    ) {
       ///////// CHECK ROLE IS ASSIGNER /////////////////
       if (activity_type === ASSIGNED) {
         if (tokenData.internal_role_id === ASSIGNER) {
@@ -100,7 +176,6 @@ const submitQAP = async (req, res) => {
         }
       }
       ///////// CHECK ROLE IS ASSIGNER /////////////////
-
       ///////// CHECK ROLE IS STAFF /////////////////
       if (verifyStatusForStaff.has(activity_type)) {
         if (tokenData.internal_role_id === QAP_STAFF) {
@@ -117,16 +192,31 @@ const submitQAP = async (req, res) => {
         }
       }
     }
-
     if (tokenData.user_type === USER_TYPE_VENDOR) {
       if (payload.reference_no || payload.reference_no != "") {
-        let count_val = await checkIsApprovedOrRejected(client, purchasing_doc_no, payload.reference_no, APPROVED, REJECTED);
+        let count_val = await checkIsApprovedOrRejected(
+          client,
+          purchasing_doc_no,
+          payload.reference_no,
+          APPROVED,
+          REJECTED,
+        );
         if (count_val > 0) {
-          return resSend(res, false, 200, `You can't take any action against this reference no.`, null, null);
+          return resSend(
+            res,
+            false,
+            200,
+            `You can't take any action against this reference no.`,
+            null,
+            null,
+          );
         }
       }
 
-      const reference_no = payload.reference_no && payload.reference_no != "" ? payload.reference_no : await create_reference_no("QAP", tokenData.vendor_code);
+      const reference_no =
+        payload.reference_no && payload.reference_no != ""
+          ? payload.reference_no
+          : await create_reference_no("QAP", tokenData.vendor_code);
 
       payload = { ...payload, reference_no };
     }
@@ -164,14 +254,24 @@ const submitQAP = async (req, res) => {
         console.log("other1");
     }
     //////// SET STATUS AND CREATE QAP PAYLOAD /////////
-    if (tokenData.user_type === USER_TYPE_VENDOR && activity_type != SUBMITTED && activity_type != RE_SUBMITTED) {
-      return resSend(res, false, 200, `Vendor can only send status for ${SUBMITTED}/${RE_SUBMITTED}`, null, null);
+    if (
+      tokenData.user_type === USER_TYPE_VENDOR &&
+      activity_type != SUBMITTED &&
+      activity_type != RE_SUBMITTED
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        `Vendor can only send status for ${SUBMITTED}/${RE_SUBMITTED}`,
+        null,
+        null,
+      );
     }
 
     const { q, val } = generateQuery(INSERT, QAP_SUBMISSION, insertObj);
 
     const response = await poolQuery({ client, query: q, values: val });
-
     await checkActualSub(payload.purchasing_doc_no, client);
     //if (checkAS) {
     if (insertObj.status === APPROVED) {
