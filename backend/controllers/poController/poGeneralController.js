@@ -596,8 +596,6 @@ const poList = async (req, res) => {
       values: countValues,
     });
 
-    console.log(poCountData);
-
     const poCount = parseInt(poCountData[0]?.total_count || 0);
     const modifiedPOData = poDataModify2(poDetails);
 

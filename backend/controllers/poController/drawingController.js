@@ -388,6 +388,7 @@ const updateDrawingFn = async (req, res) => {
 
     const updatedPayload = {
       ...lastDrawingData[0],
+      remarks: payload.remarks,
       last_assigned: 1,
       updated_by: `HSL`,
       created_by_id: tokenData.vendor_code,
