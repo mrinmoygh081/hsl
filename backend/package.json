@@ -8,7 +8,7 @@
     "lint:fix": "eslint . --fix",
     "debug": "nodemon --env-file=./dev.env server.js",
     "start": "node --env-file=.env server.js",
-    "dev": "nodemon --env-file=./dev.env server.js",
+    "dev": "nodemon server.js",
     "qa": "nodemon --env-file=./qa.env server.js"
   },
   "keywords": [],
@@ -30,6 +30,7 @@
     "cors": "^2.8.5",
     "crypto-js": "^4.2.0",
     "csv-parser": "^3.2.0",
+    "dotenv": "^17.4.2",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "express-basic-auth": "^1.2.1",

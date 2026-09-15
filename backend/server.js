@@ -1,7 +1,10 @@
 /* eslint-disable no-undef */
+const path = require("path");
+require("dotenv").config({
+  path: path.join(__dirname, "dev.env"),
+});
 
 const express = require("express");
-const path = require("path");
 const cors = require("cors");
 const helmet = require("helmet");
 const session = require("express-session");
@@ -11,8 +14,14 @@ const app = express();
 /* -------------------------------------------------------------
 ENV & APP BASICS
 -------------------------------------------------------------- */
-const PORT = process.env.PORT || 4001;
+const PORT = process.env.PORT || 4011;
+// console.log(`port:${PORT}`);
+
 const isProd = process.env.NODE_ENV === "production";
+
+// console.log("PORT:", process.env.PORT);
+// console.log("SERVER_ENV:", process.env.SERVER_ENV);
+// console.log("NODE_ENV:", process.env.NODE_ENV);
 
 app.set("env", process.env.NODE_ENV);
 // app.set("trust proxy", 2);
