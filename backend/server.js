@@ -1,8 +1,20 @@
 /* eslint-disable no-undef */
 const path = require("path");
-require("dotenv").config({
-  path: path.join(__dirname, "dev.env"),
+const dotenv = require("dotenv");
+
+const envFile = process.env.NODE_ENV === "production" ? ".env" : "dev.env";
+
+const envPath = path.join(__dirname, envFile);
+
+const dotenvResult = dotenv.config({
+  path: envPath,
 });
+
+console.log("ENV FILE:", envPath);
+console.log("DOTENV ERROR:", dotenvResult.error || "None");
+console.log("PORT:", process.env.PORT);
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("SERVER_ENV:", process.env.SERVER_ENV);
 
 const express = require("express");
 const cors = require("cors");
