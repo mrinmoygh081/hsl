@@ -2,7 +2,6 @@ const { poolQuery } = require("../config/pgDbConfig");
 const { SDBG_PAYMENT_ADVICE, SDBG_ENTRY, EKKO } = require("../lib/tableName");
 const QueryBuilder = require("../utils/QueryBuilder");
 
-
 // eslint-disable-next-line no-unused-vars
 async function getDasboardBgExtensionList(client, params, tokenData,) {
 
@@ -24,8 +23,6 @@ async function getDasboardBgExtensionList(client, params, tokenData,) {
     );
     qb.joinTable("LEFT", `${SDBG_ENTRY} AS sdbg_entry`, "zfi_bgm_1.file_no = sdbg_entry.bg_file_no  AND zfi_bgm_1.po_number = sdbg_entry.purchasing_doc_no");
     qb.joinTable("LEFT", `${EKKO} AS ekko`, "ekko.ebeln = zfi_bgm_1.po_number");
-    // qb.joinTable("LEFT", `${SDBG_EXTENSION} AS sdbg_extension`, "zfi_bgm_1.file_no = sdbg_extension.file_no AND zfi_bgm_1.po_number = sdbg_extension.purchasing_doc_no");
-
 
     qb.where("ekko.ernam", "=", tokenData.vendor_code);
 
@@ -47,10 +44,8 @@ async function getDasboardBgExtensionList(client, params, tokenData,) {
 
     qb.paginate(pageNo, pageSize);
     qb.orderBy("zfi_bgm_1.validity_date", "ASC");
-    // qb.countAllWithPagination();
     const buildedQuery = qb.countAllWithPagination();
 
-  
     const result = await poolQuery({ client, query: buildedQuery.dataQuery.sql, values: buildedQuery.dataQuery.params })
     const count = await poolQuery({ client, query: buildedQuery.countQuery.sql, values: buildedQuery.countQuery.params })
 

@@ -9,7 +9,6 @@ const {
 } = require("../../services/sap.payment.services");
 const { INSERT } = require("../../lib/constant");
 const { getEpochTime, generateQuery, generateInsertUpdateQuery, generateQueryForMultipleData } = require("../../lib/utils");
-// const { query } = require("../../config/dbConfig");
 
 const path = require("path");
 const fs = require("fs");
@@ -34,8 +33,6 @@ const addPaymentVoucher = async (req, res) => {
 
       const payload = { ...req.body, ...fileData, created_at: getEpochTime() };
       if (!payload.purchasing_doc_no || !payload.action_by_id || !payload.vendor_code) {
-        // const directory = path.join(__dirname, '..', 'uploads', 'drawing');
-        // const isDel = handleFileDeletion(directory, req.file.filename);
         return resSend(res, false, 400, Message.VALID_PARAMETER, null, null);
       }
 
@@ -67,8 +64,6 @@ const addPaymentAdvise = async (req, res) => {
 
       const payload = { ...req.body, ...fileData, created_at: getEpochTime() };
       if (!payload.purchasing_doc_no || !payload.action_by_id || !payload.vendor_code) {
-        // const directory = path.join(__dirname, '..', 'uploads', 'drawing');
-        // const isDel = handleFileDeletion(directory, req.file.filename);
         return resSend(res, false, 400, "Please send valid payload", null, null);
       }
 
@@ -88,11 +83,6 @@ const addPaymentAdvise = async (req, res) => {
   }
   // payment payload
 
-  // "purchasing_doc_no": "4700013229",
-  // "file": "sample.pdf",
-  // "vendor_code": "50000437",
-  // "action_by_name": "S Roy",
-  // "action_by_id": "600224",
 };
 
 const ztfi_bil_deface = async (req, res) => {
@@ -194,45 +184,6 @@ async function handleEmail(data) {
   }
 }
 
-// const zbts_st = async (req, res) => {
-
-//     try {
-//         if (!req.body || typeof req.body != 'object' || !Object.keys(req.body)?.length) {
-//             return responseSend(res, "F", 400, "Please send a valid payload.", null, null);
-//         }
-
-//         const payload = req.body;
-//         if (!payload) {
-//             return responseSend(res, "F", 400, "Invalid payload.", null, null);
-//         }
-
-//         const { ZBTSM, ...obj } = payload;
-
-//         const payloadObj = await zbtsHeaderPayload(obj);
-//         const btnPaymentHeaderQuery = await generateInsertUpdateQuery(payloadObj, "zbts_st", "id");
-//         const response1 = await query({ query: btnPaymentHeaderQuery, values: [] });
-//         let response2;
-//         if (ZBTSM) {
-
-//             const lineItemPayloadObj = await zbtsLineItemsPayload(ZBTSM);
-//             const btnPaymentLineItemQuery = await generateInsertUpdateQuery(lineItemPayloadObj, "zbtsm_st", "id");
-//             response2 = await query({ query: btnPaymentLineItemQuery, values: [] });
-//         }
-
-
-//         if (response1.rowCount && response2.rowCount) {
-//             responseSend(res, "S", 200, "Data inserted successfully", { response1, response2 }, null);
-
-//         } else {
-//             // resSend(res, false, 400, "No data inserted", response, null);
-//             responseSend(res, "F", 400, "Data inserted failed", { response1, response2 }, null);
-
-//         }
-//         // responseSend(res, "S", 200, "Data inserted successfully", response, null);
-//     } catch (err) {
-//         responseSend(res, "0", 500, "Internal server errorR", err, null);
-//     }
-// }
 const ztfi_bil_deface_report = async (req, res) => {
   try {
     const payload = req.body;
@@ -301,7 +252,6 @@ const ztfi_bil_deface_report = async (req, res) => {
       responseSend(res, "F", 500, Message.DATA_INSERT_FAILED, error.toString(), null);
     }
 
-    // responseSend(res, "S", 200, "Data inserted successfully", response, null);
   } catch (error) {
     responseSend(res, "F", 500, Message.DATA_INSERT_FAILED, error.toString(), null);
   }
@@ -309,9 +259,6 @@ const ztfi_bil_deface_report = async (req, res) => {
 
 const adviceDownload = async (req, res) => {
   try {
-    // if (!req.query.poNo) {
-    //     return resSend(res, false, 400, "Please send PO number", null, null);
-    // }
     let file = {};
     try {
       file = await POfileFilter(req.query.poNo);
@@ -319,13 +266,7 @@ const adviceDownload = async (req, res) => {
       if (file.success && file?.data?.length) {
         const fileName = file.data;
         const directoryPath = path.join(__dirname, "..", "..", "sapuploads", "paymentadvice");
-        // const file_path = path.join('sapuploads', 'paymentadvice', `${fileName}`)
         const response = [{ full_file_path: directoryPath, file_name: fileName }];
-
-        // res.download(directoryPath, (err) => {
-        //     if (err)
-        //     return resSend(res, false, 404, "file not found", err, null)
-        // });
 
         if (!fileName) {
           return resSend(res, false, 404, "file not found", err, null);

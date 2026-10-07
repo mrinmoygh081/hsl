@@ -2,7 +2,6 @@ const { UPDATE, INSERT } = require("./constant");
 const { query } = require("../config/pgDbConfig");
 const Message = require("../utils/messages");
 
-
 /**
  * CREATE INSERT UPDATE QUERY FOR
  * @param {string} action
@@ -85,14 +84,11 @@ const generateSimpleSingleGetQuery = (tableName, selectColumns = "*", conditonDa
     orderBy = " ORDER BY " + orderBy;
   }
 
-
   const q = basicQuery + condQuery + orderBy;
 
   return { q, val }
 
 }
-
-
 
 async function generateQueryArray(action, tableName, payloadObj, whereCondition) {
   if (!action || !tableName || !payloadObj)
@@ -111,7 +107,6 @@ async function generateQueryArray(action, tableName, payloadObj, whereCondition)
   const val = payloadObj.map((obj) => Object.values(obj));
   return { q, val };
 }
-
 
 /**
  * GET CURRENT EPOCH TIME
@@ -161,7 +156,6 @@ const getYyyyMmDd = (dateTime) => {
     let v1 = dateTime.toString();
     const val = v1.length == 10 ? parseInt(v1) * 1000 : parseInt(v1);
     const date = new Date(val);
-    // const date = new Date(dateTime); // dateTime/1000; //
     const year = date.getFullYear();
     const month = `0${date.getMonth() + 1}`.slice(-2);
     const day = `0${date.getDate()}`.slice(-2);
@@ -347,7 +341,6 @@ function getDateTime(currentData) {
   return { dateTime, date };
 }
 
-
 /**
  * Remove 0 from string
  * if function got any value then it remove the string
@@ -373,7 +366,6 @@ function removeZeroFn(data) {
     return data;
   }
 }
-
 
 function maskEmailAddress(email) {
   if (!email || typeof email !== 'string') {
@@ -425,7 +417,6 @@ function dynamicSepartedStringToStringArray(stringValue, seperator = ",") {
   }
   return [];
 }
-
 
 // /**
 //  * Dynamically generates a single query to UPSERT hundreds of rows at once.
@@ -480,7 +471,6 @@ function sleepFn(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-
 /**
  * Generates a query that updates existing rows and inserts new ones
  * WITHOUT bleeding the Primary Key sequence on updates.
@@ -489,55 +479,6 @@ function sleepFn(ms) {
  * Generates a query that updates existing rows and inserts new ones
  * with explicit type casting to prevent UUID vs Text errors.
  */
-// const generateBulkUpsertQuery = (items, tableName, conflictColumns = ["sync_id"]) => {
-//   if (!items || !items.length) return null;
-
-//   const keys = Object.keys(items[0]);
-  
-//   const values = [];
-//   const rows = [];
-//   let paramIndex = 1;
-
-//   items.forEach((item) => {
-//     const rowPlaceholders = [];
-//     keys.forEach((key) => {
-//       values.push(item[key] !== undefined ? item[key] : null);
-      
-//       // Check if this specific key is one of the conflict columns (UUIDs)
-//       if (conflictColumns.includes(key)) {
-//         rowPlaceholders.push(`$${paramIndex++}::uuid`); // Explicit cast
-//       } else {
-//         rowPlaceholders.push(`$${paramIndex++}`);
-//       }
-//     });
-//     rows.push(`(${rowPlaceholders.join(", ")})`);
-//   });
-
-//   const columnsStr = keys.join(", ");
-//   const updateColumns = keys.filter(key => !conflictColumns.includes(key));
-//   const updateSetSql = updateColumns.map(key => `${key} = data.${key}`).join(", ");
-//   const joinCondition = conflictColumns.map(col => `t.${col} = data.${col}`).join(" AND ");
-
-//   const query = `
-//     WITH data_source (${columnsStr}) AS (
-//       VALUES ${rows.join(", ")}
-//     ),
-//     updated AS (
-//       UPDATE ${tableName} t
-//       SET ${updateSetSql}
-//       FROM data_source data
-//       WHERE ${joinCondition}
-//       RETURNING t.${conflictColumns[0]}
-//     )
-//     INSERT INTO ${tableName} (${columnsStr})
-//     SELECT ${columnsStr}
-//     FROM data_source
-//     WHERE ${conflictColumns[0]} NOT IN (SELECT ${conflictColumns[0]} FROM updated)
-//     ON CONFLICT (${conflictColumns.join(", ")}) DO NOTHING;
-//   `;
-
-//   return { q: query, val: values };
-// };
 
 module.exports = {
   formatDate,

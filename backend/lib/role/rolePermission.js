@@ -1,7 +1,6 @@
 
 
 module.exports = {
-    // sidebar_menu: {
 
         sdbg: {
             hasAccess: false,
@@ -60,5 +59,4 @@ module.exports = {
             }
 
         }
-    // }
 }

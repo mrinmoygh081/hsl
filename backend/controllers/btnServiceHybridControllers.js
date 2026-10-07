@@ -34,9 +34,7 @@ const { INSERT, UPDATE } = require("../lib/constant");
 const { checkTypeArr } = require("../utils/smallFun");
 const { btnSubmitToSAPF01, btnSubmitToSAPF02 } = require("../services/sap.btn.services");
 const { BTN_REJECT } = require("../lib/event");
-// const { deleteFileByPath } = require("../lib/deleteFile");
 const { filesData, getLatestBTN } = require("../services/btn.services");
-// const { getUserDetailsQuery } = require("../utils/mailFunc");
 const QueryBuilder = require("../utils/QueryBuilder");
 
 const getWdcInfoServiceHybrid = async (req, res) => {
@@ -155,12 +153,6 @@ const submitBtnServiceHybrid = async (req, res) => {
     const filesPaylaod = req.files;
     const tempPayload = req.body;
     const tokenData = req.tokenData;
-    // let net_payable_amount = tempPayload.net_payable_amount || "0";
-
-    // Check required fields
-    // if (!JSON.parse(tempPayload.hsn_gstn_icgrn)) {
-    //   return resSend(res, false, 200, "Please check HSN code, GSTIN, Tax rate is as per PO!", null, null);
-    // }
 
     const { wdc_number } = tempPayload;
 
@@ -183,29 +175,15 @@ const submitBtnServiceHybrid = async (req, res) => {
     // check invoice number is already present in DB
 
     const btnNums = await getBtnNumbersAssocateWithBtn(client, { wdc_numbers });
-    // const checkRejectedCount = await checkIsRejectedTheBtnByWDCNo(client, btnNums);
 
     if (btnNums && btnNums.length && !checkIsAllBtnRejectd(btnNums)) {
       return resSend(res, false, 200, "BTN is already created under the WDC.", null, null);
     }
-    // if (!tempPayload.c_sdbg_filename || !tempPayload.a_sdbg_date || !tempPayload.c_sdbg_date) {
-    //   return resSend(res, false, 200, Message.MANDATORY_PARAMETR_MISSING, "Send SDBG details", null);
-    // }
 
     /**
      * FILE PAYLOADS AND FILE VALIDATION
      */
     const uploadedFiles = filesData(filesPaylaod);
-
-    // checking no submitted hr compliance by vendor
-    // const checkMissingComplience = await checkHrCompliance(client, {
-    //   invoice_date: tempPayload.invoice_date,
-    //   purchasing_doc_no: tempPayload.purchasing_doc_no,
-    // });
-
-    // if (!checkMissingComplience.success) {
-    //   return resSend(res, false, 200, checkMissingComplience.msg, "Missing data, Need to be upload by HR", null);
-    // }
 
     // SET BTN PAYLOAD
     let payload = payloadObj(tempPayload);
@@ -432,14 +410,11 @@ const actionByCertifyAuthority = async (req, res) => {
     // UPDATE SERVICE BTN TABLE
     await updateServiceBtn(client, payload.btn_num, { status: SUBMITTED_BY_CAUTHORITY, ca_remarks: payload.remarks });
 
-    // ADDING TO BTN LIST WITH CURRENT STATUS
-    // const latesBtnData = await getLatestBTN(client, payload);
     await addToBTNListFn(client, { ...latesBtnData, ...payload, assign_to: payload.assign_to, assign_by: tokenData.vendor_code }, SUBMITTED_BY_CAUTHORITY);
 
     /** SEND BTN DATA TO SAP SYSTEM
      * IF SAP SEND DATA ANY ISSUE THE WHOLE DATA WILL ROLLBACK
      */
-    // const sendSap = true;
     const sendSap = await btnSubmitToSAPF01(payload, tokenData);
     if (sendSap == false) {
       await client.query("ROLLBACK");
@@ -481,17 +456,6 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
   return accessDetails;
 }
 
-// async function validAccessCheck(client, tokenData, currentPayload, btnDetails) {
-//   const isCertifyAuthority = btnDetails.bill_certifing_authority == tokenData.vendor_code;
-//   const isDelegatedToAuthority = btnDetails.delegate_to == tokenData.vendor_code;
-//   const poDetails = await getPoDetails(client, { ebeln: currentPayload.purchasing_doc_no }, "ebeln as purchasing_doc_no, ernam as po_creator, lifnr as vendor_code") == tokenData.vendor_code
-//   const isDoAuthority = poDetails?.po_creator === tokenData.vendor_code;
-
-//   //D-RETURN STATUS, HANDLE Has D-RETURN-STATUS
-//   const btnIsDreturnQuery = `SELECT COUNT(*) from btn_list WHERE btn_num = $1 AND status = $2`;
-//   const btnIsDreturnCheck = await poolQuery({ client, query: btnIsDreturnQuery, values: [currentPayload.btn_num, BTN_STATUS_DRETURN] });
-//   const hasDReturnStatus = parseInt(btnIsDreturnCheck[0]?.count) ? true : false;
-
 //   /**
 //    * VALIDA AUTHORITY CHECK
 //    * IF DO && D-RETURN THEN PROCEED TO DO
@@ -500,68 +464,6 @@ async function validAccessCheck(client, tokenData, currentPayload, btnDetails, l
 //    */
 
 //   // BOTH DO AND AUTHORIZE CONDITTION CHECK
-
-//   // const doAndCerifyAuthortySame = parseInt(isDoCheck[0]?.count) && parseInt(isCertifyAuthority[0]?.count);
-
-//   //NITHER DO / SERTIFY AUTHORTY
-//   const eitherDoOrCerifyAuthorty = isDoAuthority || isCertifyAuthority;
-
-//   //NITHER DO / SERTIFY AUTHORTY
-//   const eitherDoOrCerifyAuthortyOrDelegatedToUser = isDoAuthority || isCertifyAuthority || isDelegatedToAuthority;
-//   // certifyAuthorty
-//   const onlyCertyfy = isCertifyAuthority && !isDoAuthority;
-//   // only do
-//   const onlyDo = isDoAuthority && !isCertifyAuthority;
-
-//   switch (currentPayload.status) {
-//     case STATUS_DELEGATED: {
-//       if (onlyCertyfy || (hasDReturnStatus && eitherDoOrCerifyAuthorty))
-//         return { success: true, message: "You are authorised CA OR DO-CA" }
-//     }
-//       break;
-//     case STATUS_RECOMMEND: {
-//       if (isDelegatedToAuthority)
-//         return { success: true, message: "You are authorised DToCA" }
-//     }
-//       break;
-//     case NOT_RECOMMEND: {
-//       if (isDelegatedToAuthority)
-//         return { success: true, message: "You are authorised DToCA" }
-//     }
-//       break;
-//     case APPROVED: {
-//       if (onlyCertyfy || (hasDReturnStatus && onlyDo) || isDelegatedToAuthority)
-//         return { success: true, message: "You are authorised CA OR D-RETUN-DO OF DToCA" }
-//     }
-//     case REJECTED: {
-//       if (onlyCertyfy || (hasDReturnStatus && onlyDo) || isDelegatedToAuthority)
-//         return { success: true, message: "You are not authorised! CA" }
-//     }
-
-//     default:
-//       return { success: false, message: "You are not authorised" }
-//   }
-
-//   return { success: false, message: "You are not authorised" }
-
-//   // if (!eitherDoOrCerifyAuthorty) {
-
-//   //   return { success: false, message: "You are not authorised! BOTH" }
-
-//   //   // return resSend(res, false, 200, "You are not authorised! BOTH", Message.YOU_ARE_UN_AUTHORIZED, null);
-//   // }
-//   // if (onlyDo && !hasDReturnStatus) {
-//   //   return { success: false, message: "You are not authorised! DO" }
-//   //   // return resSend(res, false, 200, "You are not authorised! DO", Message.YOU_ARE_UN_AUTHORIZED, null);
-//   // }
-//   // if (onlyCertyfy && hasDReturnStatus) {
-//   //   return { success: false, message: "You are not authorised! CA" }
-//   //   // return resSend(res, false, 200, "You are not authorised! CA", Message.YOU_ARE_UN_AUTHORIZED, null);
-//   // }
-
-//   // return { success: false, message: "You are not authorised" }
-
-// }
 
 /**
  * BTN DATA SEND TO SAP SERVER WHEN BTN SUBMIT BY FINNANCE STAFF
@@ -631,7 +533,6 @@ const serviceBtnAssignToFiStaff = async (req, res) => {
     await updateServiceBtn(client, btn_num, { status: STATUS_RECEIVED });
     await addToBTNListFn(client, { ...data, assign_to: assign_to_fi, assign_by: tokenData.vendor_code }, STATUS_RECEIVED);
 
-    // const sendSap = true; //btnSaveToSap({ ...req.body, ...payload }, tokenData);
     const sendSap = await btnSubmitToSAPF02({ ...req.body, ...payload }, tokenData);
     if (sendSap == false) {
       await client.query("ROLLBACK");
@@ -652,18 +553,15 @@ const serviceBtnAssignToFiStaff = async (req, res) => {
 
 async function btnReject(data, tokenData, client) {
   await updateServiceBtn(client, data.btn_num, { status: REJECTED, ca_remarks: data.rejectedMessage });
-  // await updateServiceBtn(client, payload.btn_num, { status: SUBMITTED_BY_CAUTHORITY, fwd_remarks: payload.remarks });
 
   await updateServiceBtnListTable(client, { ...data, remarks: data.rejectedMessage }, tokenData);
 
-  // const sendSap = true; // await btnSubmitToSAPF01({ ...data, assign_to: null }, tokenData);
   const sendSap = await btnSubmitToSAPF01({ ...data, assign_to: null }, tokenData);
 
   if (sendSap == false) {
     throw new Error("SAP not connected.");
   } else if (sendSap == true) {
     serviceBtnMailSend(tokenData, data, BTN_REJECT);
-    // resSend(res, true, 200, "Finance Staff has been assigned!", null, null);
   }
   return { btn_num: data.btn_num };
 }

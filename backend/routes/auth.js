@@ -10,7 +10,6 @@ router.get("/captcha",
 
 router.post("/sendOtp", sendOtpLimiter, authController.sendOtp);
 
-
 router.post("/forgotPasswordOtp", forgotPasswordOtpLimiter, authController.forgotPasswordOtp);
 
 router.post("/otpVefify", verifyOtpLimiter, authController.otpVefify);
@@ -28,6 +27,5 @@ router.post("/login", loginLimiter, authController.login);
 router.post("/verify-login-otp", verifyOtpLimiter, authController.verifyLoginOtp);
 
 router.post("/refresh-token", browsingLimiter, authController.refreshToken);
-// router.post("/send-otp", authController.sendOtp2);
 
 module.exports = router;

@@ -25,8 +25,6 @@ const submitDrawing = async (req, res) => {
       fileData = {
         fileName: req.file.filename,
         filePath: req.file.path,
-        // fileType: req.file.mimetype,
-        // fileSize: req.file.size,
       };
     }
 
@@ -43,7 +41,7 @@ const submitDrawing = async (req, res) => {
     const poType = await checkPoType(payload.purchasing_doc_no);
 
     const star = `vendor_code,actiontype`;
-    const action_type_with_vendor_code = await getFristRow(DRAWING, star, payload.purchasing_doc_no); // await get_action_type_with_vendor_code(payload.purchasing_doc_no);
+    const action_type_with_vendor_code = await getFristRow(DRAWING, star, payload.purchasing_doc_no);
 
     if (poType === "MATERIAL" && tokenData.user_type != USER_TYPE_VENDOR) {
       const check = await checkIsApprovedRejected(DRAWING, payload.purchasing_doc_no, payload.reference_no, APPROVED, REJECTED);
@@ -119,9 +117,6 @@ const submitDrawing = async (req, res) => {
         if (payload.status === APPROVED) {
           // CDO APPROVED DRAWING . .
 
-          // sendMailToVendor(payload)
-          // handelMail(payload, tokenData)
-
           await setActualSubmissionDate(payload, MID_DRAWING, tokenData, SUBMITTED);
         }
 
@@ -172,15 +167,10 @@ const submitDrawing = async (req, res) => {
     if (payload.status === APPROVED) {
       // CDO APPROVED DRAWING . .
 
-      // sendMailToVendor(payload);
-
       await setActualSubmissionDate(payload, MID_DRAWING, tokenData, SUBMITTED);
     }
 
     handelMail(tokenData, payload);
-    // if (payload.status === SUBMITTED && tokenData.user_type === USER_TYPE_VENDOR) {
-    //   sendMailToCDOandDO(payload)
-    // }
 
     if (response) {
       resSend(res, true, 200, `Drawing ${payload.status}`, response[0], null);
@@ -212,9 +202,6 @@ const list = async (req, res) => {
 
 const assigneeList = async (req, res) => {
   try {
-    // if (tokenData.department_id != USER_TYPE_HSL_DRAWING || tokenData.internal_role_id != ASSIGNER) {
-    //   return resSend(res, true, 200, "Please Login as Drawing Assigner.", null, null);
-    // }
     const dept_id = USER_TYPE_HSL_DRAWING;
     const internal_role_id = 2;
     let result = await getAssigneeList(dept_id, internal_role_id);

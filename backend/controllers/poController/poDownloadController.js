@@ -1,60 +1,12 @@
 /* eslint-disable no-undef */
 const { resSend } = require("../../lib/resSend");
 const { query, getQuery, withTransaction, poolQuery } = require("../../config/pgDbConfig");
-// const fileDetails = require("../../lib/filePath");
 const path = require("path");
 const fs = require("fs").promises;
 const { POfileFilter, POfileFilterOrderBy, paymentAdviceFiles } = require("../../lib/fetchFileDirectory");
 const Message = require("../../utils/messages");
 const QueryBuilder = require("../../utils/QueryBuilder");
 const { EKKO } = require("../../lib/tableName");
-
-// const download = async (req, res) => {
-//   // const queryParams = req.query;
-
-//   const typeArr = ["drawing", "sdbg", "qap"];
-
-//   const { id, type } = req.query;
-
-//   if (!typeArr.includes(type)) {
-//     return resSend(res, false, 400, "Please send valid type ! i.e. drawing, sdbg, qap", null, null);
-//   }
-//   let fileFoundQuery = "";
-
-//   const tableName = fileDetails[type]["tableName"];
-//   const downaoadPath = fileDetails[type]["filePath"];
-
-//   switch (type) {
-//     case "drawing":
-//       fileFoundQuery = `SELECT * FROM ${tableName} WHERE id = ?`;
-//       break;
-//     case "sdbg":
-//       fileFoundQuery = `SELECT * FROM ${tableName} WHERE id = ?`;
-//       break;
-//     case "qap":
-//       fileFoundQuery = `SELECT * FROM ${tableName} WHERE id = ?`;
-//       break;
-
-//     default:
-//       break;
-//   }
-
-//   if (!fileFoundQuery) {
-//     return resSend(res, false, 404, "file not found or invalid query", fileFoundQuery, null);
-//   }
-
-//   const response = await query({ query: fileFoundQuery, values: [id] });
-
-//   if (!response?.length || !response[0]?.file_name) {
-//     return resSend(res, true, 200, `file not uploaded with this id ${id}`, null, null);
-//   }
-
-//   const selectedPath = `${downaoadPath}${response[0].file_name}`;
-//   const downloadPath = path.join(__dirname, "..", "..", selectedPath);
-//   res.download(downloadPath, (err) => {
-//     if (err) resSend(res, false, 404, "file not found", err, null);
-//   });
-// };
 
 const tncdownload = async (req, res) => {
   try {
@@ -63,9 +15,6 @@ const tncdownload = async (req, res) => {
       return resSend(res, false, 200, "You dont have access", null, null);
     }
 
-    // if (tokenData.department_id == QAP || tokenData.department_id == RIC || tokenData.department_id == USER_TYPE_HSL_PURCHASE) {
-    // const fileName = `${purchesing_doc_no}.pdf`;
-    // const downloadPath = path.join(__dirname, "..", "..", "uploads", "tncminutes", fileName);
     const q = `SELECT file_name, file_path, file_type, purchasing_doc_no FROM tnc_minutes WHERE purchasing_doc_no = $1 order by id desc`;
     const result = await getQuery({ query: q, values: [purchesing_doc_no] });
 
@@ -76,13 +25,6 @@ const tncdownload = async (req, res) => {
       resSend(res, true, 200, "No file found", [], null);
     }
 
-    // res.download((downloadPath), (err) => {
-    // 	if (err)
-    //     	resSend(res, false, 404, "file not found", err, null)
-    // });
-    // } else {
-    //   resSend(res, false, 401, "You dont have access", null, null);
-    // }
   } catch (error) {
     console.error("tnc error", error);
     resSend(res, false, 500, "INTERNL SERVER ERROR", error, null);
@@ -100,20 +42,10 @@ const downloadLatest = async (req, res) => {
 
       if (file.success && file?.data?.length) {
         const fileName = file.data[0];
-        // const directoryPath = path.join(__dirname, '..', '..', 'sapuploads', 'po', `${fileName}`);
-        // const directoryPath = path.join(__dirname, '..', '..', '..', '..', '..', 'ftpgrse', 'po', `${fileName}`);
-        // const directoryPath = path.resolve(`/home/obps/archieve/${fileName}`);
-        // const file_path = path.join('home', 'obps', 'archieve', `${fileName}`)
-        // const response = [{ full_file_path: directoryPath, file_name: fileName, file_path }];
 
         const directoryPath = path.join(__dirname, "..", "..", "uploads", "po", `${file}`);
         const file_path = path.join("uploads", "po", `${file}`);
         const response = [{ full_file_path: directoryPath, file_name: fileName, file_path }];
-
-        // res.download(directoryPath, (err) => {
-        // 	if (err)
-        // 	return resSend(res, false, 404, "file not found", err, null)
-        // });
 
         if (!fileName) {
           return resSend(res, false, 404, "file not found", err, null);
@@ -143,9 +75,6 @@ const getPoFileList = async (req, res) => {
 
       if (files.success && files?.data?.length) {
         const resustFiles = files.data.map((file) => {
-          // const directoryPath = path.join(__dirname, '..', '..', 'sapuploads', 'po', `${file}`);
-          // const file_path = path.join('sapuploads', 'po', `${file}`);
-          // const directoryPath = path.join(__dirname, '..', '..', '..', '..', '..', 'ftpgrse', 'po', `${file}`);
           const directoryPath = path.join(__dirname, "..", "..", "uploads", "po", `${file}`);
           const file_path = path.join("uploads", "po", `${file}`);
           let fileInfo = {};
@@ -153,7 +82,7 @@ const getPoFileList = async (req, res) => {
           fileInfo.filePath = file_path;
           fileInfo.fileName = file;
 
-          return fileInfo; //filteredFilesById;
+          return fileInfo;
         });
 
         resSend(res, true, 200, "File fetched successfully", resustFiles, null);
@@ -171,9 +100,6 @@ const getPoFileList = async (req, res) => {
 
 const getPaymentAdvliceList = async (req, res) => {
   try {
-    // if (!req.query.poNo) {
-    // 	return resSend(res, false, 400, "Please send PO number", null, null);
-    // }
 
     const payload = req.body;
 
@@ -183,10 +109,8 @@ const getPaymentAdvliceList = async (req, res) => {
 
       if (files.success && files?.data?.length) {
         const queryValues = files?.data?.map((el) => el.split("_")[0]);
-        // const placeholders = queryValues.map(() => "?").join(",");
         const placeholders = queryValues.map((_, index) => `$${index + 1}`).join(",");
 
-        // const paymentAdviceQuery = `SELECT * FROM zfi_pymt_advce_data_final WHERE vblnr in ( ${placeholders} )`;
         let paymentAdviceQuery = `SELECT  
 													bldat AS "docuentDate", 
 													lifnr AS "vendor_code",
@@ -210,10 +134,6 @@ const getPaymentAdvliceList = async (req, res) => {
 
         const resustFiles = result.map((ele) => {
           const realFileName = files?.data?.find((el) => el.includes(ele.documentNo));
-          // const directoryPath = path.join(__dirname, '..', '..', '..', '..', '..', 'ftpgrse', 'pymtadvice', `${realFileName}`);
-          // const file_path = path.join('home', 'ftpgrse', 'pymtadvice', `${realFileName}`);
-          // const directoryPath = path.join('home','obps', 'pymtadvice', `${realFileName}`);
-          // const file_path = path.join('home', 'obps', 'pymtadvice', `${realFileName}`);
 
           const directoryPath = path.join(__dirname, "..", "..", "uploads", "paymentadvice", `${realFileName}`);
           const file_path = path.join("uploads", "paymentadvice", `${realFileName}`);
@@ -225,15 +145,6 @@ const getPaymentAdvliceList = async (req, res) => {
             fileName: realFileName,
           };
         });
-
-        // const resustFiles = files.data.map(file => {
-        // 	let fileInfo = {};
-        // 	fileInfo.fullFilePath = directoryPath;
-        // 	fileInfo.filePath = file_path;
-        // 	fileInfo.fileName = file;
-
-        // 	return fileInfo;
-        // });
 
         resSend(res, true, 200, Message.FILE_FETCH_SUCCESSFULLY, { resustFiles }, null);
       } else {
@@ -267,15 +178,6 @@ const getPaymentAdvController = async (req, res) => {
         ...item,
       };
       const folderName = item.btn_num.substring(0, 8);
-      // payload.file_path = await checkPdfFile(
-      //   path.join(
-      //     __dirname,
-      //     "../",
-      //     "../uploads/paymentadvice",
-      //     folderName,
-      //     `${item?.btn_num}.pdf`
-      //   )
-      // );
       payload.file_path = await checkPdfFile(path.join("uploads/paymentadvice", folderName, `${item?.btn_num}.pdf`));
 
       result.push(payload);
@@ -298,7 +200,6 @@ async function checkPdfFile(filePath) {
     return filePath;
     // eslint-disable-next-line no-unused-vars
   } catch (err) {
-    // console.error(`File does not exist: `, err);
     return null;
   }
 }

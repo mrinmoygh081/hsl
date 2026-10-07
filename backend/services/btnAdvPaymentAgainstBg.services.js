@@ -21,9 +21,6 @@ const advBillHybridbtnPayload = (payload) => {
     invoice_value: payload.invoice_value || "",
     invoice_date: payload.invoice_date || "",
     invoice_type: payload.invoice_type,
-    // grn_nos: payload.grn_nos || "",
-    // icgrn_nos: payload.icgrn_nos || "",
-    // suppoting_invoice_filename: payload.suppoting_invoice_filename || "",
     invoice_supporting_filename: payload.suppoting_invoice_filename || "",
     invoice_supporting_file_path: payload.suppoting_invoice_file_path || "",
     net_claim_amount: payload.net_claim_amount || "",
@@ -31,18 +28,12 @@ const advBillHybridbtnPayload = (payload) => {
     sgst: payload.sgst || "0",
     igst: payload.igst || "0",
     net_with_gst: payload.net_with_gst || "0",
-    // c_sdbg_date: payload.c_sdbg_date || "",
-    // a_sdbg_date: payload.a_sdbg_date || "",
     c_drawing_date: payload.c_drawing_date || "",
     a_drawing_date: payload.a_drawing_date || "",
-    // c_qap_date: payload.c_qap_date || "",
-    // a_qap_date: payload.a_qap_date || "",
     vendor_code: payload.vendor_code || "",
     bg_details: payload.bg_details,
     btn_type: BTN_ADVANCE_BILL,
     hsn_gstn_icgrn: true,
-    // associated_po: JSON.stringify(payload.associated_po || []),
-    // updated_by: payload.updated_by || "",
     created_at: payload.created_at || "",
     created_by_id: payload.created_by_id || "",
   };
@@ -79,8 +70,6 @@ const advBillHybridbtnDOPayload = (payload, tokenData) => {
   return pl;
 };
 
-
-
 /**
  * CHECK IF CONTRACTUAL SUBMISSION HAD
  * BUT ACTUCAL SUBMISSION DATE MISSING OR NOT SUBMIT
@@ -90,7 +79,6 @@ const advBillHybridbtnDOPayload = (payload, tokenData) => {
  */
 
 function checkMilestonDates(c_dates, a_dates) {
-  // const arr = new Set([parseInt(MID_SDBG), parseInt(MID_DRAWING), parseInt(MID_QAP), parseInt(MID_ILMS)]);
   const arr = new Set([parseInt(MID_DRAWING), parseInt(MID_QAP), parseInt(MID_ILMS)]);
   const c_dates_filter = c_dates.filter((el) => arr.has(parseInt(el.MID)));
   const a_dates_filter = a_dates.filter((el) => arr.has(parseInt(el.MID)));
@@ -113,8 +101,6 @@ function checkMilestonDates(c_dates, a_dates) {
   return { success: true, msg: "No milestone missing" };
 }
 
-
-
 async function getBgApprovedFiles(client, purchasing_doc_no) {
   const query = ` SELECT reference_no, file_name, file_path FROM sdbg WHERE purchasing_doc_no = $1 AND status = $2 AND action_type IN($3, $4)`;
   const values = [purchasing_doc_no, APPROVED, ACTION_ADVANCE_BG_SUBMISSION, ACTION_IB];
@@ -122,8 +108,6 @@ async function getBgApprovedFiles(client, purchasing_doc_no) {
   return bgFiles;
 
 }
-
-
 
 /**
  * Fetch BTN advance bill details
@@ -153,7 +137,6 @@ async function getAdvBillHybridBTNDetails(client, { btn_num }) {
   return { data: result, message: "Fetched successfully", success: true, statusCode: 200 };
 }
 
-
 /**
  * Fetch initial vendor data by PO number
  */
@@ -168,7 +151,6 @@ async function getInitalData(client, { poNo }) {
 
   return { data, message: "Fetched successfully", success: true, statusCode: 200 };
 }
-
 
 async function btnAdvBillAgainstBgCurrentDetailsCheck(client, data) {
 

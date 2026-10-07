@@ -59,14 +59,6 @@ const dashboard = async (req, res) => {
 
     // USE FOR OTHER THAN DATE QUERIES
 
-    // const getGrseUserEmpNameQ = `
-    //             LEFT JOIN 
-    //                 pa0002 
-    //             AS 
-    //                 p1
-    //             ON
-    //                 p1.PERNR = log.user_id`;
-
     // USE FOR DATE QUERIES
     let { startDate, endDate, page, limit} = filterBy;
     delete filterBy.startDate;
@@ -102,7 +94,6 @@ const dashboard = async (req, res) => {
 
     filterQuery = filterQuery.concat(condQuery);
 
-    // filterQuery = filterQuery.concat(` ORDER BY log.id DESC`);
     page = page ? parseInt(page) : 1;
     limit = limit ? parseInt(limit) : 10;
     const offSet = (page - 1) * limit;
@@ -181,7 +172,6 @@ const subDeptEmp = async (req, res) => {
     );
   }
 
-
   let subDeptListQuery = "";
   if (filterBy.department_id == 3) {
     subDeptListQuery = `SELECT sub_dept.name                 AS sub_dept_name,
@@ -234,6 +224,5 @@ const subDeptList = async (req, res) => {
   const result = await query({ query: q, values: [] });
   resSend(res, true, 200, "subdeptList", result, null);
 };
-
 
 module.exports = { dashboard, subDeptEmp, subDeptList };

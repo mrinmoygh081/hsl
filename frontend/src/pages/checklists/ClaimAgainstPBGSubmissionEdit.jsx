@@ -90,13 +90,6 @@ const ClaimAgainstPBGSubmissionEdit = () => {
     }
 
     setLoading(true);
-    // const formData = new FormData();
-    // formData.append("btn_num", state);
-    // formData.append("net_payable_amount", netPayableAmount);
-    // formData.append("assigned_to", doForm.assign_to);
-    // formData.append("purchasing_doc_no", id);
-    // formData.append("status", status);
-    // if (remarks) formData.append("remarks", remarks);
     const paylod = {
       btn_num: state,
       assign_to: doForm.assign_to,
@@ -130,47 +123,6 @@ const ClaimAgainstPBGSubmissionEdit = () => {
   const handleApprovalreject = () => {
     handleRejection("REJECTED");
   };
-
-  // const handleRejection = async () => {
-  //   if (showRemarks && remarks) {
-  //     setRejectLoading(true);
-  //     // const formData = new FormData();
-  //     // formData.append("btn_num", state);
-  //     // formData.append("net_payable_amount", netPayableAmount);
-  //     // formData.append("assigned_to", 0);
-  //     // formData.append("purchasing_doc_no", id);
-  //     // formData.append("status", "REJECTED");
-  //     const paylod = {
-  //       btn_num: state,
-  //       assign_to: doForm.assign_to,
-  //       purchasing_doc_no: id,
-  //       status: status,
-  //       if (remarks)remarks: remarks),
-  //       remarks: remarks,
-  //       net_payable_amount: netPayableAmount,
-  //       recomend_payment: "YES",
-  //     };
-  //     // if (remarks) formData.append("remarks", remarks);
-
-  //     try {
-  //       const response = await apiCallBack("POST", "po/btn/submit-jcc-ca", paylod, token);
-
-  //       if (response?.status) {
-  //         toast.success("Rejection submission successful!");
-  //         navigate(`/invoice-and-payment-process/${id}`);
-  //       } else {
-  //         toast.warning(response?.message);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error submitting rejection:", error);
-  //       toast.error("An error occurred while submitting the rejection.");
-  //     } finally {
-  //       setRejectLoading(false);
-  //     }
-  //   } else {
-  //     setShowRemarks(true);
-  //   }
-  // };
 
   const handleRejection = async (status) => {
     if (showRemarks && remarks) {
@@ -246,22 +198,6 @@ const ClaimAgainstPBGSubmissionEdit = () => {
                                     <tr>
                                       <td>Finance Authority</td>
                                       <td className="btn_value">
-                                        {/* <Select
-                                          className="basic-single w-100"
-                                          classNamePrefix="select"
-                                          isClearable={true}
-                                          isSearchable={true}
-                                          name="emp"
-                                          id="emp"
-                                          options={emp}
-                                          value={emp && emp.find((item) => item.value === doForm?.assign_to)}
-                                          onChange={(val) =>
-                                            setDoForm({
-                                              ...doForm,
-                                              assign_to: val ? val.value : null,
-                                            })
-                                          }
-                                        /> */}
                                         <HrSearchableSelect
                                           options={emp}
                                           value={doForm?.assign_to}
@@ -289,11 +225,6 @@ const ClaimAgainstPBGSubmissionEdit = () => {
 
                               <div className="row">
                                 <div className="col-6 text-start">
-                                  {/* <DynamicButton
-                                      label="Approve"
-                                      className="btn fw-bold btn-primary me-3"
-                                      onClick={handleApproval}
-                                    /> */}
                                   <button className="btn btn-sm fw-bold btn-primary me-3" onClick={handleApproval} disabled={loading}>
                                     {loading ? "Loading..." : "APPROVE"}{" "}
                                   </button>
@@ -301,21 +232,6 @@ const ClaimAgainstPBGSubmissionEdit = () => {
                                     BACK
                                   </button>
                                 </div>
-                                {/* <div className="col-6 text-end">
-                                  {showRemarks ? (
-                                    <>
-                                      <input type="text" placeholder="Enter remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} className="form-control mb-2" />
-
-                                      <button className="btn fw-bold btn-sm btn-danger" onClick={handleRejection} disabled={rejectloading}>
-                                        {rejectloading ? "Loading..." : "Submit Rejection"}
-                                      </button>
-                                    </>
-                                  ) : (
-                                    <button className="btn fw-bold btn-sm btn-danger" onClick={handleRejection}>
-                                      REJECT
-                                    </button>
-                                  )}
-                                </div> */}
                                 <div className="col-6 text-end">
                                   {showRemarks ? (
                                     <>

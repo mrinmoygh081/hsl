@@ -152,7 +152,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                   <tr>
                     <td>Basic value:</td>
                     <td className="btn_value">
-                      {/* <b className="me-3">{data?.invoice_value ? data.invoice_value : "NA"}</b> */}
                       <b className="me-3">{data?.invoice_value ? parseFloat(data.invoice_value).toFixed(2) : "NA"}</b>
                     </td>
                   </tr>
@@ -190,7 +189,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                       <tr>
                         <td>Net claim amount:</td>
                         <td className="btn_value">
-                          {/* <b> {data?.net_claim_amount ? data.net_claim_amount : "NA"}</b> */}
                           <b className="me-3">{data?.net_claim_amount ? parseFloat(data.net_claim_amount).toFixed(2) : "NA"}</b>
                         </td>
                       </tr>
@@ -218,18 +216,12 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                   <tr>
                     <td>Net Claim Amount with GST:</td>
                     <td className="btn_value">
-                      {/* <b>{data?.net_with_gst ? data.net_with_gst : "NA"}</b> */}
                       <b className="me-3">{data?.net_with_gst ? parseFloat(data.net_with_gst).toFixed(2) : "NA"}</b>
                     </td>
                   </tr>
                   <tr>
                     <td>Contractual SDBG Submission Date</td>
                     <td className="btn_value">
-                      {/* <b className="me-3">
-                      {impDates?.c_sdbg_date
-                        ? formatDate(impDates.c_sdbg_date)
-                        : "NA"}
-                    </b> */}
                       <b className="me-3">
                         {impDates?.c_sdbg_date && formatDate(impDates?.c_sdbg_date)}
                         {!impDates?.c_sdbg_date ? "NA" : impDates?.c_sdbg_date && !impDates?.a_sdbg_date ? "(NOT SUBMITTED)" : ""}
@@ -268,12 +260,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Gate Entry Acknowledgement no.</td>
                     <td className="btn_value">
                       <b className="me-3">
-                        {/* {checkTypeArr(impDates?.gate_entry) &&
-                        impDates?.gate_entry.map((item, i) => (
-                          <span className="me-1" key={i}>
-                            {item.acc_no}
-                          </span>
-                        ))} */}
                         {form?.gate_entry_no ? form.gate_entry_no : "NA"}
                       </b>
                     </td>
@@ -282,12 +268,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Gate Entry Date</td>
                     <td className="btn_value">
                       <b className="me-3">
-                        {/* {checkTypeArr(impDates?.gate_entry) &&
-                        impDates?.gate_entry.map((item, i) => (
-                          <span className="me-1" key={i}>
-                            {item.gate_date}
-                          </span>
-                        ))} */}
                         {form?.gate_entry_date ? form.gate_entry_date : "NA"}
                       </b>
                       {data?.get_entry_filename && data?.get_entry_filename !== "" && (
@@ -297,55 +277,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                       )}
                     </td>
                   </tr>
-                  {/* <tr>
-                    <td>GRN No</td>
-                    <td className="btn_value">
-                      {checkTypeArr(form?.icgrn_nos) &&
-                        form?.icgrn_nos.map((item, i) => {
-                          return (
-                            <b className="me-3" key={i}>
-                              {item?.grn_no ? item.grn_no : "NA"}
-                            </b>
-                          );
-                        })}
-                     
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>ICGRN No</td>
-                    <td className="btn_value">
-                      {checkTypeArr(form?.icgrn_nos) &&
-                        form?.icgrn_nos.map((item, i) => {
-                          return (
-                            <b className="me-3" key={i}>
-                              {item?.grn_no ? item.grn_no : "NA"}
-                            </b>
-                          );
-                        })}
-                    </td>
-                  </tr> */}
-                  {/* <tr>
-                    <td>GRN No</td>
-                    <td className="btn_value">
-                      {checkTypeArr(form?.grn_nos) &&
-                        [...new Set(form?.grn_nos.map((item) => item?.grn_no || "NA"))].map((uniqueGrn, i) => (
-                          <b className="me-3" key={i}>
-                            {uniqueGrn}
-                          </b>
-                        ))}
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>ICGRN No</td>
-                    <td className="btn_value">
-                      {checkTypeArr(form?.icgrn_nos) &&
-                        [...new Set(form?.icgrn_nos.map((item) => item?.grn_no || "NA"))].map((uniqueGrn, i) => (
-                          <b className="me-3" key={i}>
-                            {uniqueGrn}
-                          </b>
-                        ))}
-                    </td>
-                  </tr> */}
                   <tr>
                     <td>GRN No</td>
                     <td className="btn_value">
@@ -385,8 +316,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Contractual Drawing submission date</td>
                     <td className="btn_value">
                       <b>
-                        {/* {impDates?.c_drawing_date &&
-                        formatDate(impDates?.c_drawing_date)} */}
                         {impDates?.c_drawing_date ? formatDate(impDates.c_drawing_date) : "NA"}
                       </b>
                     </td>
@@ -395,8 +324,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Actual Drawing submission date</td>
                     <td className="btn_value">
                       <b>
-                        {/* {impDates?.a_drawing_date &&
-                        formatDate(impDates?.a_drawing_date)} */}
                         {impDates?.a_drawing_date ? formatDate(impDates.a_drawing_date) : "NA"}
                       </b>
                     </td>
@@ -412,7 +339,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Actual QAP submission date</td>
                     <td className="btn_value">
                       <b>
-                        {/* {impDates?.a_qap_date && formatDate(impDates?.a_qap_date)} */}
                         {impDates?.a_qap_date ? formatDate(impDates.a_qap_date) : "NA"}
                       </b>
                     </td>
@@ -421,8 +347,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Contractual ILMS submission date</td>
                     <td className="btn_value">
                       <b>
-                        {/* {impDates?.c_ilms_date &&
-                        formatDate(impDates?.c_ilms_date)} */}
                         {impDates?.c_ilms_date ? formatDate(impDates.c_ilms_date) : "NA"}
                       </b>
                     </td>
@@ -431,8 +355,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                     <td>Actual ILMS submission date</td>
                     <td className="btn_value">
                       <b>
-                        {/* {impDates?.a_ilms_date &&
-                        formatDate(impDates?.a_ilms_date)} */}
                         {impDates?.a_ilms_date ? formatDate(impDates.a_ilms_date) : "NA"}
                       </b>
                     </td>
@@ -440,17 +362,6 @@ const BTNMaterialVendorInfo = ({ navigate, id }) => {
                   <tr>
                     <td>PBG</td>
                     <td className="btn_value">
-                      {/* {data?.pbg_filename && data.pbg_filename !== "" ? (
-                        <a
-                          href={`${process.env.REACT_APP_PDF_URL}btns/${data.pbg_filename}`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          VIEW
-                        </a>
-                      ) : (
-                        "NA"
-                      )} */}
 
                       {checkTypeArr(impDates?.pbg_filename)
                         ? impDates?.pbg_filename.map((item, i) => {

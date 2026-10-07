@@ -216,7 +216,6 @@ const DrawingSub = () => {
                             <table className="table table-striped table-bordered table_height">
                               <thead>
                                 <tr className="border-0">
-                                  {/* <th>Reference No. </th> */}
                                   <th>DateTime </th>
                                   <th>Drawing File</th>
                                   <th>Action By</th>

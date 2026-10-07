@@ -329,10 +329,6 @@ const MainHeader = ({ title }) => {
                 </button>
               </div>
             </div>
-            {/* <Link to="/support" className="mh-nav-item mh-nav-item--support">
-              <FaHeadset className="mh-nav-icon" />
-              <span>Support</span>
-            </Link> */}
           </div>
 
           {/* USER INFO */}

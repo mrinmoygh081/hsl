@@ -2,8 +2,6 @@ import React, { Fragment, useEffect, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
-// import { formatDate } from "../utils/getDateTimeNow";
-// import { clrLegend } from "../utils/clrLegend";
 import * as XLSX from "xlsx";
 import MainHeader from "../../components/MainHeader";
 import { apiCallBack } from "../../utils/fetchAPIs";

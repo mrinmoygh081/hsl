@@ -16,7 +16,6 @@ import useDebounce from "../customhooks/useDebounce";
 import { toast } from "react-toastify";
 import { DEPT_IT } from "../constants/userConstants";
 import { checkTypeArr } from "../utils/smallFun";
-// import { performTokenRefresh } from "../utils/tokenRefresh";
 
 const POs = () => {
   const dispatch = useDispatch();
@@ -146,26 +145,6 @@ const POs = () => {
       <div className="w-99 m-auto">
         <div className="card">
           <div className="searchfun">
-            {/* <div className="card_headline">
-              <div>
-                <div className="search_top">
-                  <label htmlFor="searchInput">Search</label>
-                </div>
-                <div className="input_search">
-                  <input
-                    id="searchInput"
-                    type="text"
-                    className="form-control"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search by PO number..."
-                  />
-                  <button className="search_btn" onClick={handlePoFetch} aria-label="Search or fetch PO">
-                    <FiSearch />
-                  </button>
-                </div>
-              </div>
-            </div> */}
             <div className="card_headline">
               <div className="d-flex align-items-end gap-2">
                 <div>

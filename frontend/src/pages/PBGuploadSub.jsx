@@ -56,12 +56,6 @@ const PBGuploadSub = () => {
                         >
                           Action
                         </button>
-                        {/* <button
-                          onClick={() => setIsthreePopup(true)}
-                          className="btn fw-bold btn-primary me-3"
-                        >
-                          Claim Letter
-                        </button> */}
                         <button
                           onClick={ChecklistHandler}
                           className="btn fw-bold btn-primary me-3"
@@ -97,13 +91,6 @@ const PBGuploadSub = () => {
                                     01/11/2023-10:30AM
                                   </td>
                                   <td>
-                                    {/* <a
-                                      href={require("C:/Users/admin/Downloads/sample.pdf")}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Check File
-                                    </a> */}
                                   </td>
                                   <td>Claim Letter</td>
 
@@ -115,13 +102,6 @@ const PBGuploadSub = () => {
                                     01/11/2023-10:30AM
                                   </td>
                                   <td>
-                                    {/* <a
-                                      href={require("C:/Users/admin/Downloads/sample.pdf")}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Check File
-                                    </a> */}
                                   </td>
                                   <td>Upload of PBG</td>
 

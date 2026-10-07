@@ -31,8 +31,6 @@ const submitILMS = async (req, res) => {
       fileData = {
         file_name: req.file.filename || "",
         file_path: req.file.path || "",
-        // fileType: req.file.mimetype,
-        // fileSize: req.file.size,
       };
     }
 

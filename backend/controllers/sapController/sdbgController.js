@@ -10,8 +10,6 @@ const { sendMail } = require("../../services/mail.services");
 const { BG_EXTENSION_RELEASE } = require("../../lib/event");
 
 const sdbgPaymentAdvice = async (req, res) => {
-  //    http://10.13.1.38:4001/api/v1/po/qap
-  // const client = await poolClient();
 
   try {
     const client = await poolClient();
@@ -29,7 +27,6 @@ const sdbgPaymentAdvice = async (req, res) => {
         return responseSend(res, "S", 200, Message.NON_OBPS_DATA, "NON OBPS PO/data.", null);
       }
 
-      // const { q, val } = await generateQueryArray(INSERT, SDBG_PAYMENT_ADVICE, payloadObj);
       const queryText = await generateInsertUpdateQuery(payloadObj, SDBG_PAYMENT_ADVICE, ["FILE_NO", "REF_NO"]);
 
       const response = await poolQuery({ client, query: queryText.q, values: queryText.val });
@@ -56,12 +53,10 @@ const ztfi_bil_deface = async (req, res) => {
     const { q, val } = await generateQueryForMultipleData(payloadObj, SDBG_PAYMENT_ADVICE, ["id"]);
     const response = await query({ query: q, values: val });
     responseSend(res, "S", 200, "Data inserted successfully !!", response, null);
-    // responseSend(res, "1", 200, "Data inserted successfully", response, null);
   } catch (err) {
     console.error("error", err)
     responseSend(res, "F", 500, Message.SERVER_ERROR, null, null);
   } finally {
-    // client.release();
   }
 };
 

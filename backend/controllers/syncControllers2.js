@@ -16,7 +16,6 @@ const AdmZip = require("adm-zip");
 const { resSend } = require("../lib/resSend");
 const SERVER_ENV = process.env.SERVER_ENV;
 
-
 /**---------------------------------------------------------------------------
                     SYNC CONTROLLERS
  ----------------------------------------------------------------------------*/
@@ -68,7 +67,6 @@ const syncDataDownloadMain = async (todayDate) => {
   return resData;
 };
 
-
 const syncCompressMain = async (filesReadDir, zipDir, zipFilePath) => {
   console.log("filesReadDir, zipDir, zipFilePath:", filesReadDir, zipDir, zipFilePath);
 
@@ -84,7 +82,6 @@ const syncCompressMain = async (filesReadDir, zipDir, zipFilePath) => {
   // Read directory asynchronously and filter for FILES
   const files = await fsPromises.readdir(filesReadDir, { withFileTypes: true });
   const filesToZip = files.filter(dirent => dirent.isFile()).map(dirent => dirent.name);
-  //   console.log("filesToZip:", filesToZip);
 
   if (filesToZip.length === 0) {
     await insertToErrLog("GENERAL", null, "No files found to compress", "");
@@ -127,7 +124,6 @@ const syncCompressMain = async (filesReadDir, zipDir, zipFilePath) => {
   });
 };
 
-
 exports.syncDataDownloadCorn = async () => {
   cron.schedule("30 22 * * *", async () => {
 
@@ -155,20 +151,17 @@ exports.syncDataDownloadCorn = async () => {
       const result = await syncCompressMain(csvDataDir, zipDir, zipDataFilePath)
       console.log("result", result);
 
-
       await cronLog(DATA_SYNC_CRON, new Date().toISOString(), BACKUP_SUCCESSFULL, "backup completed", null, null);
       console.log("Cron job completed successfully");
 
     } catch (error) {
       console.error("Error during cron job:", error.message);
-      // await cronLog(DATA_SYNC_CRON, new Date().toISOString(), BACKUP_ERROR, error.message, error.stack, null);
 
       // Use async append for the error log fallback
       await fsPromises.appendFile("error.log", `${new Date().toISOString()} - Error: ${error.message}\n`);
     }
   });
 };
-
 
 const insertToErrLog = async (tableName, sync_id, msg, stack) => {
   try {
@@ -185,16 +178,12 @@ const insertToErrLog = async (tableName, sync_id, msg, stack) => {
   }
 };
 
-
-
 // ------------------------------------server 2 code ---------------------------
-
 
 function getTableName(fileName) {
   const tName = path.basename(fileName.split("-").slice(2).join("_"), ".json");
   return tName;
 }
-
 
 const syncDataUpload2 = async (currentDate) => {
   return withTransaction(async (client) => {
@@ -248,8 +237,6 @@ const syncDataUpload2 = async (currentDate) => {
             const enrichedItem = {
               ...item,
               sync: true,
-              // last_sync_updated_at: convertIsoTimestampToYYYYMMDDHHMMSSMs(new Date()),
-              // last_sync_server: SERVER_ENV,
             };
 
             // insert update query , dependig on sync_id
@@ -334,7 +321,6 @@ const syncDataUpload2 = async (currentDate) => {
     };
   });
 };
-
 
 exports.syncUnzip2 = async (req, res) => {
   const logError = async (msg, stack = null) => {

@@ -2,7 +2,6 @@
 /* eslint-disable no-undef */
 const http = require("http");
 const Message = require("../utils/messages");
-// require("dotenv").config();
 
 /**
  * makeHttpRequest function to call external api from node backend
@@ -99,7 +98,6 @@ const connectToSapServer = async (endpoint, payload, method = "POST") => {
   } catch (error) {
     console.error("Error making the request:", error);
     throw error;
-    // await failedDataSave(payload, "10.18.7.123", endpoint, error);
   } finally {
     return responseData;
   }
@@ -107,134 +105,12 @@ const connectToSapServer = async (endpoint, payload, method = "POST") => {
 
 module.exports = { makeHttpRequest, connectToSapServer };
 
-// sendDataToSapServer('/get', {name: 'ruid'})
-
-// Example usage with async/await
-// async function fetchData() {
-//   try {
-//     const postUrl = "http://10.181.1.31:8010/sap/bc/zoBPS_WDC"
-
-//     const wdc_payload =
-//     {
-//       "ebeln": "898991",
-//       "ebelp": 20,
-//       "slno": "1",
-//       "wdc": "d/wdc"
-//     }
-//     const postResponse = await makeHttpRequest(postUrl, 'POST', wdc_payload);
-//   } catch (error) {
-//     console.error('Error making the request:', error.message);
-//   }
-// }
-
-// // Call the async function
-// fetchData();
-
-// sendDataToSapServer("/zobps_sdbg_ent", {
-//   ZBTNO: "20240318501",
-//   ERDAT: "20240318",
-//   ERZET: "",
-//   ERNAM: "600233",
-//   LAEDA: "20240318",
-//   AENAM: "NAME",
-//   LIFNR: "50000437",
-//   ZVBNO: "",
-//   EBELN: "4000234569",
-//   DPERNR1: "",
-//   ZRMK1: "REMARKS",
-// })
-
 // Example BTN SAVE INTO SAP
 // // CALL THIS FUNCTION IN BTN CONTROLLER AS PER CONDITION
-
-// async function btnSaveToSap() {
-//   try {
-//     const postUrl = "http://10.181.1.31:8010/sap/bc/zobps_out_api";
-
-//     const btn_payload =
-//     {
-//       ZBTNO: "20240620993",
-//       ERDAT: "20240318",
-//       ERZET: "164853",
-//       ERNAM: "600233",
-//       LAEDA: "20240318",
-//       AENAM: "NAME fg",
-//       LIFNR: "50000437",
-//       ZVBNO: "",
-//       DSTATUS: "4",
-//       EBELN: "4100000236",
-//       DPERNR1: "600233",
-//       ZRMK1: "REMARKS SEND FROM OBPS LAN SERVER",
-//       CGST: (parseFloat("7000") / parseFloat("5")).toFixed(2),
-//       IGST: (parseFloat("7000") / parseFloat("10.50")).toFixed(2),
-//       SGST: (parseFloat("7000") / parseFloat("5.50")).toFixed(2),
-//       BASICAMT: "7000"
-//     }
-//     const postResponse = await makeHttpRequest(postUrl, 'POST', btn_payload);
-//   } catch (error) {
-//     console.error('Error making the request:', error.message);
-//   }
-// }
-
-// btnSaveToSap();
 
 // Example SDBG SAVE INTO SAP
 // CALL THIS FUNCTION IN SDBG CONTROLLER AS PER CONDITION
 
-// async function sendBgToSap(payload) {
-//   try {
-//       const host = `${process.env.SAP_HOST_URL}` || "http://10.181.1.31:8010";
-//       const postUrl = `${host}/sap/bc/zobps_sdbg_ent`;
-//       let payload = { ...payload };
-//       let modified = await zfi_bgm_1_Payload(payload);
-//       const postResponse = await makeHttpRequest(postUrl, 'POST', modified);
-//   } catch (error) {
-//       console.error('Error making the request:', error.message);
-//   }
-// }
-
-// async function btnSaveToSap(btnPayload, tokenData) {
-//   try {
-
-//     const btn_payload = {
-//       ZBTNO: "202407011999", // BTN Number
-//       // ERDAT: getYyyyMmDd(getEpochTime()), // BTN Create Date
-//       // ERZET: timeInHHMMSS(), // 134562,  // BTN Create Time
-//       ERNAM: "0050007545", // Created Person Name
-//       LAEDA: "", // Not Needed
-//       AENAM: "DCG", // Vendor Name
-//       LIFNR:  "0050007545", // Vendor Codebtn_v2
-//       ZVBNO: "789", // Invoice Number
-//       EBELN: "", // PO Number
-//       ACC: btnDetails[0]?.yard,// yard number
-//       FSTATUS: D_STATUS_FORWARDED_TO_FINANCE, // sap deparment forword status
-//       ZRMK1: "Forwared To Finance", // REMARKS
-//       CGST: (parseFloat("7000") / parseFloat("5")).toFixed(2),
-//       IGST: (parseFloat("7000") / parseFloat("10.50")).toFixed(2),
-//       SGST: (parseFloat("7000") / parseFloat("5.50")).toFixed(2),
-//       BASICAMT: "7000",
-//       ACTIVITY:  "90%", // activity
-//       FRERDAT: "20240711",
-//       FRERZET: "221045",
-//       FRERNAM: "600200", // SET BY DO FINACE AUTHIRITY  PERSON (DO SUBMIT)
-//       FPERNR1:  "600400", // assigned_to
-//       FPERNAM: "demo name" // ASSINGEE NAME
-//     };
-
-//     const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
-//     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
-//     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-//   } catch (error) {
-//     console.error("Error making the request:", error.message);
-//   }
-// }
-
-// btnSaveToSap({}, {})
-
-// async function btnSubmitByDo(btnPayload, tokenData) {
-//   try {
-
-//     const btn_payload = {
 //       EBELN: "4700026717", // PO NUMBER
 //       LIFNR: "0050007545", // VENDOR CODE
 //       RERNAM: "DCG", // REG CREATOR NAME --> VENDOR NUMBER
@@ -268,14 +144,4 @@ module.exports = { makeHttpRequest, connectToSapServer };
 
 //       FPRNR1: "600400", // FINACE AUTHIRITY ID ( )
 //       FPRNAM1: "DEMO NAME", // FINANCE
-//     };
 
-//     const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
-//     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
-//     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-//   } catch (error) {
-//     console.error("Error making the request:", error.message);
-//   }
-// }
-
-// btnSubmitByDo({},{});

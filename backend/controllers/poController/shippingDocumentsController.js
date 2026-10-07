@@ -62,12 +62,6 @@ const shippingDocuments = async (req, res) => {
     if (response) {
       handleEmail(payload);
     }
-    //   if (
-    //     payload.status === SUBMITTED &&
-    //     tokenData.user_type == USER_TYPE_VENDOR
-    //   ) {
-    //     sendMailToCDOandDO(payload);
-    //   }
 
     resSend(res, true, 200, `Shipping Documents ${payload.status}!`, fileData, null);
   } catch (error) {
@@ -99,12 +93,7 @@ const List = async (req, res) => {
     console.error("data not fetched", err);
     resSend(res, false, 500, SOMTHING_WENT_WRONG, null, null);
   }
-  // resSend(res, true, 200, "oded!", req.query.dd, null);
 };
-
-// async function handleEmail() {
-//     // Email alert to dealing officer, RIC & CDO about the uploading of shipping documents
-// }
 
 async function handleEmail(data) {
   // Maill trigger to QA, user dept and dealing officer upon uploading of each inspection call letters

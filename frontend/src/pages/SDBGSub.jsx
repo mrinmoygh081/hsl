@@ -106,14 +106,11 @@ const SDBGSub = () => {
   };
 
   const getSDBGcheckuser = async () => {
-    // setIsLoading(true);
     const data = await apiCallBack("GET", `po/sdbg/checkIsDEO?manNo=${user?.vendor_code}`, null, token);
     if (data?.status) {
       setCheckuser(data?.data);
-      // setIsLoading(false);
     } else if (data?.response?.data?.message === "INVALID_EXPIRED_TOKEN") {
       logOutFun(dispatch, logoutHandler, poRemoveHandler);
-      // setIsLoading(false);
     }
   };
 
@@ -341,8 +338,6 @@ const SDBGSub = () => {
     if (status) {
       setIsPopup(false);
       setIsEntryPopup(false);
-      // let bg = { ...bgInputs, purchasing_doc_no: id };
-      // setFormDatainput(bg);
       getSDBG();
     }
   };
@@ -1079,15 +1074,6 @@ const SDBGSub = () => {
                 </div>
               </div>
 
-              {/* <div className="col-md-6 col-12">
-                <div className="mb-3">
-                  <label className="form-label">Department</label>
-                  &nbsp;&nbsp;
-                  <span className="mandatorystart">*</span>
-                  <input type="text" className="form-control" name="department" value={formDatainput?.department || ""} onChange={handleInputChange2} />
-                </div>
-              </div> */}
-
               <div className="col-md-6 col-12">
                 <div className="mb-3">
                   <label className="form-label">BG Type</label>&nbsp;&nbsp;
@@ -1318,11 +1304,6 @@ const SDBGSub = () => {
                     &nbsp;&nbsp;
                     <span className="mandatorystart">*</span>
                     <DatePicker
-                      // selected={
-                      //   formDatainput.bg_recived_date
-                      //     ? new Date(formDatainput.bg_recived_date * 1000)
-                      //     : null
-                      // }
                       selected={parseDateFromEpoch(formDatainput.bg_recived_date)}
                       onChange={(date) => {
                         setFormDatainput((prevData) => ({
@@ -1852,13 +1833,6 @@ const SDBGSub = () => {
 
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    {/* <button
-                        onClick={() => assignSDBGByFinance()}
-                        className="btn fw-bold btn-primary"
-                        type="button"
-                      >
-                        ASSIGN
-                      </button> */}
                     <DynamicButton label="ASSIGN" onClick={assignSDBGByFinance} className="btn fw-bold btn-primary" />
                   </div>
                 </div>

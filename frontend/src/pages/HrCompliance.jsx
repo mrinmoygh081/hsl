@@ -23,7 +23,6 @@ const HrCompliance = () => {
   const { id } = useParams();
   const [isPopup, setIsPopup] = useState(false);
   const [data, setData] = useState([]);
-  // const [groupedData, setGroupedData] = useState([]);
   const [formData, setFormData] = useState({
     fileData: null,
     remarks: "",
@@ -33,18 +32,11 @@ const HrCompliance = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const { user, token } = useSelector((state) => state.auth);
-  // const { poType } = useSelector((state) => state.selectedPO);
-  // const [referenceNo, setreferenceNo] = useState("");
-  // console.log("useruser", user);
-  // console.log(poType, "poType");
-  // console.log(userType, "userType");
-  // console.log("referenceNo--", referenceNo);
 
   const getData = async () => {
     setIsLoading(true);
     try {
       const data = await apiCallBack("GET", `po/hr/complianceUploadedList?poNo=${id}`, null, token);
-      // console.log(data);
       if (data?.status) {
         setData(data?.data);
         setIsLoading(false);
@@ -103,13 +95,6 @@ const HrCompliance = () => {
     }
   };
 
-  // useEffect(() => {
-  //   if (data && data.length > 0) {
-  //     const gData = groupedByRefNo(data);
-  //     setGroupedData(gData);
-  //   }
-  // }, [data]);
-
   return (
     <>
       <div className="d-flex flex-column flex-root">
@@ -142,17 +127,12 @@ const HrCompliance = () => {
                             <table className="table table-striped table-bordered table_height">
                               <thead>
                                 <tr className="border-0">
-                                  {/* <th>Reference No. </th> */}
                                   <th>DateTime </th>
                                   <th>File Info</th>
                                   <th>Action Type</th>
                                   <th>Action By</th>
                                   <th className="min-w-150px">Remarks</th>
                                   <th className="min-w-150px">Compliance Date</th>
-                                  {/* <th>Status</th> */}
-                                  {/* {user?.department_id === USER_HSL_HR && (
-                                    <th>Action</th>
-                                  )} */}
                                 </tr>
                               </thead>
                               <tbody style={{ maxHeight: "100%" }}>
@@ -173,10 +153,6 @@ const HrCompliance = () => {
                                           <Fragment key={index}>
                                             <tr>
                                               <td className="table_center">
-                                                {/* {item?.created_at &&
-                                              new Date(
-                                                item?.created_at
-                                              ).toLocaleString()} */}
                                                 {item.created_at && formatDate(item.created_at)}
                                               </td>
                                               <td className="table_center">
@@ -193,33 +169,6 @@ const HrCompliance = () => {
                                                 Year: {item.year}, Month: {item.month}
                                               </td>
 
-                                              {/* <td
-                                          className={`${clrLegend(
-                                            item?.status
-                                          )} bold`}
-                                        >
-                                          {item.status}
-                                        </td> */}
-
-                                              {/* {user.department_id ===
-                                              USER_HSL_HR && (
-                                              <td>
-                                                {item.status ===
-                                                  "SUBMITTED" && (
-                                                  <button
-                                                    onClick={() => {
-                                                      setIsPopup(true);
-                                                      setreferenceNo(
-                                                        item.reference_no
-                                                      );
-                                                    }}
-                                                    className="btn fw-bold btn-primary mx-3"
-                                                  >
-                                                    ACTION
-                                                  </button>
-                                                )}
-                                              </td>
-                                            )} */}
                                             </tr>
                                           </Fragment>
                                         );
@@ -341,51 +290,8 @@ const HrCompliance = () => {
                 </div>
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    {/* <button
-                      onClick={() => actionHandler("SUBMITTED")}
-                      className="btn fw-bold btn-primary"
-                      type="button"
-                    >
-                      SUBMIT
-                    </button> */}
                     <DynamicButton label="SUBMIT" onClick={() => actionHandler("SUBMITTED")} className="btn fw-bold btn-primary" />
 
-                    {/* <div className="d-flex gap-3">
-                      {userType !== USER_VENDOR &&
-                        user?.department_id === USER_HSL_HR && (
-                          <button
-                            onClick={() =>
-                              reConfirm(
-                                { file: true },
-                                () => actionHandler("APPROVED"),
-                                "Please confirm your approving the drawing."
-                              )
-                            }
-                            className="btn fw-bold btn-success"
-                            type="button"
-                          >
-                            APPROVE
-                          </button>
-                        )}
-
-                      {userType !== USER_VENDOR &&
-                        user?.department_id === USER_HSL_HR &&
-                        user?.internal_role_id === ASSIGNER && (
-                          <button
-                            onClick={() =>
-                              reConfirm(
-                                { file: true },
-                                () => actionHandler("REJECTED"),
-                                "Drawing file rejected!!"
-                              )
-                            }
-                            className="btn fw-bold btn-danger"
-                            type="button"
-                          >
-                            REJECT
-                          </button>
-                        )}
-                    </div> */}
                   </div>
                 </div>
               </div>

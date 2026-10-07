@@ -1,10 +1,7 @@
 import React, { useState } from "react";
-// import bg from "assets/media/illustrations/sketchy-1/14-dark.png";
 import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
-// import { postAPI } from "../utils/fetchAPIs";
 import { logoutHandler } from "../redux/slices/loginSlice";
-// import { loginHandler } from "../redux/slices/loginSlice";
 import { useNavigate } from "react-router-dom";
 
 export default function WBS() {
@@ -24,7 +21,6 @@ export default function WBS() {
       toast.warn("Please fill all fields!");
       return;
     }
-    // navigate(`/pos`);
 
     setIsLoading(false);
   };
@@ -45,12 +41,6 @@ export default function WBS() {
             <div className="w-lg-500px bg-body rounded shadow-sm p-10 p-lg-15 mx-auto border">
               <form onSubmit={submitHandler} className="form w-100">
                 <div className="text-center mb-5">
-                  {/* <img
-                    src={require("../images/logo.png")}
-                    alt=""
-                    className="img-fluid"
-                    style={{ width: "120px" }}
-                  />*/}
                   <h3 className="text-dark">WBS / Project Code</h3>
                 </div>
                 <div className="fv-row mb-3">
@@ -95,14 +85,6 @@ export default function WBS() {
         </div>
       </div>
 
-      {/* <div className="pos_bottom">
-        <button
-          className="btn btn-danger"
-          onClick={() => dispatch(logoutHandler())}
-        >
-          Log Out
-        </button>
-      </div> */}
     </>
   );
 }

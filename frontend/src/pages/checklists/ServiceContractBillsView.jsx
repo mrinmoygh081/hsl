@@ -37,43 +37,6 @@ const ServiceContractBillsView = () => {
     }
   };
 
-  // const getForm = async (btn) => {
-  //   try {
-  //     const d = await apiCallBack("GET", `po/btn/getServiceBtnData?type=sbtn-details&btn_num=${btn}`);
-  //     if (d?.status) {
-  //       setForm(d?.data);
-  //       // Check if wdc_details is available in the form response
-  //       if (d?.data?.wdc_details) {
-  //         setData((prevData) => ({
-  //           ...prevData,
-  //           wdcDetails: d.data.wdc_details,
-  //         }));
-  //       } else {
-  //         // Fallback to API call if wdc_details is not in form response
-  //         checkWDCDetails(d?.data?.wdc_number);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching form data:", error);
-  //   }
-  // };
-
-  // const checkWDCDetails = async (wdc_number) => {
-  //   if (!wdc_number) return;
-
-  //   try {
-  //     const d = await apiCallBack("POST", `po/btn/getWdcInfoServiceHybrid?reference_no=${wdc_number}`, null, token);
-  //     if (d?.status) {
-  //       setData((prevData) => ({
-  //         ...prevData,
-  //         wdcDetails: d?.data,
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching WDC details:", error);
-  //   }
-  // };
-
   const getForm = async (btn) => {
     try {
       const d = await apiCallBack("GET", `po/btn/getServiceBtnData?type=sbtn-details&btn_num=${btn}`);
@@ -136,36 +99,6 @@ const ServiceContractBillsView = () => {
       console.error("Error fetching WDC details:", error);
     }
   };
-
-  // const checkWDCDetails = async (formData) => {
-  //   if (!formData?.wdc_number) return;
-
-  //   try {
-  //     // wdc_number string ho sakta hai comma-separated, array banana padega
-  //     const wdcNumberArr = Array.isArray(formData.wdc_number)
-  //       ? formData.wdc_number
-  //       : formData.wdc_number
-  //           .split(",")
-  //           .map((s) => s.trim())
-  //           .filter(Boolean);
-
-  //     const payload = {
-  //       outside: formData.outside === true || formData.outside === "true",
-  //       units: Array.isArray(formData.units) ? formData.units : [],
-  //       wdc_number_no: wdcNumberArr,
-  //     };
-
-  //     const d = await apiCallBack("POST", `po/btn/getWdcInfoServiceHybrid`, payload, token);
-  //     if (d?.status) {
-  //       setData((prevData) => ({
-  //         ...prevData,
-  //         wdcDetails: d?.data,
-  //       }));
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching WDC details:", error);
-  //   }
-  // };
 
   const checkInvoiceDate = async () => {
     try {

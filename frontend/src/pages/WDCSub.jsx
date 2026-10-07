@@ -99,14 +99,6 @@ const WDCSub = () => {
 
   console.log(user.vendor_code, "abhinit");
 
-  // let line_item_fieldswdc = {
-  //   claim_qty: "",
-  //   line_item_no: "",
-  //   actual_start: "",
-  //   actual_completion: "",
-  //   delay_in_work_execution: "",
-  // };
-
   let initialFormDatawdc = {
     action_type: "",
     remarks: "",
@@ -143,10 +135,8 @@ const WDCSub = () => {
   const [remarks, setRemarks] = useState("");
   const [delegateRemarks, setDelegateRemarks] = useState("");
   const [delegateRecommed, setDelegateRecommed] = useState("");
-  // const [doFormJcc, setDoFormJcc] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [dynamicFields, setDynamicFields] = useState([line_item_fields]);
-  // const [dynamicFieldsWdc, setDynamicFieldsWdc] = useState([line_item_fieldswdc]);
   const [lineItems, setLineItems] = useState([]);
   const [formData, setFormData] = useState(initialFormData);
   const [formDataWdc, setFormDataWdc] = useState(initialFormDatawdc);
@@ -179,10 +169,6 @@ const WDCSub = () => {
     setIsRemarksPopupOpen(false);
     setCurrentRemarks("");
   };
-  // const handlePrint = useReactToPrint({
-  //   content: () => componentRef.current,
-  //   documentTitle: `WDC_${viewData?.reference_no || "Document"}`,
-  // });
 
   useEffect(() => {
     if (viewData?.penalty_details) {
@@ -484,17 +470,6 @@ const WDCSub = () => {
     setDoForm(updatedForm);
   };
 
-  // const handleInputChangeOne = (e, fieldName) => {
-  //   const value = e.target.value;
-  //   setStatus(value);
-
-  //   if (value === "REJECTED") {
-  //     setShowRemarksPopup(true);
-  //   } else {
-  //     setShowRemarksPopup(false);
-  //   }
-  // };
-
   const handleInputChangeOne = (e, fieldName) => {
     const value = e.target.value;
     setStatus(value);
@@ -550,15 +525,6 @@ const WDCSub = () => {
       });
     }
   };
-
-  // const handleInputChangejcc = (e, index, field) => {
-  //   const updatedForm = { ...doFormJcc };
-  //   if (!updatedForm[index]) {
-  //     updatedForm[index] = {};
-  //   }
-  //   updatedForm[index][field] = e.target.value;
-  //   setDoFormJcc(updatedForm);
-  // };
 
   let penaltyDetails = [];
 
@@ -644,7 +610,6 @@ const WDCSub = () => {
       if (formDataCopy.certifying_authority && formDataCopy.action_type && formDataCopy.remarks && formDataCopy.line_item_array && formDataCopy.line_item_array.length > 0) {
         const isInvalid = formDataCopy.line_item_array.some((item, index) => {
           const lineItemNo = item.lineitem ? item.lineitem.toString().trim() : "";
-          // const sublineitem = item.sublineitem ? item.sublineitem.toString().trim() : "";
           const claimQty = item.claim_qty ? item.claim_qty.toString().trim() : "";
           const actualStartDate = item.actual_start ? item.actual_start.toString().trim() : "";
           const actualCompletionDate = item.actual_completion ? item.actual_completion.toString().trim() : "";
@@ -1044,23 +1009,6 @@ const WDCSub = () => {
     }
   };
 
-  // const getAvailableAmount = async (item) => {
-  //   try {
-  //     const res = await apiCallBack("GET", `po/demandeManagement/getRestAmount?po_no=${id}&line_item_no=${item}`, null, token);
-  //     if (res?.status) {
-  //       return {
-  //         description: res?.data?.description,
-  //         rest_amount: res?.data?.rest_amount,
-  //         unit: res?.data?.unit,
-  //         open_qty: res?.data?.open_qty,
-  //       };
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching WDC list:", error);
-  //     return null;
-  //   }
-  // };
-
   const handleFieldChange = async (index, e) => {
     const updatedFields = [...dynamicFields];
     const { name, value } = e.target;
@@ -1123,7 +1071,6 @@ const WDCSub = () => {
     setFormData(initialFormData);
     setFormDataWdc(initialFormDatawdc);
     setDynamicFields([line_item_fields]);
-    // setDynamicFieldsWdc([line_item_fieldswdc]);
     setIsPopup(false);
   };
 
@@ -1171,27 +1118,6 @@ const WDCSub = () => {
 
     return false;
   };
-
-  // const wdcAuttonVisible = (wdcData, userData, btn) => {
-  //   const firstItem = wdcData[0];
-
-  //   if (!firstItem || firstItem?.action_type !== "WDC") {
-  //     return false;
-  //   }
-
-  //   if (btn === "cancel-btn") {
-  //     // CANCELLE button - सिर्फ CANCEL_REQUESTED status में और action_on current user हो
-  //     return firstItem?.status === "CANCEL_REQUESTED" && firstItem?.action_on === userData.vendor_code;
-  //   }
-
-  //   if (btn === "action-btn") {
-  //     // Action button - CANCEL_REQUESTED, APPROVED, REJECTED को छोड़कर बाकी सभी status में
-  //     const excludedStatuses = ["CANCEL_REQUESTED", "APPROVED", "REJECTED"];
-  //     return !excludedStatuses.includes(firstItem?.status) && firstItem?.action_on === userData.vendor_code;
-  //   }
-
-  //   return false;
-  // };
 
   return (
     <>
@@ -1250,69 +1176,6 @@ const WDCSub = () => {
                                             <td colSpan={7}>
                                               <b>{it}</b>
                                             </td>
-                                            {/* <td className="d-flex">
-                                              {items[0]?.action_type === "WDC" && (
-                                                <button
-                                                  onClick={() => getSingleInfo(it).then(() => setIsPopupView(true))}
-                                                  className="btn btn-sm fw-bold btn-secondary m-1"
-                                                  type="button"
-                                                >
-                                                  View
-                                                </button>
-                                              )}
-                                              {items[0]?.action_type === "JCC" && (
-                                                <button
-                                                  onClick={() => getSingleInfo(it).then(() => setIsPopupJccView(true))}
-                                                  className="btn btn-sm fw-bold btn-secondary m-1"
-                                                  type="button"
-                                                >
-                                                  View
-                                                </button>
-                                              )}
-                                              {user.vendor_code === items[0].assigned_to && (
-                                                <>
-                                                  {wdcAuttonVisible(items, user, "action-btn") && (
-                                                    <button
-                                                      onClick={() => getSingleInfo(it).then(() => setIsSecPopup(true))}
-                                                      className="btn btn-sm fw-bold btn-primary m-1"
-                                                      type="button"
-                                                    >
-                                                      Action HHHHH
-                                                    </button>
-                                                  )}
-
-                                                  {items[0]?.action_type === "JCC" && (
-                                                    <button
-                                                      onClick={() => getSingleInfo(it).then(() => setIsjccActionSecPopup(true))}
-                                                      className="btn btn-sm fw-bold btn-primary m-1"
-                                                      type="button"
-                                                    >
-                                                      Action
-                                                    </button>
-                                                  )}
-                                                  
-                                                </>
-                                              )}
-                                              {user.vendor_code === items[0]?.delegate_to && (
-                                                <button
-                                                  onClick={() => getSingleInfo(it).then(() => setIsSecPopup(true))}
-                                                  className="btn btn-sm fw-bold btn-primary m-1"
-                                                  type="button"
-                                                >
-                                                  Action
-                                                </button>
-                                              )}
-                                              {items[0]?.action_type === "WDC" && user?.user_type === USER_VENDOR && (
-                                                <button onClick={() => openCancelModal(it)} className="btn btn-sm fw-bold btn-danger m-1" type="button">
-                                                  CANCEL REQUEST
-                                                </button>
-                                              )}
-                                              {wdcAuttonVisible(items, user, "cancel-btn") && (
-                                                <button onClick={() => openCancelGrseModal(it)} className="btn btn-sm fw-bold btn-danger m-1" type="button">
-                                                  CANCELLE
-                                                </button>
-                                              )}
-                                            </td> */}
                                             <td className="d-flex">
                                               {/* View Buttons - WDC और JCC दोनों के लिए */}
                                               {items[0]?.action_type === "WDC" && (
@@ -1400,7 +1263,6 @@ const WDCSub = () => {
                                                   {item.action_on_name} ({item.action_on})
                                                 </td>
                                                 <td>{item?.remarks}</td>
-                                                {/* <td className={`${clrLegend(item?.status)} bold`}>{item?.status}</td> */}
                                                 <td className={`${clrLegend(item?.status)} bold`}>
                                                   {item?.status}
                                                   {(item?.status === "REJECTED" || item?.status === "DELEGATED") && (
@@ -1417,41 +1279,6 @@ const WDCSub = () => {
                                                   )}
                                                 </td>
                                                 <td className="d-flex">
-                                                  {/* {item?.action_type === "WDC" && (
-                                                    <button
-                                                      onClick={() => getSingleInfo(item.id).then(() => setIsPopupView(true))}
-                                                      className="btn btn-sm fw-bold btn-secondary m-1"
-                                                      type="button"
-                                                    >
-                                                      View
-                                                    </button>
-                                                  )}
-
-                                                  {item.status === "SUBMITTED" && user.vendor_code === item.assigned_to && (
-                                                    <>
-                                                      {item?.action_type === "WDC" && (
-                                                        <button
-                                                          onClick={() => getSingleInfo(item.id).then(() => setIsSecPopup(true))}
-                                                          className="btn btn-sm fw-bold btn-primary m-1"
-                                                          type="button"
-                                                        >
-                                                          Action
-                                                        </button>
-                                                      )}
-                                                      {item?.action_type === "JCC" && (
-                                                        <button
-                                                          onClick={() => {
-                                                            setViewData(item);
-                                                            setIsjccActionSecPopup(true);
-                                                          }}
-                                                          className="btn btn-sm fw-bold btn-primary m-1"
-                                                          type="button"
-                                                        >
-                                                          Action
-                                                        </button>
-                                                      )}
-                                                    </>
-                                                  )} */}
                                                 </td>
                                               </tr>
                                             ))}
@@ -1659,49 +1486,6 @@ const WDCSub = () => {
                         />
                       </div>
                     </div>
-                    {/* <div className="col-12 col-md-4">
-                      <div className="mb-3">
-                        <label className="form-label">Unit</label>
-                        <Select
-                          className="basic-multi w_250"
-                          classNamePrefix="select"
-                          isSearchable={true}
-                          options={[
-                            { value: "MAIN", label: "MAIN" },
-                            { value: "FOJ", label: "FOJ" },
-                            { value: "RBD", label: "RBD" },
-                            { value: "61PARK", label: "61PARK" },
-                            { value: "TU", label: "TU" },
-                            { value: "DEP", label: "DEP" },
-                          ]}
-                          value={formData?.unit}
-                          onChange={(options) => setFormData({ ...formData, unit: options || [] })}
-                          placeholder="Select Units..."
-                        />
-                      </div>
-                    </div> */}
-                    {/* <div className="col-12 col-md-4">
-                      <div className="mb-3">
-                        <label className="form-label">Unit</label>
-                        <Select
-                          className="basic-multi w_250"
-                          classNamePrefix="select"
-                          isSearchable={true}
-                          isClearable={true}
-                          options={[
-                            { value: "MAIN", label: "MAIN" },
-                            { value: "FOJ", label: "FOJ" },
-                            { value: "RBD", label: "RBD" },
-                            { value: "61PARK", label: "61PARK" },
-                            { value: "TU", label: "TU" },
-                            { value: "DEP", label: "DEP" },
-                          ]}
-                          value={formData.unit ? { value: formData.unit, label: formData.unit } : null}
-                          onChange={(option) => setFormData({ ...formData, unit: option ? option.value : "" })}
-                          placeholder="Select Units..."
-                        />
-                      </div>
-                    </div> */}
                     <div className="col-12 col-md-4">
                       <div className="mb-3">
                         <label className="form-label">Unit</label>
@@ -1982,54 +1766,6 @@ const WDCSub = () => {
                       </tbody>
                     </table>
 
-                    {/* <div className="col-12 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          Certifying Authority <span className="red">*</span>{" "}
-                        </label>
-
-                        {checkTypeArr(emp) && (
-                          <Select
-                            className="basic-single"
-                            classNamePrefix="select"
-                            isClearable={true}
-                            isSearchable={true}
-                            name="emp"
-                            id="emp"
-                            options={emp}
-                            value={emp && emp.filter((item) => item.value === formData?.certifying_authority)[0]}
-                            onChange={(val) =>
-                              setFormData({
-                                ...formData,
-                                certifying_authority: val?.value || "",
-                              })
-                            }
-                          />
-                        )}
-                      </div>
-                    </div> */}
-                    {/* <div className="col-12 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          Certifying Authority <span className="red">*</span>{" "}
-                        </label>
-
-                        {checkTypeArr(emp) && (
-                          <CommonSelect
-                            name="emp"
-                            id="emp"
-                            options={emp}
-                            value={emp?.find((item) => item.value === formData?.certifying_authority)}
-                            onChange={(val) =>
-                              setFormData({
-                                ...formData,
-                                certifying_authority: val?.value || "",
-                              })
-                            }
-                          />
-                        )}
-                      </div>
-                    </div> */}
                     <div className="col-12 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">
@@ -2256,26 +1992,6 @@ const WDCSub = () => {
                       </div>
                     </div>
 
-                    {/* <div className="col-12 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">
-                          Certifying Authority <span className="red">*</span>{" "}
-                        </label>
-
-                        <CommonSelect
-                          name="emp"
-                          id="emp"
-                          options={emp}
-                          value={emp?.find((item) => item.value === formData?.certifying_authority)}
-                          onChange={(val) =>
-                            setFormData({
-                              ...formData,
-                              certifying_authority: val?.value || "",
-                            })
-                          }
-                        />
-                      </div>
-                    </div> */}
                     <div className="col-12 col-md-6">
                       <div className="mb-3">
                         <label className="form-label">
@@ -2608,24 +2324,6 @@ const WDCSub = () => {
                   </table>
 
                   {console.log(formData.status, "jjjjjj")}
-                  {/* {status === "DELEGATED" && (
-                    <div className="col-12 col-md-6">
-                      <div className="mb-3">
-                        <label className="form-label">Delegated</label>
-                        <Select
-                          className="basic-single"
-                          classNamePrefix="select"
-                          isClearable={true}
-                          isSearchable={true}
-                          name="emp"
-                          id="emp"
-                          options={emp}
-                          value={emp && emp.find((item) => item.value === formData?.certifying_authority)}
-                          onChange={(val) => setFormData({ ...formData, certifying_authority: val?.value || "" })}
-                        />
-                      </div>
-                    </div>
-                  )} */}
                   {status === "DELEGATED" && (
                     <div className="col-12 col-md-6">
                       <div className="mb-3">
@@ -2692,7 +2390,6 @@ const WDCSub = () => {
                             <p>
                               {viewData?.delegate_to_name || ""} {viewData?.delegate_to ? `(${viewData.delegate_to})` : ""}
                             </p>
-                            {/* <p>{viewData.delegate_to}</p> */}
                             {viewData?.remarks2 != null && viewData.remarks2 !== "" && (
                               <div className="icon-container">
                                 <BsChatRightText
@@ -2746,7 +2443,6 @@ const WDCSub = () => {
                 <h3 className="card-title align-items-start flex-column">
                   <span className="card-label fw-bold fs-3 mb-1">All Data {viewData?.reference_no && `for ${viewData?.reference_no}`}</span>
                 </h3>
-                {/* {console.log(viewData, "name of abhinit anand")} */}
                 <button
                   className="btn fw-bold btn-danger"
                   onClick={() => {
@@ -3130,7 +2826,6 @@ const WDCSub = () => {
                       <p>
                         {viewData?.delegate_to_name || ""} {viewData?.delegate_to ? `(${viewData.delegate_to})` : ""}
                       </p>
-                      {/* <p>{viewData.delegate_to}</p> */}
                       {viewData?.remarks2 != null && viewData.remarks2 !== "" && (
                         <div className="icon-container">
                           <BsChatRightText
@@ -3238,9 +2933,6 @@ const WDCSub = () => {
             </h3>
 
             <div>
-              {/* <button className="btn fw-bold btn-primary me-2" onClick={handlePrint}>
-                Print
-              </button> */}
               <button className="btn fw-bold btn-success me-2" onClick={handleDownloadJccView}>
                 Download
               </button>

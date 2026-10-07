@@ -176,35 +176,10 @@ const BillsMaterialHybridEdit = () => {
   initialDOData.btn_num = state;
   const [form, setForm] = useState(initialData);
   const [doForm, setDoForm] = useState(initialDOData);
-  // const [options, setOptions] = useState([]);
   const [emp, setEmp] = useState([]);
   const [showRemarks, setShowRemarks] = useState(false);
   const [remarks, setRemarks] = useState("");
   console.log(doForm, "doForm");
-
-  // const calNetClaimAmount = (invoice_value, debit_note, credit_note) => {
-  //   if (typeof invoice_value !== "number") {
-  //     invoice_value = parseInt(invoice_value) || 0;
-  //   }
-  //   if (typeof debit_note !== "number") {
-  //     debit_note = parseInt(debit_note) || 0;
-  //   }
-  //   if (typeof credit_note !== "number") {
-  //     credit_note = parseInt(credit_note) || 0;
-  //   }
-  //   setForm({
-  //     ...form,
-  //     net_claim_amount:
-  //       parseInt(invoice_value) + parseInt(debit_note) - parseInt(credit_note),
-  //   });
-  // };
-
-  // useEffect(() => {
-  //   const { invoice_value, debit_note, credit_note } = form;
-  //   if (invoice_value || debit_note || credit_note) {
-  //     calNetClaimAmount(invoice_value, debit_note, credit_note);
-  //   }
-  // }, [form?.invoice_value, form?.debit_note, form?.credit_note]);
 
   const getBTNData = async () => {
     try {
@@ -227,32 +202,6 @@ const BillsMaterialHybridEdit = () => {
       console.error("Error fetching WDC list:", error);
     }
   };
-
-  // useEffect(() => {
-  //   let net = data?.net_claim_amount;
-  //   let netWithGST = data?.net_with_gst;
-
-  //   if (net && netWithGST) {
-  //     let report = calculateNetPay(
-  //       net,
-  //       netWithGST,
-  //       doForm?.ld_amount,
-  //       doForm?.p_sdbg_amount,
-  //       doForm?.drg_penalty,
-  //       doForm?.qap_penalty,
-  //       doForm?.ilms_penalty,
-  //       doForm?.o_ret_per,
-  //       doForm?.p_estimate_amount,
-  //     );
-
-  //     setDoForm((prevForm) => ({
-  //       ...prevForm,
-  //       total_deduction: report?.deduct,
-  //       net_payable_amount: report?.net_pay,
-  //       other_deduction: report?.other,
-  //     }));
-  //   }
-  // }, [data?.net_claim_amount, data?.net_with_gst, doForm?.ld_amount, doForm?.o_ret_per, doForm?.p_estimate_amount]);
 
   useEffect(() => {
     let net = data?.net_claim_amount;
@@ -321,16 +270,6 @@ const BillsMaterialHybridEdit = () => {
     }
   };
 
-  // useEffect(() => {
-  //   getBTNData();
-  //   getDataByBTN();
-  //   getEmp();
-  //   if (data?.invoice_no) {
-  //     console.log("data?.invoice_no", data?.invoice_no);
-  //     getGateEntryInfo(data?.invoice_no);
-  //   }
-  // }, [data?.invoice_no]);
-
   useEffect(() => {
     getBTNData();
     getDataByBTN();
@@ -351,7 +290,6 @@ const BillsMaterialHybridEdit = () => {
       const cc = convertToEpoch(new Date(contractual_ld)) * 1000;
       const aa = convertToEpoch(new Date(ld_ge_date)) * 1000;
       let p_amt = calculatePenalty(cc, aa, icgrnData, 0.5, Number(doForm?.max_ld));
-      // console.log("p_amt", p_amt, cc, aa, icgrnData);
       setDoForm((prev) => ({ ...prev, ld_amount: p_amt }));
     }
   }, [doForm?.contractual_ld, doForm?.ld_ge_date, data?.icgrn_total, doForm?.max_ld]);
@@ -364,20 +302,9 @@ const BillsMaterialHybridEdit = () => {
     let p_ilms = 0;
     let p_estimate = 0;
 
-    // console.log("icgrn_total", data?.icgrn_total);
-
     if (data?.icgrn_total) {
       const icgrnData = data?.icgrn_total;
 
-      // if (a_sdbg_date && c_sdbg_date && icgrnData) {
-      //   p_sdbg = calculatePenalty(
-      //     convertToEpoch(new Date(c_sdbg_date)) * 1000,
-      //     Number(a_sdbg_date),
-      //     icgrnData,
-      //     0.25,
-      //     Number(doForm?.max_penalty)
-      //   );
-      // }
       if (a_drawing_date && c_drawing_date && icgrnData) {
         p_drg = calculatePenalty(convertToEpoch(new Date(c_drawing_date)) * 1000, Number(a_drawing_date), icgrnData, 0.25, null);
       }
@@ -484,22 +411,6 @@ const BillsMaterialHybridEdit = () => {
                                       <tr>
                                         <td>Finance Authority</td>
                                         <td className="btn_value">
-                                          {/* <Select
-                                            className="basic-single w-100"
-                                            classNamePrefix="select"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            name="emp"
-                                            id="emp"
-                                            options={emp}
-                                            value={emp && emp.filter((item) => item.value === doForm?.assign_to)[0]}
-                                            onChange={(val) =>
-                                              setDoForm({
-                                                ...doForm,
-                                                assign_to: val ? val.value : null,
-                                              })
-                                            }
-                                          /> */}
                                           <HrSearchableSelect
                                             options={emp}
                                             value={doForm?.assign_to}
@@ -673,26 +584,6 @@ const BillsMaterialHybridEdit = () => {
                                           <p>&#8377; {doForm?.p_estimate_amount}</p>
                                         </td>
                                       </tr>
-                                      {/* <tr>
-                                        <td>deduction if any </td>
-                                        <td className="btn_value">
-                                          <input
-                                            type="number"
-                                            name="other_deduction"
-                                            id=""
-                                            className="form-control"
-                                            value={doForm?.other_deduction}
-                                            onChange={(e) =>
-                                              inputTypeChange(
-                                                e,
-                                                doForm,
-                                                setDoForm
-                                              )
-                                            }
-                                            onWheel={inputOnWheelPrevent}
-                                          />
-                                        </td>
-                                      </tr> */}
                                       <tr>
                                         <td>Retension (BG)if any (%)</td>
                                         <td className="btn_value">

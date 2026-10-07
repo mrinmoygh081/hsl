@@ -14,7 +14,6 @@ const { checkTypeArr } = require("../utils/smallFun");
 const { getDoDetailsByPO } = require("../utils/btnUtils");
 const { getUserDetailsQuery } = require("../utils/mailFunc");
 
-
 const submitAdvanceBillHybrid = async (req, res) => {
     let client;
     try {
@@ -23,7 +22,6 @@ const submitAdvanceBillHybrid = async (req, res) => {
 
         let payloadFiles = req.files;
         const uploadedFiles = filesData(payloadFiles);
-
 
         if (!payload) {
             return resSend(res, false, 400, Message.INVALID_PAYLOAD, Message.MANDATORY_INPUTS_REQUIRED, null);
@@ -38,24 +36,12 @@ const submitAdvanceBillHybrid = async (req, res) => {
         if (!uploadedFiles.invoice_filename) {
             return resSend(res, false, 200, Message.MANDATORY_INPUTS_REQUIRED, "File is missing!", null);
         }
-        // const { associated_po } = payload;
         client = await poolClient();
 
         // BTN NUMBER GENERATE
         await client.query("BEGIN");
         const btn_num = await create_btn_no(client);
         // UPLOAD FILES DATA HANDLES
-
-        // let credit_note;
-        // let debit_note;
-
-        // if (!debit_note || debit_note === "") {
-        //     debit_note = 0;
-        // }
-        // if (!credit_note || credit_note === "") {
-        //     credit_note = 0;
-        // }
-
 
         let net_claim_amount = parseFloat(payload.net_claim_amount).toFixed(3);
 
@@ -64,12 +50,6 @@ const submitAdvanceBillHybrid = async (req, res) => {
 
         // ACTUAL SUMBISSION DATA
         const actualDateSetup = await getActualSubmissionDate(payload.purchasing_doc_no, client);
-        // const missingMilestone = checkMilestonDates(contDateSetup.result, actualDateSetup.result);
-
-        // if (!missingMilestone.success) {
-        //     return resSend(res, false, 200, missingMilestone.msg, "Missing data", null);
-        // }
-
 
         // BG File missing check
         const bgData = await getBgApprovedFiles(client, payload.purchasing_doc_no);
@@ -110,8 +90,6 @@ const submitAdvanceBillHybrid = async (req, res) => {
 
         await addToBTNListFn(client, btnListData, SUBMITTED_BY_VENDOR);
         await client.query("COMMIT");
-        // TO DO EMAIL
-        // serviceBtnMailSend(tokenData, { ...payload, status: SUBMITTED });
         resSend(res, true, 201, Message.BTN_CREATED, "BTN Created. No. " + btn_num, { btn_num });
 
     } catch (error) {
@@ -160,9 +138,6 @@ const getAdvBillAgainstBgData = async (req, res) => {
     }
 };
 
-
-
-
 const sbhSubmitBTNByDO = async (req, res) => {
 
     let client;
@@ -201,16 +176,8 @@ const sbhSubmitBTNByDO = async (req, res) => {
             return resSend(res, false, 200, Message.MANDATORY_PARAMETR_MISSING, "PO No OR net_payable_amount OR assign_to missing", null);
         }
 
-        // DEALING OFFICER CHECK 
-        // const validAuthrityCheck = await getDoDetailsByPO(client, payload.purchasing_doc_no);
-        // if (validAuthrityCheck.u_id !== tokenData.vendor_code) {
-        //     return resSend(res, false, 200, "You are not authorised!", Message.YOU_ARE_UN_AUTHORIZED, null);
-        // }
-
-
         //  BTN FINANCE AUTHORITY DATA INSERT
         const financePaylad = advBillHybridbtnDOPayload(payload, tokenData);
-        // const { q, val } = generateQuery(INSERT, BTN_ADV_BILL_HYBRID_DO, financePaylad);
         const { q, val } = await generateInsertUpdateQuery(financePaylad, BTN_ADV_BILL_HYBRID_DO, ["btn_num", "purchasing_doc_no"]);
         const response = await poolQuery({ client, query: q, values: val });
 
@@ -223,7 +190,6 @@ const sbhSubmitBTNByDO = async (req, res) => {
         const latesBtnData = await getLatestBTN(client, payload);
 
         await addToBTNListFn(client, { ...latesBtnData, ...payload, assign_by: tokenData.vendor_code }, SUBMITTED_BY_DO);
-        // const sendSap = true; //await btnSubmitByDo({ btn_num, purchasing_doc_no, assign_to }, tokenData);
         const sendSap = await abhBtnSubmitToSAPF01(payload, tokenData);
 
         if (sendSap == false) {
@@ -235,8 +201,6 @@ const sbhSubmitBTNByDO = async (req, res) => {
 
             // TO DO 
             // EMAIL IMPMENENTAIOTN
-
-            // serviceBtnMailSend(tokenData, { ...payload, status: SUBMITTED_BY_DO });
 
         }
 
@@ -272,7 +236,6 @@ const getAdvBillHybridBTN = async (req, res) => {
         }
 
         const advBillReqDataQuery = baseQuery + conditionQuery;
-        // let results = await query({ query: advBillReqDataQuery, values: valueArr });
         let [results] = await client.query(advBillReqDataQuery, valueArr);
         resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, results, null);
     } catch (error) {
@@ -283,7 +246,6 @@ const getAdvBillHybridBTN = async (req, res) => {
     }
 };
 
-
 async function btnAdvPaymentAgainstBgReject(client, data, tokenData) {
 
     const payload = {
@@ -293,7 +255,6 @@ async function btnAdvPaymentAgainstBgReject(client, data, tokenData) {
         assign_to: data.assign_to,
         status: REJECTED
     };
-
 
     const latesBtnData = await getLatestBTN(client, payload);
 
@@ -308,8 +269,6 @@ async function btnAdvPaymentAgainstBgReject(client, data, tokenData) {
     return { btn_num: data.btn_num };
 
 }
-
-
 
 const sbhAssignToFiStaff = async (req, res) => {
     try {
@@ -369,15 +328,12 @@ const sbhAssignToFiStaff = async (req, res) => {
 
             await addToBTNListFn(client, data, STATUS_RECEIVED);
 
-            // const sendSap = true;
             const sendSap = await abhBtnSubmitToSAPF02({ ...req.body, ...payload }, tokenData);
             if (sendSap == false) {
                 await client.query("ROLLBACK");
                 return resSend(res, false, 200, `SAP not connected.`, { btn_num }, null);
             } else if (sendSap == true) {
                 await client.query("COMMIT");
-                // TO DO EMAIL
-                // serviceBtnMailSend(tokenData, { ...req.body, ...payload, status: STATUS_RECEIVED });
                 resSend(res, true, 200, "Finance Staff has been assigned!", null, null);
             }
 
@@ -391,10 +347,6 @@ const sbhAssignToFiStaff = async (req, res) => {
         resSend(res, true, 500, Message.DB_CONN_ERROR, error.message, null);
     }
 };
-
-
-
-
 
 module.exports = {
     submitAdvanceBillHybrid,

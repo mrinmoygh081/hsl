@@ -7,12 +7,6 @@ const { verifyAccessToken } = require("../services/jwt.services");
    PO DOWNLOAD ROUTES
 -------------------------------------------------------------- */
 
-// router.get(
-//   "/",
-//   verifyAccessToken,
-//   downloadController.download
-// );
-
 router.get(
   "/tnc",
   verifyAccessToken,

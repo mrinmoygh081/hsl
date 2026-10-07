@@ -7,7 +7,6 @@ const shippingDocumentsController = require("../controllers/poController/shippin
 const { dynamicallyUpload } = require("../lib/fileUpload");
 const { verifyAccessToken } = require("../services/jwt.services");
 const sdbgRoutes = require("./sdbgRoutes");
-// const { qapMfw } = require("../services/qapMfw");
 const drawingRoutes = require("./drawingRoutes");
 const wdcRoutes = require("./WdcRoutes");
 const ilmsRoutes = require("./ilmsRoutes");
@@ -28,9 +27,6 @@ const materialRoutes = require("./materialRouter");
 const { taskController } = require("../controllers/taskControllers");
 const { browsingLimiter } = require("../config/rateLimiter");
 
-// const { createTable } = require("../lib/createTableFromJson");
-
-
 // --------------------- START ROUTES ---------------------------------------------- //
 
 // FOR CHECHING SERVER IS RUNNING ...
@@ -42,21 +38,11 @@ router.get("/ping", async (req, res) => {
   });
 });
 
-// router.get("/userping", verifyAccessToken, async (req, res) => {
-//   res.status(200).json({
-//     success: true,
-//     data: { queryData: req.query, pingId: req.params.id },
-//     message: "ping pong",
-//   });
-// });
-
-
 // GENERAL GET API
 
 router.get("/getFilteredData",
   verifyAccessToken,
   getFilteredData);
-
 
 /**
  * PO APIS - - - START
@@ -82,7 +68,6 @@ router.use(poPrefix + "/hr", hrRoutes);
  * VENDOR ACTIVITY
 --------------------------------------------------------------------------------------- */
 router.use(poPrefix + "/vendor", vendorActivitiesRoutes);
-
 
 /**---------------------------------------------------------------------------------------
  * SHIPPING DOCS
@@ -112,11 +97,6 @@ router.get(poPrefix + "/details",
   browsingLimiter,
   verifyAccessToken,
   generalController.details);
-
-// router.post(poPrefix + "/deptwiselog", [], (req, res) => {
-//   logController.getLogList(req, res);
-// });
-
 
 /**-------------------------------------------------------------------------------
  * SHIPPING DETAILS
@@ -172,7 +152,6 @@ router.get(poPrefix + "/internalDepartmentEmpList",
   qapController.internalDepartmentEmpList
 );
 
-
 /**-------------------------------------------------------------------------------
  * MY TASK
  -------------------------------------------------------------------------------*/
@@ -184,6 +163,5 @@ router.get(poPrefix + "/task", [verifyAccessToken], (req, res) => {
  * BG EXTENSION
  ---------------------------------------------------------------------------------------*/
 router.use("/bg-extension", [verifyAccessToken], bgExtensionRoutes);
-
 
 module.exports = router;

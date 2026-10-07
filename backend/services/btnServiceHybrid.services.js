@@ -122,7 +122,6 @@ const btnAssignPayload = (payload) => {
   };
 };
 
-
 /**
  * BTN delegate payload
  * @param {Object} payload
@@ -140,7 +139,6 @@ const btnDelegatePayload = (payload) => {
     status: payload.status,
   };
 };
-
 
 /**
  * BTN Recomend/non-recomend payload
@@ -164,8 +162,6 @@ const btnRecomendPayload = (payload) => {
  * @param {Object} payloadFiles
  * @returns
  */
-
-
 
 /**
  * INSERT DATA IN BTN LIST TABLE
@@ -199,7 +195,6 @@ const addToBTNListFn = async (client, data, status) => {
 
 };
 
-
 /**
  * SDBG APPROVE FILE DATA
  * @param {Object} client
@@ -230,34 +225,6 @@ const getPBGApprovedFiles = async (client, data) => {
 
 };
 
-// /**
-//  * GET VENDOR DETAILS
-//  * @param {Object} client
-//  * @param {Object} data
-//  * @returns {Promise<Object>}
-//  * @throws {Error} If the query execution fails, an error is thrown.
-//  */
-// const vendorDetails = async (client, data) => {
-//   try {
-//     let q = `
-//               SELECT po.lifnr       AS vendor_code,
-//                      vendor_t.name1 AS vendor_name,
-//                      vendor_t.email AS vendor_email,
-//                      vendor_t.stcd3 AS vendor_gstno
-//               FROM   ekko AS po
-//                      left join lfa1 AS vendor_t
-//                             ON ( po.lifnr = vendor_t.lifnr )
-//               WHERE  po.ebeln = $1`;
-//     let result = await poolQuery({
-//       client,
-//       query: q,
-//       values: data,
-//     });
-//     return result;
-//   } catch (error) {
-//     throw error;
-//   }
-// };
 /**
  * ACTUAL SUBMISSION DATE
  * @param {Object} client
@@ -331,7 +298,6 @@ async function checkHrCompliance(client, data) {
 const getGrnIcgrnValue = async (client, data) => {
   try {
     if (!data.num || typeof data.num != "string" || !data.po) {
-      // return resSend(res, true, 200, "Please send icgrn no", Message.MANDATORY_INPUTS_REQUIRED, null);
       return { success: false, statusCode: 200, message: "Please send GRN and PO", data: Message.MANDATORY_INPUTS_REQUIRED };
     }
 
@@ -346,7 +312,6 @@ const getGrnIcgrnValue = async (client, data) => {
 
     // get grn values
     let grn_value = (await getGrnDetails(client, grnArr)) || [];
-
 
     const onlyGrnItems = grn_value.filter((el) => el.grn_reqired == null || el.grn_reqired == "");
     const icgrnItems = grn_value.filter((el) => el.grn_reqired == "X");
@@ -373,7 +338,6 @@ const getGrnIcgrnValue = async (client, data) => {
     total_price = parseFloat(total_price.toFixed(3));
     total_quantity = parseFloat(total_quantity.toFixed(3));
 
-
     const returnedGrns = await getReturnedGrnDetailsByGrnNos(client, grnArr);
 
     if (returnedGrns.length) {
@@ -386,8 +350,6 @@ const getGrnIcgrnValue = async (client, data) => {
       grn_value = remove122GrnData(grn_value, returnedGrns);
 
     }
-
-
 
     const line_item_array = grn_value.map((el) => ({
       ...el,
@@ -414,7 +376,6 @@ const getGrnIcgrnValue = async (client, data) => {
   }
 };
 
-
 function remove122GrnData(grnAll = [], grn122 = []) {
   // Collect all mblnr values from grn122 into a Set for fast lookup
   const removeSet = new Set(grn122.map(g => g.lfbnr));
@@ -422,8 +383,6 @@ function remove122GrnData(grnAll = [], grn122 = []) {
   // Filter grnAll, keeping only those not in removeSet
   return grnAll.filter(gAll => !removeSet.has(gAll.mblnr));
 }
-
-
 
 /**
  * commaSepartedStringToStringArrayGrnNos
@@ -441,69 +400,6 @@ function commaSepartedStringToStringArrayGrnNos(grnNosSting) {
   return [];
 }
 
-
-
-// async function getGrnDetails(client, values, poNo) {
-
-//     try {
-//         if (!values.length) return [];
-//         const placeholder = values.map((_, index) => `$${index + 1}`).join(",");
-//         const grn_value_q = `SELECT
-//       mseg.MATNR as mat_no,
-//       mseg.MBLNR as grn_no,
-//       mseg.MENGE as quantity,
-//       mseg.ebeln as purchasing_doc_no,
-//       mseg.ebelp as po_lineitem,
-//       mseg.insmk as grn_reqired,
-//       mseg.dmbtr as price
-//     FROM mseg as mseg
-//       left join ekpo as ekpo
-//         ON (ekpo.ebeln = mseg.ebeln AND ekpo.ebelp = mseg.ebelp AND ekpo.matnr = mseg.matnr)
-//     WHERE 1 = 1 AND MBLNR IN (${placeholder}) AND ebeln = '${poNo}'`;
-//         let grn_value = await poolQuery({ client, query: grn_value_q, values });
-
-//         return grn_value;
-//     } catch (error) {
-
-//         throw error;
-//     }
-
-// }
-
-// function calculateTotals(data) {
-//   let totalQuantity = 0;
-//   let totalPrice = 0;
-
-//   data.forEach((item) => {
-//     if (item.bpmng && item.netpr) {
-//       totalQuantity += parseFloat(item.bpmng || 0);
-//       totalPrice += parseFloat(item.netpr || 0) * parseFloat(item.bpmng || 0);
-//     }
-//   });
-
-//   return {
-//     totalQuantity,
-//     totalPrice,
-//   };
-// }
-
-// function calculateTotalGrnValue(data) {
-//   let totalQuantity = 0;
-//   let totalPrice = 0;
-
-//   data.forEach((item) => {
-//     totalQuantity += parseFloat(item.quantity);
-//     const grnItemValue = item.price || 0;
-//     totalPrice += parseFloat(grnItemValue);
-//   });
-
-//   return {
-//     totalQuantity,
-//     totalPrice,
-//   };
-// }
-
-
 /**
  * Service entry total value
  * @param {Object} client
@@ -518,28 +414,6 @@ const getServiceEntryValue = async (client, data) => {
     if (!data?.num || !data?.po || !service_entry_numbers?.length) {
       return { success: false, statusCode: 200, message: "Please send service entry number & po", data: Message.MANDATORY_INPUTS_REQUIRED };
     }
-
-
-    //     const getValQuery = `
-    //   SELECT ESSR.EBELN, 
-    // 	ESSR.EBELP, 
-    // 	ESSR.LBLNI, 
-    // 	ESSR.PACKNO,
-    // 	json_agg(json_build_object(
-    // 	'claim_qty', ESLL_SUBLINE.MENGE,
-    //   'lineitem', ESSR.EBELP,
-    // 	'description', ESLL_SUBLINE.KTEXT1,
-    // 	'sublineitem', ESLL_SUBLINE.EXTROW,
-    // 	'unit', ESLL_SUBLINE.MEINS,
-    // 	'claim_amount', ESLL_SUBLINE.NETWR
-    // 	)) AS line_item_array
-    // 	FROM ESSR AS ESSR 
-    // 	LEFT JOIN ESLL AS ESLL_PACK
-    // 	ON(ESSR.PACKNO = ESLL_PACK.PACKNO)
-    // 	LEFT JOIN ESLL AS ESLL_SUBLINE
-    // 	ON(ESLL_SUBLINE.PACKNO = ESLL_PACK.SUB_PACKNO AND ESLL_SUBLINE.DEL != 'X')
-    // WHERE ESSR.WDC IN() AND ESSR.LOEKZ != 'X'
-    // GROUP BY ESSR.EBELN, ESSR.EBELP, ESSR.LBLNI, ESSR.PACKNO`;
 
     const qb = new QueryBuilder("ESSR AS ESSR");
     qb.select(
@@ -586,15 +460,12 @@ const getServiceEntryValue = async (client, data) => {
       line_item_array,
     };
 
-
     return { success: true, statusCode: 200, message: "Value fetch success", data: filalResult };
   } catch (error) {
     console.error("Error making the request:", error.message);
     throw error;
   }
 };
-
-
 
 /**
  * Calculate total value
@@ -713,10 +584,8 @@ async function getServiceBTNDetails(client, data) {
     // AND s_btn.bill_certifing_authority = '600700'
     // btn_assign.*,
     // LEFT JOIN btn_assign AS btn_assign
-    // ON(s_btn.btn_num = btn_assign.btn_num)
 
     const result = await poolQuery({ client, query: getBtnQuery, values: val });
-
 
     let response = result[0] || {};
     response.wdc_details = {};
@@ -739,8 +608,6 @@ async function getServiceBTNDetails(client, data) {
     throw error;
   }
 }
-
-
 
 /**
  * Get a single Service BTN row with dynamic select fields and where conditions
@@ -767,32 +634,6 @@ async function getServiceBtn(client, selectFields = "*", whereConditionObj = {})
   }
 }
 
-
-
-
-// async function getLatestBTN(client, data) {
-//   try {
-//     const getLatestDataQuery = `
-//         SELECT 
-//             btn_num, 
-//             purchasing_doc_no, 
-//             net_claim_amount, 
-//             net_payable_amount, 
-//             vendor_code,
-//             assign_to,
-//             assign_by, 
-//             status, 
-//             btn_type,
-//             created_at
-//         FROM btn_list where btn_num = $1 ORDER BY created_at DESC LIMIT 1`;
-//     const lasBtnDetails = await poolQuery({ client, query: getLatestDataQuery, values: [data.btn_num] });
-
-//     return lasBtnDetails[0] || {};
-//   } catch (error) {
-//     throw error;
-//   }
-// }
-
 async function supportingDataForServiceBtn(client, poNo) {
   const response = await Promise.all([
     // getHrComplianceDetails(client, [poNo], true),
@@ -806,11 +647,6 @@ async function supportingDataForServiceBtn(client, poNo) {
 
   let result = {
     hrDetais: response[0], //  getHrDetails,
-    // sdbgFileDetais: response[1], // getSDBGApprovedFiles,
-    // pbgDetails: response[2], //getPBGApprovedFiles,
-    // vendorDetails: response[3], //vendorDetails
-    // contractutalSubminissionDate: response[4], // getContractutalSubminissionDate
-    // actualSubminissionDate: response[5], // getActualSubminissionDate
   };
   if (response[1][0]) {
     result = { ...result, sdbgFiles: response[1] };
@@ -852,21 +688,16 @@ const updateServiceBtnListTable = async (client, data = {}, tokenData) => {
   if (lasBtnDetails.length) {
     btnListTablePaylod = {
       ...lasBtnDetails[0],
-      // ...btnListTablePaylod,
-      // status: REJECTED,
       status: data.status || REJECTED,
       assign_by: tokenData.vendor_code,
       assign_to: data.assign_to || lasBtnDetails[0]?.vendor_code,
       remarks: data.remarks || "BTN Rejected",
-      // remarks2: data.remarks2 || "REMARKS 2",
-      // remarks3: data.remarks3 || "REMARKS 3",
       created_at: getEpochTime(),
     };
     const { q, val } = generateQuery(INSERT, "btn_list", btnListTablePaylod);
 
     await poolQuery({ client, query: q, values: val });
   } else {
-    // console.log("NO BTN FOUND IN LIST TO BE UPDATED");
   }
 };
 
@@ -887,8 +718,6 @@ async function btnCurrentDetailsCheck(client, data, currentStatus) {
     checkStatus.delete(SUBMITTED_BY_CAUTHORITY);
   }
   if (data.status === STATUS_DELEGATED) {
-    // check all status || checkStatus ||
-    // checkStatus.delete(SUBMITTED_BY_CAUTHORITY);
   }
   if (data.status === STATUS_RECOMMEND) {
     checkStatus.add(BTN_STATUS_DRETURN);
@@ -902,7 +731,6 @@ async function btnCurrentDetailsCheck(client, data, currentStatus) {
   }
 
   let isInvalid = false;
-
 
   if (checkStatus.has(currentStatus.status)) {
     isInvalid = true;
@@ -922,7 +750,6 @@ async function serviceBtnMailSend(tokenData, payload, event) {
     let dataObj = payload;
     // email done
     if (tokenData.user_type == USER_TYPE_VENDOR && payload.status == SUBMITTED) {
-      // emailUserDetailsQuery = getUserDetailsQuery("vendor_and_do", "$1");
 
       let buildQuery = "";
       emailUserDetailsQuery = "SELECT * FROM (";
@@ -961,7 +788,6 @@ async function serviceBtnMailSend(tokenData, payload, event) {
     // email done
     if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == REJECTED) {
 
-      // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
       emailUserDetailsQuery = getUserDetailsQuery("vendor_by_sbtn", "$1");
 
       emailUserDetails = await getQuery({
@@ -969,15 +795,12 @@ async function serviceBtnMailSend(tokenData, payload, event) {
         values: [payload.btn_num],
       });
 
-
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
       await sendMail(BTN_REJECT, dataObj, { users: emailUserDetails }, BTN_REJECT);
     }
 
-
     // WORKING -- ONLY SUBJECT ISSUE , SUBJECT MAY TO CHANGE
     if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == SUBMITTED_BY_CAUTHORITY) {
-      // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
       let buildQuery = "";
       emailUserDetailsQuery = "SELECT * FROM (";
       buildQuery += emailUserDetailsQuery;
@@ -985,7 +808,6 @@ async function serviceBtnMailSend(tokenData, payload, event) {
       buildQuery += "UNION";
       buildQuery += getUserDetailsQuery("finance_authority", "$2");
       buildQuery += ") AS mail_info";
-
 
       emailUserDetails = await getQuery({
         query: buildQuery,
@@ -1048,8 +870,6 @@ const getWdcDetails = async (client, data) => {
   return result;
 };
 
-
-
 function mergeWdcData(wdcData = []) {
   if (!Array.isArray(wdcData) || wdcData.length === 0) return {};
 
@@ -1107,7 +927,6 @@ const checkIsAllBtnRejectd = (allBtns) => {
   return allBtns.every((el) => el.status == REJECTED)
 }
 
-
 const checkIsRejectedTheBtnByWDCNo = async (client, btn_nums) => {
   const qb = new QueryBuilder("btn_service_hybrid");
   qb.select(["COUNT(btn_num) as btn_reject_count"]);
@@ -1140,7 +959,6 @@ const getBtnNumbersAssocateWithBtn = async (client, data) => {
   });
   return check_invoice;
 }
-
 
 /**
  * GET HR COMPLIANCE UPLOADED DATA
@@ -1204,7 +1022,6 @@ const getHrComplianceDetails = async (client, data, invoice_date) => {
   return result;
 };
 
-
 function getPreviousMonthsYearWithCurrent(dateStr, monthsBack) {
   const date = new Date(dateStr);
   const result = [];
@@ -1222,11 +1039,8 @@ function getPreviousMonthsYearWithCurrent(dateStr, monthsBack) {
   return result;
 }
 
-
-
 function checkCompliances(units, complianceData) {
 
-  // const units = ['MAIN', 'FOJ', '61PARK'];
   const requiredCompliances = ['PF', 'ESI', 'WAGES'];
   const additionalCompliances = ['BONUS', 'LEAVE_SALARY', 'OTHERS'];
 
@@ -1239,7 +1053,6 @@ function checkCompliances(units, complianceData) {
 
   // Step 2: Check for missing required compliances
   const errors = [];
-
 
   units.forEach(unit => {
     const unitCompliances = unitComplianceMap[unit];
@@ -1263,7 +1076,6 @@ function checkCompliances(units, complianceData) {
       response[key] = presentInAll ? "Y" : null;
     });
     return { success: true, message: "Compliance checked:", data: response };
-    // return response;
   }
 
 }
@@ -1276,7 +1088,6 @@ async function allDetailsAboutHrCompliances(client, data) {
   return checkedCompliences
 
 }
-
 
 function getMaxDate(lineItemArr) {
   let maxDate = 0;
@@ -1297,7 +1108,6 @@ async function updateServiceBtn(client, btn_num, btnPayload) {
   await poolQuery({ client, query: q, values: val });
 }
 
-
 async function wdcAndBtnLinedSave(client, wdc_numbers, btn_num) {
   const linkedWdcAndBtn = wdc_numbers?.map((wdc) => ({ wdc_reference_no: wdc, btn_num }));
 
@@ -1306,8 +1116,6 @@ async function wdcAndBtnLinedSave(client, wdc_numbers, btn_num) {
   await poolQuery({ client, query: q, values: val });
   return linkedWdcAndBtn
 }
-
-
 
 module.exports = {
   payloadObj,

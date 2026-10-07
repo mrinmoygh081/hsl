@@ -12,116 +12,6 @@ const { deleteFileByPath } = require("../../lib/deleteFile");
 const { paylaodValidation, setVendorPoPayload, checkCurrentData, setVendorRcPayload, complianceListFromRc, complianceListFromPo, complianceView, paylaodValidationForHrRecepent, setHrPayload, currentDataValidation, findOutExistingAndNotExistingInNewData, createRefGroup } = require("../../services/hr.services");
 const { APPROVED, STATUS_RECOMMEND, STATUS_HOLD_BY_HR, STATUS_HOLD_BY_HR_RECIPIENT, NOT_RECOMMEND, REJECTED, SUBMITTED } = require("../../lib/status");
 const { create_reference_no } = require("../../services/po.services");
-// const { datasync } = require("../../utils/hrDataMigration");
-
-
-// /**
-//  * UPLOAD BY CONTRACT CELL 
-//  * @param {*} req 
-//  * @param {*} res 
-//  * @returns 
-//  */
-// const updoadExcelFileController = async (req, res) => {
-//   try {
-//     const client = await poolClient();
-//     let excelFilePath = "";
-//     try {
-//       const tokenData = req.tokenData;
-//       let fileData = {};
-//       if (!req.file) {
-//         resSend(res, false, 400, "Please upload an excel file!", fileData, null);
-//       }
-
-//       fileData = {
-//         fileName: req.file.filename,
-//         filePath: req.file.path,
-//         fileType: req.file.mimetype,
-//         fileSize: req.file.size,
-//       };
-
-//       excelFilePath = path.join(__dirname, "..", "..", req.file.path);
-//       const workbook = xlsx.readFile(excelFilePath);
-
-//       const sheetName = workbook.SheetNames[0];
-//       const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]);
-
-//       if (!sheetData.length) {
-//         return resSend(res, false, 400, "Invalid file", req.file.filename, null);
-//       }
-//       // need excel header
-//       const headerArr = ["rc_no", "unit", "purchasing_doc_no"].sort();
-//       let excelHeaderArr = Object.keys(sheetData[0] || {});
-//       excelHeaderArr = excelHeaderArr.sort();
-
-//       if (JSON.stringify(headerArr) != JSON.stringify(excelHeaderArr)) {
-//         return resSend(res, false, 400, "Invalid excel header file", req.file.filename, null);
-//       }
-
-//       let payload = [];
-//       const allUnit = ALL_BRANCHES.allBranches;
-//       if (sheetData.length) {
-//         // payload = sheetData.map((sData, index) => ({ ...sData, created_at: getEpochTime(), created_by: tokenData.vendor_code }));
-
-//         sheetData.forEach((el) => {
-//           const unit = el.unit ?? el.unit.trim();
-//           if (typeof unit === "string" && unit.toUpperCase() === "ALL") {
-//             el.unit = allUnit;
-//           } else if (unit && typeof unit === "string") {
-//             el.unit = unit.split(",").map((u) => u.trim());
-//           }
-//           if (el.unit && Array.isArray(el.unit)) {
-//             el.unit.forEach((u) => {
-//               payload.push({
-//                 rc_no: el.rc_no,
-//                 purchasing_doc_no: el.purchasing_doc_no,
-//                 unit: u,
-//                 created_at: getEpochTime(),
-//                 created_by: tokenData.vendor_code,
-//               });
-//             });
-//           }
-//         });
-//       }
-//       // const BATCH_SIZE = 50;
-
-//       // for (let i = 0; i < payload.length; i += BATCH_SIZE) {
-//       //     const batchedData = payload.slice(i, i + BATCH_SIZE);
-//       //     const { q, val } = await generateQueryForMultipleData(batchedData, HR_COMPLIANCE, ["rc_no", "purchasing_doc_no", "unit"]);
-//       //     try {
-//       //         await poolQuery({ client, query: q, values: val });
-//       //     } catch (error) {
-
-//       //     }
-//       // }
-//       const responseArr = [];
-//       for (let i = 0; i < payload.length; i++) {
-//         if (allUnit.includes(payload[i]?.unit) && payload[i]?.rc_no && payload[i]?.purchasing_doc_no) {
-//           // const ref_group = `${payload[i]?.rc_no}${payload[i]?.purchasing_doc_no}${payload[i]?.unit}`;
-//           const ref_group = createRefGroup(payload[i])
-
-//           const { q, val } = await generateInsertUpdateQuery({ ref_group, ...payload[i] }, HR_COMPLIANCE, ["rc_no", "purchasing_doc_no", "unit"]);
-//           try {
-//             await poolQuery({ client, query: q, values: val });
-//             responseArr.push({ ...payload[i], message: Message.COMPLIANCE_INSERT_MSG });
-//           } catch (error) {
-//             console.error("Error : ", error.message.error.stack);
-//           }
-//         } else {
-//           responseArr.push({ ...payload[i], message: "No such unit present" });
-//         }
-//       }
-//       resSend(res, true, 200, Message.COMPLIANCE_ACTION_MSG, responseArr, null);
-//     } catch (error) {
-//       resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, error.message, null);
-//     } finally {
-//       client.release();
-//       deleteFileByPath(excelFilePath);
-//     }
-//   } catch (error) {
-//     resSend(res, false, 500, Message.DATA_INSERT_FAILED, error.message, null);
-//   }
-// };
-
 
 /**
  * UPLOAD BY CONTRACT CELL
@@ -262,12 +152,9 @@ const updoadExcelFileController = async (req, res) => {
   }
 };
 
-
 const complianceDetails = async (req, res) => {
   let client;
-  // console.log(req);
-  
-  
+
   try {
     const tokenData = req.tokenData;
     const { type, docNo } = req.query;
@@ -276,7 +163,6 @@ const complianceDetails = async (req, res) => {
     let count = 0;
 
     client = await poolClient();
-    // await datasync(client)
 
     switch (type) {
       case "rc":
@@ -325,7 +211,6 @@ const complianceDetails = async (req, res) => {
   }
 };;
 
-
 const submitHrComplients = async (req, res) => {
   let client;
   try {
@@ -369,7 +254,6 @@ const submitHrComplients = async (req, res) => {
         complianceDataAfterUnitAndCompliances = newItems;
       }
     }
-
 
     for await (let compl of complianceDataAfterUnitAndCompliances) {
 
@@ -455,16 +339,12 @@ const updateHrComplients = async (req, res) => {
     await client.query("COMMIT");
     resSend(res, true, 200, "Updated sucessfully!", responseArr);
   } catch (error) {
-    // if (client) await client.query("ROLLBACK");
     console.error("error", error)
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   } finally {
     if (client) client.release();
   }
 }
-
-
-
 
 const actionByHrRecepents = async (req, res) => {
   let client;
@@ -482,10 +362,8 @@ const actionByHrRecepents = async (req, res) => {
     let complianceDataAfterUnitAndCompliances = []
     complianceDataAfterUnitAndCompliances = setHrPayload(compliance_data, tokenData);
 
-
     client = await poolClient();
     await client.query("BEGIN");
-
 
     for (let compl of complianceDataAfterUnitAndCompliances) {
 
@@ -498,7 +376,6 @@ const actionByHrRecepents = async (req, res) => {
       }
 
       if (compl.status === APPROVED) {
-        // compl.last_compliance_date = new Date("");
       }
       if (tokenData.internal_role_id == ASSIGNER) {
         compl.hr_remarks = compl.remarks;
@@ -523,15 +400,6 @@ const actionByHrRecepents = async (req, res) => {
     if (client) client.release();
   }
 }
-
-
-
-// async function handleEmail() {
-//   // Maill trigger to QA, user dept and dealing officer upon uploading of each inspection call letters.
-// }
-
-
-
 
 module.exports = {
   submitHrComplients,

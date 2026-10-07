@@ -8,7 +8,6 @@ const {
 } = require("../lib/utils");
 const { poolQuery, poolClient } = require("../config/pgDbConfig");
 
-
 /**
  * SEND MAIL FUNCTION USE TO INSERT A MAIL TO MAIL TABLE(t_email_send)
  * @param {String} eventName 
@@ -98,54 +97,6 @@ function replaceUserValues(email_info, m_user) {
   return result;
 }
 
-
-// function replaceUserValues(email_info, m_user) {
-//   let result = [];
-//   m_user.forEach((darr) => {
-//     const matchingData = email_info.find((user) => user.u_type === darr.u_type);
-//     if (matchingData) {
-//       result.push({
-//         ...matchingData,
-//         u_id: darr.u_id,
-//         u_name: darr.u_name,
-//         u_email: darr.u_email,
-//       });
-//     }
-//   });
-//   const u_typeArr = new Set([...result.map((inf) => inf.u_type)]);
-//   const restOfUsers = email_info.filter((info) => !u_typeArr.has(info.u_type));
-//   result = result.concat(restOfUsers);
-//   return result;
-// }
-
-// function replaceUserValues(users, data_arr) {
-//     users.forEach(user => {
-//         const matchingData = data_arr.find(data => data.u_type === user.u_type);
-//         if (matchingData) {
-//             user.u_id = matchingData.u_id;
-//             user.u_name = matchingData.u_name;
-//             user.u_email = matchingData.u_email;
-//         }
-//     });
-
-//     return users; // Return the updated users array
-// }
-
-// function replaceUserValues(dataArray, usersArray) {
-//     const dataMap = new Map(dataArray.map(user => [user.user_type, user]));
-//     return usersArray.map(user => {
-//         const matchingData = dataMap.get(user.user_type);
-//         if (matchingData) {
-//             return {
-//                 ...user,
-//                 u_id: matchingData.u_id,
-//                 u_email: matchingData.u_email
-//             };
-//         }
-//         return user;
-//     });
-// }
-
 /**
  * MAIL INSERT INTO t_email_send TABLE
  * @param {DB poolClient} client 
@@ -195,7 +146,6 @@ const mailInsert = async (client, data, event, activity_name, heading = "") => {
   }
 };
 
-
 /**
  * MAIL SEND TO ARCHIVE TABLE 
  * IF ANY OF MAIL SEND SUCCESSFULLY OR MAIL SEND FAIL THEN THOSE MAIL SEND INTO ARCHIVED IN TO t_mail_send_archive TABLE
@@ -224,7 +174,6 @@ const archiveEmails = async (client, data) => {
   }
 };
 
-
 /**
  * REPLACE VALUE FROM STRING WITH MATCHING VARIABLE NAME WITH IN {{}} BRACKET
  * Ex. str = "My name is {{name}} and DOB {{dob}}" AND dataObject = {name: "John", dob: "2000-12-12"}
@@ -238,6 +187,5 @@ function replaceStringVariableToValueByObject(str, dataObject = {}) {
   return copyStr?.replace(/{{(.*?)}}/g,
     (match, p1) => dataObject[p1.trim()] || match);
 }
-
 
 module.exports = { mailInsert, archiveEmails, sendMail };

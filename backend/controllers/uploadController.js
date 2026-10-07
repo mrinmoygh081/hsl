@@ -11,7 +11,6 @@ const path = require("path");
 const Busboy = require("busboy");
 const { formatDateYYYYMMDDHHMMSSMS } = require("../utils/dateTime");
 const Message = require("../utils/messages");
-// const { fileTypeFromStream } = require("file-type"); // Securely check file content
 const { execFile } = require("child_process"); // To run virus scanner
 
 const uploadImage = (req, res) => {
@@ -122,17 +121,6 @@ const uploadTNCMinuts = async (req, res) => {
       created_at: getEpochTime(),
       purchasing_doc_no: req.body.purchasing_doc_no,
     };
-    // const checkQuery = `SELECT COUNT(purchasing_doc_no) AS count FROM tnc_minutes WHERE purchasing_doc_no = ?`;
-    // const checkQuery = `SELECT COUNT(purchasing_doc_no) AS count FROM tnc_minutes WHERE purchasing_doc_no = $1`;
-
-    // const isExist = await getQuery({
-    //   query: checkQuery,
-    //   values: [req.body.purchasing_doc_no],
-    // });
-
-    // if (isExist && isExist[0].count > 0) {
-    //   return resSend(res, true, 200, "Already upload a file !!.", null, null);
-    // }
 
     const { q, val } = generateQuery(INSERT, TNC_MINUTES, payload);
     const result = await getQuery({ query: q, values: val });
@@ -148,134 +136,10 @@ async function handelMail(payload) {
   await sendMail(TNC_MINUTE_UPLOAD, payload, {}, TNC_MINUTE_UPLOAD);
 }
 
-// async function isDealingOfficers(purchasing_doc_no, loginId) {
-//   // const q = `SELECT COUNT(ERNAM) AS count FROM ekko WHERE EBELN = ?  AND ERNAM = ?;`
-//   const q = `SELECT COUNT(ERNAM) AS count FROM ekko WHERE EBELN = $1  AND ERNAM = $2;`;
-//   const result = await getQuery({
-//     query: q,
-//     values: [purchasing_doc_no, loginId],
-//   });
-
-//   if (result && result.length) {
-//     return result[0]["count"] > 0;
-//   }
-//   return false;
-// }
-
-// const uploadPdfStreamController = async (req, res) => {
-//   const tokenData = req.tokenData;
-
-//   const busboy = Busboy({
-//     headers: req.headers,
-//     limits: { fileSize: 100 * 1000 * 1000 }, // 100MB
-//   });
-
-//   let uploadProgress = 0;
-//   let fileSize = 0;
-//   let filePath = "";
-//   let fileName = "";
-//   let fileType = "";
-//   let rawFileName = "";
-
-//   // Collect form fields (type, ref)
-//   const formFields = { type: "", ref: "" };
-
-//   busboy.on("field", (fieldname, val) => {
-
-//     if (fieldname === "type") formFields.type = val;
-//     if (fieldname === "ref") formFields.ref = val;
-
-//   });
-
-//   busboy.on("finish", () => {
-
-//   });
-
-//   // Handle file upload
-//   busboy.on("file", (fieldname, file, filename, encoding, mimetype) => {
-//     rawFileName = filename.filename;
-//     fileType = filename.mimeType;
-
-//     if (!rawFileName || typeof rawFileName !== "string") {
-//       return resSend(res, false, 400, "Invalid file name", null, null);
-//     }
-
-//     // Format timestamp: yyyyddmmhhmmssms
-//     const formattedDateTime = formatDateYYYYMMDDHHMMSSMS();
-
-//     // Clean form field values
-//     const cleanType = String(formFields.type || "").replace(/\s+/g, "_");
-//     const cleanRef = String(formFields.ref || "").replace(/\s+/g, "_");
-
-//     // Directoy name build
-//     let todayYYYYMMDD = formatDateYYDDMM(new Date());
-//     let releventDir = path.join("..", "uploads", todayYYYYMMDD);
-//     const uploadDir = path.join(__dirname, releventDir);
-
-//     // Ensure uploads folder exists
-//     if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-//     fileName = `${formattedDateTime}-${cleanType}-${cleanRef}${path.extname(rawFileName)}`;
-//     filePath = path.join(uploadDir, fileName);
-//     const responsePath = path.join(releventDir, fileName);
-
-//     // Stream file to disk
-//     const writeStream = fs.createWriteStream(filePath);
-//     file.pipe(writeStream);
-
-//     file.on("data", (chunk) => {
-//       uploadProgress += chunk.length;
-//     });
-
-//     file.on("limit", () => {
-//       resSend(res, false, 413, "File too large. Max 100MB.", null, null);
-//     });
-
-//     file.on("end", async () => {
-//       fileSize = uploadProgress;
-
-//       const filePayload = {
-//         id: fileName,
-//         file_name: fileName,
-//         file_path: responsePath,
-//         used: "Y",
-//         created_at: Date.now(),
-//         created_by: tokenData.vendor_code,
-//       };
-
-//       try {
-//         const { q, val } = generateQuery(INSERT, "files", filePayload);
-//         await query({ query: q, values: val });
-//         resSend(res, true, 200, Message.FILE_UPLOAD_SUCCESSFULLY, {
-//           ...filePayload,
-//           fileType,
-//           fileSize,
-//           originalName: rawFileName
-//         }, null);
-//       } catch (err) {
-//         console.error("FILE SAVE ERROR : ❌ error:", err);
-//         resSend(res, false, 500, err.message, Message.SERVER_ERROR, null);
-//       }
-//     });
-//   });
-
-//   busboy.on("error", (err) => {
-//     console.error("FILE SAVE ERROR : ❌  Busboy error:", err);
-//     resSend(res, false, 500, "Error processing file", null, null);
-//   });
-
-//   req.pipe(busboy);
-// };
-
-
 // 1. Safe Upload Directory (Outside your source code)
 const UPLOAD_ROOT = path.resolve(__dirname, "../../uploads");
 const STORE_UPLOAD_ROOT = path.resolve(__dirname, "../uploads");
 const QUARANTINE_DIR = path.join(UPLOAD_ROOT, "tempfiles");
-// console.log("UPLOAD_ROOT", UPLOAD_ROOT);
-// console.log("STORE_UPLOAD_ROOT", STORE_UPLOAD_ROOT);
-// console.log("QUARANTINE_DIR", QUARANTINE_DIR);
-
 
 // Ensure Quarantine Exists
 if (!fs.existsSync(QUARANTINE_DIR)) fs.mkdirSync(QUARANTINE_DIR, { recursive: true });
@@ -342,8 +206,6 @@ const uploaFileStreamController = async (req, res) => {
       }
 
       fileUploaded = true;
-      // rawFileName = filename;
-      // fileType = mimetype;
       rawFileName = filename.filename;
       fileType = filename.mimeType;
 
@@ -420,7 +282,6 @@ const uploaFileStreamController = async (req, res) => {
     resSend(res, false, 500, "Unexpected server error", null, null);
   }
 };
-
 
 const fileAcknowledgementSave = async (tokenData, filePayload) => {
   try {

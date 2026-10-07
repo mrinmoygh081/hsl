@@ -1,8 +1,5 @@
 const { LAN_SERVER } = require("../lib/constant");
 
-// config/sessionConfig.js
-// require("dotenv").config();
-
 // eslint-disable-next-line no-undef
 const SESSION_SECRET = process.env.SESSION_SECRET;
 // eslint-disable-next-line no-undef
