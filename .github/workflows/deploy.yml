@@ -92,11 +92,11 @@ jobs:
           }
           if (-not $ok) { throw "Frontend health check failed at $env:FRONTEND_URL" }
 
-          $procs = pm2 jlist | ConvertFrom-Json
+          # Not `pm2 jlist | ConvertFrom-Json`: PS 5.1 rejects the env keys USERNAME/username as duplicates.
           foreach ($name in @($env:BACKEND_PM2_NAME, $env:FRONTEND_PM2_NAME)) {
-            $p = $procs | Where-Object { $_.name -eq $name }
-            if (-not $p) { throw "PM2 process '$name' not found" }
-            if ($p.pm2_env.status -ne 'online') { throw "PM2 process '$name' is $($p.pm2_env.status)" }
+            $procId = "$(pm2 pid "$name")".Trim()
+            if (-not $procId -or $procId -eq '0') { throw "PM2 process '$name' is not running" }
+            Write-Host "$name is running (pid $procId)"
           }
 
           pm2 ls
