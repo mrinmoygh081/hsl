@@ -100,4 +100,4 @@ jobs:
           }
 
           pm2 ls
-          Write-Host "Deployment successfully"
+          Write-Host "Deployment successful"
