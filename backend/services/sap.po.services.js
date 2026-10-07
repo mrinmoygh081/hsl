@@ -31,7 +31,7 @@ const ekpoTablePayload = async (payload, poNo) => {
     EBELP: obj.EBELP,
     LOEKZ: obj.LOEKZ || null,
     STATU: obj.STATU || null,
-    AEDAT: formatDate(obj.AEDAT),
+    AEDAT: obj.AEDAT,
     TXZ01: obj.TXZ01 || null,
     MATNR: obj.MATNR || null,
     BUKRS: obj.BUKRS || null,
@@ -44,7 +44,7 @@ const ekpoTablePayload = async (payload, poNo) => {
     NETPR: obj.NETPR || null,
     NETWR: obj.NETWR || null,
     MWSKZ: obj.MWSKZ || null,
-    EINDT: formatDate(obj.EINDT),
+    EINDT: obj.EINDT,
     PACKNO: obj.PACKNO || null,
   }));
   return pl;

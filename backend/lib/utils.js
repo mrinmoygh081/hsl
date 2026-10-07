@@ -223,19 +223,33 @@ function formatTime(inputTime) {
  * @returns 
  */
 async function generateQueryForMultipleData(array, tableName, multiplePKs) {
-
   if (!array || !Array.isArray(array) || !array.length || !multiplePKs) {
-    throw new Error("Invalid payload or parameter, please check the function for table insert query", tableName);
+    throw new Error(
+      "Invalid payload or parameter, please check the function for table insert query",
+      tableName,
+    );
   }
 
-  const columnArr = Object.keys({ ...array[0], sync: false });
-  let valuesArray = array.map((item) => Object.values({ ...item, sync: false }));
+  const columnArr = Object.keys({
+    ...array[0],
+    sync: false,
+    created_at: getEpochTime(),
+    last_changed_at: getEpochTime(),
+  });
+  let valuesArray = array.map((item) =>
+    Object.values({
+      ...item,
+      sync: false,
+      created_at: getEpochTime(),
+      last_changed_at: getEpochTime(),
+    }),
+  );
   const allValues = valuesArray.flat();
 
   const column = valuesArray
     .map(
       (row, i) =>
-        `(${row.map((_, j) => `$${i * row.length + j + 1}`).join(", ")})`
+        `(${row.map((_, j) => `$${i * row.length + j + 1}`).join(", ")})`,
     )
     .join(", ");
 
@@ -246,10 +260,14 @@ async function generateQueryForMultipleData(array, tableName, multiplePKs) {
   const conflictKeys = multiplePKs.join(", ");
   queryText += `( ${conflictKeys} )`;
   const columnArrWithOutPK = columnArr.filter(
-    (col) => !multiplePKs.includes(col)
+    (col) => !multiplePKs.includes(col) && col !== "created_at",
   );
+
+  console.log(52, columnArr);
+  console.log(55, columnArrWithOutPK);
   const columnArrWithOutPKLen = columnArrWithOutPK.length - 1;
   queryText += ` DO UPDATE SET `;
+
   let updateKeys = "";
   columnArrWithOutPK.forEach((u_key, j) => {
     updateKeys += ` ${u_key} = EXCLUDED.${u_key}`;
@@ -262,11 +280,26 @@ async function generateQueryForMultipleData(array, tableName, multiplePKs) {
   return { q: queryText, val: allValues };
 }
 
-async function generateInsertUpdateQuery(paylaodObject, tableName, multiplePKs) {
-  if (!paylaodObject || typeof paylaodObject !== "object" || !Object.keys(paylaodObject)?.length) {
-    throw new Error("Invalid payload or parameter, please check the function for table insert query", tableName)
+async function generateInsertUpdateQuery(
+  paylaodObject,
+  tableName,
+  multiplePKs,
+) {
+  if (
+    !paylaodObject ||
+    typeof paylaodObject !== "object" ||
+    !Object.keys(paylaodObject)?.length
+  ) {
+    throw new Error(
+      "Invalid payload or parameter, please check the function for table insert query",
+      tableName,
+    );
   }
-  const obj = { ...paylaodObject, sync: false };
+  const obj = {
+    ...paylaodObject,
+    sync: false,
+    created_at: getEpochTime(),
+  };
   const columnArr = Object.keys(obj);
   let valuesArray = Object.values(obj);
   const allValues = valuesArray;
@@ -278,7 +311,7 @@ async function generateInsertUpdateQuery(paylaodObject, tableName, multiplePKs) 
   const conflictKeys = multiplePKs.join(", ");
   queryText += `( ${conflictKeys} )`;
   const columnArrWithOutPK = columnArr.filter(
-    (col) => !multiplePKs.includes(col)
+    (col) => !multiplePKs.includes(col) && col !== "created_at",
   );
   const columnArrWithOutPKLen = columnArrWithOutPK.length - 1;
   queryText += " DO UPDATE SET ";
