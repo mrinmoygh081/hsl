@@ -27,7 +27,8 @@ jobs:
 
     defaults:
       run:
-        shell: powershell
+        # Bypass only for these steps; Windows 10 blocks .ps1 scripts by default.
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command "& '{0}'"
 
     steps:
       - name: Update source code
