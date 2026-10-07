@@ -46,7 +46,6 @@ if (serverEnv === NIC_SERVER) {
   // LAN server: Direct connections only
   app.set("trust proxy", "loopback");
   console.log(`🛡️ Trust Proxy disabled for LAN environment (Direct connection)`);
-} else {
 }
 
 /* -------------------------------------------------------------
