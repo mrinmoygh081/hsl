@@ -39,7 +39,6 @@ app.set("env", process.env.NODE_ENV);
 // app.set("trust proxy", 2);
 app.disable("x-powered-by");
 
-
 /* -------------------------------------------------------------
 🛡️ TRUST PROXY (DYNAMIC FOR NIC and LAN)
 -------------------------------------------------------------- */
@@ -95,7 +94,6 @@ app.use(corsErrorHandler);
 //   allowedHeaders: ["Content-Type", "Authorization"],
 // };
 
-
 // app.use(cors({
 //   origin: 'http://172.16.5.182:3000',
 //   credentials: true
@@ -124,7 +122,6 @@ app.use(
     maxAge: "1d",
   }),
 );
-
 
 try {
   const poPath = path.resolve(LAN_SERVER_PO_PATH);
@@ -205,8 +202,8 @@ app.use((err, req, res, next) => {
 try {
   if (isProd) {
     // syncDataCorn();
-    syncDataDownloadCorn()
-    // syncFileCron(); never trun on 
+    syncDataDownloadCorn();
+    // syncFileCron(); never trun on
     mailSendCornFn();
     vendorReminderMail();
     pymtFileTrans();
@@ -236,11 +233,11 @@ process.on("uncaughtException", (err) => {
 
 // (e.g., const serverEnv = process.env.SERVER_ENV || "LOCAL";)
 
-let HOST = "0.0.0.0"; 
+let HOST = "0.0.0.0";
 
 if (serverEnv === LAN_SERVER) {
   // LAN Server: Lock Node.js to localhost so NGINX on port 4001 handles the public traffic
-  HOST = "127.0.0.1"; 
+  HOST = "127.0.0.1";
 }
 
 const server = app.listen(PORT, HOST, () => {
