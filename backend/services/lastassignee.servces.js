@@ -182,6 +182,7 @@ const insertSdbgEntrySave = async (tableName, obj, tokenData) => {
         bank_addr3: obj.bank_addr3 ? obj.bank_addr3 : null,
         bank_city: obj.bank_city ? obj.bank_city : null,
         bank_pin_code: obj.bank_pin_code ? obj.bank_pin_code : null,
+        bank_email: obj.bank_email ? obj.bank_email : null,
 
         bg_no: obj.bg_no ? obj.bg_no : null,
         bg_date: obj.bg_date ? obj.bg_date : null,

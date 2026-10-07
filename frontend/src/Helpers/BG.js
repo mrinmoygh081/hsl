@@ -5,6 +5,7 @@ import { postAPI } from "../utils/fetchAPIs";
 export const bgInputs = {
   purchasing_doc_no: "",
   bank_name: "",
+  bank_email: "",
   branch_name: "",
   bank_addr1: "",
   bank_addr2: "",
@@ -43,6 +44,7 @@ export const BGEntry = async (formDatainput, token, flag) => {
     purchasing_doc_no,
     reference_no,
     bank_name,
+    bank_email,
     branch_name,
     department,
     bank_addr1,
@@ -61,6 +63,7 @@ export const BGEntry = async (formDatainput, token, flag) => {
     purchasing_doc_no === "" ||
     reference_no === "" ||
     bank_name === "" ||
+    !bank_email ||
     branch_name === "" ||
     bank_addr1 === "" ||
     bank_city === "" ||
@@ -245,6 +248,7 @@ export const BGEntrySave = async (formDatainput, token) => {
     purchasing_doc_no,
     reference_no,
     bank_name,
+    bank_email,
     branch_name,
     bank_addr1,
     bank_addr2,
@@ -267,6 +271,7 @@ export const BGEntrySave = async (formDatainput, token) => {
     purchasing_doc_no,
     reference_no,
     bank_name,
+    bank_email,
     branch_name,
     bank_addr1,
     bank_addr2,

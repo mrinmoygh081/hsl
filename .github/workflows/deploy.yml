@@ -1,0 +1,103 @@
+name: "Deploy to Office LAN"
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+# Never run two deployments against the same folder at once.
+concurrency:
+  group: deploy-hsl-vizag
+  cancel-in-progress: false
+
+env:
+  APP_DIR: D:\emerging-tech\hsl-vizag
+  BACKEND_PM2_NAME: HSL Backend
+  FRONTEND_PM2_NAME: HSL Frontend
+  FRONTEND_URL: http://localhost:3001
+
+jobs:
+  deploy:
+    # Self-hosted runner installed on the Windows server. Run the runner service
+    # as the same Windows user that owns the PM2 processes, otherwise pm2 talks
+    # to a different daemon (PM2_HOME) and git flags the repo as "dubious ownership".
+    runs-on: [self-hosted, Windows]
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        # Bypass only for these steps; Windows 10 blocks .ps1 scripts by default.
+        shell: powershell -NoProfile -ExecutionPolicy Bypass -Command "& '{0}'"
+
+    steps:
+      - name: Update source code
+        run: |
+          $ErrorActionPreference = 'Stop'
+          Set-Location $env:APP_DIR
+
+          git fetch origin
+          if ($LASTEXITCODE -ne 0) { throw "git fetch failed" }
+
+          git reset --hard origin/master
+          if ($LASTEXITCODE -ne 0) { throw "git reset failed" }
+
+          # uploads/ is untracked and holds user files: never clean it.
+          git clean -fd -e uploads/ -e backend/uploads/
+          if ($LASTEXITCODE -ne 0) { throw "git clean failed" }
+
+          git log -1 --oneline
+
+      - name: Install backend dependencies
+        working-directory: ${{ env.APP_DIR }}\backend
+        run: |
+          npm ci --omit=dev
+          if ($LASTEXITCODE -ne 0) { throw "backend npm ci failed" }
+
+      - name: Install and build frontend
+        working-directory: ${{ env.APP_DIR }}\frontend
+        env:
+          # Actions sets CI=true, which makes CRA treat lint warnings as build errors.
+          CI: "false"
+        run: |
+          npm ci
+          if ($LASTEXITCODE -ne 0) { throw "frontend npm ci failed" }
+
+          npm run build
+          if ($LASTEXITCODE -ne 0) { throw "frontend build failed" }
+
+      - name: Restart PM2 processes
+        run: |
+          pm2 restart "$env:BACKEND_PM2_NAME" --update-env
+          if ($LASTEXITCODE -ne 0) { throw "pm2 restart backend failed" }
+
+          pm2 restart "$env:FRONTEND_PM2_NAME" --update-env
+          if ($LASTEXITCODE -ne 0) { throw "pm2 restart frontend failed" }
+
+          pm2 save
+
+      - name: Health check
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $ok = $false
+          for ($i = 1; $i -le 12; $i++) {
+            Start-Sleep -Seconds 5
+            try {
+              $res = Invoke-WebRequest -Uri $env:FRONTEND_URL -UseBasicParsing -TimeoutSec 10
+              if ($res.StatusCode -eq 200) { $ok = $true; break }
+            } catch {
+              Write-Host "Attempt $i : frontend not ready ($($_.Exception.Message))"
+            }
+          }
+          if (-not $ok) { throw "Frontend health check failed at $env:FRONTEND_URL" }
+
+          $procs = pm2 jlist | ConvertFrom-Json
+          foreach ($name in @($env:BACKEND_PM2_NAME, $env:FRONTEND_PM2_NAME)) {
+            $p = $procs | Where-Object { $_.name -eq $name }
+            if (-not $p) { throw "PM2 process '$name' not found" }
+            if ($p.pm2_env.status -ne 'online') { throw "PM2 process '$name' is $($p.pm2_env.status)" }
+          }
+
+          pm2 ls
+          Write-Host "Deployment successfully"

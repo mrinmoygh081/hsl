@@ -1,11 +1,4 @@
 /* eslint-disable no-undef */
-/**
- * CORS Configuration (Clean + Secure)
- */
-
-// function logOrigin(origin, decision) {
-//   console.log(`[CORS] Origin: ${origin || "NO ORIGIN"} → ${decision}`);
-// }
 
 /**
  * Environment-based CORS whitelist
@@ -15,24 +8,13 @@ function getEnvCorsConfig() {
 
   const config = {
     dev: {
-      origins: [
-        "http://localhost:3000",
-        "http://172.16.5.182:3000",
-        "http://43.204.173.109:3001",
-      ],
+      origins: "*",
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     },
 
     qa: {
-      origins: [
-        "http://10.18.7.123:3000",
-        "http://10.18.1.242:3000",
-        "http://localhost:3000",
-        "http://10.181.1.31:8010",
-        "http://172.16.5.182:3000",
-        "http://43.204.173.109:3001",
-      ],
+      origins: ["http://10.18.7.123:3000", "http://10.18.1.242:3000", "http://localhost:3000", "http://10.181.1.31:8010", "http://172.16.5.182:3000", "http://43.204.173.109:3001"],
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     },
@@ -66,6 +48,12 @@ function corsOriginValidator(origin, callback) {
   // Case: No Origin (curl, Postman, mobile apps, backend → backend)
   if (!origin) {
     // logOrigin(origin, "ALLOWED (No Origin Sent)");
+    return callback(null, true);
+  }
+
+  // Wildcard (dev): allow any origin
+  if (envConfig.origins === "*") {
+    // logOrigin(origin, "ALLOWED (Wildcard)");
     return callback(null, true);
   }
 

@@ -1,325 +1,287 @@
 
 const { poolQuery } = require("../config/pgDbConfig");
-const { INSERT, UPDATE } = require("../lib/constant");
+const { INSERT, UPDATE, USER_TYPE_VENDOR } = require("../lib/constant");
 const { successAndErrorObjectBulider } = require("../lib/resSend");
-const { SDBG_PAYMENT_ADVICE, SDBG_EXTENSION } = require("../lib/tableName");
+const { SDBG_EXTENSION, SDBG_ENTRY, SDBG } = require("../lib/tableName");
 const { generateQuery, getEpochTime } = require("../lib/utils");
+const { SUBMITTED, FORWARD_TO_FINANCE, REJECTED, APPROVED } = require("../lib/status");
+const { FINANCE } = require("../lib/depertmentMaster");
 const Message = require("../utils/messages");
 const QueryBuilder = require("../utils/QueryBuilder");
 const { validatePayload } = require("../utils/validationCheck");
 
-// eslint-disable-next-line no-unused-vars
-async function getBgExtensionList(client, params, tokenData,) {
+const ACTION_TYPE_EXTENSION = "EXTENSION";
+const ACTION_TYPE_RELEASE = "RELEASE";
 
-    const pageNo = 1;
-    const pageSize = 100;
-    let qb = new QueryBuilder(SDBG_PAYMENT_ADVICE);
-    qb.select(["*"]);
+async function getBgExtensionList(client, params, tokenData) {
+  const pageNo = 1;
+  const pageSize = 100;
+  let qb = new QueryBuilder(SDBG_EXTENSION);
+  qb.select(["*"]);
 
-    if (params.validity_start_date && params.validity_end_date) {
-        qb.whereBetween("validity_date", params.validity_start_date, params.validity_end_date);
-    }
+  if (tokenData.user_type === USER_TYPE_VENDOR) {
+    qb.where("created_by", "=", tokenData.vendor_code);
+  } else if (tokenData.department_id === FINANCE) {
+    qb.where("status", "=", FORWARD_TO_FINANCE);
+  } else {
+    qb.where("status", "=", SUBMITTED);
+  }
 
-    if (params.validity_start_date && !params.validity_end_date) {
-        qb.whereGreaterOrEqual("validity_date", params.validity_start_date);
-    }
+  if (params.purchasing_doc_no) {
+    qb.where("purchasing_doc_no", "=", params.purchasing_doc_no);
+  }
 
-    if (params.validity_end_date && !params.validity_start_date) {
-        qb.whereLessOrEqual("validity_date", params.validity_end_date);
-    }
+  qb.paginate(pageNo, pageSize);
+  qb.orderBy("created_at", "DESC");
+  const buildedQuery = qb.countAllWithPagination();
 
-    if (params.file_no) {
-        qb.whereLike("file_no", params.file_no);
-    }
+  const result = await poolQuery({ client, query: buildedQuery.dataQuery.sql, values: buildedQuery.dataQuery.params });
+  const count = await poolQuery({ client, query: buildedQuery.countQuery.sql, values: buildedQuery.countQuery.params });
 
-    qb.paginate(pageNo, pageSize);
-    qb.orderBy("file_no", "ASC");
-    // qb.countAllWithPagination();
-    const buildedQuery = qb.countAllWithPagination();
-
-    const result = await poolQuery({ client, query: buildedQuery.dataQuery.sql, values: buildedQuery.dataQuery.params })
-    const count = await poolQuery({ client, query: buildedQuery.countQuery.sql, values: buildedQuery.countQuery.params })
-
-    return { result, count };
-}
-// eslint-disable-next-line no-unused-vars
-async function getBgExtensionDetails(client, params, tokenData,) {
-
-    const pageNo = 1;
-    const pageSize = 100;
-    let qb = new QueryBuilder(SDBG_PAYMENT_ADVICE);
-    qb.select(["*"]);
-
-    if (params.validity_start_date && params.validity_end_date) {
-        qb.whereBetween("validity_date", params.validity_start_date, params.validity_end_date);
-    }
-
-    if (params.validity_start_date && !params.validity_end_date) {
-        qb.whereGreaterOrEqual("validity_date", params.validity_start_date);
-    }
-
-    if (params.validity_end_date && !params.validity_start_date) {
-        qb.whereLessOrEqual("validity_date", params.validity_end_date);
-    }
-
-    if (params.file_no) {
-        qb.whereLike("file_no", params.file_no);
-    }
-
-    qb.paginate(pageNo, pageSize);
-    qb.orderBy("file_no", "ASC");
-    // qb.countAllWithPagination();
-    const buildedQuery = qb.countAllWithPagination();
-
-    const result = await poolQuery({ client, query: buildedQuery.dataQuery.sql, values: buildedQuery.dataQuery.params })
-    const count = await poolQuery({ client, query: buildedQuery.countQuery.sql, values: buildedQuery.countQuery.params })
-
-    return { result, count };
+  return { result, count };
 }
 
+async function getBgExtensionDetails(client, reference_no) {
+  const q = `SELECT * FROM ${SDBG_EXTENSION} WHERE reference_no = $1`;
+  const result = await poolQuery({ client, query: q, values: [reference_no] });
+  return result;
+}
 
+/**
+ * Original, already-accepted BG this extension/release request is against.
+ */
+async function getOriginalSdbgEntry(client, sdbg_reference_no) {
+  const q = `SELECT * FROM ${SDBG_ENTRY} WHERE reference_no = $1`;
+  const result = await poolQuery({ client, query: q, values: [sdbg_reference_no] });
+  return result[0];
+}
+
+/**
+ * The Finance Officer who originally accepted this BG (created_by_id on the APPROVED sdbg row).
+ */
+async function getOriginalApprovingOfficer(client, sdbg_reference_no) {
+  const q = `SELECT created_by_id FROM ${SDBG} WHERE reference_no = $1 AND status = $2 ORDER BY created_at DESC LIMIT 1`;
+  const result = await poolQuery({ client, query: q, values: [sdbg_reference_no, APPROVED] });
+  return result[0]?.created_by_id;
+}
 
 async function saveBgExtension(client, tokenData, bgExtPayload) {
+  const sanityPayload = bgExtSubmitPaylad(bgExtPayload, tokenData);
 
-    const sanityPayload = bgExtSubmitPaylad(bgExtPayload, tokenData);
+  if (!sanityPayload.success) {
+    return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
+  }
 
-    if (!sanityPayload.success) {
-        return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
-    }
-    const { q, val } = generateQuery(INSERT, SDBG_EXTENSION, sanityPayload.data);
-    const response = await poolQuery({ client, query: q, values: val });
+  const original = await getOriginalSdbgEntry(client, sanityPayload.data.sdbg_reference_no);
+  if (!original || original.status !== APPROVED) {
+    return successAndErrorObjectBulider(false, 200, "No accepted BG found for this reference. Extension/Release can only be requested against an accepted BG.", {}, []);
+  }
 
-    return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
+  const { q, val } = generateQuery(INSERT, SDBG_EXTENSION, sanityPayload.data);
+  const response = await poolQuery({ client, query: q, values: val });
+
+  return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
 }
-
 
 async function updateBgExtensionByDo(client, tokenData, bgExtPayload) {
+  const sanityPayload = bgExtSubmitDoPaylad(bgExtPayload, tokenData);
 
-    const sanityPayload = bgExtSubmitDoPaylad(bgExtPayload, tokenData);
+  if (!sanityPayload.success) {
+    return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
+  }
+  const { reference_no, ...other } = sanityPayload.data;
+  const { q, val } = generateQuery(UPDATE, SDBG_EXTENSION, other, { reference_no });
+  const response = await poolQuery({ client, query: q, values: val });
 
-    if (!sanityPayload.success) {
-        return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
-    }
-    const { file_no, po_number, ...other } = sanityPayload.data;
-    const { q, val } = generateQuery(UPDATE, SDBG_EXTENSION, other, { file_no, po_number });
-    const response = await poolQuery({ client, query: q, values: val });
-
-    return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
-}
-async function submitBgExtensionRecomendationByDo(client, tokenData, bgExtPayload) {
-
-    const sanityPayload = bgExtSubmitDoRecomendationPaylad(bgExtPayload, tokenData);
-
-    if (!sanityPayload.success) {
-        return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
-    }
-    const { file_no, po_number, ...other } = sanityPayload.data;
-    const { q, val } = generateQuery(UPDATE, SDBG_EXTENSION, other, { file_no, po_number });
-    const response = await poolQuery({ client, query: q, values: val });
-
-    return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
-}
-async function submitBgExtensionRecomendationByFi(client, tokenData, bgExtPayload) {
-
-    const sanityPayload = bgExtSubmitFiRecomendationPaylad(bgExtPayload, tokenData);
-
-    if (!sanityPayload.success) {
-        return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
-    }
-    const { file_no, po_number, ...other } = sanityPayload.data;
-    const { q, val } = generateQuery(UPDATE, SDBG_EXTENSION, other, { file_no, po_number });
-    const response = await poolQuery({ client, query: q, values: val });
-
-    return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
+  return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
 }
 
 async function updateBgExtensionByFi(client, tokenData, bgExtPayload) {
+  const sanityPayload = bgExtSubmitFiPaylad(bgExtPayload, tokenData);
 
-    const sanityPayload = bgExtSubmitFiPaylad(bgExtPayload, tokenData);
+  if (!sanityPayload.success) {
+    return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
+  }
 
-    if (!sanityPayload.success) {
-        return successAndErrorObjectBulider(false, 200, Message.INVALID_PAYLOAD, {}, sanityPayload.errors);
+  const extRows = await getBgExtensionDetails(client, sanityPayload.data.reference_no);
+  const ext = extRows[0];
+  if (!ext) {
+    return successAndErrorObjectBulider(false, 200, "Extension/Release request not found.", {}, []);
+  }
+  if (ext.status !== FORWARD_TO_FINANCE) {
+    return successAndErrorObjectBulider(false, 200, `This request is not forwarded to Finance (current status: ${ext.status}).`, {}, []);
+  }
+
+  if (sanityPayload.data.fi_status === APPROVED && ext.action_type === ACTION_TYPE_RELEASE) {
+    const originalOfficer = await getOriginalApprovingOfficer(client, ext.sdbg_reference_no);
+    if (!originalOfficer || originalOfficer !== tokenData.vendor_code) {
+      return successAndErrorObjectBulider(false, 200, "Only the Finance Officer who originally accepted this BG can process its release.", {}, []);
     }
+  }
 
-    const { file_no, po_number, ...other } = sanityPayload.data;
-    const { q, val } = generateQuery(UPDATE, SDBG_EXTENSION, other, { file_no, po_number });
+  const { reference_no, fi_status, ...other } = sanityPayload.data;
+  const { q, val } = generateQuery(UPDATE, SDBG_EXTENSION, { ...other, status: fi_status }, { reference_no });
+  await poolQuery({ client, query: q, values: val });
 
-    const response = await poolQuery({ client, query: q, values: val });
+  if (fi_status === APPROVED) {
+    if (ext.action_type === ACTION_TYPE_EXTENSION) {
+      await applyExtensionToOriginalBg(client, ext);
+    } else if (ext.action_type === ACTION_TYPE_RELEASE) {
+      await applyReleaseToOriginalBg(client, ext);
+    }
+  }
 
-    return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, response, response);
+  return successAndErrorObjectBulider(true, 200, Message.DATA_SEND_SUCCESSFULL, { ...ext, status: fi_status }, null);
 }
 
+/**
+ * On Finance approval of an EXTENSION request: push the new validity date onto the
+ * original BG and record it in the next free extension_dateN slot (1..6).
+ */
+async function applyExtensionToOriginalBg(client, ext) {
+  const original = await getOriginalSdbgEntry(client, ext.sdbg_reference_no);
+  if (!original) return;
 
+  const slots = ["extension_date1", "extension_date2", "extension_date3", "extension_date4", "extension_date5", "extension_date6"];
+  const nextEmptySlot = slots.find((slot) => !original[slot]);
+
+  // sdbg_extension stores dates as native DATE columns; sdbg_entry stores them as epoch millis.
+  const newValidityEpoch = new Date(ext.validity_date).getTime();
+
+  const updatePayload = {
+    validity_date: newValidityEpoch,
+  };
+  if (ext.bg_date) updatePayload.bg_date = new Date(ext.bg_date).getTime();
+  if (ext.bank_gu_no) updatePayload.bg_no = ext.bank_gu_no;
+  if (nextEmptySlot) updatePayload[nextEmptySlot] = newValidityEpoch;
+
+  const { q, val } = generateQuery(UPDATE, SDBG_ENTRY, updatePayload, { reference_no: ext.sdbg_reference_no });
+  await poolQuery({ client, query: q, values: val });
+}
+
+/**
+ * On Finance approval of a RELEASE request: set the release date on the original BG.
+ */
+async function applyReleaseToOriginalBg(client, ext) {
+  const { q, val } = generateQuery(UPDATE, SDBG_ENTRY, { release_date: getEpochTime() }, { reference_no: ext.sdbg_reference_no });
+  await poolQuery({ client, query: q, values: val });
+}
 
 function bgExtSubmitPaylad(payload, tokenData) {
-    const rules = {
-        file_no: { required: true, type: "string", min: 3, max: 20 },
-        po_number: { required: true, type: "string" },
-        bg_date: { required: true, type: "date" },
-        bg_amount: { required: true, type: "number", min: 1 },
-        validity_date: { type: "date" },
-        vendor_status: { type: "string" },
-        bg_filename: { type: "string" },
-        bg_file_path: { type: "string" },
-        // do_status: { type: "string" },
-        // finance_status: { type: "boolean" }
-    };
+  const isExtension = payload.action_type === ACTION_TYPE_EXTENSION;
 
-    // Step 1: Validate
-    const validation = validatePayload(payload, rules);
+  const rules = {
+    sdbg_reference_no: { required: true, type: "string", min: 10, max: 30 },
+    purchasing_doc_no: { required: true, type: "string", max: 20 },
+    action_type: { required: true, type: "string" },
+    reason: { required: true, type: "string" },
+    validity_date: { required: isExtension, type: "date" },
+    bg_date: { required: false, type: "date" },
+    bg_amount: { required: false, type: "string" },
+    bank_gu_no: { required: false, type: "string" },
+  };
 
-    if (!validation.isValid) {
-        return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
-    }
+  const validation = validatePayload(payload, rules);
 
-    // Step 2: Build sanitized object
-    const obj = {
-        file_no: payload.file_no,
-        po_number: payload.po_number,
-        bg_date: payload.bg_date,
-        bg_amount: payload.bg_amount,
-        validity_date: payload.validity_date,
-        extension_date1: payload.extension_date1,
-        extension_date2: payload.extension_date2,
-        extension_date3: payload.extension_date3,
-        extension_date4: payload.extension_date4,
-        extension_date5: payload.extension_date5,
-        extension_date6: payload.extension_date6,
-        release_date: payload.release_date,
-        vendor_status: payload.vendor_status,
-        bg_filename: payload.bg_filename,
-        bg_file_path: payload.bg_file_path,
-        // do_status: payload.do_status,
-        // finance_status: payload.finance_status,
-        created_at: getEpochTime(),
-        created_by: tokenData.vendor_code,
-        updated_at: getEpochTime(),
-        updated_by: tokenData.vendor_code
-    };
+  if (!validation.isValid) {
+    return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
+  }
 
-    return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
+  if (payload.action_type !== ACTION_TYPE_EXTENSION && payload.action_type !== ACTION_TYPE_RELEASE) {
+    return successAndErrorObjectBulider(false, 200, "action_type must be EXTENSION or RELEASE.", {}, []);
+  }
+
+  if (isExtension && (!payload.bg_filename || !payload.bg_file_path)) {
+    return successAndErrorObjectBulider(false, 200, "Please upload the revised Bank Guarantee document issued by the bank.", {}, []);
+  }
+
+  const obj = {
+    reference_no: `${isExtension ? "EXT" : "REL"}${Date.now()}${String(tokenData.vendor_code).slice(-4)}`,
+    sdbg_reference_no: payload.sdbg_reference_no,
+    file_no: payload.file_no || null,
+    bank_gu_no: payload.bank_gu_no || null,
+    purchasing_doc_no: payload.purchasing_doc_no,
+    action_type: payload.action_type,
+    validity_date: payload.validity_date || null,
+    bg_date: payload.bg_date || null,
+    bg_amount: payload.bg_amount || null,
+    reason: payload.reason,
+    remarks: payload.reason,
+    bg_filename: payload.bg_filename || null,
+    bg_file_path: payload.bg_file_path || null,
+    status: SUBMITTED,
+    created_at: getEpochTime(),
+    created_by: tokenData.vendor_code,
+    updated_at: getEpochTime(),
+    updated_by: tokenData.vendor_code,
+  };
+
+  return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
 }
+
 function bgExtSubmitDoPaylad(payload, tokenData) {
-    const rules = {
-        file_no: { required: true, type: "string", min: 3, max: 20 },
-        po_number: { required: true, type: "string" },
-        // bg_date: { required: true, type: "date" },
-        // bg_amount: { required: true, type: "number", min: 1 },
-        // validity_date: { type: "date" },
-        // vendor_status: { type: "string" },
-        // bg_filename: { type: "string" },
-        // bg_file_path: { type: "string" },
-        do_status: { type: "string" },
-        // finance_status: { type: "boolean" }
-    };
+  const rules = {
+    reference_no: { required: true, type: "string" },
+    status: { required: true, type: "string" },
+    remarks: { required: true, type: "string" },
+  };
 
-    // Step 1: Validate
-    const validation = validatePayload(payload, rules);
+  const validation = validatePayload(payload, rules);
 
-    if (!validation.isValid) {
-        return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
-    }
+  if (!validation.isValid) {
+    return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
+  }
 
-    // Step 2: Build sanitized object
-    const obj = {
-        file_no: payload.file_no,
-        po_number: payload.po_number,
-        do_status: payload.do_status,
-        updated_at: getEpochTime(),
-        updated_by: tokenData.vendor_code
-    };
+  if (payload.status !== FORWARD_TO_FINANCE && payload.status !== REJECTED) {
+    return successAndErrorObjectBulider(false, 200, "status must be FORWARD_TO_FINANCE or REJECTED.", {}, []);
+  }
 
-    return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
+  const obj = {
+    reference_no: payload.reference_no,
+    status: payload.status,
+    remarks: payload.remarks,
+    updated_at: getEpochTime(),
+    updated_by: tokenData.vendor_code,
+  };
+
+  return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
 }
-function bgExtSubmitDoRecomendationPaylad(payload, tokenData) {
-    const rules = {
-        file_no: { required: true, type: "string", min: 3, max: 20 },
-        po_number: { required: true, type: "string" },
-        extension_count: { required: true, type: "number", min: 1, max: 6 },
-        extension_remarks: { required: true, type: "string" },
-        do_status: { required: true, type: "string" }
-    };
 
-    // Step 1: Validate
-    const validation = validatePayload(payload, rules);
-
-    if (!validation.isValid) {
-        return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
-    }
-
-    // Step 2: Build sanitized object
-    const obj = {
-        file_no: payload.file_no,
-        po_number: payload.po_number,
-        do_status: payload.do_status,
-        extension_count: payload.extension_count,
-        extension_remarks: payload.extension_remarks,
-        updated_at: getEpochTime(),
-        updated_by: tokenData.vendor_code
-    };
-
-    return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
-}
-function bgExtSubmitFiRecomendationPaylad(payload, tokenData) {
-    const rules = {
-        file_no: { required: true, type: "string", min: 3, max: 20 },
-        po_number: { required: true, type: "string" },
-        fi_status: { required: true, type: "string" }
-    };
-
-    // Step 1: Validate
-    const validation = validatePayload(payload, rules);
-
-    if (!validation.isValid) {
-        return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
-    }
-
-    // Step 2: Build sanitized object
-    const obj = {
-        file_no: payload.file_no,
-        po_number: payload.po_number,
-        fi_status: payload.do_status,
-        updated_at: getEpochTime(),
-        updated_by: tokenData.vendor_code
-    };
-
-    return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
-}
 function bgExtSubmitFiPaylad(payload, tokenData) {
-    const rules = {
-        file_no: { required: true, type: "string", min: 3, max: 20 },
-        po_number: { required: true, type: "string" },
-        fi_status: { type: "status" }
-    };
+  const rules = {
+    reference_no: { required: true, type: "string" },
+    fi_status: { required: true, type: "string" },
+    remarks: { required: true, type: "string" },
+  };
 
-    // Step 1: Validate
-    const validation = validatePayload(payload, rules);
+  const validation = validatePayload(payload, rules);
 
-    if (!validation.isValid) {
-        return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
-    }
+  if (!validation.isValid) {
+    return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
+  }
 
-    // Step 2: Build sanitized object
-    const obj = {
-        file_no: payload.file_no,
-        po_number: payload.po_number,
-        fi_status: payload.fi_status,
-        updated_at: getEpochTime(),
-        updated_by: tokenData.vendor_code
-    };
+  if (payload.fi_status !== APPROVED && payload.fi_status !== REJECTED) {
+    return successAndErrorObjectBulider(false, 200, "fi_status must be APPROVED or REJECTED.", {}, []);
+  }
 
-    return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
+  const obj = {
+    reference_no: payload.reference_no,
+    fi_status: payload.fi_status,
+    remarks: payload.remarks,
+    updated_at: getEpochTime(),
+    updated_by: tokenData.vendor_code,
+  };
+
+  return successAndErrorObjectBulider(true, 200, Message.VALIDATION_SUCCESSFULL, obj, validation.errors);
 }
-
-
-
 
 module.exports = {
-    getBgExtensionList,
-    getBgExtensionDetails,
-    saveBgExtension,
-    updateBgExtensionByDo,
-    updateBgExtensionByFi,
-    submitBgExtensionRecomendationByDo,
-    submitBgExtensionRecomendationByFi
-}
+  getBgExtensionList,
+  getBgExtensionDetails,
+  getOriginalSdbgEntry,
+  saveBgExtension,
+  updateBgExtensionByDo,
+  updateBgExtensionByFi,
+  ACTION_TYPE_EXTENSION,
+  ACTION_TYPE_RELEASE,
+};

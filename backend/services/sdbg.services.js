@@ -29,6 +29,7 @@ const sdbgEntryPayload = (payload, status) => {
         bank_addr3: { required: false, type: "string", },
         bank_city: { required: false, type: "string", },
         bank_name: { required: true, type: "string", },
+        bank_email: { required: true, type: "string", max: 255 },
         bank_pin_code: { required: false, type: "string", max: 7 },
         bg_ammount: { required: true, type: "number", min: 1, max: 5000000000 },
         bg_date: { required: true, type: "number", min: 10000 },
@@ -48,6 +49,12 @@ const sdbgEntryPayload = (payload, status) => {
     if (!validation.isValid) {
         return successAndErrorObjectBulider(false, 200, validation.message, {}, validation.errors);
     }
+
+    const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!EMAIL_REGEX.test(String(payload.bank_email))) {
+        return successAndErrorObjectBulider(false, 200, "Please provide a valid Banker's Email Id.", {}, []);
+    }
+
     const payloadObj = {
         reference_no: payload.reference_no,
         check_list_reference: payload.check_list_reference,
@@ -62,6 +69,7 @@ const sdbgEntryPayload = (payload, status) => {
         bank_addr3: payload.bank_addr3,
         bank_city: payload.bank_city,
         bank_name: payload.bank_name,
+        bank_email: payload.bank_email,
         ifsc_code: payload.ifsc_code,
         branch_name: payload.branch_name,
         bank_pin_code: payload.bank_pin_code,
