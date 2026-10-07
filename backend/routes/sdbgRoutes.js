@@ -44,12 +44,6 @@ router.get(
   sdbgController.assigneeList
 );
 
-router.get(
-  "/getBGForFinance",
-  verifyAccessToken,
-  sdbgController.getBGForFinance
-);
-
 router.post(
   "/getspecificbg",
   verifyAccessToken,
