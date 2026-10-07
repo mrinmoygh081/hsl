@@ -142,7 +142,7 @@ const DrawingSub = () => {
       if (userType === USER_VENDOR) {
         slug = "po/drawing/submit";
       } else if (user?.department_id === DEPT_DESIGN) {
-        slug = "/po/drawing/update";
+        slug = "po/drawing/update";
       } else {
         return toast.success("Only Design department can process it.");
       }
