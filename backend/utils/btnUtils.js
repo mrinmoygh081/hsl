@@ -35,8 +35,6 @@ exports.getSDFiles = async (po, action_type) => {
   return result;
 };
 
-
-
 /**
  * UPDATE INVOICE DATE IN GATE ENTRY DATA TABLE
  * WHEN INVOICE DATE IS MISSING IN GATE_ENTRY_D TABLE TABLE
@@ -52,8 +50,6 @@ exports.updateInvoiceDate = async (client, data, condData) => {
       ENTRY_NO: condData?.gate_entry_no,
       INVNO: condData?.invoice_no,
       EBELN: condData?.purchasing_doc_no,
-      // EBELP: condData?.po_lineitem,
-      // ZMBLNR: condData?.grn_no
     }
     const { q, val } = generateQuery(UPDATE, GATE_ENTRY_DATA, data, condObj);
 
@@ -66,7 +62,6 @@ exports.updateInvoiceDate = async (client, data, condData) => {
     return result;
 }
 
-
 exports.checkBTNRegistered = async (btn_num, po) => {
   let q = `SELECT count(btn_num) as count FROM ${BTN_MATERIAL_DO} WHERE btn_num = $1 and purchasing_doc_no = $2`;
   let result = await getQuery({
@@ -78,8 +73,6 @@ exports.checkBTNRegistered = async (btn_num, po) => {
   }
   return false;
 };
-
-
 
 exports.fetchBTNListByPOAndBTNNum = async (btn, po) => {
   if (!po || !btn) {
@@ -96,7 +89,6 @@ exports.fetchBTNListByPOAndBTNNum = async (btn, po) => {
     return { status: false, data: null, message: "Vendor have to create BTN First." };
   }
 };
-
 
 /**
  * GET VENDOR DETAILS
@@ -137,16 +129,6 @@ exports.getDoDetailsByPO = async (client, ebeln) => {
   let result = await poolQuery({ client, query: q, values: [ebeln] });
   return result[0] || {};
 };
-// exports.getWdcInfo = async (po_no) => {
-//   const vendor_q = `SELECT actual_start_date,actual_completion_date FROM wdc WHERE reference_no = ? LIMIT 1`;
-//   let result = await query({
-//       query: vendor_q,
-//       values: [po_no],
-//     });
-//   result = result[0];
-//   return result;
-// };
-
 
 exports.calculateTotals = (data) => {
 
@@ -168,7 +150,6 @@ exports.calculateTotals = (data) => {
     totalPrice,
   };
 }
-
 
 /**
  * calculation grn qty, value and more

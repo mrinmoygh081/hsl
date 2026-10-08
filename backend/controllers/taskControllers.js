@@ -4,10 +4,7 @@ const { STAFF } = require("../lib/constant");
 const { resSend } = require("../lib/resSend");
 const { SUBMITTED, ASSIGNED, RETURN_TO_DO, FORWARD_TO_FINANCE, ACCEPTED, STATUS_DELEGATED, NOT_RECOMMEND, STATUS_RECOMMEND, REJECTED, BTN_STATUS_BANK, STATUS_RECEIVED, BTN_STATUS_DRETURN, BTN_STATUS_PROCESS, SUBMITTED_BY_DO, SUBMITTED_BY_CAUTHORITY, SUBMITTED_BY_VENDOR, STATUS_CANCEL_REQUESTED, STATUS_CANCELED } = require("../lib/status");
 const Message = require("../utils/messages");
-// const localDataJsonFile = require("../utils/localData.json");
 const { DRAWING, FINANCE, QAP } = require("../lib/depertmentMaster");
-
-
 
 const taskController = async (req, res) => {
   let client;
@@ -41,7 +38,6 @@ const taskController = async (req, res) => {
     }
   }
 };
-
 
 const getSdbgTaskData = async (client, tokenData) => {
   try {
@@ -79,10 +75,6 @@ const getSdbgTaskData = async (client, tokenData) => {
     }
 
     baseQuery += conditionQuery;
-
-    // let check = localDataJsonFile.registrationApprovedAuthority.map((el) => el.manNo) || [];
-
-    // if (tokenData.department_id !== FINANCE && !check.includes(tokenData.vendor_code)) return [];
 
     let result = await poolQuery({ client, query: baseQuery, values });
 
@@ -126,9 +118,6 @@ const getDrawingTaskData = async (client, tokenData) => {
 
     baseQuery += conditionQuery;
 
-    // let check = localDataJsonFile.registrationApprovedAuthority.map((el) => el.manNo) || [];
-    // if (tokenData.department_id !== DRAWING && !check.includes(tokenData.vendor_code)) return [];
-
     const result = await poolQuery({ client, query: baseQuery, values: value });
     return result;
   } catch (error) {
@@ -169,10 +158,6 @@ const getQAPTaskData = async (client, tokenData) => {
 
     baseQuery += conditionQuery;
 
-    // let check = localDataJsonFile.registrationApprovedAuthority.map((el) => el.manNo) || [];
-
-    // if (tokenData.department_id !== QAP && !check.includes(tokenData.vendor_code)) return [];
-
     const result = await poolQuery({ client, query: baseQuery, values: value });
     return result;
   } catch (error) {
@@ -202,17 +187,10 @@ const getIlmsTaskData = async (client, tokenData) => {
       )
       SELECT * FROM LastRows as LastRows`;
 
-
     conditionQuery += ` AND status IN (${statusList.map(() => `$${paramIndex++}`).join(", ")})`;
     values = [...values, ...statusList];
     conditionQuery += ` AND action_on = $${paramIndex++}`;
     values.push(tokenData.vendor_code);
-
-    // let check = localDataJsonFile.registrationApprovedAuthority.map((el) => el.manNo) || [];
-    // if (!check.includes(tokenData.vendor_code)) {
-    //   conditionQuery += ` AND action_on = $${paramIndex++}`;
-    //   values.push(tokenData.vendor_code);
-    // }
 
     baseQuery += conditionQuery;
 
@@ -258,12 +236,6 @@ const getWdcTaskData = async (client, tokenData) => {
     values = [...values, ...statusList];
     conditionQuery += ` AND action_on = $${paramIndex++}`;
     values.push(tokenData.vendor_code);
-
-    // let check = localDataJsonFile.registrationApprovedAuthority.map((el) => el.manNo) || [];
-    // if (!check.includes(tokenData.vendor_code)) {
-    //   conditionQuery += ` AND action_on = $${paramIndex++}`;
-    //   values.push(tokenData.vendor_code);
-    // }
 
     baseQuery += conditionQuery;
 
@@ -324,15 +296,7 @@ const getBtnTaskData = async (client, tokenData) => {
     conditionQuery += ` AND assign_to = $${paramIndex++}`;
     values.push(tokenData.vendor_code);
 
-    // let check = localDataJsonFile.registrationApprovedAuthority.map((el) => el.manNo) || [];
-    // if (!check.includes(tokenData.vendor_code)) {
-    //   conditionQuery += ` AND assign_to = $${paramIndex++}`;
-    //   values.push(tokenData.vendor_code);
-    // }
-
     baseQuery += conditionQuery;
-
-   
 
     let result = await poolQuery({ client, query: baseQuery, values });
 
@@ -345,8 +309,5 @@ const getBtnTaskData = async (client, tokenData) => {
   }
 
 }
-
-
-
 
 module.exports = { taskController }

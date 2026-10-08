@@ -71,23 +71,6 @@ const HrContractvendor = () => {
   const fileInputRef = useRef();
   const hrUrl = "po/hr/compliance";
 
-  // const isAuthorized = user?.department_id === USER_HSL_CONTRACT || user?.department_id === USER_HSL_HR || user?.user_type === USER_VENDOR;
-  // const isViewOnlyUser =
-  //   user?.vendor_code === "602717" ||
-  //   user?.vendor_code === "600233" ||
-  //   user?.vendor_code === "601824" ||
-  //   user?.department_id === DEPT_FI ||
-  //   user?.department_id === DEPT_IT ||
-  //   user?.department_id === USER_HSL_PURCHASE;
-  // const isViewOnlyUser =
-  //   (user?.vendor_code === "602717" || user?.vendor_code === "600233" || user?.vendor_code === "601824" || user?.vendor_code === "199609") &&
-  //   user?.department_id !== USER_HSL_CONTRACT && // ← Added this condition
-  //   (user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.department_id === USER_HSL_PURCHASE);
-  // const isContractUserWithUpload = user?.department_id === USER_HSL_CONTRACT && !isViewOnlyUser;
-  //const isAuthorized = user?.department_id === USER_HSL_CONTRACT || user?.department_id === USER_HSL_HR || user?.user_type === USER_VENDOR;
-  // BEFORE
-  // Line ~50 ke aas paas ye dono update karo:
-
   const isViewOnlyUser =
     !(user?.department_id === USER_HSL_CONTRACT || user?.department_id === USER_HSL_HR || user?.user_type === USER_VENDOR) &&
     (user?.department_id === DEPT_FI ||
@@ -258,35 +241,6 @@ const HrContractvendor = () => {
       setComplianceFile(null);
     }
   };
-
-  // const handleSubmitr = async () => {
-  //   if (!isMandatorySelected()) {
-  //     toast.warning("Please select PF, ESI, and WAGES before submitting.");
-  //     return;
-  //   }
-  //   if (!selectedFile) {
-  //     toast.warning("Please upload a file before submitting!");
-  //     return;
-  //   }
-  //   setIsUploading(true);
-  //   const formData = new FormData();
-  //   formData.append("type", "hr");
-  //   formData.append("ref", user?.vendor_code);
-  //   formData.append("file", selectedFile);
-
-  //   try {
-  //     const response = await apiCallBack("POST", "upload/compliance-file", formData, token);
-  //     setUploadResponse(response);
-  //     if (response.data?.status) {
-  //       toast.success("File uploaded successfully!");
-  //     } else {
-  //       toast.warning(response.data?.message);
-  //     }
-  //   } catch (error) {
-  //     toast.warning("Failed to upload file. Please try again.");
-  //   }
-  //   setIsUploading(false);
-  // };
 
   const handleSubmitr = async () => {
     if (!isMandatorySelected()) {
@@ -791,7 +745,6 @@ const HrContractvendor = () => {
       if (response?.status) {
         setUploadedFile(response.data || []);
       } else {
-        // toast.error("Failed to fetch initial data.");
       }
     } catch (error) {
       toast.error(`Error fetching initial data: ${error.message}`);
@@ -1473,7 +1426,6 @@ const HrContractvendor = () => {
                                     <th>
                                       <input type="checkbox" checked={selectAll} onChange={handleSelectAll} />
                                     </th>
-                                    {/* <th>Vendor Code</th> */}
                                     <th>RC No</th>
                                     <th>Unit</th>
                                     <th>PO</th>
@@ -1506,7 +1458,6 @@ const HrContractvendor = () => {
                                           <td>
                                             <input type="checkbox" checked={selectedRows.some((item) => item.index === index)} onChange={() => handleRowSelect(index, row)} />
                                           </td>
-                                          {/* <td>{row.vendor_code || "--"}</td> */}
                                           <td>{row?.rc_no || "--"}</td>
                                           <td>{row?.unit || "--"}</td>
                                           <td>{row.purchasing_doc_no || "--"}</td>
@@ -1854,15 +1805,6 @@ const HrContractvendor = () => {
                                   placeholder="Select compliance options..."
                                 />
                               </Form.Group>
-                              {/* <Form.Group className="mb-3 d-flex align-items-center">
-                                <div style={{ flex: 1 }}>
-                                  <Form.Label>Support File (PDF)</Form.Label>
-                                  <Form.Control type="file" accept=".pdf,.zip" onChange={handleFileChangepopup} />
-                                </div>
-                                <Button variant="primary" onClick={handleSubmitr} disabled={isUploading} style={{ marginLeft: "10px", marginTop: "32px" }}>
-                                  {isUploading ? "Uploading..." : "Upload"}
-                                </Button>
-                              </Form.Group> */}
                               <Form.Group className="mb-3">
                                 <Form.Label className="d-flex align-items-center gap-2">
                                   Support File (PDF)

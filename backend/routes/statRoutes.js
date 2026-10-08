@@ -14,6 +14,5 @@ router.get("/drawing", verifyAccessToken, statsForDrawing);
 router.get("/wdc", verifyAccessToken,  statsForWDC);
 
 router.get("/", verifyAccessToken, stats);
-// router.get("/bg-extension",  statsForBgExtension);
 
 module.exports = router;

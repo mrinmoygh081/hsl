@@ -14,7 +14,6 @@ const { resSend } = require("../lib/resSend");
 const SERVER_ENV = process.env.SERVER_ENV;
 const SYNC_SERVER_ENV = SERVER_ENV === LAN_SERVER ? NIC_SERVER : LAN_SERVER;
 
-
 /**
  * Safely extracts the table name from the hyphenated file format.
  */
@@ -43,7 +42,6 @@ const readJsonFile = async (filePath) => {
   const fileContent = await fsPromises.readFile(filePath, "utf-8");
   return JSON.parse(fileContent);
 };
-
 
 /**
  * Convert json file name to table name
@@ -167,7 +165,6 @@ exports.syncUnzip3 = async (req, res) => {
   }
 };
 
-
 exports.syncTable = async (req, res) => {
   const logError = async (msg, stack = null) => {
     await cronLog("data", new Date(), RESTORE_ERROR, msg, stack, null);
@@ -217,62 +214,9 @@ exports.syncTable = async (req, res) => {
   }
 };
 
-
 /**
  * Handles the logic for inserting data into a single table safely.
  */
-// const processSingleTable = async (client, tableName, rData, savepoint) => {
-//   let processed = 0;
-
-//   await poolQuery({ client, query: `SAVEPOINT ${savepoint}` });
-
-//   for (const item of rData) {
-//     processed++;
-
-//     if (tableName === "zpo_milestone") {
-//       await poolQuery({
-//         client,
-//         query: `DELETE FROM zpo_milestone WHERE ebeln = $1`,
-//         values: [item.EBELN || item.ebeln],
-//       });
-//     }
-
-//     const enrichedItem = { ...item, sync: true };
-//     const { q, val } = await generateInsertUpdateQuery(enrichedItem, tableName, ["sync_id"]);
-
-//     // console.log("q, val", q, val)
-
-//     try {
-//       await poolQuery({ client, query: q, values: val });
-//     } catch (rowError) {
-//       // Attach metadata to the error so the caller knows exactly what failed
-//       rowError.failedItem = item;
-//       rowError.failedQuery = q;
-//       rowError.failedValues = val;
-//       throw rowError; 
-//     }
-
-//     // Yield to Event Loop
-//     if (processed % 500 === 0) {
-//       await new Promise((r) => setImmediate(r));
-//     }
-//   }
-
-//   // Calculate total records AFTER sync
-//   const totalCountRes = await poolQuery({
-//     client,
-//     query: `SELECT COUNT(*)::int AS count FROM ${tableName}`,
-//     values: [],
-//   });
-
-//   await poolQuery({ client, query: `RELEASE SAVEPOINT ${savepoint}` });
-
-//   return {
-//     processed,
-//     total_records: totalCountRes[0]?.count || 0,
-//   };
-// };
-
 
 /**
  * Splits a massive array into smaller, digestible chunks
@@ -314,14 +258,6 @@ const processSingleTable = async (client, tableName, rData, savepoint) => {
       }
     }
 
-    // --- 2. BULK UPSERT ---
-    // Ensure all items have the sync flag set
-    // const enrichedBatch = batch.map(item => {
-    //   // eslint-disable-next-line no-unused-vars
-    //   const { id, ...rest } = item;
-    //   return { ...rest, sync: true };
-    // });
-    // REMOVE ID FLAG AND SETSYNC FLAG = TRUE;
     const enrichedBatch = removeIdAndAddSyncFieldFromData(batch);
     console.log("enrichedBatch", enrichedBatch);
 
@@ -378,8 +314,6 @@ function removeIdAndAddSyncFieldFromData(batch) {
   return batchData;
 }
 
-
-
 /**
  * Orchestrates reading the extracted files and delegating to processSingleTable.
  */
@@ -388,7 +322,6 @@ const syncDataUpload3 = async (currentDate, folderPath, syncTabels) => {
     const failedItems = [];
     const failedTables = [];
     const tableSummary = [];
-
 
     for (const tableName of syncTabels) {
       if (!tableName) continue;

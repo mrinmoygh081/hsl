@@ -142,10 +142,6 @@ const InspectionCall = () => {
                                       inspectioncall.map((inspection) => (
                                         <tr key={inspection.id}>
                                           <td className="table_center">
-                                            {/* {inspection?.created_at &&
-                                          new Date(
-                                            inspection?.created_at
-                                          ).toLocaleString()} */}
                                             {inspection.created_at &&
                                               formatDate(inspection.created_at)}
                                           </td>
@@ -274,13 +270,6 @@ const InspectionCall = () => {
                   </div>
                   <div className="col-12">
                     <div className="mb-3 d-flex justify-content-between">
-                      {/* <button
-                        onClick={() => updateInspectionCall()}
-                        className="btn fw-bold btn-primary"
-                        type="button"
-                      >
-                        SUBMIT
-                      </button> */}
                       <DynamicButton
                         label="SUBMIT"
                         onClick={() => updateInspectionCall()}

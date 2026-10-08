@@ -1,4 +1,3 @@
-// craco.config.js
 const webpack = require("webpack");
 const path = require("path");
 

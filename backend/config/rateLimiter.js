@@ -5,7 +5,6 @@ const { resSend } = require("../lib/resSend");
 const LIMIT_TIME_IN_MS = 1 * 60 * 1000;
 const MAX_REQUEST = parseInt(process.env.MAX_REQUEST, 10) || 100;
 
-
 const globalRateLimiter = rateLimit({
   windowMs: LIMIT_TIME_IN_MS,
   max: MAX_REQUEST,
@@ -22,10 +21,6 @@ const createLimiter = (minutes, maxRequests, actionName) => {
     max: maxRequests,
     standardHeaders: true,
     legacyHeaders: false,
-    // keyGenerator: (req, res) => {
-    //   return rateLimit.ipKeyGenerator(req, res);
-    // },
-
 
     handler: (req, res) => {
       // Ensure Message.TOO_MANY_REQUEST_FROM_IP is defined, otherwise fallback to string
@@ -44,7 +39,6 @@ const sendOtpLimiter = createLimiter(2, 3, "sending OTP");
 
 // 3. Verify OTP Limiter
 const verifyOtpLimiter = createLimiter(5, 8, "verification");
-
 
 // 4. any action realted apis, submission, approved
 const actionLimiter = createLimiter(1, 10, "submission"); // 10 reqs / 1 min

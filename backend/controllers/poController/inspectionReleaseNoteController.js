@@ -10,10 +10,7 @@ const { INSP_RELEASE_NOTE_UPLOAD } = require("../../lib/event");
 const Message = require("../../utils/messages");
 
 const inspectionReleaseNote = async (req, res) => {
-  // resSend(res, true, 200, "file upleeoaded!", req.body, null);
   try {
-    // const lastParam = req.path.split("/").pop();
-    // Handle Image Upload
     let fileData = {};
     if (req.file) {
       fileData = {
@@ -36,19 +33,8 @@ const inspectionReleaseNote = async (req, res) => {
       ...fileData,
     };
     if (!payload.purchasing_doc_no) {
-      // const directory = path.join(__dirname, '..', 'uploads', lastParam);
-      // const isDel = handleFileDeletion(directory, req.file.filename);
       return resSend(res, false, 400, "Please send valid payload", null, null);
     }
-
-    // if (payload.status === PENDING) {
-    //     insertObj = inspectionCallLetterPayload(payload, PENDING);
-    // } else if (payload.status === RE_SUBMITTED) {
-    //     // insertObj = inspectionCallLetterPayload(payload, RE_SUBMITTED);
-    // } else if (payload.status === APPROVED) {
-    //     insertObj = inspectionCallLetterPayload(payload, APPROVED);
-    // }
-    // insertObj = inspectionCallLetterPayload(payload, PENDING);
 
     let insertObj = inspectionReleaseNotePayload(payload);
 
@@ -63,10 +49,6 @@ const inspectionReleaseNote = async (req, res) => {
       resSend(res, false, 400, "No data inserted", null, null);
     }
 
-    // }
-    // else {
-    //     resSend(res, false, 400, "Please upload a valid File", fileData, null);
-    // }
   } catch (error) {
     console.error("[error]", error);
 
@@ -94,7 +76,6 @@ const list = async (req, res) => {
     console.error("data not fetched", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   }
-  // resSend(res, true, 200, "oded!", req.query.dd, null);
 };
 
 async function handleEmail(data) {

@@ -53,33 +53,6 @@ const PODetails = () => {
     setFile(selectedFile);
   };
 
-  // const handleUploadTNCMinutes = async (event) => {
-  //   try {
-  //     event.preventDefault();
-
-  //     const formData = new FormData();
-  //     formData.append("purchasing_doc_no", id);
-  //     formData.append("file", file);
-
-  //     const response = await apiCallBack(
-  //       "POST",
-  //       "upload/tncminutes",
-  //       formData,
-  //       token
-  //     );
-
-  //     if (response.status === true) {
-  //       toast.success("TNC Minutes uploaded successfully!");
-
-  //       setIsPopup(false);
-  //     } else {
-  //       toast.error("TNC Minutes not uploaded!. Please try again.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error uploading TNC Minutes:", error.message);
-  //     toast.error("Error uploading TNC Minutes. Please try again.");
-  //   }
-  // };
   const handleUploadTNCMinutes = async (event) => {
     event.preventDefault();
     setLoading(true); // Start loading
@@ -185,9 +158,6 @@ const PODetails = () => {
                       <div className="col-12">
                         <div className="screen_header">
                           <div className="screen_header_top">
-                            {/* <h2>
-                              Welcome <span>Admin</span>
-                            </h2> */}
                           </div>
                         </div>
                         <div>
@@ -210,13 +180,6 @@ const PODetails = () => {
                               <DynamicButton label="Download PO" className="btn  btn-primary me-2" onClick={handleDownloadSAPPO} />
                               {user?.user_type !== 1 && (
                                 <>
-                                  {/* <Link
-                                    className="btn btn-primary"
-                                    to={`/poarchive/${id}`}
-                                  >
-                                    PO Version
-                                    <MdArchive style={{ fontSize: "20px" }} />
-                                  </Link> */}
                                   <button onClick={getData} className="btn btn-primary">
                                     <MdArchive style={{ fontSize: "20px" }} />
                                   </button>
@@ -239,15 +202,9 @@ const PODetails = () => {
                                         <div className="card_header_data">
                                           <span className="label">PO Date:</span>
                                           <span className="label_data">
-                                            {/* {po.AEDAT
-                                              ? new Date(
-                                                  po.AEDAT
-                                                ).toLocaleDateString()
-                                              : "Not Updated"} */}
 
                                             {po?.AEDAT ? formatDate(po?.AEDAT) : "Not Updated"}
 
-                                            {/* {po.AEDAT} */}
                                           </span>
                                         </div>
                                         <div className="card_header_data">
@@ -256,14 +213,6 @@ const PODetails = () => {
                                             {po?.NAME1} (<span>{po?.LIFNR}</span>)
                                           </span>
                                         </div>
-                                        {/* <div className="card_header_data">
-                                          <span className="label">
-                                            Purchase Group:
-                                          </span>
-                                          <span className="label_data">
-                                            {po.EKGRP}
-                                          </span>
-                                        </div> */}
 
                                         <div className="card_header_data">
                                           <span className="label">Dealing Officer:</span>
@@ -308,11 +257,6 @@ const PODetails = () => {
                                                   <div className="card_header_data">
                                                     <span className="label">{item?.mtext} :</span>
                                                     <span className="label_data">
-                                                      {/* {item?.plan_date
-                                                          ? new Date(
-                                                              item?.plan_date
-                                                            ).toLocaleDateString()
-                                                          : "Not Updated"}{" "} */}
                                                       {item?.plan_date ? formatDate(item?.plan_date) : "Not Updated"}(
                                                       <span className={`${clrLegend(item?.current_status)} bold`}>{item?.current_status || "Not Uploaded"}</span>)
                                                     </span>
@@ -423,13 +367,6 @@ const PODetails = () => {
                                   <button className="btn fw-bold btn-primary" onClick={handleUploadTNCMinutes} disabled={loading}>
                                     {loading ? "Uploading..." : "UPDATE"}{" "}
                                   </button>
-                                  {/* <DynamicButton
-                                    label="UPDATE"
-                                    className="btn fw-bold btn-primary"
-                                    onClick={(event) =>
-                                      handleUploadTNCMinutes(event)
-                                    } // Pass event correctly
-                                  /> */}
                                 </div>
                               </div>
                             </div>
@@ -444,57 +381,6 @@ const PODetails = () => {
             </div>
           </div>
         </div>
-        {/* <div className={isPopup.isPop ? "popup active" : "popup"}>
-          <div className="card card-xxl-stretch mb-5 mb-xxl-8">
-            <div className="card-header border-0 pt-5">
-              <h3 className="card-title align-items-start flex-column">
-                <span className="card-label fw-bold fs-3 mb-1">
-                  Instructions
-                </span>
-                <span className="text-muted mt-1 fw-semibold fs-7">
-                  {imagesData && `Total ${imagesData.length} Instructions`}
-                </span>
-              </h3>
-              <button
-                className="btn fw-bold btn-danger"
-                onClick={() =>
-                  setIsPopup({
-                    isPop: false,
-                    itemNo: null,
-                  })
-                }
-              >
-                Close
-              </button>
-            </div>
-            <div className="row">
-              {imagesData &&
-                imagesData.length > 0 &&
-                imagesData.map((item, index) => (
-                  <div className="col-12 col-md-3" key={index}>
-                    <div
-                      className={
-                        selected.image == item?.instruction_id
-                          ? "image_list active"
-                          : "image_list"
-                      }
-                      onClick={() => handleSelectImg(item)}
-                    >
-                      <Image
-                        loader={({ src }) => {
-                          return `uploads/${src}`;
-                        }}
-                        src={item?.instruction_img}
-                        alt=""
-                        width={300}
-                        height={150}
-                      />
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </div>
-        </div> */}
       </main>
     </>
   );

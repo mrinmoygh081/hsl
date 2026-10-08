@@ -42,7 +42,6 @@ const DemandManagement = () => {
   const [viewData, setViewData] = useState(null);
   const { id } = useParams();
   const [groupedData, setGroupedData] = useState([]);
-  // const [dynamicFields, setDynamicFields] = useState([]);
   const [dynamicFields, setDynamicFields] = useState([line_item_fields]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -79,25 +78,6 @@ const DemandManagement = () => {
       console.error("Error fetching WDC list:", error);
     }
   };
-
-  // const getAvailableAmount = async (item) => {
-  //   try {
-  //     const data = await apiCallBack(
-  //       "GET",
-  //       `po/demandeManagement/getRestAmount?po_no=${id}&line_item_no=${item}`,
-  //       null,
-  //       token
-  //     );
-  //     if (data?.status) {
-  //       setAvailableAmount(data?.data?.rest_amount);
-  //       setDescription(data?.data?.description);
-  //       setMaterialCode(data?.data?.matarial_code);
-  //       setUnit(data?.data?.unit);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching WDC list:", error);
-  //   }
-  // };
 
   const getAvailableAmount = async (item) => {
     try {
@@ -387,9 +367,6 @@ const DemandManagement = () => {
                       <div className="screen_header">
                         {user?.department_id === USER_PPNC_DEPARTMENT && (
                           <>
-                            {/* <button className="btn fw-bold btn-primary me-2">
-                              Print
-                            </button> */}
                             <button
                               onClick={() => setIsPopup(true)}
                               className="btn fw-bold btn-primary"
@@ -416,7 +393,6 @@ const DemandManagement = () => {
                                   <th>Delivery Date</th>
                                   <th className="min-w-150px">Remarks</th>
                                   <th>Status</th>
-                                  {/* <th>Action</th> */}
                                 </tr>
                               </thead>
                               <tbody style={{ maxHeight: "100%" }}>
@@ -446,10 +422,6 @@ const DemandManagement = () => {
                                               items.map((item, i) => (
                                                 <tr key={i}>
                                                   <td className="table_center">
-                                                    {/* {item?.created_at &&
-                                                new Date(
-                                                  item?.created_at
-                                                ).toLocaleString()} */}
                                                     {item.created_at &&
                                                       formatDate(
                                                         item.created_at
@@ -500,12 +472,6 @@ const DemandManagement = () => {
                                                     )}
                                                   </td>
                                                   <td>
-                                                    {/* {item.delivery_date &&
-                                                new Date(
-                                                  item.delivery_date
-                                                ).toLocaleDateString()} */}
-                                                    {/* {item?.delivery_date &&
-                                                formatDate(item?.delivery_date)} */}
 
                                                     {item.delivery_date &&
                                                       formatDate(
@@ -521,22 +487,6 @@ const DemandManagement = () => {
                                                   >
                                                     {item.status}
                                                   </td>
-                                                  {/* <td>
-                                              {item.status === "SUBMITTED" && (
-                                                <>
-                                                  <button
-                                                    onClick={() => {
-                                                      setViewData(item);
-                                                      setIsSecPopup(true);
-                                                    }}
-                                                    className="btn fw-bold btn-primary"
-                                                    type="button"
-                                                  >
-                                                    Action
-                                                  </button>
-                                                </>
-                                              )}
-                                            </td> */}
                                                 </tr>
                                               ))}
                                           </Fragment>
@@ -730,13 +680,6 @@ const DemandManagement = () => {
                       </div>
                       <div className="col-12">
                         <div className="mb-3 d-flex justify-content-between">
-                          {/* <button
-                            onClick={() => submitHandler("SUBMITTED")}
-                            className="btn fw-bold btn-primary"
-                            type="button"
-                          >
-                            SUBMIT
-                          </button> */}
                           <DynamicButton
                             label="SUBMIT"
                             onClick={() => submitHandler("SUBMITTED")}
@@ -859,13 +802,6 @@ const DemandManagement = () => {
                       </div>
                       <div className="col-12">
                         <div className="mb-3 d-flex justify-content-between">
-                          {/* <button
-                            onClick={() => submitHandler("SUBMITTED")}
-                            className="btn fw-bold btn-primary"
-                            type="button"
-                          >
-                            SUBMIT
-                          </button> */}
                           <DynamicButton
                             label="SUBMIT"
                             onClick={() => submitHandler("SUBMITTED")}
@@ -881,101 +817,6 @@ const DemandManagement = () => {
           </div>
 
           {/* ///////////////////////////// */}
-          {/* <div className={isSecPopup ? "popup active" : "popup"}>
-            <div className="card card-xxl-stretch mb-5 mb-xxl-8">
-              <div className="card-header border-0 pt-5 pb-3">
-                <h3 className="card-title align-items-start flex-column">
-                  <span className="card-label fw-bold fs-3 mb-1">
-                    Take Your Action
-                  </span>
-                </h3>
-                <button
-                  className="btn fw-bold btn-danger"
-                  onClick={() => {
-                    setIsSecPopup(false);
-                    setViewData(null);
-                  }}
-                >
-                  Close
-                </button>
-              </div>
-              <form>
-                <div className="row">
-                  {viewData?.demand &&
-                    JSON.parse(viewData.demand).map((item, i) => (
-                      <div className="row" key={i}>
-                        <div className="col-12 col-md-4">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              PO Line Item <span className="red">*</span>{" "}
-                            </label>
-                            <p>{item?.line_item_no}</p>
-                          </div>
-                        </div>
-                        <div className="col-12 col-md-4">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              Requested Quantity <span className="red">*</span>{" "}
-                            </label>
-                            <p>{item?.request_amount}</p>
-                          </div>
-                        </div>
-                        <div className="col-12 col-md-4">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              Received Quantity <span className="red">*</span>{" "}
-                            </label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              value={formData?.recived_quantity[i] || ""}
-                              onChange={(e) => {
-                                const newReceivedQuantities = [
-                                  ...formData.recived_quantity,
-                                ];
-                                newReceivedQuantities[i] = e.target.value;
-                                setFormData({
-                                  ...formData,
-                                  recived_quantity: newReceivedQuantities,
-                                });
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-
-                  <div className="col-12">
-                    <div className="mb-3">
-                      <label className="form-label">Remarks</label>&nbsp;&nbsp;
-                      <span className="mandatorystart">*</span>
-                      <textarea
-                        name=""
-                        id=""
-                        rows="4"
-                        className="form-control"
-                        value={formData?.remarks}
-                        onChange={(e) =>
-                          setFormData({ ...formData, remarks: e.target.value })
-                        }
-                      ></textarea>
-                    </div>
-                  </div>
-                  <div className="col-12">
-                    <div className="mb-3 d-flex justify-content-between">
-                      <button
-                        onClick={() => actionHandlerReceiver("RECEIVED")}
-                        className="btn fw-bold btn-primary"
-                        type="button"
-                      >
-                        SUBMIT
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-          </div> */}
         </>
       )}
     </>

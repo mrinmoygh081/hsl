@@ -65,8 +65,7 @@ const details = async (req, res) => {
       values: [queryParams.id],
     });
 
-    if (!result?.length)
-      return resSend(res, false, 404, "No PO number found !!", [], null);
+    if (!result?.length) return resSend(res, false, 404, "No PO number found !!", [], null);
 
     const timeLineQuery = `
         (SELECT a.*, sub.actualSubmissionDate, sub.milestoneText, sub.milestoneId FROM   zpo_milestone AS a 
@@ -94,11 +93,6 @@ const details = async (req, res) => {
                 ( a.EBELN = sub.purchasing_doc_no and sub.milestoneId = '04')
             WHERE a.EBELN = $4 AND a.MID = '04')
         `;
-    // const timeline = await poolQuery({
-    //   client,
-    //   query: timeLineQuery,
-    //   values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
-    // });
 
     const getLatest = `
         (SELECT purchasing_doc_no, status AS current_status, '01' as flag FROM sdbg WHERE purchasing_doc_no = $1 ORDER BY created_at DESC LIMIT 1)
@@ -115,12 +109,6 @@ const details = async (req, res) => {
 
         (SELECT purchasing_doc_no, status  AS current_status, '04' as flag FROM ilms WHERE purchasing_doc_no = $4 ORDER BY created_at DESC LIMIT 1)`;
 
-    // const curret_data = await poolQuery({
-    //   client,
-    //   query: getLatest,
-    //   values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
-    // });
-
     const getAcknowledgementntQry = `
         (SELECT purchasing_doc_no, status, '01' as flag, created_at as acknowledgementnt_date FROM sdbg WHERE purchasing_doc_no = $1 AND status = '${APPROVED}' ORDER BY created_at DESC LIMIT 1)
 
@@ -136,42 +124,21 @@ const details = async (req, res) => {
 
         (SELECT purchasing_doc_no, status, '04' as flag, created_at as acknowledgementnt_date FROM ilms WHERE purchasing_doc_no = $4 AND status = '${ACCEPTED}' ORDER BY created_at DESC LIMIT 1);`;
 
-    // const acknowledgementnt_date = await poolQuery({
-    //   client,
-    //   query: getAcknowledgementntQry,
-    //   values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
-    // });
-
     const [timeline, curret_data, acknowledgementnt_date] = await Promise.all([
       poolQuery({
         client,
         query: timeLineQuery,
-        values: [
-          queryParams.id,
-          queryParams.id,
-          queryParams.id,
-          queryParams.id,
-        ],
+        values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
       }),
       poolQuery({
         client,
         query: getLatest,
-        values: [
-          queryParams.id,
-          queryParams.id,
-          queryParams.id,
-          queryParams.id,
-        ],
+        values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
       }),
       poolQuery({
         client,
         query: getAcknowledgementntQry,
-        values: [
-          queryParams.id,
-          queryParams.id,
-          queryParams.id,
-          queryParams.id,
-        ],
+        values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
       }),
     ]);
 
@@ -180,9 +147,7 @@ const details = async (req, res) => {
       let timeLineDatArr = mergeData(timeline, curret_data);
       timeLineDatArr = joinArrays(timeLineDatArr, acknowledgementnt_date);
 
-      timelineData = timeLineDatArr.filter(
-        (v, i, a) => a.findIndex((el) => el?.mid === v?.mid) === i,
-      );
+      timelineData = timeLineDatArr.filter((v, i, a) => a.findIndex((el) => el?.mid === v?.mid) === i);
 
       // Sort the array by milestoneid
       timelineData.sort((a, b) => parseInt(a.mid) - parseInt(b.mid));
@@ -190,9 +155,7 @@ const details = async (req, res) => {
 
     if (timelineData.length) {
       timelineData = timelineData.map((el2) => {
-        const DOObj = acknowledgementnt_date.find(
-          (elms) => elms.flag == el2.mid,
-        );
+        const DOObj = acknowledgementnt_date.find((elms) => elms.flag == el2.mid);
         if (DOObj) {
           el2.acknowledgement_text = `ACKNOWLEDGEMENT DATE`;
           el2.acknowledgement_date = DOObj.acknowledgementnt_date;
@@ -201,9 +164,6 @@ const details = async (req, res) => {
         return el2;
       });
     }
-    // let tableName = (result[0].BSART === 'ZDM') ? EKPO : (result[0].BSART === 'ZGSR') ? EKBE : null;
-
-    // let resDate;
 
     // TO DO
     /**
@@ -227,18 +187,7 @@ const details = async (req, res) => {
                     ON (materialMaster.MATNR = mat.MATNR)
             WHERE 1 = 1 AND mat.EBELN = $1`;
 
-    // let materialResult = await poolQuery({
-    //   client,
-    //   query: materialQuery,
-    //   values: [queryParams.id],
-    // });
-
     const materialTypeQuery = "SELECT * FROM material_type";
-    // const materialType = await poolQuery({
-    //   client,
-    //   query: materialTypeQuery,
-    //   values: [],
-    // });
 
     const [materials, materialType, currStageData, DO] = await Promise.all([
       poolQuery({ client, query: materialQuery, values: [queryParams.id] }),
@@ -251,17 +200,8 @@ const details = async (req, res) => {
 
     // FILTER DELETED PO LINE ITEM
     if (materialResult && materialResult?.length) {
-      materialResult = materialResult.filter(
-        (elem) => elem.isdeleted != PO_LINE_ITEM_DELETE_FLAG,
-      );
+      materialResult = materialResult.filter((elem) => elem.isdeleted != PO_LINE_ITEM_DELETE_FLAG);
     }
-
-    // const materialTypeQuery = "SELECT * FROM material_type";
-    // const materialType = await poolQuery({
-    //   client,
-    //   query: materialTypeQuery,
-    //   values: [],
-    // });
 
     const isMaterialTypePO = poTypeCheck(materialResult, materialType);
 
@@ -272,12 +212,7 @@ const details = async (req, res) => {
       current: "",
     };
 
-    // currentStage.current = await currentStageHandler(queryParams.id);
-    // currentStage.current = await currentStageHandleForAllActivity(client, [queryParams.id]);
-    // const currStageData = await currentStageHandleForAllActivity(client, [queryParams.id]);
     currentStage.current = currStageData ? currStageData[queryParams.id] : "";
-
-    // const DO = await doDetails(queryParams.id);
 
     result[0]["currentStage"] = currentStage;
     result[0]["poType"] = poType;
@@ -298,28 +233,8 @@ function isDO(po, user_id) {
   return po.ERNAM == user_id;
 }
 
-// async function poTypeCheck(materialData) {
-//   // const regex = /DIEN/; // USE FOR IDENTIFY SERVICE PO as discuss with Preetham
-//   const regex = /ZDIN/;   // NOT USE FOR IDENTIFY SERVICE PO
-//   // regex.test(materialType);
-//   let isMatched = true;
-
-//   const materialTypeQuery = "SELECT * FROM material_type";
-//   const result = await query({query:  materialTypeQuery, values: []});
-
-//   for (let i = 0; i < materialData.length; i++) {
-//     isMatched = regex.test(materialData[i]?.MTART);
-//     if (isMatched === false) break;
-//   }
-
-//   return isMatched;
-// }
-
 // eslint-disable-next-line no-unused-vars
 function poTypeCheck(materialData, materialType) {
-  // const types = materialData.map((mat) => mat.MTART);
-  // const service = new Set(materialType.filter((el) => el.material_type === SERVICE_TYPE).map((e) => e.material_type_value));
-  // const material = new Set(materialType.filter((el) => el.material_type === MATERIAL_TYPE).map((e) => e.material_type_value));
 
   let isService = false;
   let isMaterial = false;
@@ -338,26 +253,6 @@ function poTypeCheck(materialData, materialType) {
     }
   }
 
-  // const isService = types.every(type => service.has(type));
-  // const isMaterial = types.every(type => material.has(type));
-  // let isService = false;
-  // let isMaterial = false;
-
-  // for (const type of types) {
-  //   if (service.has(type)) {
-  //     isService = true;
-  //     break;
-  //   }
-  // }
-
-  // for (const type of types) {
-  //   if (type && !service.has(type)) {
-  //     isMaterial = true;
-  //     break;
-  //   }
-  // }
-  // // types.every(type => material.includes(type));
-
   if (isService && !isMaterial) {
     return "service";
   } else if (isMaterial && !isService) {
@@ -370,21 +265,13 @@ function poTypeCheck(materialData, materialType) {
 }
 
 const download = async (req, res) => {
-  // const queryParams = req.query;
 
   const typeArr = ["drawing", "sdbg", "qap"];
 
   const { id, type } = req.query;
 
   if (!typeArr.includes(type)) {
-    return resSend(
-      res,
-      false,
-      400,
-      "Please send valid type ! i.e. drawing, sdbg",
-      null,
-      null,
-    );
+    return resSend(res, false, 400, "Please send valid type ! i.e. drawing, sdbg", null, null);
   }
   let fileFoundQuery = "";
 
@@ -408,14 +295,7 @@ const download = async (req, res) => {
   const response = await getQuery({ query: fileFoundQuery, values: [id] });
 
   if (!response?.length || !response[0]?.file_name) {
-    return resSend(
-      res,
-      true,
-      200,
-      `file not uploaded with this id ${id}`,
-      null,
-      null,
-    );
+    return resSend(res, true, 200, `file not uploaded with this id ${id}`, null, null);
   }
 
   const selectedPath = `${downaoadPath}${response[0].file_name}`;
@@ -441,10 +321,7 @@ const doDetails = async (client, poNo) => {
 
 function joinArrays(arr1, arr2) {
   return arr1.map((item1) => {
-    const matchingItem = arr2.find(
-      (item2) =>
-        item1.eblel == item2.purchasing_doc_no && item1.mid == item2.flag,
-    );
+    const matchingItem = arr2.find((item2) => item1.eblel == item2.purchasing_doc_no && item1.mid == item2.flag);
 
     if (matchingItem) {
       return { ...item1, ...matchingItem };
@@ -456,15 +333,9 @@ function joinArrays(arr1, arr2) {
 
 function mergeData(timelineData, currentData) {
   return timelineData.map((timelineItem) => {
-    const currentItem = currentData.find(
-      (currentItem) =>
-        currentItem.purchasing_doc_no === timelineItem.ebeln &&
-        currentItem.flag === timelineItem.mid,
-    );
+    const currentItem = currentData.find((currentItem) => currentItem.purchasing_doc_no === timelineItem.ebeln && currentItem.flag === timelineItem.mid);
 
-    return currentItem
-      ? { ...timelineItem, current_status: currentItem.current_status }
-      : timelineItem;
+    return currentItem ? { ...timelineItem, current_status: currentItem.current_status } : timelineItem;
   });
 }
 
@@ -480,8 +351,6 @@ const addParam = (values, value) => {
 };
 
 const poList = async (req, res) => {
-  // console.log(req);
-
   let client;
   try {
     const tokenData = req.tokenData;
@@ -500,46 +369,17 @@ const poList = async (req, res) => {
 
     if (tokenData.user_type === USER_TYPE_VENDOR) {
       // Pass specific arrays to each function
-      Query = poListByEkko(
-        tokenData,
-        search,
-        po,
-        vendor_type,
-        pageNo,
-        pageSize,
-        queryValues,
-      );
-      CountQuery = poListCountByEkko(
-        tokenData,
-        search,
-        vendor_type,
-        countValues,
-      );
+      Query = poListByEkko(tokenData, search, po, vendor_type, pageNo, pageSize, queryValues);
+      CountQuery = poListCountByEkko(tokenData, search, vendor_type, countValues);
     } else {
       // Pass both arrays to the main query builder to handle complex logic
-      const q = poListQuery(
-        tokenData,
-        search,
-        po,
-        vendor_type,
-        pageNo,
-        pageSize,
-        queryValues,
-        countValues,
-      );
+      const q = poListQuery(tokenData, search, po, vendor_type, pageNo, pageSize, queryValues, countValues);
 
       Query = q.Query;
       CountQuery = q.CountQuery;
     }
     if (!Query) {
-      return resSend(
-        res,
-        false,
-        400,
-        "You don't have permission or no data found",
-        null,
-        null,
-      );
+      return resSend(res, false, 400, "You don't have permission or no data found", null, null);
     }
 
     // Execute Main Query with parameterized values
@@ -555,36 +395,13 @@ const poList = async (req, res) => {
       return resSend(res, true, 200, "No data found", poDetails, null, 0, 1);
     }
 
-    let poArr = poDetails.map(
-      (el) => el?.EBELN || el?.ebeln || el?.purchasing_doc_no || el?.poNb,
-    );
+    let poArr = poDetails.map((el) => el?.EBELN || el?.ebeln || el?.purchasing_doc_no || el?.poNb);
     poArr = [...new Set(poArr)];
 
-    // Execute Count Query with its own values
-    // const poCountData = await poolQuery({ client, query: CountQuery, values: countValues });
-
-    // const poCount = parseInt(poCountData[0]?.total_count || 0);
-    // const poCountData = await poolQuery({ client, query: CountQuery, values: countValues });
-
-    // const contractualDates = await getActualAndCurrentDetails(client, poArr);
-    // const currentActivity = await currentStageHandleForAllActivity(client, poArr);
-    // const materialTypeQuery = "SELECT * FROM material_type";
-    // const materialType = await poolQuery({ client, query: materialTypeQuery, values: [] });
     const materialTypeQuery = "SELECT * FROM material_type";
 
-    // const [contractualDates, currentActivity, materialType, poCountData] = await Promise.all(
-    //   [
-    //     getActualAndCurrentDetails(client, poArr),
-    //     currentStageHandleForAllActivity(client, poArr),
-    //     poolQuery({ client, query: materialTypeQuery, values: [] }),
-    //     poolQuery({ client, query: CountQuery, values: countValues })
-    //   ]
-    // )
     const contractualDates = await getActualAndCurrentDetails(client, poArr);
-    const currentActivity = await currentStageHandleForAllActivity(
-      client,
-      poArr,
-    );
+    const currentActivity = await currentStageHandleForAllActivity(client, poArr);
     const materialType = await poolQuery({
       client,
       query: materialTypeQuery,
@@ -621,16 +438,7 @@ const poList = async (req, res) => {
       });
     }
 
-    resSend(
-      res,
-      true,
-      200,
-      Message.DATA_FETCH_SUCCESSFULL,
-      result,
-      "",
-      poCount,
-      pageNo,
-    );
+    resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, "", poCount, pageNo);
   } catch (error) {
     console.error("[ERROR] PO LIST API", error.message, error.stack);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
@@ -639,15 +447,7 @@ const poList = async (req, res) => {
   }
 };
 
-function poListByEkko(
-  tokenData,
-  search,
-  po,
-  vendor_type,
-  pageNo,
-  limit,
-  values,
-) {
+function poListByEkko(tokenData, search, po, vendor_type, pageNo, limit, values) {
   let baseQuery = "WITH EKKO AS ( ";
 
   let selectedItem = `SELECT
@@ -694,7 +494,6 @@ function poListByEkko(
   }
 
   selectedItem += conditionQuery;
-  // const orderBy = " ORDER BY EKKO.AEDAT, EKKO.EBELN DESC";
   const orderBy = " ORDER BY EKKO.AEDAT DESC";
   selectedItem += orderBy;
 
@@ -769,14 +568,7 @@ function poListCountByEkko(tokenData, search, vendor_type, values) {
 }
 
 // Helper to append conditions for other users
-function poListForOtherUser(
-  dependedQuery,
-  search,
-  po,
-  pageNo,
-  pageSize,
-  values,
-) {
+function poListForOtherUser(dependedQuery, search, po, pageNo, pageSize, values) {
   let baseQuery = "WITH COMBINED_DATA AS ";
   baseQuery += " ( " + dependedQuery + " )";
 
@@ -838,16 +630,7 @@ function poListCountForOtherUser(dependedQuery) {
   return countQuery;
 }
 
-const poListQuery = (
-  tokenData,
-  searchValue,
-  po,
-  vendor_type,
-  pageNo,
-  pageSize,
-  queryValues,
-  countValues,
-) => {
+const poListQuery = (tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues, countValues) => {
   // We don't handle LIMIT/OFFSET here directly anymore, it's pushed to poListForOtherUser or poListByEkko
   // However, poListForOtherUser handles pagination, so we pass pageNo/pageSize there.
 
@@ -864,21 +647,8 @@ const poListQuery = (
   switch (tokenData.department_id) {
     case USER_TYPE_HSL_QAP:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(
-          tokenData,
-          searchValue,
-          po,
-          vendor_type,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
-        CountQuery = poListCountByEkko(
-          tokenData,
-          searchValue,
-          vendor_type,
-          countValues,
-        );
+        Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+        CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery = `SELECT DISTINCT(purchasing_doc_no), created_at from qap_submission WHERE 1 = 1 `;
         tempQuery += ` AND assigned_to = ${addTemp(tokenData.vendor_code)} AND is_assign = 1`;
@@ -895,106 +665,49 @@ const poListQuery = (
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        // tempQuery += orderByPo; // ordering handled in main function
-        Query = poListForOtherUser(
-          tempQuery,
-          searchValue,
-          po,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
+        Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
       }
       break;
 
     case USER_TYPE_HSL_FINANCE:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(
-          tokenData,
-          searchValue,
-          po,
-          vendor_type,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
-        CountQuery = poListCountByEkko(
-          tokenData,
-          searchValue,
-          vendor_type,
-          countValues,
-        );
+        Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+        CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         const vendorCode = tokenData.vendor_code;
         const searchPattern = searchValue ? `%${searchValue}%` : null;
 
         tempQuery += `SELECT DISTINCT(purchasing_doc_no) FROM sdbg WHERE assigned_to = ${addTemp(vendorCode)}`;
-        if (searchPattern)
-          tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
+        if (searchPattern) tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
 
         tempQuery += " UNION ";
 
         tempQuery += `SELECT DISTINCT(purchasing_doc_no) FROM btn_assign WHERE assign_to = ${addTemp(vendorCode)}`;
-        if (searchPattern)
-          tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
+        if (searchPattern) tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
 
         tempQuery += " UNION ";
 
         tempQuery += `SELECT DISTINCT(purchasing_doc_no) FROM btn_assign WHERE assign_to_fi= ${addTemp(vendorCode)}`;
-        if (searchPattern)
-          tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
+        if (searchPattern) tempQuery += ` AND purchasing_doc_no LIKE ${addTemp(searchPattern)}`;
 
         // Sync values
         queryValues.push(...tempValues);
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(
-          tempQuery,
-          searchValue,
-          po,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
+        Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
       }
       break;
 
     case USER_TYPE_HSL_DRAWING:
-      Query = poListByEkko(
-        tokenData,
-        searchValue,
-        po,
-        vendor_type,
-        pageNo,
-        pageSize,
-        queryValues,
-      );
-      CountQuery = poListCountByEkko(
-        tokenData,
-        searchValue,
-        vendor_type,
-        countValues,
-      );
+      Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+      CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       break;
 
     case USER_TYPE_HSL_PURCHASE:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(
-          tokenData,
-          searchValue,
-          po,
-          vendor_type,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
-        CountQuery = poListCountByEkko(
-          tokenData,
-          searchValue,
-          vendor_type,
-          countValues,
-        );
+        Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+        CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery += `SELECT DISTINCT(EBELN) as purchasing_doc_no, aedat as created_at from ekko AS EKKO WHERE 1 = 1 AND EKKO.ERNAM = ${addTemp(tokenData.vendor_code)} `;
 
@@ -1011,34 +724,14 @@ const poListQuery = (
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(
-          tempQuery,
-          null,
-          po,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
+        Query = poListForOtherUser(tempQuery, null, po, pageNo, pageSize, queryValues);
       }
       break;
 
     case USER_TYPE_PPNC_DEPARTMENT:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(
-          tokenData,
-          searchValue,
-          po,
-          vendor_type,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
-        CountQuery = poListCountByEkko(
-          tokenData,
-          searchValue,
-          vendor_type,
-          countValues,
-        );
+        Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+        CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         const pattern = searchValue ? `%${searchValue}%` : null;
 
@@ -1062,53 +755,20 @@ const poListQuery = (
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(
-          tempQuery,
-          searchValue,
-          po,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
+        Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
       }
       break;
 
     case STORE:
     case RIC:
-      Query = poListByEkko(
-        tokenData,
-        searchValue,
-        po,
-        vendr_type,
-        pageNo,
-        pageSize,
-        queryValues,
-      );
-      CountQuery = poListCountByEkko(
-        tokenData,
-        searchValue,
-        vendor_type,
-        countValues,
-      );
+      Query = poListByEkko(tokenData, searchValue, po, vendr_type, pageNo, pageSize, queryValues);
+      CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       break;
 
     case USER_TYPE_HSL_CONTRACT_CELL:
       if (tokenData.internal_role_id === ASSIGNER) {
-        Query = poListByEkko(
-          tokenData,
-          searchValue,
-          po,
-          vendor_type,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
-        CountQuery = poListCountByEkko(
-          tokenData,
-          searchValue,
-          vendor_type,
-          countValues,
-        );
+        Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+        CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
       } else if (tokenData.internal_role_id === STAFF) {
         tempQuery += `SELECT DISTINCT(EBELN) as purchasing_doc_no, aedat as created_at from ekko AS EKKO WHERE 1 = 1 AND EKKO.ERNAM = ${addTemp(tokenData.vendor_code)} `;
 
@@ -1125,33 +785,13 @@ const poListQuery = (
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        Query = poListForOtherUser(
-          tempQuery,
-          null,
-          po,
-          pageNo,
-          pageSize,
-          queryValues,
-        );
+        Query = poListForOtherUser(tempQuery, null, po, pageNo, pageSize, queryValues);
       }
       break;
 
     default:
-      Query = poListByEkko(
-        tokenData,
-        searchValue,
-        po,
-        vendor_type,
-        pageNo,
-        pageSize,
-        queryValues,
-      );
-      CountQuery = poListCountByEkko(
-        tokenData,
-        searchValue,
-        vendor_type,
-        countValues,
-      );
+      Query = poListByEkko(tokenData, searchValue, po, vendor_type, pageNo, pageSize, queryValues);
+      CountQuery = poListCountByEkko(tokenData, searchValue, vendor_type, countValues);
   }
 
   return { Query, CountQuery };

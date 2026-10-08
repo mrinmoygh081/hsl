@@ -42,11 +42,6 @@ router.post("/compliance-file",
   uploaFileStreamController2
 );
 
-// router.post(
-//   "/fileStream",
-//   verifyAccessToken,
-//   uploadController.uploaFileStreamController
-// );
 router.post(
   "/fileStream",
   verifyAccessToken,

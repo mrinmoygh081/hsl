@@ -111,12 +111,6 @@ const AdvanceBillPayment = () => {
                                       <p>{form.vendor_name || "Loading..."}</p>
                                     </td>
                                   </tr>
-                                  {/* <tr>
-                                    <td>Vendor Code:</td>
-                                    <td className="btn_value">
-                                      <p>{form.vendor_code || "Loading..."}</p>
-                                    </td>
-                                  </tr> */}
                                   <tr>
                                     <td>Vendor</td>
                                     <td>

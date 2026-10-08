@@ -1,5 +1,4 @@
 /* eslint-disable no-undef */
-// File: services/gmailService.js
 const fs = require("fs");
 const path = require("path");
 const { google } = require("googleapis");
@@ -52,7 +51,6 @@ class GmailApiSender {
         if (!token || !token.expiry_date) return true;
         return Date.now() >= token.expiry_date;
     }
-
 
     /**
      * Get refresh token

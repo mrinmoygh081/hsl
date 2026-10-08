@@ -21,29 +21,6 @@ const ClaimAgainstPBGSubmissioninfo = ({ setNetPayableAmount }) => {
   const navigate = useNavigate();
   console.log(datapbg, "datapbg");
 
-  // const getData = async () => {
-  //   setLoadingtable(true);
-  //   try {
-  //     const response = await apiCallBack(
-  //       "GET",
-  //       `getFilteredData?$tableName=btn_pbg&$filter={"btn_num":"${state}"}`,
-  //       null,
-  //       token
-  //     );
-  //     if (response?.status) {
-  //       // setData(response?.data[0]);
-  //       const fetchedData = response?.data[0];
-  //       setData(fetchedData);
-  //       setInvoiceData(JSON.parse(response?.data[0]?.icgrn_nos));
-  //       setNetPayableAmount(fetchedData?.claim_amount);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   } finally {
-  //     setLoadingtable(false);
-  //   }
-  // };
-
   const getData = async () => {
     try {
       console.log("Fetching data for btn_num:", state, "with token:", token);
@@ -70,10 +47,6 @@ const ClaimAgainstPBGSubmissioninfo = ({ setNetPayableAmount }) => {
     }
   };
 
-  // useEffect(() => {
-  //   getData();
-  //   getDataPBG();
-  // }, []);
   useEffect(() => {
     if (state && token) {
       getData();

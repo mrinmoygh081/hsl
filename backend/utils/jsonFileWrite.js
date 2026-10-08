@@ -1,17 +1,13 @@
 /* eslint-disable no-undef */
 const fs = require("fs");
 const fsPromises = require("fs").promises; // Use promises for async I/O
-// const { CSV_DATA_PATH } = require("../lib/constant"); // Assuming this is needed
 
 exports.writeJsonToFile = async (tableName, data, dirPath, filePath ) => {
   try {
-    // const parentDir = path.resolve(__dirname, "..");
-    // const dirPath = path.join(parentDir, CSV_DATA_PATH, todayDate);
 
     // 1. ASYNC DIRECTORY CREATION (No more blocking!)
     await fsPromises.mkdir(dirPath, { recursive: true });
 
-    // const filePath = path.join(dirPath, `${todayDate}_${tableName}_data.json`);
     console.log("dirPath", dirPath);
     console.log("filePath", filePath);
 

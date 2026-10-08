@@ -1,5 +1,4 @@
 const { QALS, QAVE_TABLE } = require("../../lib/tableName");
-// const { connection } = require("../../config/dbConfig");
 const { responseSend, resSend } = require("../../lib/resSend");
 const { generateInsertUpdateQuery, generateQueryForMultipleData } = require("../../lib/utils");
 const { qalsPayload, qavePayloadFn } = require("../../services/sap.qa.services");
@@ -68,64 +67,13 @@ async function handelMail(data) {
 }
 
 const qalsReport = async (req, res) => {
-  // try {
-  // const client = await poolClient();
-  // let payload;
-  // if (req.body && Array.isArray(req.body)) {
-  //     payload = req.body.length > 0 ? req.body[0] : null;
-  // } else if (typeof req.body === 'object' && req.body) {
-  //     payload = req.body;
-  // }
   try {
-    // if (!payload || !payload.PRUEFLOS) {
-    //     responseSend(res, "0", 400, "Please send a valid payload.", null, null);
-    // }
 
     if (!req.body.docNo) {
       return resSend(res, false, 200, Message.MANDATORY_PARAMETR, [], null);
     }
 
     let icgrnGetQuery = "";
-    // `SELECT
-    // qals.PRUEFLOS as inspectionLotNumber,
-    // qals.EBELN as purchasing_doc_no,
-    // qals.EBELP as purchasing_doc_no_item,
-    // ekko.AEDAT as purchasing_doc_date,
-    // qals.MBLNR as docNo,
-    // qals.BUDAT as docDate,
-    // qals.LIFNR as suppplier,
-    // vendor_table.LAND1 as vendorCountry,
-    // vendor_table.NAME1 as vendorName,
-    // vendor_table.ORT01 as vendorCity,
-    // vendor_table.ORT02 as vendorDistrict,
-    // vendor_table.PFACH as vendorPinCode,
-    // qals.MATNR AS materialNumber,
-    // makt.MAKTX as materialDesc,
-    // qals.MATNR as material,
-    // qals.PAENDTERM as endDate,
-    // qals.PAENDZEIT as endTime,
-    // qals.PS_PSP_PNR as wbsElement,
-    // qals.BWART as momentType,
-    // ekpo.MEINS as baseUnit,
-    // qals.LMENGE01 as acceptedQty,
-    // qals.LMENGE07 as rejectedQty,
-    // qals.LMENGE01 as unrestrictedUseStock,
-    // qals.LMENGEIST as supplyQuantity,
-    // qals.LTEXTKZ as remarks,
-    // qave.vcode as udCode,
-    // qals.ENSTEHDAT as inspDate
-    // FROM qals as qals
-    // LEFT JOIN lfa1 as vendor_table
-    // 	ON( qals.LIFNR = vendor_table.LIFNR)
-    // LEFT JOIN ekko as ekko
-    // 	ON( qals.EBELN = ekko.EBELN)
-    // LEFT JOIN qave as qave
-    // 	ON( qals.PRUEFLOS = qave.prueflos)
-    // LEFT JOIN makt as makt
-    // 	ON ( makt.MATNR = qals.MATNR)
-    // LEFT JOIN ekpo as ekpo
-    // 	ON ( ekpo.EBELN = qals.EBELN AND ekpo.EBELP =  qals.EBELP AND ekpo.MATNR = qals.MATNR)
-    // WHERE 1 = 1`;
 
     icgrnGetQuery = `
                 SELECT 
@@ -221,11 +169,7 @@ const qalsReport = async (req, res) => {
   } catch (err) {
     responseSend(res, "F", 500, Message.SERVER_ERROR, err, null);
   } finally {
-    // await client.end();
   }
-  // } catch (error) {
-  //     responseSend(res, "F", 500, "DB CONN ERROR", error, null);
-  // }
 };
 
 const qalsTableDataInsert = async (req, res) => {
@@ -257,7 +201,6 @@ const qalsTableDataInsert = async (req, res) => {
   }
 };
 
-
 const qaveTableDataInsert = async (req, res) => {
   let client;
 
@@ -286,6 +229,5 @@ const qaveTableDataInsert = async (req, res) => {
     client?.release();
   }
 };
-
 
 module.exports = { qals, qalsReport, qaveTableDataInsert, qalsTableDataInsert };

@@ -1,4 +1,3 @@
-// utils/encryption.js
 import CryptoJS from "crypto-js";
 
 // Encryption key .env से लेंगे

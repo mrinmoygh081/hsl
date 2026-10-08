@@ -77,19 +77,7 @@ function GoodsReceiptSlip() {
                     <td className="text-start" width={"5%"}>
                       :
                     </td>
-                    {/* <td width={"30%"}>{apiData?.documentDate}</td> */}
                     <td width={"30%"}>
-                      {/* {apiData?.documentDate &&
-                        formatDate(apiData?.documentDate)} */}
-                      {/* {apiData.documentDate &&
-                        new Date(apiData.documentDate).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          }
-                        )} */}
                       {apiData.entryDate &&
                         new Date(apiData.entryDate).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -101,7 +89,6 @@ function GoodsReceiptSlip() {
                   <tr>
                     <td className="fw-bold">Current date</td>
                     <td className="text-start">:</td>
-                    {/* <td>{apiData.entryDate}</td> */}
                     <td>
                       {" "}
                       {apiData.entryDate &&
@@ -127,15 +114,6 @@ function GoodsReceiptSlip() {
                     <td className="text-start">:</td>
                     <td>
                       {" "}
-                      {/* {apiData.invoiceDate &&
-                        new Date(apiData.invoiceDate).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          }
-                        )} */}
                       {apiData?.invoiceDate ? formatDate(apiData.invoiceDate) : ""}
                     </td>
                   </tr>
@@ -161,11 +139,6 @@ function GoodsReceiptSlip() {
                     </td>
                     <td width={"30%"}>{apiData?.plant}</td>
                   </tr>
-                  {/* <tr>
-                    <td className="fw-bold">Description</td>
-                    <td className="text-start">:</td>
-                    <td>Plant ship Building</td>
-                  </tr> */}
                   <tr>
                     <td className="fw-bold">Vendor</td>
                     <td className="text-start">:</td>
@@ -206,11 +179,6 @@ function GoodsReceiptSlip() {
                     <td className="text-start">:</td>
                     <td>{apiData?.headerText}</td>
                   </tr>
-                  {/* <tr>
-                    <td className="fw-bold">Telephone</td>
-                    <td className="text-start">:</td>
-                    <td>07.03.2024</td>
-                  </tr> */}
                 </tbody>
               </table>
             </div>
@@ -228,7 +196,6 @@ function GoodsReceiptSlip() {
                     <th>Item</th>
                     <th>Material </th>
                     <th>Description</th>
-                    {/* <th>Recipient</th> */}
                     <th>Accounting Assignment</th>
                     <th>Quantity</th>
                     <th>UOM</th>
@@ -268,14 +235,6 @@ function GoodsReceiptSlip() {
       </div>
 
       {/* Date Time And Page No  */}
-      {/* <div
-        className="date_time_container"
-        style={{ position: "fixed", top: 0, right: 0, fontSize: "10px" }}
-      >
-        <p className="m-0 p-0">Date: {currentDate}</p>
-        <p className="m-0 p-0">Time: {currentTime}</p>
-        <p className="m-0 p-0">page 1/2</p>
-      </div> */}
     </div>
   );
 }

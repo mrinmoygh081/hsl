@@ -22,7 +22,6 @@ async function sendEmail(mail) {
     html,
   };
 
-  // return SENDMAIL(mailDetails);
   if (process.env.SERVER_ENV === LAN_SERVER) {
     return SENDMAIL(mailDetails);
   }
@@ -58,7 +57,7 @@ function extractEmails(str) {
   return str
     .split(',')                         // Split into an array
     .map(item => item.trim())           // Remove surrounding whitespace
-    .filter(item => !item.includes('{{')) // Remove items containing {{
+    .filter(item => !item.includes('{{'))
     .filter(item => item.length > 0)    // Remove any empty strings
     .join(', ');                        // Join back with a single comma and space
 }
@@ -76,7 +75,6 @@ const mailSentCornJob = async () => {
       values: [],
     });
 
-   
     if (!mails.length) return;
 
     for (const mail of mails) {
@@ -92,8 +90,7 @@ const mailSentCornJob = async () => {
 
       try {
         const emailResponse = await sendEmail({...mail, email_to: emailId});
-        
-        
+
         await Promise.allSettled([
           deleteEmail(client, mail.id),
           archiveEmails(client, {

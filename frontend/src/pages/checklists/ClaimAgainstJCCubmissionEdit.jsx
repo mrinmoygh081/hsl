@@ -126,22 +126,6 @@ const ClaimAgainstJCCubmissionEdit = () => {
       toast.info("WDC Not Found!");
     }
   };
-  // const getEmp = async () => {
-  //   try {
-  //     const data = await apiCallBack("GET", `po/wdc/grseEmpList`, null, token);
-  //     if (data?.status) {
-  //       let options = data.data.map((item, index) => {
-  //         return {
-  //           value: item.code,
-  //           label: `${item.name} (${item.code})`,
-  //         };
-  //       });
-  //       setEmp(options);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching Employee list:", error);
-  //   }
-  // };
 
   useEffect(() => {
     const getEmp = async () => {
@@ -175,18 +159,7 @@ const ClaimAgainstJCCubmissionEdit = () => {
   useEffect(() => {
     getJCCList();
     getJCCListDropdown();
-    // getEmp();
   }, []);
-
-  // const checkWDCDetails = async () => {
-  //   if (!form.wdc_number || form.wdc_number === "") {
-  //     //   return toast.info("Select a WDC Number");
-  //   }
-  //   const d = await apiCallBack("GET", `po/btn/jcc?type=jccinfo&reference_no=${form?.wdc_number}`, null, token);
-  //   if (d?.status) {
-  //     setData({ ...data, wdcDetails: d?.data });
-  //   }
-  // };
 
   const getForm = async (btn) => {
     try {
@@ -402,22 +375,6 @@ const ClaimAgainstJCCubmissionEdit = () => {
                                                     <tr>
                                                       <td>Finance Authority</td>
                                                       <td className="btn_value">
-                                                        {/* <Select
-                                                          className="basic-single w-100"
-                                                          classNamePrefix="select"
-                                                          isClearable={true}
-                                                          isSearchable={true}
-                                                          name="emp"
-                                                          id="emp"
-                                                          options={emp}
-                                                          value={emp && emp.find((item) => item.value === doForm?.assign_to)}
-                                                          onChange={(val) =>
-                                                            setDoForm({
-                                                              ...doForm,
-                                                              assign_to: val ? val.value : null,
-                                                            })
-                                                          }
-                                                        /> */}
                                                         <HrSearchableSelect
                                                           options={emp}
                                                           value={doForm?.assign_to}
@@ -433,23 +390,12 @@ const ClaimAgainstJCCubmissionEdit = () => {
                                                         />
                                                       </td>
                                                     </tr>
-                                                    {/* <tr>
-                                                <td>BTN Number:</td>
-                                                <td className="btn_value">
-                                                  <b>{state}</b>
-                                                </td>
-                                              </tr> */}
                                                   </tbody>
                                                 </table>
                                               </div>
 
                                               <div className="row">
                                                 <div className="col-6 text-start">
-                                                  {/* <DynamicButton
-                                      label="Approve"
-                                      className="btn fw-bold btn-primary me-3"
-                                      onClick={handleApproval}
-                                    /> */}
                                                   <button className="btn btn-sm fw-bold btn-primary me-3" onClick={handleApproval} disabled={loading}>
                                                     {loading ? "Loading..." : "APPROVE"}{" "}
                                                   </button>
@@ -487,19 +433,6 @@ const ClaimAgainstJCCubmissionEdit = () => {
                                   </tbody>
                                 </table>
                               </div>
-                              {/* <div className="text-center">
-                                <button
-                                  className="btn fw-bold btn-primary me-3"
-                                  type="button"
-                                  onClick={() =>
-                                    navigate(
-                                      `/invoice-and-payment-process/${id}`
-                                    )
-                                  }
-                                >
-                                  BACK
-                                </button>
-                              </div> */}
                             </div>
                           </div>
                         </div>

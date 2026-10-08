@@ -1,4 +1,3 @@
-// import { toast } from "react-toastify";
 
 import { toast } from "react-toastify";
 import { convertToEpoch } from "./getDateTimeNow";
@@ -29,7 +28,6 @@ export const calculatePenalty = (contractualDate, actualDate, originalValue, per
 
   // Calculate the number of weeks delayed
   const weeksDelayed = Math.ceil(difference / oneWeek);
-  // console.log("fun", difference, actualTime, contractualTime, weeksDelayed);
 
   // Calculate the penalty percentage
   let penaltyPercentage = weeksDelayed * percentage;
@@ -41,13 +39,6 @@ export const calculatePenalty = (contractualDate, actualDate, originalValue, per
 
   // Calculate the penalty amount
   const penaltyAmount = (Number(originalValue) * penaltyPercentage) / 100;
-  // console.log(
-  //   "penaltyAmount",
-  //   penaltyAmount,
-  //   contractualDate,
-  //   actualDate,
-  //   originalValue
-  // );
 
   return Math.round(penaltyAmount);
 };

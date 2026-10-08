@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { INSERT, LAN_SERVER, MID_DRAWING, YES, TRUE } = require("../../lib/constant");
-const { SEVEN_DAYS_PRIOR_CON_MILESTONE_DATE, BG_2MONTH_PRIOR } = require("../../lib/event");
+const { SEVEN_DAYS_PRIOR_CON_MILESTONE_DATE, BG_EXPIRY_REMINDER } = require("../../lib/event");
 const { SUBMITTED, ACKNOWLEDGED, REJECTED } = require("../../lib/status");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
 const { sendMail } = require("../../services/mail.services");
@@ -19,7 +19,6 @@ const sendPOMilestoneEXPReminderMail = async () => {
     }
   }
 
-  // resSend(res, true, 200, "success", timeLineData, null);
 };
 
 async function getTimeLineData() {
@@ -102,78 +101,88 @@ async function getTimeLineData() {
             WHERE (t.PLAN_DATE BETWEEN $1 AND $2)
 			 GROUP  BY t.ebeln, t.mid, v_name.email,  v_name.lifnr, p.table_name`;
 
-  //   GROUP  BY t.ebeln,
-  //   t.mid;
-  // const q = `SELECT * FROM zpo_milestone WHERE PLAN_DATE BETWEEN '${dueDate} 00:00:00' AND '${dueDate} 23:59:59';`;
   const firstTime = `${dueDate} 00:00:00`;
   const lastTime = `${dueDate} 23:59:59`;
   const result = await getQuery({ query: q, values: [firstTime, lastTime] });
   return result;
 }
 
+// Per To-Be doc 6.2.3: staged alerts at 45/30/15 days before BG expiry,
+// sent to Dealing Officer, Finance Officer and Vendor.
+const BG_REMINDER_DAYS = [45, 30, 15];
+
 const sendBGReminderMail = async () => {
-  const bgData = await getBGExpireData();
+  for (const days of BG_REMINDER_DAYS) {
+    const bgData = await getBGExpireData(days);
+    const bgTimelineData = getMaxExpireDate(bgData);
 
-  const bgTimelineData = getMaxExpireDate(bgData);
-
-  if (bgTimelineData && bgTimelineData.length) {
     for (const data of bgTimelineData) {
-      const obj = { users: [{ u_email: data?.u_email, u_id: data?.u_id, u_type: data?.u_type }] };
-      await sendMail(BG_2MONTH_PRIOR, data, obj, BG_2MONTH_PRIOR);
+      const users = [];
+      if (data?.do_email) users.push({ u_email: data.do_email, u_id: data.do_id, u_type: "do" });
+      if (data?.vendor_email) users.push({ u_email: data.vendor_email, u_id: data.vendor_id, u_type: "vendor" });
+      if (!users.length) continue;
+
+      await sendMail(BG_EXPIRY_REMINDER, { ...data, days_left: days }, { users }, BG_EXPIRY_REMINDER);
     }
   }
-
-  // resSend(res, true, 200, "success", timeLineData, null);
 };
 
-async function getBGExpireData() {
-  const REMINDE_BEFORE_DAYS = 60 * 24 * 60 * 60 * 1000;
+async function getBGExpireData(days) {
+  const REMINDE_BEFORE_DAYS = days * 24 * 60 * 60 * 1000;
   const currentDate = new Date();
-  const sevenDaysBefore = new Date(currentDate.getTime() + REMINDE_BEFORE_DAYS);
-  const dueDate = sevenDaysBefore.toISOString().split("T")[0];
+  const dueDateObj = new Date(currentDate.getTime() + REMINDE_BEFORE_DAYS);
+  const dueDate = dueDateObj.toISOString().split("T")[0];
 
-  let q = `SELECT    file_no,
-        ref_no,
-        po_number AS purchasing_doc_no,
-        validity_date,
-        extention_date1,
-        extention_date2,
-        extention_date3,
-        extention_date4,
-        extention_date5,
-        users.cname AS u_name,
-        users.email AS u_email,
-        po.ernam    AS u_id,
-        'do'        AS u_type
+  let q = `SELECT    sap_bg.file_no,
+        sap_bg.ref_no,
+        sap_bg.po_number AS purchasing_doc_no,
+        sap_bg.validity_date,
+        sap_bg.extention_date1,
+        sap_bg.extention_date2,
+        sap_bg.extention_date3,
+        sap_bg.extention_date4,
+        sap_bg.extention_date5,
+        sap_bg.extention_date6,
+        do_user.cname AS do_name,
+        do_user.email AS do_email,
+        po.ernam      AS do_id,
+        po.lifnr      AS vendor_id,
+        vendor.name1  AS vendor_name,
+        vendor.email  AS vendor_email
 FROM      zfi_bgm_1   AS sap_bg
 LEFT JOIN ekko        AS po
 ON       (
                   sap_bg.po_number = po.ebeln)
-LEFT JOIN pa0002 AS users
+LEFT JOIN pa0002 AS do_user
 ON       (
-                  users.pernr:: character VARYING = po.ernam)
+                  do_user.pernr:: character VARYING = po.ernam)
+LEFT JOIN lfa1 AS vendor
+ON       (
+                  vendor.lifnr = po.lifnr)
 WHERE     (
-                  validity_date = $1
-        OR        extention_date1 = $1
-        OR        extention_date2 = $1
-        OR        extention_date3 = $1
-        OR        extention_date4 = $1
-        OR        extention_date5 = $1 )`;
+                  sap_bg.validity_date = $1
+        OR        sap_bg.extention_date1 = $1
+        OR        sap_bg.extention_date2 = $1
+        OR        sap_bg.extention_date3 = $1
+        OR        sap_bg.extention_date4 = $1
+        OR        sap_bg.extention_date5 = $1
+        OR        sap_bg.extention_date6 = $1 )`;
 
-  //   GROUP  BY t.ebeln,
-  //   t.mid;
-  // const q = `SELECT * FROM zpo_milestone WHERE PLAN_DATE BETWEEN '${dueDate} 00:00:00' AND '${dueDate} 23:59:59';`;
-  // const firstTime = `${dueDate} 00:00:00`;
-  // const lastTime = `${dueDate} 23:59:59`;
   const result = await getQuery({ query: q, values: [dueDate] });
   return result;
 }
 
 function getMaxExpireDate(data) {
   data.forEach((item) => {
-    const dates = [item.validity_date, item.extention_date1, item.extention_date2, item.extention_date3, item.extention_date4, item.extention_date5].filter(
-      (date) => date !== null,
-    );
+    const dates = [
+      item.validity_date,
+      item.extention_date1,
+      item.extention_date2,
+      item.extention_date3,
+      item.extention_date4,
+      item.extention_date5,
+      item.extention_date6,
+    ].filter((date) => date !== null);
 
     const maxDate = new Date(Math.max(...dates.map((date) => date.getTime())));
 
@@ -224,26 +233,7 @@ function isOver3WorkingDaysOld(inputDate, currentDate) {
     if (day === 0 || day == 6) {
       // Saturday, Sunday – skip
     }
-    // } else if (day === 6) {
-    //   // Saturday – check if it's 2nd or 4th
-    //   const date = checkDate.getDate();
-    //   const month = checkDate.getMonth();
-    //   const year = checkDate.getFullYear();
 
-    //   const firstDay = new Date(year, month, 1);
-    //   let saturdayCount = 0;
-
-    //   for (let d = 1; d <= date; d++) {
-    //     const temp = new Date(year, month, d);
-    //     if (temp.getDay() === 6) {
-    //       saturdayCount++;
-    //     }
-    //   }
-
-    //   if (saturdayCount === 2 || saturdayCount === 4) {
-    //     count++;
-    //   }
-    // }
     else {
       // Monday to Friday –> count
       count++;
@@ -253,11 +243,6 @@ function isOver3WorkingDaysOld(inputDate, currentDate) {
   }
   return count >= 3;
 }
-
-// inputDate = '2025-07-02'
-// currentDate = '2025-07-07';
-
-// const r = isOver3WorkingDaysOld(new Date(inputDate), new Date(currentDate));
 
 async function getDrawingData() {
   let client;
@@ -295,14 +280,11 @@ async function getDrawingData() {
 
           const { q, val } = generateQuery(INSERT, "drawing", payload);
 
-          // promiseArr.push(poolQuery({ client, query: q, values: val }));
           await poolQuery({ client, query: q, values: val });
-          // promiseArr.push(setActualSubmissionDate(payload, MID_DRAWING, { vendor_code: dw.vendor_code }, SUBMITTED, client));
           await setActualSubmissionDate(payload, MID_DRAWING, { vendor_code: dw.vendor_code }, SUBMITTED, client);
         }
       }
 
-      // const re = await Promise.all(promiseArr);
       return true;
     }
 

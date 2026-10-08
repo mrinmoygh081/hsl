@@ -39,10 +39,6 @@ const QapDrawing = () => {
     try {
       const vendorTypeParam = selectedVendorType !== "All" ? `&vendor_type=${selectedVendorType}` : "";
       const pageQuery = `/drawing?pageNo=${page + 1}&pageSize=${pageSize}&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}${vendorTypeParam}`;
-      // const pageQuery =
-      //   pageSize === "All"
-      //     ? `?type=drawing&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}`
-      //     : `?type=drawing&pageNo=${page + 1}&pageSize=${pageSize}&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}`;
 
       const response = await apiCallBack("GET", `stat${pageQuery}`, null, token);
       if (response?.status) {
@@ -144,7 +140,6 @@ const QapDrawing = () => {
   return (
     <div className="d-flex flex-column flex-row-fluid">
       <div className="page d-flex flex-row flex-column-fluid">
-        {/* <SidebarDashboard /> */}
         <div className="d-flex flex-column flex-row-fluid">
           <MainHeader title="Drawing Dashboard" id={id} />
           <div className="card">
@@ -224,19 +219,6 @@ const QapDrawing = () => {
                 <option value="All">All</option>
               </select>
             </div>
-            {/* <div className="table-info">
-              {loading ? (
-                <SkeletonLoader />
-              ) : (
-                <tr className="row-count">
-                  <td colSpan={10}>
-                    {" "}
-                    Number of AG {filteredData.length}{" "}
-                    {filteredData.length === 1 ? "row" : "rows"}
-                  </td>
-                </tr>
-              )}
-            </div> */}
             <div className="table-responsive">
               <table className="table table-striped table-bordered table_height">
                 <thead>
@@ -284,7 +266,6 @@ const QapDrawing = () => {
                           <td>{file.vendor_name}</td>
                           <td>{file.assign_to}</td>
                           <td>{file.assign_from}</td>
-                          {/* <td>{formatDate(file.accepted_on)}</td> */}
                           <td>{file.accepted_on && file.accepted_on !== "N/A" ? formatDate(file.accepted_on) : ""}</td>
                           <td className={`${clrLegend(file?.status)} bold`}>{file.status}</td>
                           <td>{formatDate(file.created_at)}</td>

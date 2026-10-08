@@ -13,7 +13,6 @@ const failedDataSave = async (data, ip, endpoint, error, created_by) => {
     };
 
     const { q, val } = generateQuery(INSERT, "sap_api_log", paylaod);
-    // const response = await query({ query: "SELECT * FROM ekko", values: [] });
      await query({ query: q, values: val });
   } catch (error) {
     console.error("err nnnn", error.message);

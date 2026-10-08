@@ -22,7 +22,6 @@ function StoreIssueRequisition() {
     window.print();
   };
 
-  // let payloadData = location.state;
   const { payload } = useParams();
   const payloadData = JSON.parse(payload);
   console.log("payloadData", payloadData);
@@ -93,9 +92,6 @@ function StoreIssueRequisition() {
                 <th>Activity Desc.</th>
                 <th>Plant</th>
                 <th>Qty to Withdraw</th>
-                {/* <th>Issue Unit</th>
-                <th>Issue Qty</th>
-                <th>Stock indtr</th> */}
                 <th>PO Number</th>
               </tr>
             </thead>
@@ -116,9 +112,6 @@ function StoreIssueRequisition() {
                   <td></td>
                   <td>{item.plant}</td>
                   <td>{item.quantWithdrawal}</td>
-                  {/* <td></td>
-                  <td></td>
-                  <td></td> */}
                   <td>{item.purchasing_doc_no}</td>
                 </tr>
               ))}
@@ -156,7 +149,6 @@ function StoreIssueRequisition() {
       <div className="date_time_container" style={{ position: "fixed", top: 0, right: 0, fontSize: "10px" }}>
         <p className="m-0 p-0">Date: {currentDate}</p>
         <p className="m-0 p-0">Time: {currentTime}</p>
-        {/* <p className="m-0 p-0">page 1/2</p> */}
       </div>
     </div>
   );
