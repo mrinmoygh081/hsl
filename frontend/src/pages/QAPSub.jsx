@@ -448,10 +448,6 @@ const QAPSub = () => {
       payload.append("remarks", remarks);
       payload.append("reference_no", reference_no || "");
       payload.append("action_type", action_type);
-      if (assign_to) {
-        payload.append("assign_to", assign_to);
-        payload.append("assigned_to", assign_to);
-      }
       if (QapFile) {
         payload.append(
           "file",
