@@ -34,10 +34,6 @@ const LDPenaltyRefund = () => {
                               <div className="table-responsive">
                                 <table className="table table-striped table-bordered table_height">
                                   <tbody style={{ maxHeight: "100%" }}>
-                                    {/* <tr>
-                                      <td>Bill Registration No. (BRN/BTN):</td>
-                                      <td>89876543</td>
-                                    </tr> */}
                                     <tr>
                                       <td>Reference Invoice no :</td>
                                       <td className="btn_value">
@@ -54,18 +50,6 @@ const LDPenaltyRefund = () => {
                                           accept=".pdf"
                                         />
                                         <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
-                                        {/* <button
-                                            type="button"
-                                            className="btn btn-primary btn-sm m-4"
-                                            onClick={getGrnIcgrnHandler}
-                                          >
-                                            CHECK
-                                          </button> */}
-                                        {/* <DynamicButton
-                                            label="CHECK"
-                                            onClick={getGrnIcgrnHandler}
-                                            className="btn btn-primary btn-sm m-4"
-                                          /> */}
                                       </td>
                                     </tr>
                                     <tr>

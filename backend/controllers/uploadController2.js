@@ -20,18 +20,6 @@ const QUARANTINE_DIR = path.join(UPLOAD_ROOT, "tempfiles");
 // Ensure Quarantine Exists
 if (!fs.existsSync(QUARANTINE_DIR)) fs.mkdirSync(QUARANTINE_DIR, { recursive: true });
 
-// --- HELPER 1: QPDF SANITIZER ---
-// const sanitizePdf = (inputPath, outputPath) => {
-//     return new Promise((resolve, reject) => {
-//         execFile('qpdf', ['--warning-exit-0', inputPath, outputPath], (error, stdout, stderr) => {
-//             if (error) {
-//                 console.error("❌ QPDF Failed:", stderr);
-//                 return reject(new Error("PDF Integrity Check Failed. File is malformed."));
-//             }
-//             resolve(true);
-//         });
-//     });
-// };
 const sanitizePdf = (inputPath, outputPath) => {
     return new Promise((resolve, reject) => {
         execFile(
@@ -59,23 +47,6 @@ const sanitizePdf = (inputPath, outputPath) => {
         );
     });
 };
-
-
-// --- HELPER 2: PDF ACTIVE CONTENT CHECKER (Stop JS Attacks) ---
-// const hasActivePdfContent = (filePath) => {
-//     // Read file as string (Max 5MB limit makes this safe)
-//     const data = fs.readFileSync(filePath, 'utf8').toLowerCase();
-//     const blocked = [
-//         "/javascript",
-//         "/js",
-//         "/openaction",
-//         "/aa",   // Additional Actions
-//         "/launch",
-//         "/embeddedfiles",
-//         "/richmedia"
-//     ];
-//     return blocked.some(k => data.includes(k));
-// };
 
 // Smarter check (Use only if absolutely required)
 const hasActivePdfContent = (filePath) => {
@@ -137,7 +108,6 @@ const hasEmbeddedFiles = (filePath) => {
 
 // --- MAIN CONTROLLER ---
 const uploaFileStreamController2 = async (req, res) => {
-  // console.log(req);
   try {
     // ✅ 1. Dynamic Import for ESM module
     const { fileTypeFromStream } = await import("file-type");
@@ -168,8 +138,6 @@ const uploaFileStreamController2 = async (req, res) => {
       // ✅ 2. Quarantine: Write to temporary path
       const randomName = `temp_${Date.now()}_${Math.random().toString(36).substring(7)}`;
       tempFilePath = path.join(QUARANTINE_DIR, randomName);
-
-      // console.log(Date.now());
 
       const writeStream = fs.createWriteStream(tempFilePath);
 
@@ -209,9 +177,6 @@ const uploaFileStreamController2 = async (req, res) => {
             );
           }
 
-          // ✅ 4. Security Check: Virus Scan (Uncomment when ClamAV is ready)
-          // await scanFileForVirus(tempFilePath);
-
           // ✅ 5. Extension Specific Security Logic
           if (realType.ext === "pdf") {
             // CHECK EMBADED FILES
@@ -228,18 +193,7 @@ const uploaFileStreamController2 = async (req, res) => {
             }
 
             const cleanPdfPath = tempFilePath + "_clean";
-            // Sanitize Structure with QPDF
-            // console.log("tempFilePath, cleanPdfPath", tempFilePath, cleanPdfPath);
 
-            // await sanitizePdf(tempFilePath, cleanPdfPath);
-
-            // Swap Files
-            // fs.unlinkSync(tempFilePath);
-            // if (!fs.existsSync(cleanPdfPath))
-            //   fs.mkdirSync(cleanPdfPath, { recursive: true });
-            // fs.renameSync(cleanPdfPath, tempFilePath);
-
-            // console.log(44, cleanPdfPath, tempFilePath);
           } else if (realType.ext === "zip") {
             // GAP 1 & 4 FIX: Check Zip Contents & Size
             const isZipSafe = await validateZipContents(tempFilePath);
@@ -370,6 +324,5 @@ function formatDateYYDDMM(date) {
     const year = date.getFullYear();
     return `${year}${month}${day}`;
 }
-
 
 module.exports = { uploaFileStreamController2 }

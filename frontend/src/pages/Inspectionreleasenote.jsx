@@ -141,9 +141,6 @@ const Inspectionreleasenote = () => {
                                         return (
                                           <tr key={index}>
                                             <td className="table_center">
-                                              {/* {moment(item.created_at)
-                                            .utc()
-                                            .format("DD/MM/YY (HH:mm)")} */}
                                               {item.created_at &&
                                                 formatDate(item.created_at)}
                                             </td>
@@ -266,13 +263,6 @@ const Inspectionreleasenote = () => {
                 </div>
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    {/* <button
-                      onClick={() => actionHandler("SUBMITTED")}
-                      className="btn fw-bold btn-primary"
-                      type="button"
-                    >
-                      SUBMIT
-                    </button> */}
                     <DynamicButton
                       label="SUBMIT"
                       onClick={() => actionHandler("SUBMITTED")}

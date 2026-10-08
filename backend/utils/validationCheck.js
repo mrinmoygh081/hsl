@@ -1,6 +1,5 @@
 
 const { statusConfig } = require("../lib/statusConfig");
-// const Message = require("./messages");
 /**
  * ANY PAYLOAD VALIDATION,
  * DOCUMANTATION INSIDE THE FUNCTION
@@ -9,24 +8,6 @@ const { statusConfig } = require("../lib/statusConfig");
  * @returns 
  */
 function validatePayload(payload, rules = {}) {
-
-    /// DOCUMANTAITON
-    // const rules = {
-    //   file_no: { required: true, type: "string", min: 3, max: 10 },
-    //   po_number: { required: true, type: "string" },
-    //   bg_date: { required: true, type: "date", min: "2025-01-01" },
-    //   bg_amount: { required: true, type: "number", min: 1000, max: 1000000 },
-    //   vendor_status: { type: "string", max: 20 },
-    //   finance_status: { type: "boolean" }
-    // };
-
-    // const result = validatePayload(payload, rules);
-
-    // if (!result.isValid) {
-    //   console.log("❌ Validation errors:", result.errors);
-    // } else {
-    //   console.log("✅ Payload is valid");
-    // }
 
     const errors = [];
 
@@ -98,7 +79,6 @@ function validatePayload(payload, rules = {}) {
     };
 }
 
-
 /**
  * 
  */
@@ -128,7 +108,6 @@ function validateStatusTransition(moduleName, currentStatus, newStatus) {
     ? { isValid: true, message: "Valid transition." }
     : { isValid: false, message: `Invalid transition from ${currentStatus} → ${newStatus}` };
 }
-
 
 module.exports = { validatePayload, validateStatusTransition }
 

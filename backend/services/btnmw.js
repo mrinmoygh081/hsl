@@ -45,20 +45,6 @@ exports.serviceBtnFilesUpload = () => {
   ]);
 };
 
-
-// const uploadInvoiceSupportingDoc = multer({
-//   storage: storageInvoiceSupportingDoc,
-//   dest: "uploads/invSupporting",
-//   pdfFileFilter,
-//   limits: { fileSize: 20 * 1000 * 1000 },
-// });
-
-// exports.isd = () => {
-//   return uploadInvoiceSupportingDoc.fields([
-//     { name: "invoice_supporting_doc", maxCount: 1 },
-//   ]);
-// };
-
 exports.btnAdvanceBillHybridUploadFile = () => {
   return uploadBTNs.fields([
     { name: "invoice_filename", maxCount: 1 },

@@ -36,7 +36,6 @@ const LDRefundSupplyMaterialView = () => {
       if (response?.status) {
         setGstData(response?.data[0]);
 
-        // setInvoiceData(JSON.parse(response?.data[0]?.icgrn_nos));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -94,9 +93,6 @@ const LDRefundSupplyMaterialView = () => {
                                         {data?.letter_reference_no}
                                         <span style={{ marginLeft: "16px" }}>
                                           {/* Adjust the margin value as needed */}
-                                          {/* <a href={`${process.env.REACT_APP_PDF_URL}btns/${data?.ref_invoice1_file}`} target="_blank" rel="noreferrer">
-                                            VIEW
-                                          </a> */}
                                           {data?.invoice_file_path && data?.invoice_file_path !== "null" ? (
                                             <a href={formatFilePath(data.invoice_file_path)} target="_blank" rel="noreferrer" style={{ marginRight: "10px" }}>
                                               View File
@@ -133,13 +129,6 @@ const LDRefundSupplyMaterialView = () => {
                                       <td>{data?.ref_invoice1_remarks}</td>
                                       <td>
                                         {" "}
-                                        {/* {data?.ref_invoice1_file && (
-                                          <div style={{ marginTop: "8px" }}>
-                                            <a href={`${process.env.REACT_APP_PDF_URL}btns/${data?.ref_invoice1_file}`} target="_blank" rel="noreferrer">
-                                              VIEW
-                                            </a>
-                                          </div>
-                                        )} */}
                                         {data?.ref_invoice1_file_path && data?.ref_invoice1_file_path !== "null" ? (
                                           <a href={formatFilePath(data.ref_invoice1_file_path)} target="_blank" rel="noreferrer" style={{ marginRight: "10px" }}>
                                             View File
@@ -160,13 +149,6 @@ const LDRefundSupplyMaterialView = () => {
                                       <td>{data?.ref_invoice2_remarks}</td>
                                       <td>
                                         {" "}
-                                        {/* {data?.ref_invoice2_file && (
-                                          <div style={{ marginTop: "8px" }}>
-                                            <a href={`${process.env.REACT_APP_PDF_URL}btns/${data?.ref_invoice2_file}`} target="_blank" rel="noreferrer">
-                                              VIEW
-                                            </a>
-                                          </div>
-                                        )} */}
                                         {data?.ref_invoice2_file_path && data?.ref_invoice2_file_path !== "null" ? (
                                           <a href={formatFilePath(data.ref_invoice2_file_path)} target="_blank" rel="noreferrer" style={{ marginRight: "10px" }}>
                                             View File
@@ -185,13 +167,6 @@ const LDRefundSupplyMaterialView = () => {
                                       <td>{data?.ref_invoice3_remarks}</td>
                                       <td>
                                         {" "}
-                                        {/* {data?.ref_invoice3_file && (
-                                          <div style={{ marginTop: "8px" }}>
-                                            <a href={`${process.env.REACT_APP_PDF_URL}btns/${data?.ref_invoice3_file}`} target="_blank" rel="noreferrer">
-                                              VIEW
-                                            </a>
-                                          </div>
-                                        )} */}
                                         {data?.ref_invoice3_file_path && data?.ref_invoice3_file_path !== "null" ? (
                                           <a href={formatFilePath(data.ref_invoice3_file_path)} target="_blank" rel="noreferrer" style={{ marginRight: "10px" }}>
                                             View File
@@ -210,13 +185,6 @@ const LDRefundSupplyMaterialView = () => {
                                       <td>{data?.ref_invoice4_remarks}</td>
                                       <td>
                                         {" "}
-                                        {/* {data?.ref_invoice4_file && (
-                                          <div style={{ marginTop: "8px" }}>
-                                            <a href={`${process.env.REACT_APP_PDF_URL}btns/${data?.ref_invoice4_file}`} target="_blank" rel="noreferrer">
-                                              VIEW
-                                            </a>
-                                          </div>
-                                        )} */}
                                         {data?.ref_invoice4_file_path && data?.ref_invoice4_file_path !== "null" ? (
                                           <a href={formatFilePath(data.ref_invoice4_file_path)} target="_blank" rel="noreferrer" style={{ marginRight: "10px" }}>
                                             View File
@@ -237,47 +205,7 @@ const LDRefundSupplyMaterialView = () => {
                                   </tbody>
                                 </table>
                               </div>
-                              {/* <div className="text-center">
-                                    {user?.user_type === USER_VENDOR && (
-                                      <button
-                                        type="button"
-                                        className="btn fw-bold btn-primary me-3"
-                                        onClick={() => handleSubmit()}
-                                      >
-                                        SUBMIT
-                                      </button>
-                                    )}
-                                    <button
-                                      className="btn fw-bold btn-primary me-3"
-                                      type="button"
-                                      onClick={() =>
-                                        navigate(
-                                          `/invoice-and-payment-process/${id}`
-                                        )
-                                      }
-                                    >
-                                      BACK
-                                    </button>
-                                  </div> */}
 
-                              {/* <div className="text-center">
-                                    <button
-                                      className="btn btn-sm btn-primary me-3"
-                                      type="button"
-                                      onClick={() =>
-                                        navigate(`/bill-other-claims/${id}`)
-                                      }
-                                    >
-                                      BACK
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-success"
-                                      type="submit"
-                                      onClick={() => handleSubmit()}
-                                    >
-                                      SUBMIT
-                                    </button>
-                                  </div> */}
                             </div>
                           </div>
                         </div>

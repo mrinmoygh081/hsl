@@ -260,7 +260,6 @@ const zbtsHeaderPayload = async (obj) => {
   return pl;
 };
 
-
 const zbtsHeaderPayloadUpdate = async (obj) => {
   if (!obj) {
     throw new Error("Please send valid payload");
@@ -275,7 +274,6 @@ const zbtsHeaderPayloadUpdate = async (obj) => {
   };
   return pl;
 };
-
 
 const zbtsLineItemsPayload = async (payload, zbtsHeaderPayload) => {
   if (!payload) {
@@ -298,18 +296,6 @@ const zbtsLineItemsPayload = async (payload, zbtsHeaderPayload) => {
     dretseq: obj.dretseq || obj.DRETSEQ || "",
     alert_status: obj.alert_status || obj.ALERT_STATUS || "",
   }));
-  // const pl = {
-  //   zbtno: obj.zbtno || obj.ZBTNO || "",
-  //   srno: obj.srno || obj.SRNO || "",
-  //   manno: obj.manno || obj.MANNO || null,
-  //   zsection: obj.zsection || obj.ZSECTION || "",
-  //   rmk: obj.rmk || obj.RMK || "",
-  //   erdat: formatDate(obj.erdat) || formatDate(obj.ERDAT),
-  //   erzet: formatTime(obj.erzet) || formatTime(obj.ERZET),
-  //   ernam: obj.ernam || obj.ERNAM || "",
-  //   dretseq: obj.dretseq || obj.DRETSEQ || "",
-  //   alert_status: obj.alert_status || obj.ALERT_STATUS || ""
-  // }
 
   return pl;
 };

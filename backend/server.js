@@ -27,18 +27,11 @@ const app = express();
 ENV & APP BASICS
 -------------------------------------------------------------- */
 const PORT = process.env.PORT || 4011;
-// console.log(`port:${PORT}`);
 
 const isProd = process.env.NODE_ENV === "production";
 
-// console.log("PORT:", process.env.PORT);
-// console.log("SERVER_ENV:", process.env.SERVER_ENV);
-// console.log("NODE_ENV:", process.env.NODE_ENV);
-
 app.set("env", process.env.NODE_ENV);
-// app.set("trust proxy", 2);
 app.disable("x-powered-by");
-
 
 /* -------------------------------------------------------------
 🛡️ TRUST PROXY (DYNAMIC FOR NIC and LAN)
@@ -49,14 +42,10 @@ const serverEnv = process.env.SERVER_ENV || "UNKNOWN";
 if (serverEnv === NIC_SERVER) {
   // NIC server: Trust BOTH localhost (NGINX) AND internal 10.x.x.x NIC proxies (Load Balancer)
   app.set("trust proxy", ["loopback", "10.0.0.0/8"]);
-  // console.log(`🛡️ Trust Proxy enabled for NIC environment (loopback + 10.0.0.0/8)`);
 } else if (serverEnv === LAN_SERVER) {
   // LAN server: Direct connections only
   app.set("trust proxy", "loopback");
   console.log(`🛡️ Trust Proxy disabled for LAN environment (Direct connection)`);
-} else {
-  // Fallback
-  // console.log(`🛡️ Trust Proxy disabled (Environment: ${serverEnv})`);
 }
 
 /* -------------------------------------------------------------
@@ -87,19 +76,6 @@ app.use(session(sessionConfig));
 const { corsOptions, corsErrorHandler } = require("./config/corsConfig2");
 app.use(cors(corsOptions));
 app.use(corsErrorHandler);
-// app.use(cors("*"));
-// const corsOptions = {
-//   origin: "https://obps.grse.in",
-//   credentials: true,
-//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-//   allowedHeaders: ["Content-Type", "Authorization"],
-// };
-
-
-// app.use(cors({
-//   origin: 'http://172.16.5.182:3000',
-//   credentials: true
-// }));
 
 /* -------------------------------------------------------------
     REQUEST PARSERS
@@ -125,7 +101,6 @@ app.use(
   }),
 );
 
-
 try {
   const poPath = path.resolve(LAN_SERVER_PO_PATH);
   app.use(
@@ -149,7 +124,6 @@ const statRoutes = require("./routes/statRoutes");
 const dataInsert = require("./routes/sap/dataInsert");
 const sapRoutes = require("./routes/sap/sapRoutes");
 const syncRoutes = require("./routes/syncRoutes");
-// const { syncDataCorn } = require("./controllers/syncControllers");
 const { vendorReminderMail, mailSendCornFn, drawingAutoAcknowledgeCorn } = require("./controllers/sapController/remaiderMailSendController");
 const { pymtFileTrans } = require("./utils/fileTransUtils");
 const { syncDataDownloadCorn } = require("./controllers/syncControllers2");
@@ -204,9 +178,8 @@ app.use((err, req, res, next) => {
 -------------------------------------------------------------- */
 try {
   if (isProd) {
-    // syncDataCorn();
-    syncDataDownloadCorn()
-    // syncFileCron(); never trun on 
+    syncDataDownloadCorn();
+    // syncFileCron(); never trun on
     mailSendCornFn();
     vendorReminderMail();
     pymtFileTrans();
@@ -236,11 +209,11 @@ process.on("uncaughtException", (err) => {
 
 // (e.g., const serverEnv = process.env.SERVER_ENV || "LOCAL";)
 
-let HOST = "0.0.0.0"; 
+let HOST = "0.0.0.0";
 
 if (serverEnv === LAN_SERVER) {
   // LAN Server: Lock Node.js to localhost so NGINX on port 4001 handles the public traffic
-  HOST = "127.0.0.1"; 
+  HOST = "127.0.0.1";
 }
 
 const server = app.listen(PORT, HOST, () => {

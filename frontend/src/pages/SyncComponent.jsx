@@ -8,11 +8,9 @@ import { apiCallBack } from "../utils/fetchAPIs";
 import DynamicButton from "../Helpers/DynamicButton";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-// import { convertToEpoch } from "../utils/getDateTimeNow";
 
 const SyncComponent = () => {
   const { user, token, userType } = useSelector((state) => state.auth);
-  // const inputFileRef = useRef(null);
   const [selectedDate, setSelectedDate] = useState({
     dataSync: new Date(new Date().setDate(new Date().getDate() - 1)),
     fileSync: new Date(new Date().setDate(new Date().getDate() - 1)),
@@ -28,27 +26,6 @@ const SyncComponent = () => {
     dispatch(logoutHandler());
     dispatch(poRemoveHandler());
   };
-
-  // const downloadDataHandler = async () => {
-  //   try {
-  //     const resp = await apiCallBack("POST", "sync/sync_download", null, null);
-  //     console.log("resp", resp);
-  //     if (resp.status) {
-  //       const upRes = await apiCallBack("POST", "sync/sync_zip", null, null);
-  //       if (upRes?.status) {
-  //         toast.success(upRes.message || "Data has been downloaded");
-  //       } else {
-  //         toast.info(upRes.message);
-  //       }
-  //     } else {
-  //       toast.info(resp.message);
-  //     }
-  //   } catch (error) {
-  //     toast.error(
-  //       "Sync failed: " + (error.response?.data?.message || error.message)
-  //     );
-  //   }
-  // };
 
   const DataUploadHndlar = async () => {
     try {
@@ -70,25 +47,6 @@ const SyncComponent = () => {
       toast.error("Sync failed: " + (error.response?.data?.message || error.message));
     }
   };
-
-  // const fileDownloadHandler = async () => {
-  //   try {
-  //     let payload = {
-  //       sync_date: new Date(selectedDateDown).getTime(),
-  //     };
-  //     const response = apiCallBack(
-  //       "POST",
-  //       "/sync/sync_file_zip",
-  //       payload,
-  //       null
-  //     );
-  //     toast.success(response.data.message || "File sync successful");
-  //   } catch (error) {
-  //     toast.error(
-  //       "File sync failed: " + (error.response?.data?.message || error.message)
-  //     );
-  //   }
-  // };
 
   const fileDownloadHandler = async () => {
     try {
@@ -205,51 +163,6 @@ const SyncComponent = () => {
               <DynamicButton label="UPLOAD FILE" onClick={uploadFileHandler} className="btn btn-primary btn-sm mt-2" />
             </div>
           </div>
-          {/* <div className="row">
-            <div className="col-md-6 py-4">
-              <h3>Download Unsynced Data</h3>
-              <DatePicker
-                selected={selectedDateDown?.datasync_date}
-                onChange={(date) =>
-                  setSelectedDateDown({
-                    ...selectedDateDown,
-                    datasync_date: date,
-                  })
-                }
-                className="form-control my-2"
-                placeholderText="Select Date"
-                maxDate={new Date(new Date().setDate(new Date().getDate() - 1))}
-              />
-
-              <DynamicButton
-                label="DOWNLOAD DATA"
-                onClick={uplodFileDownloadHandler}
-                className="btn btn-success btn-sm mt-2"
-              />
-            </div>
-            <div className="col-md-6 py-4">
-              <h3>Downlaod Unsynced File</h3>
-              <DatePicker
-                selected={selectedDateDown?.filesync_date}
-                onChange={(date) =>
-                  setSelectedDateDown({
-                    ...selectedDateDown,
-                    filesync_date: date,
-                  })
-                }
-                className="form-control my-2"
-                placeholderText="Select Date"
-                // Uncomment maxDate if you want to restrict future dates
-                maxDate={new Date(new Date().setDate(new Date().getDate() - 1))}
-              />
-
-              <DynamicButton
-                label="DOWNLOAD FILED"
-                onClick={fileDownloadHandler}
-                className="btn btn-success btn-sm mt-2"
-              />
-            </div>
-          </div> */}
         </div>
       </div>
       <div className="d-flex mt-3">

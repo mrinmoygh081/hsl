@@ -10,7 +10,7 @@ const { EKKO, SDBG_ENTRY, SDBG, ACTUAL_SUBMISSION_DB, SDBG_SAVE, SDBG_RECOMMENDA
 const { FINANCE } = require("../../lib/depertmentMaster");
 const { ASSIGNED, RE_SUBMITTED, REJECTED, FORWARD_TO_FINANCE, RETURN_TO_DO, APPROVED, SUBMITTED, SAVED } = require("../../lib/status");
 const { sendMail } = require("../../services/mail.services");
-const { BG_UPLOAD_BY_VENDOR, BG_ACCEPT_REJECT, BG_ENTRY_BY_DO, BG_ASSIGN, BG_RETURN_TO_DO } = require("../../lib/event");
+const { BG_UPLOAD_BY_VENDOR, BG_ENTRY_BY_DO, BG_ASSIGN, BG_RETURN_TO_DO, BG_RECEIVED, BG_APPROVED_BANK_CONFIRM } = require("../../lib/event");
 const { makeHttpRequest } = require("../../config/sapServerConfig");
 const { zfi_bgm_1_Payload } = require("../../services/sap.services");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
@@ -18,7 +18,6 @@ const { getLastAssignee, getAssigneeList, checkIsAssigned, checkIsApprovedReject
 const { sdbgPayloadVendor, sdbgEntryPayload } = require("../../services/sdbg.services");
 const Message = require("../../utils/messages");
 const QueryBuilder = require("../../utils/QueryBuilder");
-// const { handleFileDeletion } = require("../../lib/deleteFile");
 
 // SDBG SUBMISSION BY VENDOR
 const submitSDBG = async (req, res) => {
@@ -114,14 +113,6 @@ const getSdbgEntry = async (req, res) => {
     }
     const { poNo, reference_no } = req.query;
 
-    // let Query = `SELECT
-    // t1.*,t2.reference_no FROM sdbg_entry AS t1
-    //                         LEFT JOIN
-    //                                 sdbg AS t2
-    //                             ON
-    //                         t2.reference_no= t1.reference_no
-    //                     WHERE t1.purchasing_doc_no = '${poNo}' AND t2.reference_no = '${reference_no}'`;
-
     const qb1 = new QueryBuilder("sdbg_entry AS t1");
     qb1.select(["t1.*", "t2.reference_no"]);
     qb1.joinTable("LEFT", " sdbg AS t2", "t2.reference_no= t1.reference_no");
@@ -130,19 +121,11 @@ const getSdbgEntry = async (req, res) => {
 
     const dealingOfficer = await checkIsDealingOfficer(poNo, tokenData.vendor_code);
 
-    // let sufix;
     if (tokenData.department_id === USER_TYPE_HSL_FINANCE && tokenData.internal_role_id === ASSIGNER) {
-      // sufix = ` AND t2.status = '${FORWARD_TO_FINANCE}'`;
       qb1.where("t2.status", "=", FORWARD_TO_FINANCE);
-      // Query = Query + sufix;
     } else if (tokenData.department_id === USER_TYPE_HSL_FINANCE && tokenData.internal_role_id === STAFF) {
-      // sufix = ` AND t2.assigned_to = '${tokenData.vendor_code}'`;
       qb1.where("t2.assigned_to", "=", tokenData.vendor_code);
-      // Query = Query + sufix;
-    } else if (dealingOfficer === 1) {
-      // eslint-disable-next-line no-self-assign
-      // Query = Query;
-    } else {
+    } else if (dealingOfficer !== 1) {
       return resSend(res, false, 200, "You are not authorized.", null, null);
     }
     const getSdbgEntryQuery = qb1.toJSON();
@@ -208,6 +191,8 @@ const sdbgSubmitByDealingOfficer = async (req, res) => {
           obj.bank_city == "" ||
           !obj.bank_name ||
           obj.bank_name == "" ||
+          !obj.bank_email ||
+          obj.bank_email == "" ||
           !obj.bank_pin_code ||
           obj.bank_pin_code == "" ||
           !obj.bg_ammount ||
@@ -363,7 +348,6 @@ const sdbgUpdateByFinance = async (req, res) => {
       return resSend(res, false, 200, `This BG is ${RETURN_TO_DO}.Befoure take action by DO. YOU CAN not do any action!`, null, null);
     }
 
-    // return;
     const star = `file_name,file_path,vendor_code,action_type,bg_no`;
 
     const get_sdbg_query = `SELECT ${star} FROM ${SDBG} WHERE purchasing_doc_no = $1 AND reference_no = $2`;
@@ -409,6 +393,17 @@ const sdbgUpdateByFinance = async (req, res) => {
       return resSend(res, true, 200, "This po is not forward to finance.Please contact with dealing officer.", null, null);
     }
 
+    // Unique BG Tracking Number is system-generated on acceptance (APPROVED/HOLD),
+    // never taken from the client. Re-use one already generated during an earlier HOLD.
+    let uFile;
+    if (obj.status === RETURN_TO_DO) {
+      uFile = null;
+    } else if (obj.status === APPROVED || obj.status === "HOLD") {
+      uFile = get_sdbg_entry_data[0]?.bg_file_no || create_reference_no("BGT", tokenData.vendor_code);
+    } else {
+      uFile = get_sdbg_entry_data[0]?.bg_file_no || null;
+    }
+
     const insertPayloadForSdbg = {
       reference_no: obj.reference_no,
       purchasing_doc_no: obj.purchasing_doc_no,
@@ -435,12 +430,20 @@ const sdbgUpdateByFinance = async (req, res) => {
 
     sdgbRollBackId = sdbgQuery[0].id;
 
-    handelEmail(insertPayloadForSdbg, tokenData);
+    // bg_file_no/bank_email/bank_name are email-only fields, not sdbg table columns
+    handelEmail(
+      {
+        ...insertPayloadForSdbg,
+        bg_file_no: uFile,
+        bank_email: get_sdbg_entry_data[0]?.bank_email,
+        bank_name: get_sdbg_entry_data[0]?.bank_name,
+      },
+      tokenData,
+    );
     const whereCondition = {
       purchasing_doc_no: obj.purchasing_doc_no,
       reference_no: obj.reference_no,
     };
-    let uFile = obj.status === RETURN_TO_DO ? null : obj.bg_file_no;
 
     ({ q, val } = generateQuery(UPDATE, SDBG_ENTRY, { status: obj.status, bg_file_no: uFile }, whereCondition));
 
@@ -483,30 +486,6 @@ const sdbgUpdateByFinance = async (req, res) => {
         const sendSap = await sendBgToSap({ ...get_sdbg_entry_data[0], bg_file_no: uFile }, sdgbRollBackId);
         if (sendSap == false) {
           await client.query("ROLLBACK");
-          // if (sdgbRollBackId) {
-          //   const deleteRollBackQuery = `DELETE FROM ${SDBG} WHERE id = $1`;
-          //   const deleteRollBack = await getQuery({
-          //     query: deleteRollBackQuery,
-          //     values: [sdgbRollBackId],
-          //   });
-          // }
-          // const whereCondition = {
-          //   purchasing_doc_no: obj.purchasing_doc_no,
-          //   reference_no: obj.reference_no,
-          // };
-
-          // ({ q, val } = generateQuery(
-          //   UPDATE,
-          //   SDBG_ENTRY,
-          //   { status: FORWARD_TO_FINANCE, bg_file_no: null },
-          //   whereCondition
-          // ));
-
-          // let sdbgEntryQuery2 = await poolQuery({
-          //   client,
-          //   query: q,
-          //   values: val,
-          // });
 
           return resSend(res, false, 200, `SAP not connected.`, sdbgQuery, null);
         } else if (sendSap == true) {
@@ -562,24 +541,26 @@ async function handelEmail(payload, tokenData) {
     dataObj = { ...dataObj, vendor_name: emailUserDetails2[0]?.u_name };
     await sendMail(BG_UPLOAD_BY_VENDOR, dataObj, { users: emailUserDetails }, BG_UPLOAD_BY_VENDOR);
   }
-  if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == APPROVED) {
-    // BG_ACCEPT_REJECT
-    emailUserDetailsQuery = getUserDetailsQuery("vendor_by_po", "$1");
+  if (tokenData.dept_id != USER_TYPE_VENDOR && (payload.status == APPROVED || payload.status == REJECTED)) {
+    // BG_RECEIVED -> notifies both Dealing Officer and Vendor that Finance has acted on the BG
+    emailUserDetailsQuery = getUserDetailsQuery("vendor_and_do", "$1");
     emailUserDetails = await getQuery({
       query: emailUserDetailsQuery,
       values: [payload.purchasing_doc_no],
     });
-    dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-    await sendMail(BG_ACCEPT_REJECT, dataObj, { users: emailUserDetails }, BG_ACCEPT_REJECT);
-  }
-  if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == REJECTED) {
-    // BG_ACCEPT_REJECT
-    emailUserDetailsQuery = getUserDetailsQuery("vendor_by_po", "$1");
-    emailUserDetails = await getQuery({
-      query: emailUserDetailsQuery,
-      values: [payload.purchasing_doc_no],
-    });
-    await sendMail(BG_ACCEPT_REJECT, dataObj, { users: emailUserDetails }, BG_ACCEPT_REJECT);
+    const vendorDetail = emailUserDetails.find((u) => u.u_type === "vendor");
+    dataObj = { ...dataObj, vendor_name: vendorDetail?.u_name };
+    await sendMail(BG_RECEIVED, dataObj, { users: emailUserDetails }, BG_RECEIVED);
+
+    // On acceptance only, also send a confirmation to the Banker
+    if (payload.status == APPROVED && payload.bank_email) {
+      await sendMail(
+        BG_APPROVED_BANK_CONFIRM,
+        dataObj,
+        { users: [{ u_id: payload.bg_no, u_name: payload.bank_name, u_email: payload.bank_email, u_type: "bank" }] },
+        BG_APPROVED_BANK_CONFIRM,
+      );
+    }
   }
   if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == ASSIGNED) {
     // BG_ACCEPT_REJECT
@@ -600,9 +581,6 @@ async function handelEmail(payload, tokenData) {
     await sendMail(BG_RETURN_TO_DO, dataObj, { users: emailUserDetails }, BG_RETURN_TO_DO);
   }
   if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == FORWARD_TO_FINANCE) {
-    // BG_ACCEPT_REJECT
-    // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
-    // emailUserDetails = await getQuery({ query: emailUserDetailsQuery, values: [payload.purchasing_doc_no] });
     await sendMail(BG_ENTRY_BY_DO, dataObj, { users: [] }, BG_ENTRY_BY_DO);
   }
 }
@@ -628,197 +606,10 @@ async function sendBgToSap(payload, id) {
   }
 }
 
-async function BGextensionRelease(req, res) {
-  try {
-    const { startDate, endDate } = req.body;
-    const tokenData = { ...req.tokenData };
-    if (startDate && endDate) {
-      let result;
-      let filterdata;
-      if (tokenData.department_id === FINANCE) {
-        result = [];
-      } else {
-        filterdata = `SELECT * FROM sdbg_entry WHERE status != 'RELEASED' AND (validity_date BETWEEN ${startDate} AND ${endDate})`;
-        result = await getQuery({
-          query: filterdata,
-          values: [],
-        });
-      }
-
-      resSend(res, true, 200, "BG fetched successfully", result, null);
-    } else {
-      return resSend(res, false, 400, "startDate and endDate are required", null, null);
-    }
-  } catch (error) {
-    console.error("Error executing the query:", error.message);
-    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  }
-}
-
-async function getBGForFinance(req, res) {
-  try {
-    const tokenData = { ...req.tokenData };
-
-    if (tokenData.department_id !== FINANCE) {
-      return resSend(res, false, 200, "Please login as finance!", null, null);
-    }
-
-    let filterdata = `SELECT * FROM ${SDBG_RECOMMENDATION} WHERE status = 'PENDING'`;
-    const result = await getQuery({
-      query: filterdata,
-      values: [],
-    });
-
-    resSend(res, true, 200, "BG fetched successfully", result, null);
-  } catch (error) {
-    console.error("Error executing the query:", error.message);
-    return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  }
-}
-
-async function recommendationBGextensionRelease(req, res) {
-  let client;
-  try {
-    client = await poolClient();
-    const tokenData = { ...req.tokenData };
-    const { ...obj } = req.body;
-
-    //await update_in_all_obps_sdbgs_table(obj);
-    // return;
-    if (!obj.reference_no || !obj.purchasing_doc_no || !obj.bg_file_no || !obj.recommendation_type || !obj.remarks) {
-      return resSend(res, false, 200, "please send valid payload.", req.body, null);
-    }
-
-    const isDO = await checkIsDealingOfficer(obj.purchasing_doc_no, tokenData.vendor_code);
-    if (isDO == 0) {
-      return resSend(res, false, 200, "Please Login as dealing officer.", null, null);
-    }
-
-    const query = `SELECT COUNT(status) AS pending_status FROM ${SDBG_RECOMMENDATION} WHERE reference_no = $1 AND purchasing_doc_no = $2 AND bg_file_no = $3 AND recommendation_type = $4 AND status = $5`;
-    let pending_status = await getQuery({
-      query: query,
-      values: [obj.reference_no, obj.purchasing_doc_no, obj.bg_file_no, obj.recommendation_type, "PENDING"],
-    });
-
-    pending_status = pending_status[0].pending_status;
-    if (pending_status != 0) {
-      return resSend(res, false, 200, `you have allready recommendation this BG for ${obj.recommendation_type}`, null, null);
-    }
-    let payload = {
-      ...req.body,
-      created_at: getEpochTime(),
-      created_by_id: tokenData.vendor_code,
-      updated_by: "HSL",
-      status: "PENDING",
-    };
-
-    const { q, val } = generateQuery(INSERT, SDBG_RECOMMENDATION, payload);
-    const response = await poolQuery({ client, query: q, values: val });
-
-    return resSend(res, true, 200, `This BG recommendation for ${obj.recommendation_type}.`, response, null);
-  } catch (error) {
-    console.error("Error  recommendation BG extension/release:", error);
-    return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  } finally {
-    if (client) client.release();
-  }
-}
-
-async function UpdateBGextensionRelease(req, res) {
-  const { reference_no, purchasing_doc_no, status, changed_date } = req.body;
-  try {
-    if (status === "RELEASED") {
-      await handleRelease(res, reference_no, purchasing_doc_no, status, changed_date);
-    } else if (status === "EXTENDED") {
-      await handleExtension(res, reference_no, purchasing_doc_no, changed_date, status);
-    } else {
-      return resSend(res, false, 400, "Invalid status", null, null);
-    }
-  } catch (error) {
-    console.error("Error updating BG extension/release:", error);
-    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  }
-}
-
-async function handleRelease(res, reference_no, purchasing_doc_no, status, changed_date) {
-  try {
-    const queryStr = `
-      UPDATE sdbg_entry
-      SET status = ?, release_date = ?
-      WHERE reference_no = ? AND purchasing_doc_no = ?;
-    `;
-    const result1 = await query({
-      query: queryStr,
-      values: [status, changed_date, reference_no, purchasing_doc_no],
-    });
-    resSend(res, true, 200, "Release updated successfully", result1, null);
-  } catch (error) {
-    console.error("Error handling release:", error);
-    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  }
-}
-
-async function handleExtension(res, reference_no, purchasing_doc_no, changed_date, status) {
-  try {
-    const queryStr1 = `
-      UPDATE sdbg_entry
-      SET status = ?, validity_date = ?
-      WHERE reference_no = ? AND purchasing_doc_no = ?;
-    `;
-    await query({
-      query: queryStr1,
-      values: [status, changed_date, reference_no, purchasing_doc_no],
-    });
-
-    // Query to check the current state of extension_date columns
-    const selectQuery = `
-      SELECT extension_date1, extension_date2, extension_date3, extension_date4, extension_date5, extension_date6
-      FROM sdbg_entry
-      WHERE reference_no = ? AND purchasing_doc_no = ?;
-    `;
-    const currentDates = await query({
-      query: selectQuery,
-      values: [reference_no, purchasing_doc_no],
-    });
-
-    // Extract the current extension dates
-    const { extension_date1, extension_date2, extension_date3, extension_date4, extension_date5, extension_date6 } = currentDates[0];
-
-    // Determine which extension_date column to update
-    let updateStr = "";
-    if (extension_date1 === 0 || extension_date1 === null) {
-      updateStr = "extension_date1 = ?";
-    } else if (extension_date2 === 0 || extension_date2 === null) {
-      updateStr = "extension_date2 = ?";
-    } else if (extension_date3 === 0 || extension_date3 === null) {
-      updateStr = "extension_date3 = ?";
-    } else if (extension_date4 === 0 || extension_date4 === null) {
-      updateStr = "extension_date4 = ?";
-    } else if (extension_date5 === 0 || extension_date5 === null) {
-      updateStr = "extension_date5 = ?";
-    } else if (extension_date6 === 0 || extension_date6 === null) {
-      updateStr = "extension_date6 = ?";
-    }
-
-    if (updateStr) {
-      const updateQuery = `
-        UPDATE sdbg_entry
-        SET ${updateStr}
-        WHERE reference_no = ? AND purchasing_doc_no = ?;
-      `;
-      await query({
-        query: updateQuery,
-        values: [changed_date, reference_no, purchasing_doc_no],
-      });
-      return resSend(res, true, 200, "Extension updated successfully", null, null);
-    } else {
-      return resSend(res, false, 200, "This BG is already extended 6 times", null, null);
-    }
-  } catch (error) {
-    console.error("Error handling extension:", error);
-    return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  }
-}
+// NOTE: BG Extension and Release are now handled end-to-end by bgExtensionController.js
+// (table sdbg_extension) rather than here. The old, never-routed draft of that workflow
+// that used to live in this file (BGextensionRelease/recommendationBGextensionRelease/
+// UpdateBGextensionRelease + sdbg_recommendation) has been removed.
 
 async function GetspecificBG(req, res) {
   const { reference_no, purchasing_doc_no } = req.body;
@@ -1033,7 +824,6 @@ async function update_in_all_obps_sdbgs_table(payload) {
     }
   } catch (err) {
     console.error("data not fetched", err);
-    // resSend(res, false, 500, "Internal server error", null, null);
   } finally {
     if (client) client.release();
   }
@@ -1079,10 +869,6 @@ module.exports = {
   checkIsDealingOfficer,
   getSDBGData,
   GetspecificBG,
-  BGextensionRelease,
-  recommendationBGextensionRelease,
-  getBGForFinance,
-  UpdateBGextensionRelease,
   getCurrentAssignee,
   insertSdbgSave,
   getSdbgSave,
@@ -1091,42 +877,3 @@ module.exports = {
   checkIsDEO,
 };
 
-// {
-//   FILE_NO: '43t11111',
-//   REF_NO: 'SD-1719998396925-7545',
-//   BANKERS_NAME: 'kolkata',
-//   BANKERS_BRANCH: '46546546',
-//   BANKERS_ADD1: 'new town, kolkata, India',
-//   BANKERS_ADD2: 'ee3',
-//   BANKERS_ADD3: 'ww',
-//   BANKERS_CITY: 'kolkata',
-//   B_PIN_CODE: '157',
-//   BANK_GU_NO: '10',
-//   BG_DATE: '20240703',
-//   BG_AMOUNT: '2345',
-//   PO_NUMBER: '4700026717',
-//   DEPARTMENT: 'mainak',
-//   PO_DATE: '20240503',
-//   YARD_NO: '10',
-//   VALIDITY_DATE: '20240718',
-//   CLAIM_PERIOD: '20240723',
-//   CHECKLIST_REF: 'SD-1719998396925-7545',
-//   CHECKLIST_DATE: '20240703',
-//   BG_TYPE: 'SDBG',
-//   VENDOR_NAME: 'DCG DATA CORE 03.04.2024',
-//   VENDOR_ADD1: '',
-//   VENDOR_ADD2: '',
-//   VENDOR_ADD3: '',
-//   VENDOR_CITY: 'KOLKATA',
-//   V_PIN_CODE: 0,
-//   CONFIRMATION: 'yes',
-//   EXTENTION_DATE1: '0',
-//   EXTENTION_DATE2: '0',
-//   EXTENTION_DATE3: '0',
-//   EXTENTION_DATE4: '0',
-//   EXTENTION_DATE5: '',
-//   EXTENTION_DATE6: '',
-//   RELEASE_DATE: '0',
-//   DEM_NOTICE_DATE: '0',
-//   EXT_LETTER_DATE: ''
-// }

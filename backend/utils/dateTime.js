@@ -27,12 +27,10 @@ exports.getEpochFirstLastToday = () => {
 
   // Get the start of today (00:00:00)
   const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  // const firstEpochTime = Math.floor(startOfDay.getTime() / 1000);
   const firstEpochTime = startOfDay.getTime();
 
   // Get the end of today (23:59:59)
   const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-  // const lastEpochTime = Math.floor(endOfDay.getTime() / 1000);
   const lastEpochTime = endOfDay.getTime();
   return {
     firstEpochTime,
@@ -97,7 +95,6 @@ function formatDateYYDDMM(date) {
   return `${year}${month}${day}`;
 }
 
-
 /**
  * FORMAT CURRENT DATE TIME
  * YYYYMMDDHHMMSSMS
@@ -116,7 +113,6 @@ exports.formatDateYYYYMMDDHHMMSSMS = () => {
   return formattedTime
 }
 
-
 exports.formatDateYYDDMM = (date) => {
   const day = String(date.getDate()).padStart(2, "0"); // Ensures two-digit day
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Ensures two-digit month
@@ -124,7 +120,6 @@ exports.formatDateYYDDMM = (date) => {
   return `${year}${month}${day}`;
 }
 exports.formatDateYYYYMM = (date) => {
-  // const day = String(date.getDate()).padStart(2, "0"); // Ensures two-digit day
   const month = String(date.getMonth() + 1).padStart(2, "0"); // Ensures two-digit month
   const year = date.getFullYear();
   return `${year}${month}`;
@@ -135,7 +130,6 @@ exports.formatDateYYYYMM = (date) => {
 exports.formatDateDD = (date) => {
   return String(date.getDate()).padStart(2, "0");
 }
-
 
 /**
  * CONVERT ISO TIME STAMP TO  TIEM STAMP WITH OUT TIMEZONE

@@ -16,8 +16,6 @@ const {
 
 const { BTN_STATUS_PAYMENT_DONE_TEXT, SUBMITTED_BY_VENDOR } = require("../lib/status");
 const { generateQuery } = require("../lib/utils");
-// const { getContractutalSubminissionDate, getActualSubminissionDate, vendorDetails, getSDBGApprovedFiles, getPBGApprovedFiles } = require("./btnServiceHybrid.services");
-// const Message = require("../utils/messages");
 const { BTN_MATERIAL, BTN_ANY_OTHER_CLAIM, BTN_SERVICE_HYBRID, BTN_JCC } = require("../lib/tableName");
 const {
   calculateTotals,
@@ -38,67 +36,23 @@ const advBillHybridbtnPayload = (payload) => {
     invoice_value: payload.invoice_value || "",
     invoice_date: payload.invoice_date || "",
     invoice_type: payload.invoice_type,
-    // grn_nos: payload.grn_nos || "",
-    // icgrn_nos: payload.icgrn_nos || "",
-    // suppoting_invoice_filename: payload.suppoting_invoice_filename || "",
     invoice_supporting_filename: payload.invoice_supporting_filename || "",
     net_claim_amount: payload.net_claim_amount || "",
     cgst: payload.cgst || "0",
     sgst: payload.sgst || "0",
     igst: payload.igst || "0",
     net_with_gst: payload.net_with_gst || "0",
-    // c_sdbg_date: payload.c_sdbg_date || "",
-    // a_sdbg_date: payload.a_sdbg_date || "",
     c_drawing_date: payload.c_drawing_date || "",
     a_drawing_date: payload.a_drawing_date || "",
-    // c_qap_date: payload.c_qap_date || "",
-    // a_qap_date: payload.a_qap_date || "",
     vendor_code: payload.vendor_code || "",
     btn_type: BTN_ADVANCE_BILL,
     hsn_gstn_icgrn: true,
-    // updated_by: payload.updated_by || "",
     created_at: payload.created_at || "",
     created_by_id: payload.created_by_id || "",
   };
 
   return pl;
 };
-// const advBillHybridbtnDOPayload = (payload) => {
-//   if (!payload || !Object.keys(payload).length)
-//     throw new Error("Invalid payload in advBillHybridbtnPayload");
-
-//   const pl = {
-//     btn_num: payload.btn_num,
-//     drg_penalty: payload.drg_penalty || "",
-//     net_payable_amount: payload.net_payable_amount,
-//     penalty_rate: payload.penalty_rate,
-//     penalty_ammount: payload.penalty_ammount,
-//     recomend_payment: payload.recomend_payment,
-//     // a_drawing_date: payload.a_drawing_date,
-//     created_at: payload.created_at || getEpochTime(),
-//     created_by: payload.created_by || "",
-//   };
-
-//   return pl;
-// };
-
-// const checkMissingActualSubmissionDate = async () => {
-//   let a_sdbg_date_q = `SELECT actualSubmissionDate AS PLAN_DATE, milestoneText AS MTEXT FROM actualsubmissiondate WHERE purchasing_doc_no = ?`;
-//   let a_dates = await getQuery({
-//     query: a_sdbg_date_q,
-//     values: [purchasing_doc_no],
-//   });
-//   const a_dates_arr = [A_SDBG_DATE, A_DRAWING_DATE, A_QAP_DATE, A_ILMS_DATE];
-//   for (const item of a_dates_arr) {
-//     const i = a_dates.findIndex((el) => el.MTEXT == item);
-//     if (i < 0) {
-//       // return resSend(res, false, 200, `${item} is missing!`, null, null);
-//       return { success: false, message: item };
-//     }
-//   }
-
-//   return { success: true, message: "ALL DATE PRESENT" };
-// };
 
 const filesData = (payloadFiles) => {
   // Handle uploaded files
@@ -434,11 +388,6 @@ async function getIcgrnDetails(client, grn_values, data = { EBELN: null }) {
     const inspected = parseFloat(item?.insp_quantity) || 0;
     blocked.push(parseFloat(item?.blocked_quantity) || 0);
 
-    // IF ITEM IS BLOCKED THEN NEED TO SHOW ERROR
-    // if (blocked > 0) {
-    //   return;
-    // }
-
     let quantity = inspected; // default
     if (accepted > 0) quantity = accepted;
     else if (rejected > 0) quantity = accepted;
@@ -452,27 +401,6 @@ async function getIcgrnDetails(client, grn_values, data = { EBELN: null }) {
 
   return icgrn_no;
 
-  // icgrn_no = icgrn_no.map((icgrnItems) => {
-
-  //   if (!isNaN(icgrnItems?.accepted_quantity) && parseFloat(icgrnItems?.accepted_quantity)) {
-  //     return {
-  //       ...icgrnItems,
-  //       quantity: icgrnItems?.accepted_quantity
-  //     }
-
-  //   } else if (!isNaN(icgrnItems?.rejected_quantity) && parseFloat(icgrnItems?.rejected_quantity)) {
-  //     return {
-  //       ...icgrnItems,
-  //       quantity: icgrnItems?.accepted_quantity
-  //     }
-  //   } else {
-  //     return {
-  //       ...icgrnItems,
-  //       quantity: icgrnItems?.insp_quantity
-  //     }
-  //   }
-  // });
-  // return icgrn_no;
 }
 
 async function checkInoiceFiles(queryData = {}) {
@@ -547,11 +475,6 @@ async function getLatestBTN(client, data) {
  * @param {Object} updateObject - Fields to update
  */
 async function updateBtnByBtnNumber(client, latestBtnDetails, updateObject) {
-  // try {
-  // Get btn_type only for SUBMITTED_BY_VENDOR status
-  // const getBtnTypeQuery = ` SELECT btn_type  FROM btn_list  WHERE btn_num = $1 AND status = $2  LIMIT 1`;
-
-  // const [btnTypeResult] = await poolQuery({ client, query: getBtnTypeQuery, values: [btn_num, SUBMITTED_BY_VENDOR] });
 
   if (!latestBtnDetails || !Object.keys(latestBtnDetails).length) {
     throw new Error(
@@ -587,10 +510,6 @@ async function updateBtnByBtnNumber(client, latestBtnDetails, updateObject) {
   await poolQuery({ client, query: q, values: val });
 
   return { success: true, table: tableName, updated: updateObject };
-  // } catch (error) {
-  //   console.error("updateBtnByBtnNumber error:", error.message);
-  //   throw error;
-  // }
 }
 
 const getGrnIcgrnByInvoiceService = async (

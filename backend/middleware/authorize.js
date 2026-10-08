@@ -1,4 +1,3 @@
-// middleware/authorize.js
 const { resSend } = require('../lib/resSend');
 const checkPermission = require('../policies/accessPolicies'); // Utility to evaluate policies
 const Message = require('../utils/messages');
@@ -26,8 +25,6 @@ const authorize = (policyName) => {
         if (checkPermission(policyName, req.tokenData, req.body.status  )) {
             next();
         } else {
-            // 5. If authorization fails, send a 403 Forbidden response
-            // return res.status(403).json({ message: 'Access Denied: Insufficient permissions for this action.' });
             return resSend(res, false, 403, Message.YOU_ARE_UN_AUTHORIZED, {});
         }
     };

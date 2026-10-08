@@ -25,9 +25,6 @@ async function createTable(payload) {
 
     const len = data.length - 1;
     let str = "";
-    // for (let i = 0; i <= len; i++) {
-    //  str += ` "${data[i].Field_name.toLowerCase()}" : obj.${data[i].Field_name.toLowerCase()} || obj.${data[i].Field_name} || "",`;
-    // }
 
     let q = `CREATE TABLE ${payload.tableName} ( `;
 
@@ -90,4 +87,3 @@ async function createTable(payload) {
 }
 
 module.exports = { createTable };
-// createTable().then((val) => console.log(val)).catch((err) => console.log(err))

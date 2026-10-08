@@ -43,10 +43,6 @@ const ServiceContractBillsEdit = () => {
     remarks: "",
   });
 
-  // console.log(form, "abhinit  ");
-  // console.log(user, "bikky ");
-  // console.log(state, "abhinit state ");
-  // console.log(billCA, "billCA ");
   console.log(data, "data sunkkkkkkkkkkkkk ");
 
   const getData = async () => {
@@ -61,36 +57,6 @@ const ServiceContractBillsEdit = () => {
       getData();
     }
   }, [id]);
-
-  // const getForm = async (btn) => {
-  //   const d = await apiCallBack("GET", `po/btn/getServiceBtnData?type=sbtn-details&btn_num=${btn}`);
-  //   if (d?.status) {
-  //     setForm(d?.data);
-
-  //     // Check if wdc_details is available in the form response
-  //     if (d?.data?.wdc_details) {
-  //       setData((prevData) => ({
-  //         ...prevData,
-  //         wdcDetails: d.data.wdc_details,
-  //       }));
-  //     } else {
-  //       // Fallback to API call if wdc_details is not in form response
-  //       checkWDCDetails(d?.data?.wdc_number);
-  //     }
-  //   }
-  // };
-
-  // const checkWDCDetails = async (wdc_number) => {
-  //   if (!wdc_number) return;
-
-  //   const d = await apiCallBack("POST", `po/btn/getWdcInfoServiceHybrid?reference_no=${wdc_number}`, null, token);
-  //   if (d?.status) {
-  //     setData((prevData) => ({
-  //       ...prevData,
-  //       wdcDetails: d?.data,
-  //     }));
-  //   }
-  // };
 
   const getForm = async (btn) => {
     const d = await apiCallBack("GET", `po/btn/getServiceBtnData?type=sbtn-details&btn_num=${btn}`);
@@ -163,23 +129,6 @@ const ServiceContractBillsEdit = () => {
     console.log("state", state);
   }, [state]);
 
-  // const getEmp = async () => {
-  //   try {
-  //     const data = await apiCallBack("GET", `getGrseOfficerList?department_id=15&internal_role_id=1`, null, token);
-  //     if (data?.status) {
-  //       let options = data.data.map((item, index) => {
-  //         return {
-  //           value: item.usercode,
-  //           label: `${item.empname} (${item.usercode})`,
-  //         };
-  //       });
-  //       setEmp(options);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching Employee list:", error);
-  //   }
-  // };
-
   const getEmpFinanceEmpList = async () => {
     try {
       const data = await apiCallBack("GET", `po/btn/getFinanceEmpList`, null, token);
@@ -219,14 +168,9 @@ const ServiceContractBillsEdit = () => {
     getEmpdelegate();
   }, [getEmpdelegate]);
 
-  // useEffect(() => {
-  //   getEmp();
-  // }, []);
   useEffect(() => {
     getEmpFinanceEmpList();
   }, []);
-  // console.log(empFinance, "fiiii");
-  // console.log(emp, "hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh");
 
   useEffect(() => {
     if (state) {
@@ -236,9 +180,6 @@ const ServiceContractBillsEdit = () => {
   console.log(state, "state hhhhhhh");
 
   const checkValue = async () => {
-    // if (!empForm?.grn_no || !empForm.grn_no === "") {
-    //   return toast.warn("Please enter Service Entry/GRN Number");
-    // }
     let queryParams = new URLSearchParams();
     queryParams.append("type", "grn-and-service-entry");
     if (empForm?.grn_no) queryParams.append("grn_no", empForm.grn_no);
@@ -309,7 +250,6 @@ const ServiceContractBillsEdit = () => {
     console.log("netWIthGST", netWIthGST);
     if (net && netWIthGST) {
       let report = calculateNetPayService(net, netWIthGST, empForm?.estimatedLD, empForm?.retension_rate, empForm?.other_deduction);
-      // console.log("net_pay", report?.net_pay);
       setEmpForm({
         ...empForm,
         total_deduction: report?.deduct,
@@ -409,10 +349,6 @@ const ServiceContractBillsEdit = () => {
       toast.warn("Please check the GRN/WDC number to populate the Total Amount before submitting.");
       return;
     }
-    // if (!data?.invoice_date) {
-    //   toast.warning("Invoice Date is mandatory.");
-    //   return;
-    // }
     setShowRemarksApprove(true);
   };
 
@@ -457,22 +393,6 @@ const ServiceContractBillsEdit = () => {
                                       <tr>
                                         <td>Finance Authority</td>
                                         <td className="btn_value">
-                                          {/* <Select
-                                            className="basic-single w-100"
-                                            classNamePrefix="select"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            name="empFinance"
-                                            id="empFinance"
-                                            options={empFinance}
-                                            value={empFinance.filter((item) => item.value === empForm?.finance_authority)[0]}
-                                            onChange={(val) =>
-                                              setEmpForm({
-                                                ...empForm,
-                                                finance_authority: val ? val.value : null,
-                                              })
-                                            }
-                                          /> */}
                                           <HrSearchableSelect
                                             options={empFinance}
                                             value={empForm?.finance_authority}
@@ -708,10 +628,6 @@ const ServiceContractBillsEdit = () => {
                                       </>
                                     )}
 
-                                    {/* {!(user?.vendor_code && form?.delegate_to && user.vendor_code === form.delegate_to) && (
-                                      <DynamicButton label="Delegate" onClick={() => setShowDelegateModal(true)} className="btn fw-bold btn-primary me-3" />
-                                    )} */}
-
                                     {(user?.vendor_code === form.current_ca || user?.vendor_code === form.bill_certifing_authority || (isDO && form.is_dreturn === "Y")) &&
                                       user?.vendor_code != form.delegate_to && (
                                         <DynamicButton label="Delegate" onClick={() => setShowDelegateModal(true)} className="btn fw-bold btn-primary me-3" />
@@ -779,17 +695,6 @@ const ServiceContractBillsEdit = () => {
                 <div className="col-12">
                   <div className="mb-3">
                     <label className="form-label">Delegated To</label>
-                    {/* <Select
-                      className="basic-single"
-                      classNamePrefix="select"
-                      isClearable={true}
-                      isSearchable={true}
-                      name="emp"
-                      id="emp"
-                      options={emp}
-                      value={emp && emp.filter((item) => item.value === delegateForm?.certifying_authority)}
-                      onChange={(val) => setDelegateForm({ ...delegateForm, certifying_authority: val?.value || "" })}
-                    /> */}
                     <HrSearchableSelect
                       options={emp}
                       value={delegateForm?.certifying_authority}
@@ -850,7 +755,6 @@ const ServiceContractBillsEdit = () => {
               <div className="row">
                 <div className="col-12">
                   <div className="mb-3">
-                    {/* <label className="form-label">Status</label> */}
                     <select className="form-select" value={delegateForm.status} onChange={(e) => setDelegateForm({ ...delegateForm, status: e.target.value })}>
                       <option value="">Select Status</option>
                       <option value="RECOMMEND">Recommended</option>

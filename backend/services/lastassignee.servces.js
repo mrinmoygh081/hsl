@@ -116,8 +116,6 @@ const checkPoType = async (poNo) => {
 
 function poTypeCheck(materialData) {
   const regex = /DIEN/; // USE FOR IDENTIFY SERVICE PO as discuss with Preetham
-  // const regex = /ZDIN/;   // NOT USE FOR IDENTIFY SERVICE PO
-  // regex.test(materialType);
   let isMatched = true;
 
   for (let i = 0; i < materialData.length; i++) {
@@ -182,6 +180,7 @@ const insertSdbgEntrySave = async (tableName, obj, tokenData) => {
         bank_addr3: obj.bank_addr3 ? obj.bank_addr3 : null,
         bank_city: obj.bank_city ? obj.bank_city : null,
         bank_pin_code: obj.bank_pin_code ? obj.bank_pin_code : null,
+        bank_email: obj.bank_email ? obj.bank_email : null,
 
         bg_no: obj.bg_no ? obj.bg_no : null,
         bg_date: obj.bg_date ? obj.bg_date : null,
@@ -195,7 +194,6 @@ const insertSdbgEntrySave = async (tableName, obj, tokenData) => {
         bg_type: obj.bg_type ? obj.bg_type : null,
         bg_file_no: obj.bg_file_no ? obj.bg_file_no : null,
         bg_recived_date: obj.bg_recived_date ? obj.bg_recived_date : null,
-        // man_no: tokenData.vendor_code,
         status: obj.status,
         created_at: getEpochTime(),
         created_by: tokenData.vendor_code,

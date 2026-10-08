@@ -14,11 +14,6 @@ export default function Header({ title, id }) {
   const logOutFun = () => {
     dispatch(logoutHandler());
     dispatch(poRemoveHandler());
-    // window.location.href = "/";
-    // Persistor.pause();
-    // Persistor.flush().then(() => {
-    //   return Persistor.purge();
-    // });
   };
 
   useEffect(() => {

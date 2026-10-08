@@ -9,27 +9,6 @@ const pdfFileFilter = (req, file, cb) => {
   }
 };
 
-// const storageWDCs = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, "uploads/wdcs");
-//   },
-//   filename: function (req, file, cb) {
-//     const uniqueSuffix = Date.now();
-//     const { purchasing_doc_no } = req.body;
-//     let fileName = uniqueSuffix + "-" + "WDC" + "-";
-//     if (purchasing_doc_no) {
-//       fileName += purchasing_doc_no
-//     }
-//     const originalName = file.originalname;
-//     const extension = path.extname(originalName);
-
-//     fileName += extension;
-//     cb(null, fileName);
-//     // const uniqueSuffix = Date.now();
-//     // cb(null, uniqueSuffix + "-" + file.originalname);
-//   },
-// });
-
 const uploadWDCs = multer({
   storage: fileStore,
   pdfFileFilter,
@@ -43,5 +22,4 @@ exports.wdcmw = () => {
     { name: "file_attendance_report", maxCount: 1 },
   ]);
 };
-
 

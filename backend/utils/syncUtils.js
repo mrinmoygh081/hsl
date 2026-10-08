@@ -1,6 +1,4 @@
 const { query, poolQuery } = require("../config/pgDbConfig");
-// const pool = require("../config/pgDBConfigSync");
-
 
 exports.getColumnDataType = async (client, schemaName, tableName, columnName) => {
   try {
@@ -38,8 +36,6 @@ exports.getColumnPrimaryKey = async (client, schemaName, tableName) => {
 	    AND kcu.column_name = 'id';
     `;
 
-    // const { rows } = await pool.query(query, [tableName, schemaName]);
-
     const rows = await poolQuery({ client, query, values: [tableName, schemaName] });
 
     // Return the array of primary key column names
@@ -66,7 +62,6 @@ exports.adjustSequences = async (client, tableName) => {
       AND c.relkind = 'S';
     `;
 
-    // const { rows: sequences } = await pool.query(sequencesQuery, [tableName]);
     const { rows: sequences } = await query({ query: sequencesQuery, values: [tableName] });
 
     for (const sequence of sequences) {
@@ -84,7 +79,6 @@ exports.adjustSequences = async (client, tableName) => {
           SELECT setval($1, $2);
         `;
         await query({query: setvalQuery,  values: [sequence.sequence_name, maxId + 1]});
-
 
       } else {
         console.error(`No rows found in the ${tableName} table.`);

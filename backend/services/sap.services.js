@@ -1,7 +1,6 @@
 const { poolQuery } = require("../config/pgDbConfig");
 const { getYyyyMmDd, formatDate, formatTime } = require("../lib/utils");
 
-
 /**
  * Modify SDBG Payload object to insert data
  * @param {Object} payload 
@@ -10,11 +9,7 @@ const { getYyyyMmDd, formatDate, formatTime } = require("../lib/utils");
  */
 
 const zfi_bgm_1_Payload = async (obj) => {
-    // if (!obj.data && !obj.length) {
-    //     throw new Error("Please send valid payload");
-    // }
 
-    // return  { id :getEpochTime() ,purchasing_doc_no : obj.purchasing_doc_no  };
     const pl =
     {
         "FILE_NO": obj.bg_file_no || "",
@@ -36,7 +31,6 @@ const zfi_bgm_1_Payload = async (obj) => {
         "VALIDITY_DATE": (obj.validity_date && obj.validity_date != "") ? getYyyyMmDd(obj.validity_date) : "",
         "CLAIM_PERIOD": (obj.claim_priod && obj.claim_priod != "") ? getYyyyMmDd(obj.claim_priod) : "",
         "CHECKLIST_REF": obj.reference_no || "",
-        // "CHECKLIST_DATE": (obj.check_list_date && obj.check_list_date != "") ? getYyyyMmDd(obj.check_list_date) : "",
         "CHECKLIST_DATE": (obj.bg_recived_date && obj.bg_recived_date != "") ? getYyyyMmDd(obj.bg_recived_date) : "",
         "BG_TYPE": obj.bg_type || "",
         "VENDOR_NAME": obj.vendor_name || "",
@@ -293,7 +287,6 @@ exports.ztfi_bil_defacePayload = async (payload) => {
     return pl;
 }
 
-
 exports.zfi_bgm_1_Payload_sap = async (obj) => {
     const pl =
     {
@@ -339,8 +332,6 @@ exports.zfi_bgm_1_Payload_sap = async (obj) => {
     return pl;
 }
 
-
-
 function getData(client, tableName) {
     return {
         count: async (condition = '1=1') => {
@@ -367,13 +358,12 @@ function getData(client, tableName) {
 }
 
 function isPresentInObps(client, condition = '1=1', tableName = 'ekko') {
-    // let tableName = 'ekko';
     return {
         count: async () => {
             try {
                 const query = `SELECT COUNT(*) FROM ${tableName} WHERE ${condition};`;
                 await poolQuery({ client, query, values: [] });
-                return 1 //parseInt(result[0].count);
+                return 1
             } catch (err) {
                 console.error('Error executing count query:', err);
                 throw err;
@@ -391,6 +381,5 @@ function isPresentInObps(client, condition = '1=1', tableName = 'ekko') {
         },
     };
 }
-
 
 module.exports = { getData, isPresentInObps, zfi_bgm_1_Payload }

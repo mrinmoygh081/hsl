@@ -3,10 +3,7 @@ const { poolQuery } = require("../config/pgDbConfig");
 const { USER_TYPE_HSL_HR, ASSIGNER, USER_TYPE_VENDOR, STAFF, TYPE_RC, TYPE_PO } = require("../lib/constant");
 const { SUBMITTED, APPROVED, REJECTED, STATUS_RECOMMEND, NOT_RECOMMEND, STATUS_HOLD_BY_HR, STATUS_HOLD_BY_HR_RECIPIENT } = require("../lib/status");
 const { getEpochTime, generateSimpleSingleGetQuery } = require("../lib/utils");
-// const complianceLists = ["PF", "ESI", "WAGES", "LEAVE_SALARY", "BONUS", "OTHERS"];
 const Message = require("../utils/messages");
-// const localData = require("../utils/localData.json");
-// const { create_reference_no } = require("./po.services");
 const {
   HR_COMPLIANCE,
   HR_COMPLIANCE_DATA,
@@ -56,7 +53,6 @@ const setVendorPoPayload = (compliance_data, tokenData) => {
   compliance_data.forEach((element) => {
     element.compliances.forEach((compl) => {
       payload.push({
-        // reference_no: create_reference_no("HRC", tokenData.vendor_code),
         ref_group: createRefGroup(element),
         compliance_group_id: `${createRefGroup(element)}${element.compliance_month}${element.compliance_year}`,
         purchasing_doc_no: element.purchasing_doc_no,
@@ -78,8 +74,6 @@ const setVendorRcPayload = (compliance_data, tokenData) => {
   compliance_data.forEach((element) => {
     element.compliances.forEach((compl) => {
       payload.push({
-        // reference_no: create_reference_no("HRC", tokenData.vendor_code),
-        // ref_group: element.ref_group,
         compliance_group_id: `${createRefGroup(element)}${element.compliance_month}${element.compliance_year}`,
         ref_group: createRefGroup(element),
         purchasing_doc_no: element.purchasing_doc_no,
@@ -190,7 +184,6 @@ async function complianceListFromRc(client, tokenData, data) {
       query: q + conditionQuery,
       values,
     });
-    //  result = result.map((el) => ({...el, rc_no: null, unit: null}))
     return result;
   } catch (error) {
     throw error;
@@ -292,10 +285,6 @@ LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
     compliance_data.vendor_code,
     compliance_data.compliance_year,
     vendor_master.vendor_type `;
-    // const orderBy = ` ORDER BY
-    // compliance_data.created_at,
-    // compliance_data.compliance_year,
-    // compliance_data.compliance_month DESC`;
     const orderBy = ` ORDER BY compliance_data.created_at DESC`;
 
     // [NEW] COUNT QUERY
@@ -352,10 +341,6 @@ LEFT JOIN ${VENDOR_MASTER_LFA1} as vendor_master
       conditionQuery += ` AND compliance.unit = $${++count} `;
     }
 
-    // pagination
-    // [NEW] COUNT QUERY
-    // let pageNo = parseInt(data.pageNo) || 1;
-    // let pageSize = parseInt(data.pageNo) || 3000;
     let pageNo = 1;
     let pageSize = 5000;
     let LIMIT_OFFSET = "";
@@ -391,23 +376,14 @@ const currentDataValidation = (tokenData, currntData, payloadData) => {
     if (currntData.status === REJECTED) {
       return { ...errorObj, message: Message.COMPLIANCE_STATUS_WARNING_MSG + currntData.status, data: payloadData };
     }
-    // if (currntData.status === APPROVED && payloadData.status === REJECTED) {
-    //   return { ...errorObj, message: Message.COMPLIANCE_STATUS_WARNING_MSG + currntData.status, data: payloadData };
-    // }
 
     if (payloadData.status != STATUS_HOLD_BY_HR && currntData.status === payloadData.status) {
       return { ...errorObj, message: Message.COMPLIANCE_STATUS_WARNING_MSG + payloadData.status, data: payloadData };
     }
 
-    // if (currntData.status === NOT_RECOMMEND) {
-    //   return { ...errorObj, message: "Not recomend by HR agency", data: payloadData };
-    // }
     if (currntData.status === STATUS_HOLD_BY_HR_RECIPIENT) {
       return { ...errorObj, message: "Hold by HR agency", data: payloadData };
     }
-    // if (!currntData.vendor_status || currntData.vendor_status != SUBMITTED) {
-    //   return { ...errorObj, message: "No upload compliance by vendor ", data: payloadData };
-    // }
     return { success: true, message: "All ok", data: payloadData };
   }
 
@@ -418,38 +394,9 @@ const currentDataValidation = (tokenData, currntData, payloadData) => {
     if (payloadData.status != STATUS_HOLD_BY_HR_RECIPIENT && currntData.status === payloadData.status) {
       return { ...errorObj, message: Message.COMPLIANCE_STATUS_WARNING_MSG + payloadData.status, data: payloadData };
     }
-    // if (!currntData.vendor_status || currntData.vendor_status != SUBMITTED) {
-    //   return { ...errorObj, message: "No upload compliance by vendor", data: payloadData };
-    // }
     return { success: true, message: "All ok", data: payloadData };
   }
 
-  // if (tokenData.user_type === USER_TYPE_VENDOR) {
-  //   // if (currntData.vendor_status === SUBMITTED && currntData.status === STATUS_RECOMMEND && currntData.status == APPROVED) {
-  //   //   return { ...errorObj, message: "Still HR not taken any action", data: payloadData };
-  //   // }
-  //   if (currntData.status === SUBMITTED && (currntData.status === STATUS_RECOMMEND || currntData.status === APPROVED || currntData.status === STATUS_HOLD_BY_HR)) {
-  //     return { ...errorObj, message: "Under HR Review...cannot submit more", data: payloadData };
-  //   }
-  //   // if (
-  //   //   currntData.compliance_month == getMonthFromVendorValidateDate(payloadData.compliance_till_date) &&
-  //   //   (currntData.hr_status == APPROVED && currntData.hr_retailer_status == STATUS_RECOMMEND)
-  //   // ) {
-  //   //   return { ...errorObj, message: "Compliance is already approved for the month  " + localData.MONTH_LIST_OBJECT[currntData.compliance_month], data: payloadData };
-  //   // }
-
-  //   if (parseInt(currntData.compliance_till) > parseInt(payloadData.compliance_till_date)) {
-  //     return { ...errorObj, message: "Can't upload compliane for month " + localData.MONTH_LIST_OBJECT[currntData.compliance_month], data: payloadData };
-  //   }
-
-  //   // if (
-  //   //   currntData.compliance_month == getMonthFromVendorValidateDate(payloadData.compliance_till_date) &&
-  //   //   (!currntData.hr_status && currntData.hr_retailer_status == STATUS_RECOMMEND)
-  //   // ) {
-  //   //   return { ...errorObj, message: "Already update compliance for this month " + currntData.compliance_month, data: payloadData };
-  //   // }
-  //   return { success: true, message: "All ok", data: payloadData };
-  // }
 };
 
 const findOutExistingAndNotExistingInNewData = (existingData, upcommingPayload) => {

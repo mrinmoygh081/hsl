@@ -79,25 +79,6 @@ const BGfinance = () => {
     navigate(`/sdbg/${poNumber}`);
   };
 
-  // const filteredData = paymentdata.filter((file) => {
-  //   console.log(file.status === selectedStatus);
-  //   console.log("selectedStatus", selectedStatus === "All");
-  //   console.log("jkfld");
-  //   return (
-  //     ((file.bg_file_no &&
-  //       file.bg_file_no.toLowerCase().includes(searchQuery.toLowerCase())) ||
-  //       (file.reference_no &&
-  //         file.reference_no
-  //           .toLowerCase()
-  //           .includes(searchQuery.toLowerCase())) ||
-  //       (file.purchasing_doc_no &&
-  //         file.purchasing_doc_no
-  //           .toLowerCase()
-  //           .includes(searchQuery.toLowerCase()))) &&
-  //     (selectedStatus === "All" || file.status === selectedStatus)
-  //   );
-  // });
-
   const filteredData = paymentdata.sort((a, b) => {
     const dateA = new Date(Number(a.created_at));
     const dateB = new Date(Number(b.created_at));
@@ -168,7 +149,6 @@ const BGfinance = () => {
   return (
     <div className="d-flex flex-column flex-row-fluid">
       <div className="page d-flex flex-row flex-column-fluid">
-        {/* <SidebarDashboard /> */}
         <div className="d-flex flex-column flex-row-fluid">
           <MainHeader title="BG Dashboard" id={id} />
           <div className="card">
@@ -235,19 +215,6 @@ const BGfinance = () => {
                 <option value="All">All</option>
               </select>
             </div>
-            {/* <div className="table-info">
-              {loading ? (
-                <SkeletonLoader />
-              ) : (
-                <tr className="row-count">
-                  <td colSpan={10}>
-                    {" "}
-                    Number of AG {filteredData.length}{" "}
-                    {filteredData.length === 1 ? "row" : "rows"}
-                  </td>
-                </tr>
-              )}
-            </div> */}
             <div className="table-responsive">
               <table className="table table-striped table-bordered table_height">
                 <thead>

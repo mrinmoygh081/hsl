@@ -40,7 +40,6 @@ const handleFileDeletion = async (directory, file_to_delete) => {
               throw new Error("Could not delete file");
             }
 
-            // isDeletedFile = true;
           });
         }
       });
@@ -62,14 +61,12 @@ const deleteSingleFile = async (req, res) => {
       return resSend(res, false, 400, "Invalid file id", null, null);
     }
     const filePath = getFileData[0]?.file_path;
-    // const fileName = getFileData[0]?.file_name;
 
     const filePathDirectory = path.join(__dirname, "..", filePath);
   
     // Check if the file exists and is not a directory
     fs.stat(filePathDirectory, (error, stat) => {
       if (error) {
-        // console.error(`Error stating file: ${error.message}`);
         return resSend(res, false, 404, "File not found or inaccessible", error.message, null);
       }
 
@@ -80,7 +77,6 @@ const deleteSingleFile = async (req, res) => {
       // Attempt to delete the file
       fs.unlink(filePathDirectory, (error) => {
         if (error) {
-          // console.error(`Error deleting file: ${error.message}`);
           console.error("[error]", error);
           return resSend(res, false, 500, "Could not delete file", null, null);
         }
@@ -99,7 +95,6 @@ const deleteFileByPath = async (filePathDirectory) => {
 
   fs.stat(filePathDirectory, (error, stat) => {
     if (error) {
-      // console.error(`Error stating file: ${error.message}`);
       throw new Error(`Error stating file: ${error.message}`);
     }
 
@@ -110,7 +105,6 @@ const deleteFileByPath = async (filePathDirectory) => {
     // Attempt to delete the file
     fs.unlink(filePathDirectory, (error) => {
       if (error) {
-        // console.error(`Error deleting file: ${error.message}`);
         throw new Error(`Error deleting file: ${error.message}`);
       }
 

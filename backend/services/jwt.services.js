@@ -2,8 +2,6 @@
 const jwt = require("jsonwebtoken");
 const { resSend } = require("../lib/resSend");
 const basicAuth = require("express-basic-auth");
-// const ACCESS_TOKEN_SECRET = "accessTopSecret";
-// const REFRESH_TOKEN_SECRET = "refreshTopSecret";
 
 const TOKEN_ISSUER = "HSL-OBPS";
 
@@ -44,8 +42,6 @@ const getRefreshToken = (payload, refreshTokenValidity) => {
       issuer: TOKEN_ISSUER,
     });
 
-    //  storeRefreshToken(refreshToken, payload.username);
-
     return refreshToken;
   } catch (error) {
     console.error(error.message);
@@ -64,7 +60,6 @@ const verifiedAccessTokenData = (token) => {
     return decode;
     // eslint-disable-next-line no-unused-vars
   } catch (err) {
-    // console.error("error", err);
     return null;
   }
 };
@@ -90,15 +85,6 @@ const verifiedRefreshTokenData = (token) => {
 //  * @param {Object} data
 //  * @returns data | null
 //  */
-// const veifyAccessTokenRole = async (data) => {
-//   const userRoleVeifiy = `SELECT * FROM auth WHERE username = "${data.username}" AND user_type = ${data.user_type}`;
-//   const result = await query({ query: userRoleVeifiy, values: [] });
-
-//   if (result && result?.length) {
-//     return result;
-//   }
-//   return null;
-// };
 
 // /**
 //  * Requested person api access
@@ -106,14 +92,6 @@ const verifiedRefreshTokenData = (token) => {
 //  * @param {string} reqUrl
 //  * @returns boolean
 //  */
-// const hasapiAccessList = (data, reqUrl) => {
-//   const roleAccess = apiAccessList[data.user_type];
-
-//   // FOR ALL ACCESS ROLE ADMIN
-//   if (data?.user_type == 5 || data?.user_type == "5") return true;
-
-//   return roleAccess.includes((url) => url === reqUrl);
-// };
 
 /**
  * verifyAccessToken
@@ -134,8 +112,6 @@ const verifyAccessToken = async (req, res, next) => {
 
     if (!tokenData) return resSend(res, false, 401, "INVALID_EXPIRED_TOKEN");
 
-    // const validRole = await veifyAccessTokenRole(tokenData);
-    // if (!validRole) return resSend(res, false, 401, "Access Denied: YOU DONT HAVE ACCESS");
     const roleObj = {
       1: "nodal",
       2: "general",
@@ -182,9 +158,6 @@ const verifyOnlyAccessToken = async (req, res, next) => {
   }
 };
 
-// Middleware for Basic Authentication
-// const sap_username = process.env.SAP_API_AUTH_USERNAME;
-// const sap_password = process.env.SAP_API_AUTH_PASSWORD;
 const basicAuthVerification = basicAuth({
   users: {
     [process.env.SAP_API_AUTH_USERNAME]: process.env.SAP_API_AUTH_PASSWORD,

@@ -142,7 +142,7 @@ const DrawingSub = () => {
       if (userType === USER_VENDOR) {
         slug = "po/drawing/submit";
       } else if (user?.department_id === DEPT_DESIGN) {
-        slug = "/po/drawing/update";
+        slug = "po/drawing/update";
       } else {
         return toast.success("Only Design department can process it.");
       }
@@ -216,7 +216,6 @@ const DrawingSub = () => {
                             <table className="table table-striped table-bordered table_height">
                               <thead>
                                 <tr className="border-0">
-                                  {/* <th>Reference No. </th> */}
                                   <th>DateTime </th>
                                   <th>Drawing File</th>
                                   <th>Action By</th>
@@ -340,7 +339,7 @@ const DrawingSub = () => {
       )}
 
       {
-        <div className={isPopup ? "popup active" : "popup"}>
+        <div className={isPopup ? "popup active" : "popup"} style={{ maxWidth: "850px", width: "min(850px, 92%)" }}>
           <div className="card card-xxl-stretch mb-5 mb-xxl-8">
             <div className="card-header border-0 pt-5">
               <h3 className="card-title align-items-start flex-column">
@@ -358,65 +357,62 @@ const DrawingSub = () => {
             </div>
             <form>
               <div className="row">
-                <div className="col-12">
-                  {userType === USER_VENDOR && (
-                    <>
-                      <div className="my-3">
-                        <select name="actionType" id="actionType" className="form-select" value={formData?.actionType} onChange={(e) => inputTypeChange(e, formData, setFormData)}>
-                          <option value="">Choose Action Type</option>
-                          <option value="Upload Drawing ail Chain">Upload Drawing Covering Letter</option>
-                          <option value="Acknowledgement/Remarks">Acknowledgement / Remarks</option>
-                          <option value="Others">Others</option>
-                        </select>
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label d-flex align-items-center gap-2">
-                          Drawing File
-                          {!referenceNo && <span className="mandatorystart">*</span>}
-                          <FileUploadInfoIcon />
-                        </label>
-                        <input
-                          type="file"
-                          className="form-control"
-                          ref={inputFileRef}
-                          name="drawingFile"
-                          onChange={(e) => inputFileChange(e, formData, setFormData)}
-                          accept=".pdf"
-                        />
-                      </div>
-                      <div className="mb-3">
-                        <label className="form-label">Assign Officer</label>
-                        &nbsp;&nbsp;
+                {userType === USER_VENDOR && (
+                  <>
+                    <div className="col-12 col-md-6 mb-3">
+                      <label htmlFor="actionType" className="form-label">
+                        Action Type <span className="mandatorystart">*</span>
+                      </label>
+                      <select name="actionType" id="actionType" className="form-select" value={formData?.actionType} onChange={(e) => inputTypeChange(e, formData, setFormData)}>
+                        <option value="">Choose Action Type</option>
+                        <option value="Upload Drawing ail Chain">Upload Drawing Covering Letter</option>
+                        <option value="Acknowledgement/Remarks">Acknowledgement / Remarks</option>
+                        <option value="Others">Others</option>
+                      </select>
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="form-label d-flex align-items-center gap-2">
+                        Drawing File
                         {!referenceNo && <span className="mandatorystart">*</span>}
-                        <HrSearchableSelect
-                          options={empOption}
-                          value={formData?.assign_to}
-                          onChange={(val) =>
-                            setFormData({
-                              ...formData,
-                              assign_to: val?.value || "",
-                            })
-                          }
-                          placeholder="Select officer"
-                          isClearable={true}
-                        />
-                      </div>
-                    </>
-                  )}
+                        <FileUploadInfoIcon />
+                      </label>
+                      <input type="file" className="form-control" ref={inputFileRef} name="drawingFile" onChange={(e) => inputFileChange(e, formData, setFormData)} accept=".pdf" />
+                    </div>
+
+                    <div className="col-12 col-md-6 mb-3">
+                      <label className="form-label">
+                        Assign Officer &nbsp;&nbsp;
+                        {!referenceNo && <span className="mandatorystart">*</span>}
+                      </label>
+                      <HrSearchableSelect
+                        options={empOption}
+                        value={formData?.assign_to}
+                        onChange={(val) =>
+                          setFormData({
+                            ...formData,
+                            assign_to: val?.value || "",
+                          })
+                        }
+                        placeholder="Select officer"
+                        isClearable={true}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div className="col-12 mb-3">
+                  <label className="form-label">Remarks</label>
+                  <textarea
+                    name="remarks"
+                    id="remarks"
+                    rows="4"
+                    className="form-control"
+                    onChange={(e) => inputTypeChange(e, formData, setFormData)}
+                    value={formData?.remarks}
+                  ></textarea>
                 </div>
-                <div className="col-12">
-                  <div className="mb-3">
-                    <label className="form-label">Remarks</label>
-                    <textarea
-                      name="remarks"
-                      id="remarks"
-                      rows="4"
-                      className="form-control"
-                      onChange={(e) => inputTypeChange(e, formData, setFormData)}
-                      value={formData?.remarks}
-                    ></textarea>
-                  </div>
-                </div>
+
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
                     {userType === USER_VENDOR ? <DynamicButton label="SUBMIT" onClick={() => updateDrawing("SUBMITTED")} className="btn fw-bold btn-primary" /> : <div></div>}

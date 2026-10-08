@@ -54,12 +54,6 @@ const ChecklistSub = () => {
                         >
                           Action
                         </button>
-                        {/* <button
-                          onClick={() => setIsSecPopup(true)}
-                          className="btn fw-bold btn-primary me-3"
-                        >
-                          Upload PBG Copy (optional)
-                        </button> */}
                         <button
                           className="btn fw-bold btn-primary"
                           onClick={ChecklistHandler}
@@ -89,13 +83,6 @@ const ChecklistSub = () => {
                                     01/11/2023-10:30AM
                                   </td>
                                   <td>
-                                    {/* <a
-                                      href={require("C:/Users/admin/Downloads/sample.pdf")}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Check File
-                                    </a> */}
                                   </td>
                                   <td>Invoice</td>
                                   <td>908348</td>
@@ -107,13 +94,6 @@ const ChecklistSub = () => {
                                     31/10/2023-12:36PM
                                   </td>
                                   <td>
-                                    {/* <a
-                                      href={require("C:/Users/admin/Downloads/sample.pdf")}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Check File
-                                    </a> */}
                                   </td>
                                   <td>MTC</td>
                                   <td>908348</td>
@@ -125,13 +105,6 @@ const ChecklistSub = () => {
                                     31/10/2023-12:36PM
                                   </td>
                                   <td>
-                                    {/* <a
-                                      href={require("C:/Users/admin/Downloads/sample.pdf")}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Check File
-                                    </a> */}
                                   </td>
                                   <td>GC</td>
                                   <td>908348</td>
@@ -143,13 +116,6 @@ const ChecklistSub = () => {
                                     31/10/2023-12:36PM
                                   </td>
                                   <td>
-                                    {/* <a
-                                      href={require("C:/Users/admin/Downloads/sample.pdf")}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      Check File
-                                    </a> */}
                                   </td>
                                   <td>LR</td>
                                   <td>908348</td>

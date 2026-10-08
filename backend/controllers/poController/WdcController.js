@@ -13,18 +13,14 @@ const { sendMail } = require("../../services/mail.services");
 const { WDC_APPROVAL_REJECT, WDC_UPLOADING } = require("../../lib/event");
 const { checkIsApprovedRejected } = require("../../services/lastassignee.servces");
 const { SOMTHING_WENT_WRONG } = require("../../utils/messages");
-// require("dotenv").config();
 
 exports.wdc = async (req, res) => {
-  // return resSend(res, true, 200, "file wupleeoaded!", 'req.body', null);
   try {
     const tokenData = { ...req.tokenData };
     const { ...obj } = req.body;
     let payloadFiles = req.files;
 
     if (!obj.purchasing_doc_no || !obj.status) {
-      // const directory = path.join(__dirname, '..', 'uploads', lastParam);
-      // const isDel = handleFileDeletion(directory, req.file.filename);
       return resSend(res, false, 200, "Please send valid payload", null, null);
     }
 
@@ -42,8 +38,6 @@ exports.wdc = async (req, res) => {
         return resSend(res, false, 200, "VENDOR ONLY CAN SUBMIT!", null, null);
       }
     }
-
-    //return;
 
     let fileData = {};
     if (req.file) {
@@ -114,7 +108,6 @@ exports.wdc = async (req, res) => {
         obj.file_attendance_report_file_path = payloadFiles["file_attendance_report"][0]?.path || null;
       }
 
-      // obj.line_item_array = '[{"claim_qty":"4","line_item_no":"15","actual_start_date":"2024-05-07T18:30:00.000Z","actual_completion_date":"2024-05-09T18:30:00.000Z","delay_in_work_execution":"1"},{"claim_qty":"6","line_item_no":"40","actual_start_date":"2024-05-20T18:30:00.000Z","actual_completion_date":"2024-05-22T18:30:00.000Z","delay_in_work_execution":"2"}]';
       let line_item_array = JSON.parse(obj.line_item_array);
       obj.total_amount = 0;
       //obj.action_type == 'JCC' &&  /// CONDITION REMOVED no total issue
@@ -175,9 +168,7 @@ exports.wdc = async (req, res) => {
           // handel email
           payload = { ...payload, slno: response.id };
           const submit = await submitToSapServer(payload);
-          //await client.query('COMMIT');
           if (submit == false) {
-            //await client.query('ROLLBACK');
           }
         } catch (error) {
           console.warn("WDC/JCC save in sap faild, please refer to wdcContorller submitToSapServer fn", error);
@@ -244,7 +235,6 @@ exports.list = async (req, res) => {
       values: [req.query.poNo],
     });
 
-    //return;
     let line_item_array2 = [];
     await Promise.all(
       line_item_array.map(async (els) => {
@@ -261,8 +251,6 @@ exports.list = async (req, res) => {
         line_item_array2.push({ ...els, rest_amount: rest_amount });
       }),
     );
-    // SELECT * FROM ${WDC} WHERE purchasing_doc_no = $1
-    //return;
     const get_data_query = `SELECT t1.*,t2.cname
         FROM 
             wdc AS t1 
@@ -316,12 +304,6 @@ async function submitToSapServer(data) {
     const postUrl = `${sapBaseUrl}/sap/bc/zoBPS_WDC`;
 
     let payload = { ...data };
-    // const wdc_payload = {
-    //   slno: payload.slno,
-    //   ebeln: payload.purchasing_doc_no,
-    //   ebelp: payload.po_line_iten_no,
-    //   wdc: payload.reference_no,
-    // };
 
     let new_line_item = JSON.parse(payload.line_item_array);
     let wdc_payload;
@@ -348,132 +330,3 @@ async function submitToSapServer(data) {
   }
 }
 
-// {
-//   "purchasing_doc_no": "",
-//   "remarks": "",
-//   "status": "",
-//   "work_done_by": "",
-//   "work_title": "",
-//   "job_location": "",
-//   "yard_no": "",
-//   "inspection_note_ref_no": "",
-//   "file_inspection_note_ref_no": "file",
-//   "hinderence_report_cerified_by_berth": "",
-//   "file_hinderence_report_cerified_by_berth": "file",
-//   "attendance_report": "",
-//   "file_attendance_report": "FILE",
-//   "unit": "",
-//   "stage_details":"",
-//   "line_item_array": [
-//     {
-//       "line_item_no":"",
-//     "claim_qty":"",
-//     "contractual_start_date":"",
-//     "Contractual_completion_date":"",
-//     "actual_start_date":"",
-//     "actual_completion_date":"",
-//     "hinderance_in_days":""
-//     },
-//     {
-//       "line_item_no":"",
-//     "claim_qty":"",
-//     "contractual_start_date":"",
-//     "Contractual_completion_date":"",
-//     "actual_start_date":"",
-//     "actual_completion_date":"",
-//     "hinderance_in_days":""
-//     },
-//   ],
-//   "action_type":"WDC"
-// }
-
-// [
-//       {
-//         "line_item_no":"",
-//       "claim_qty":"",
-//       "contractual_start_date":"",
-//       "Contractual_completion_date":"",
-//       "actual_start_date":"",
-//       "actual_completion_date":"",
-//       "hinderance_in_days":""
-//       },
-//       {
-//         "line_item_no":"",
-//       "claim_qty":"",
-//       "contractual_start_date":"",
-//       "Contractual_completion_date":"",
-//       "actual_start_date":"",
-//       "actual_completion_date":"",
-//       "hinderance_in_days":""
-//       },
-//     ]
-
-// {
-//   "purchasing_doc_no": "",
-//   "reference_no": "",
-//   "status": "",
-//   "line_item_array": [
-//     {
-//     "contractual_start_date":"",
-//     "Contractual_completion_date":"",
-//     "delay":""
-//     },
-//     {
-//     "contractual_start_date":"",
-//     "Contractual_completion_date":"",
-//     "delay":""
-//     }
-//   ]
-// }
-
-///////////// JCC //////////////////
-//// VENODOR SUBMIT //////////
-// {
-//   "purchasing_doc_no": "",
-//   "remarks": "",
-//   "status": "",
-//   "work_done_by": "",
-//   "work_title": "",
-//   "job_location": "",
-//   "yard_no": "",
-//   "line_item_array": [
-//     {
-//      "line_item_no":"",
-//     "claim_qty":"",
-//     "actual_start_date":"",
-//     "actual_completion_date":"",
-//     "delay_in_work_execution":""
-//     },
-//     {
-//      "line_item_no":"",
-//     "claim_qty":"",
-//     "actual_start_date":"",
-//     "actual_completion_date":"",
-//     "delay_in_work_execution":""
-//     },
-//   ],
-//   "guarantee_defect_liability_start_date": 1234567890
-//   "guarantee_defect_liability_end_date": 1234567891
-//   "action_type":"JCC"
-// }
-
-///////////// JCC //////////////////
-//// HSL SUBMIT //////////
-// {
-//   "purchasing_doc_no": "",
-//   "remarks": "",
-//   "status": "",
-//   "reference_no": ""
-//   "line_item_array": [
-//     {
-//      "line_item_no":"",
-//      "status":""
-//     },
-//     {
-//      "line_item_no":"",
-//      "status":""
-//     },
-//   ],
-//   "total_amount_status": "APPROVED",
-//   "action_type":"JCC"
-// }

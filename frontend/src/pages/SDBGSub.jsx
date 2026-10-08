@@ -12,7 +12,7 @@ import { inputOnWheelPrevent } from "../utils/inputOnWheelPrevent";
 import { clrLegend } from "../utils/clrLegend";
 import { BGEntry, BGEntrySave, bgFi, bgInputs } from "../Helpers/BG";
 import { IoClose } from "react-icons/io5";
-import { ACTION_ABG, ACTION_DD, ACTION_IB, ACTION_O, ACTION_PBG, ACTION_SDBG, ACTION_RM, FORWARD_TO_FINANCE, SUBMITTED, APPROVED, ACTION_MBG } from "../constants/BGconstants";
+import { ACTION_ABG, ACTION_DD, ACTION_IB, ACTION_O, ACTION_PBG, ACTION_SDBG, ACTION_RM, ACTION_MBG } from "../constants/BGconstants";
 import { logOutFun } from "../utils/logOutFun";
 import { logoutHandler } from "../redux/slices/loginSlice";
 import { poRemoveHandler } from "../redux/slices/poSlice";
@@ -33,7 +33,6 @@ const SDBGSub = () => {
   const inputFileRef = useRef(null);
   const { id } = useParams();
   const [isPopup, setIsPopup] = useState(false);
-  const [isExtended, setIsExtended] = useState(false);
   const [isEntryPopup, setIsEntryPopup] = useState(false);
   const [isAssignPopup, setIsAssignPopup] = useState(false);
   const [isCheckEntryPopup, setIsCheckEntryPopup] = useState(false);
@@ -57,6 +56,19 @@ const SDBGSub = () => {
   });
 
   const [entryState, setEntryState] = useState({});
+  const [isExtPopup, setIsExtPopup] = useState(false);
+  const [extTarget, setExtTarget] = useState(null);
+  const [extForm, setExtForm] = useState({
+    action_type: "",
+    validity_date: "",
+    bg_date: "",
+    bg_amount: "",
+    bank_gu_no: "",
+    reason: "",
+    bg_filename: "",
+    bg_file_path: "",
+  });
+  const [isExtUploading, setIsExtUploading] = useState(false);
   const HSL_LOGO_BASE64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUA...";
 
   let bg = { ...bgInputs, purchasing_doc_no: id };
@@ -94,14 +106,11 @@ const SDBGSub = () => {
   };
 
   const getSDBGcheckuser = async () => {
-    // setIsLoading(true);
     const data = await apiCallBack("GET", `po/sdbg/checkIsDEO?manNo=${user?.vendor_code}`, null, token);
     if (data?.status) {
       setCheckuser(data?.data);
-      // setIsLoading(false);
     } else if (data?.response?.data?.message === "INVALID_EXPIRED_TOKEN") {
       logOutFun(dispatch, logoutHandler, poRemoveHandler);
-      // setIsLoading(false);
     }
   };
 
@@ -178,6 +187,7 @@ const SDBGSub = () => {
       !formDatainput?.bg_no ||
       remarks.trim() === "" ||
       !formDatainput?.bank_name ||
+      !formDatainput?.bank_email ||
       !formDatainput?.branch_name ||
       !formDatainput?.bank_addr1 ||
       !formDatainput?.bank_city ||
@@ -204,6 +214,7 @@ const SDBGSub = () => {
 
         // BG entry fields
         bank_name: formDatainput.bank_name,
+        bank_email: formDatainput.bank_email,
         branch_name: formDatainput.branch_name,
         bank_addr1: formDatainput.bank_addr1,
         bank_addr2: formDatainput.bank_addr2 || "",
@@ -264,13 +275,69 @@ const SDBGSub = () => {
     }
   };
 
+  const handleExtFileUpload = async (file) => {
+    if (!file) return;
+    setIsExtUploading(true);
+    const uploadFormData = new FormData();
+    uploadFormData.append("type", "BGX");
+    uploadFormData.append("ref", user?.vendor_code || "vendor");
+    uploadFormData.append("file", file);
+
+    try {
+      const response = await apiCallBack("POST", "upload/fileStream", uploadFormData, token);
+      if (response?.data?.filePath) {
+        setExtForm((prev) => ({ ...prev, bg_filename: response.data.fileName, bg_file_path: response.data.filePath }));
+        toast.success("File uploaded successfully!");
+      } else {
+        toast.warning("Failed to upload file. Please try again.");
+      }
+    } catch (error) {
+      console.error("File upload failed:", error);
+      toast.warning("Failed to upload file. Please try again.");
+    }
+    setIsExtUploading(false);
+  };
+
+  const submitExtensionOrRelease = async () => {
+    if (!extForm.action_type) {
+      return toast.warn("Please select Extension or Release.");
+    }
+    if (!extForm.reason) {
+      return toast.warn("Please provide a reason.");
+    }
+    if (extForm.action_type === "EXTENSION" && (!extForm.validity_date || !extForm.bg_filename)) {
+      return toast.warn("Please provide the new validity date and upload the revised BG document issued by the bank.");
+    }
+
+    const payload = {
+      sdbg_reference_no: extTarget?.reference_no,
+      file_no: extTarget?.bg_file_no,
+      purchasing_doc_no: id,
+      action_type: extForm.action_type,
+      validity_date: extForm.validity_date || undefined,
+      bg_date: extForm.bg_date || undefined,
+      bg_amount: extForm.bg_amount || undefined,
+      bank_gu_no: extForm.bank_gu_no || undefined,
+      reason: extForm.reason,
+      bg_filename: extForm.bg_filename || undefined,
+      bg_file_path: extForm.bg_file_path || undefined,
+    };
+
+    const res = await apiCallBack("POST", "bg-extension", payload, token);
+    if (res?.status) {
+      toast.success(res?.message || "Request submitted successfully");
+      setIsExtPopup(false);
+      setExtForm({ action_type: "", validity_date: "", bg_date: "", bg_amount: "", bank_gu_no: "", reason: "", bg_filename: "", bg_file_path: "" });
+    } else {
+      toast.error(res?.message || "Failed to submit request");
+    }
+  };
+
   const uploadSDBGSave = async () => {
     let status = await BGEntrySave(formDatainput, token);
     if (status) {
       setIsPopup(false);
       setIsEntryPopup(false);
-      // let bg = { ...bgInputs, purchasing_doc_no: id };
-      // setFormDatainput(bg);
       getSDBG();
     }
   };
@@ -313,11 +380,6 @@ const SDBGSub = () => {
   const financeEntry = async (flag, referenceNo) => {
     const entry = entryState[referenceNo];
     let payloadRemarks = entry?.remarks;
-    const { bg_file_no } = sdbgEntryForFi;
-
-    if ((flag === "APPROVED" || flag === "HOLD") && !bg_file_no && bg_file_no === "") {
-      return toast.warn("Please fill the BG file no.");
-    }
 
     if (flag === "APPROVED") {
       payloadRemarks = "RECEIVED  by Finance Officer";
@@ -334,7 +396,6 @@ const SDBGSub = () => {
       status: flag,
       remarks: payloadRemarks,
       reference_no: referenceNo,
-      bg_file_no,
     };
 
     const data = await apiCallBack("POST", `po/sdbg/sdbgUpdateByFinance`, payload, token);
@@ -487,8 +548,10 @@ const SDBGSub = () => {
     };
 
     addText("Reference No", entry?.reference_no || "");
+    addText("BG Tracking No", entry?.bg_file_no || "");
     addText("BG Entry Date", formatDateToDDMMYY(entry?.created_at));
     addText("Bankers Name", entry?.bank_name || "");
+    addText("Bankers Email Id", entry?.bank_email || "");
     addText("Bankers Branch", entry?.branch_name || "");
     addText("Bankers Address1", entry?.bank_addr1 || "");
     addText("Bankers Address2", entry?.bank_addr2 || "");
@@ -678,6 +741,22 @@ const SDBGSub = () => {
                                                             {user?.user_type === USER_VENDOR ? "VIEW" : "ACTION"}
                                                           </button>
                                                         )}
+                                                      {user?.user_type === USER_VENDOR && ite && ite.some((data) => data.status === "APPROVED") && (
+                                                        <button
+                                                          onClick={async () => {
+                                                            const res = await apiCallBack("POST", "po/sdbg/getspecificbg", { reference_no: item, purchasing_doc_no: id }, token);
+                                                            const entry = res?.data?.[res.data.length - 1];
+                                                            if (!entry) {
+                                                              return toast.warn("Could not load BG details for this request.");
+                                                            }
+                                                            setExtTarget(entry);
+                                                            setIsExtPopup(true);
+                                                          }}
+                                                          className="btn btn-sm fw-bold btn-info"
+                                                        >
+                                                          REQUEST EXT/RELEASE
+                                                        </button>
+                                                      )}
                                                     </td>
                                                   </tr>
                                                   {ite &&
@@ -802,6 +881,21 @@ const SDBGSub = () => {
                   &nbsp;&nbsp;
                   <span className="mandatorystart">*</span>
                   <input type="text" className="form-control" name="bank_name" value={formDatainput?.bank_name || ""} onChange={handleInputChange2} />
+                </div>
+              </div>
+
+              <div className="col-md-6 col-12">
+                <div className="mb-3">
+                  <label className="form-label">Bankers Email Id</label>
+                  &nbsp;&nbsp;
+                  <span className="mandatorystart">*</span>
+                  <input
+                    type="email"
+                    className="form-control"
+                    name="bank_email"
+                    value={formDatainput?.bank_email || ""}
+                    onChange={(e) => setFormDatainput((prev) => ({ ...prev, bank_email: e.target.value }))}
+                  />
                 </div>
               </div>
 
@@ -980,15 +1074,6 @@ const SDBGSub = () => {
                 </div>
               </div>
 
-              {/* <div className="col-md-6 col-12">
-                <div className="mb-3">
-                  <label className="form-label">Department</label>
-                  &nbsp;&nbsp;
-                  <span className="mandatorystart">*</span>
-                  <input type="text" className="form-control" name="department" value={formDatainput?.department || ""} onChange={handleInputChange2} />
-                </div>
-              </div> */}
-
               <div className="col-md-6 col-12">
                 <div className="mb-3">
                   <label className="form-label">BG Type</label>&nbsp;&nbsp;
@@ -1073,7 +1158,6 @@ const SDBGSub = () => {
                     setIsEntryPopup(false);
                     let bg = { ...bgInputs, purchasing_doc_no: id };
                     setFormDatainput(bg);
-                    setIsExtended(false);
                   }}
                   style={{ fontSize: "24px" }}
                 >
@@ -1101,6 +1185,20 @@ const SDBGSub = () => {
                     &nbsp;&nbsp;
                     <span className="mandatorystart">*</span>
                     <input type="text" className="form-control" name="bank_name" value={formDatainput?.bank_name || ""} onChange={handleInputChange2} />
+                  </div>
+                </div>
+                <div className="col-md-6 col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Bankers Email Id</label>
+                    &nbsp;&nbsp;
+                    <span className="mandatorystart">*</span>
+                    <input
+                      type="email"
+                      className="form-control"
+                      name="bank_email"
+                      value={formDatainput?.bank_email || ""}
+                      onChange={(e) => setFormDatainput((prev) => ({ ...prev, bank_email: e.target.value }))}
+                    />
                   </div>
                 </div>
                 <div className="col-md-6 col-12">
@@ -1206,11 +1304,6 @@ const SDBGSub = () => {
                     &nbsp;&nbsp;
                     <span className="mandatorystart">*</span>
                     <DatePicker
-                      // selected={
-                      //   formDatainput.bg_recived_date
-                      //     ? new Date(formDatainput.bg_recived_date * 1000)
-                      //     : null
-                      // }
                       selected={parseDateFromEpoch(formDatainput.bg_recived_date)}
                       onChange={(date) => {
                         setFormDatainput((prevData) => ({
@@ -1343,32 +1436,19 @@ const SDBGSub = () => {
 
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    {isExtended ? (
-                      <>
-                        <DynamicButton
-                          label="EXTENSION"
-                          onClick={() => uploadSDBGEntry("EXTENDED")}
-                          className="btn-primary"
-                          confirmMessage="You're going to forward the SDBG to Finance Dept. Please confirm!"
-                        />
-                      </>
-                    ) : (
-                      <>
-                        <DynamicButton
-                          label="FORWARD TO FINANCE"
-                          onClick={() => uploadSDBGEntry("FORWARD_TO_FINANCE")}
-                          className="btn-primary"
-                          confirmMessage="You're going to forward the SDBG to Finance Dept. Please confirm!"
-                        />
-                        <button
-                          onClick={() => reConfirm({ file: true }, () => rejectSDBG("REJECTED"), "You're going to Reject the SDBG. Please confirm!")}
-                          className="btn fw-bold btn-danger"
-                          type="submit"
-                        >
-                          REJECTED
-                        </button>
-                      </>
-                    )}
+                    <DynamicButton
+                      label="FORWARD TO FINANCE"
+                      onClick={() => uploadSDBGEntry("FORWARD_TO_FINANCE")}
+                      className="btn-primary"
+                      confirmMessage="You're going to forward the SDBG to Finance Dept. Please confirm!"
+                    />
+                    <button
+                      onClick={() => reConfirm({ file: true }, () => rejectSDBG("REJECTED"), "You're going to Reject the SDBG. Please confirm!")}
+                      className="btn fw-bold btn-danger"
+                      type="submit"
+                    >
+                      REJECTED
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1391,7 +1471,6 @@ const SDBGSub = () => {
                   setIsCheckEntryPopup(false);
                   let bg = { ...bgInputs, purchasing_doc_no: id };
                   setFormDatainput(bg);
-                  setIsExtended(false);
                   setSdbgEntryForFi(bgFi);
                 }}
                 style={{ fontSize: "24px" }}
@@ -1409,30 +1488,9 @@ const SDBGSub = () => {
               <div className="row">
                 <div className="col-md-6 col-12">
                   <div className="mb-3">
-                    <label className="form-label">BG File No</label>
+                    <label className="form-label">BG Tracking No. (BG File No)</label>
                     &nbsp;&nbsp;
-                    {formDatainput?.bg_file_no ? (
-                      <p>{formDatainput?.bg_file_no}</p>
-                    ) : (
-                      <>
-                        {user?.department_id === DEPT_FI ? (
-                          <input
-                            type="text"
-                            className="form-control"
-                            name="bg_file_no"
-                            value={sdbgEntryForFi?.bg_file_no}
-                            onChange={(e) =>
-                              setSdbgEntryForFi({
-                                ...sdbgEntryForFi,
-                                bg_file_no: e.target.value,
-                              })
-                            }
-                          />
-                        ) : (
-                          <p>Waiting for Action from HSL</p>
-                        )}
-                      </>
-                    )}
+                    {formDatainput?.bg_file_no ? <p>{formDatainput?.bg_file_no}</p> : <p>Will be generated automatically on acceptance by Finance.</p>}
                   </div>
                 </div>
                 <div className="col-md-6 col-12">
@@ -1461,6 +1519,12 @@ const SDBGSub = () => {
                   <div className="mb-3">
                     <label className="form-label">Bankers Name</label>
                     <p>{formDatainput?.bank_name}</p>
+                  </div>
+                </div>
+                <div className="col-md-6 col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Bankers Email Id</label>
+                    <p>{formDatainput?.bank_email}</p>
                   </div>
                 </div>
                 <div className="col-md-6 col-12">
@@ -1769,14 +1833,131 @@ const SDBGSub = () => {
 
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    {/* <button
-                        onClick={() => assignSDBGByFinance()}
-                        className="btn fw-bold btn-primary"
-                        type="button"
-                      >
-                        ASSIGN
-                      </button> */}
                     <DynamicButton label="ASSIGN" onClick={assignSDBGByFinance} className="btn fw-bold btn-primary" />
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Vendor: Request Extension / Release against an already-accepted BG */}
+      {isExtPopup && (
+        <div className="popup active">
+          <div className="card card-xxl-stretch mb-5 mb-xxl-8">
+            <div className="card-header border-0 pt-5">
+              <h3 className="card-title align-items-start flex-column">
+                <span className="card-label fw-bold fs-3 mb-1">Request Extension / Release</span>
+              </h3>
+              <button className="btn fw-bold btn-danger" onClick={() => setIsExtPopup(false)}>
+                Close
+              </button>
+            </div>
+            <form>
+              <div className="row">
+                <div className="col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Against BG No</label>
+                    <p>
+                      {extTarget?.bg_no} (Tracking No: {extTarget?.bg_file_no || "-"})
+                    </p>
+                  </div>
+                </div>
+                <div className="col-md-6 col-12">
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Request Type <span className="mandatorystart">*</span>
+                    </label>
+                    <select
+                      className="form-select"
+                      value={extForm.action_type}
+                      onChange={(e) => setExtForm((prev) => ({ ...prev, action_type: e.target.value }))}
+                    >
+                      <option value="">Select</option>
+                      <option value="EXTENSION">Extension</option>
+                      <option value="RELEASE">Release</option>
+                    </select>
+                  </div>
+                </div>
+
+                {extForm.action_type === "EXTENSION" && (
+                  <>
+                    <div className="col-md-6 col-12">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          New Validity Date <span className="mandatorystart">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={extForm.validity_date}
+                          onChange={(e) => setExtForm((prev) => ({ ...prev, validity_date: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6 col-12">
+                      <div className="mb-3">
+                        <label className="form-label">Revised BG Date (if changed)</label>
+                        <input
+                          type="date"
+                          className="form-control"
+                          value={extForm.bg_date}
+                          onChange={(e) => setExtForm((prev) => ({ ...prev, bg_date: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6 col-12">
+                      <div className="mb-3">
+                        <label className="form-label">Revised BG Amount (if changed)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={extForm.bg_amount}
+                          onChange={(e) => setExtForm((prev) => ({ ...prev, bg_amount: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-md-6 col-12">
+                      <div className="mb-3">
+                        <label className="form-label">Revised BG Number (if changed)</label>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={extForm.bank_gu_no}
+                          onChange={(e) => setExtForm((prev) => ({ ...prev, bank_gu_no: e.target.value }))}
+                        />
+                      </div>
+                    </div>
+                    <div className="col-12">
+                      <div className="mb-3">
+                        <label className="form-label">
+                          Revised BG Document from Bank <span className="mandatorystart">*</span>
+                        </label>
+                        <input type="file" className="form-control" accept=".pdf" onChange={(e) => handleExtFileUpload(e.target.files[0])} />
+                        {extForm.bg_filename && <small>Uploaded: {extForm.bg_filename}</small>}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div className="col-12">
+                  <div className="mb-3">
+                    <label className="form-label">
+                      Reason / Remarks <span className="mandatorystart">*</span>
+                    </label>
+                    <textarea
+                      className="form-control"
+                      rows="3"
+                      value={extForm.reason}
+                      onChange={(e) => setExtForm((prev) => ({ ...prev, reason: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="col-12">
+                  <div className="mb-3">
+                    <DynamicButton label="SUBMIT" onClick={submitExtensionOrRelease} className="btn fw-bold btn-primary" disabled={isExtUploading} />
                   </div>
                 </div>
               </div>

@@ -145,7 +145,6 @@ const btnPbgSubmitByDO = async (req, res) => {
       }
       const response1 = await btnReject(req.body, tokenData, client);
       if (response1 == false) {
-        // await client.query("COMMIT");
         await client.query("ROLLBACK");
         return resSend(res, false, 200, `SAP not connected2.`, null, null);
       } else if (response1 == true) {
@@ -166,12 +165,11 @@ const btnPbgSubmitByDO = async (req, res) => {
     let isInserted = false;
     let whereCondition;
     if (checkBTNR) {
-      //return resSend(res, false, 200, "BTN is already submitted!", null, null);
       isInserted = true;
     }
 
     // created at
-    let created_at = getEpochTime(); //new Date().toLocaleDateString();
+    let created_at = getEpochTime();
     payload = { ...payload, created_at };
 
     // INSERT data into BTN List Table
@@ -200,32 +198,10 @@ const btnPbgSubmitByDO = async (req, res) => {
       last_assign_fi: false,
     };
 
-
      /** btn_assign table inserted */
     const btnAssignPayload = materialBtnAssignPayload(assign_payload);
     const assignQuery = await generateInsertUpdateQuery(btnAssignPayload, BTN_ASSIGN, ["btn_num", "purchasing_doc_no"]);
     await poolQuery({ client, query: assignQuery.q, values: assignQuery.val });
-
-    // let assign_q;
-    // if (isInserted == true) {
-    //   // update
-    //   whereCondition = {
-    //     btn_num: assign_payload.btn_num,
-    //     purchasing_doc_no: assign_payload.purchasing_doc_no,
-    //   };
-    //   assign_q = generateQuery(
-    //     UPDATE,
-    //     BTN_ASSIGN,
-    //     assign_payload,
-    //     whereCondition
-    //   );
-    // } else {
-    //   //insert
-    //   assign_q = generateQuery(INSERT, BTN_ASSIGN, assign_payload);
-    // }
-
-    // let assign_q = generateQuery(INSERT, BTN_ASSIGN, assign_payload);
-    // await poolQuery({ client, query: assign_q.q, values: assign_q.val });
 
     payload.vendor_code = tokenData?.vendor_code;
     let resBtnList = await insertUpdateToBTNList(
@@ -254,7 +230,6 @@ const btnPbgSubmitByDO = async (req, res) => {
     delete payload.p_estimate_amount;
     delete payload.created_by;
     delete payload.net_claim_amount;
-    //delete payload.btn_type;
     delete payload.vendor_code;
     payload.created_at = convertToEpoch(new Date());
     payload.ld_ge_date = convertToEpoch(new Date(payload.ld_ge_date));
@@ -265,28 +240,17 @@ const btnPbgSubmitByDO = async (req, res) => {
         { btn_num, btn_type: payload.btn_type, purchasing_doc_no, assign_to },
         tokenData
       );
-      // const sendSap = true;
 
       if (sendSap == false) {
-        // await client.query("COMMIT");
         await client.query("ROLLBACK");
         return resSend(res, false, 200, `SAP not connected.`, null, null);
       } else if (sendSap == true) {
         await client.query("COMMIT");
-        // handelMail(tokenData, {
-        //   ...payload,
-        //   assign_to,
-        //   status: SUBMIT_BY_DO,
-        // });
       }
     } catch (error) {
       console.error("error sap data send error", error.message, error.stack);
     }
 
-    // if (!result.error) {
-    // } else {
-    //   // return resSend(res, false, 200, JSON.stringify(result), null, null);
-    // }
     return resSend(res, true, 200, "BTN has been updated!", null, null);
   } catch (error) {
     console.error("error", error.message, error.stack);
@@ -458,7 +422,7 @@ async function btnReject(data, tokenData, client) {
   await updateBtnListTable(client, obj);
   const status = await btnSubmitByDo({ ...data, assign_to: null }, tokenData);
 
-  return status; //{ btn_num: data.btn_num };
+  return status;
 }
 
 // eslint-disable-next-line no-unused-vars
@@ -486,16 +450,11 @@ const insertUpdateToBTNList = async (client, data, status, isInserted) => {
   }
 };
 
-
-
 const getPBGData = async (req, res) => {
   let client;
   try {
     client = await poolClient();
     const { type } = req.query;
-    // if (!type) {
-    //   return resSend(res, true, 200, Message.MANDATORY_INPUTS_REQUIRED, "Please send a valid type!", null)
-    // }
     let data;
     let message;
     let success = false;
