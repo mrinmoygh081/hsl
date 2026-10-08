@@ -93,6 +93,45 @@ const QAPSub = () => {
     return overallAssigned ? String(overallAssigned.assigned_to || overallAssigned.assign_to).trim() : "";
   };
 
+  const normalizeCode = (val) => {
+    if (val === null || val === undefined) return "";
+    const s = String(val).trim();
+    return s.replace(/^0+/, "") || s;
+  };
+
+  const isAssignedToLoggedInUser = (refNo, items = []) => {
+    if (!user) return false;
+    const loggedInCodes = [user?.vendor_code, user?.username, user?.emp_id, user?.id]
+      .filter((c) => c !== null && c !== undefined && String(c).trim() !== "");
+
+    if (loggedInCodes.length === 0) return false;
+
+    const lastAssignedItem = items.slice().reverse().find((item) => item.assigned_to || item.assign_to);
+    const primaryAssigned = lastAssignedItem?.assigned_to || lastAssignedItem?.assign_to || getAssignedOfficerForRef(refNo);
+
+    const candidateOfficers = [
+      primaryAssigned,
+      getAssignedOfficerForRef(refNo),
+      ...(items || []).map((it) => it.assigned_to || it.assign_to),
+    ].filter((c) => c !== null && c !== undefined && String(c).trim() !== "");
+
+    return candidateOfficers.some((assigned) => {
+      const strAssigned = String(assigned).trim();
+      const normAssigned = normalizeCode(strAssigned);
+
+      return loggedInCodes.some((uCode) => {
+        const strUCode = String(uCode).trim();
+        const normUCode = normalizeCode(strUCode);
+
+        if (strAssigned === strUCode) return true;
+        if (normAssigned && normUCode && normAssigned === normUCode) return true;
+        if (!isNaN(Number(strAssigned)) && !isNaN(Number(strUCode)) && Number(strAssigned) === Number(strUCode)) return true;
+
+        return false;
+      });
+    });
+  };
+
   const displayOptions = useMemo(() => {
     if (formData?.assign_to && !empOption.some((opt) => String(opt.value).trim() === String(formData.assign_to).trim())) {
       return [{ value: String(formData.assign_to).trim(), label: `Officer (${formData.assign_to})` }, ...empOption];
@@ -577,27 +616,38 @@ const QAPSub = () => {
                                 Object.keys(groupedData).map((refNo, idx) => {
                                   const items = groupedData[refNo];
                                   const allAssigned = items.every((item) => item.status === "ASSIGNED");
+                                  const isVendor = userType === USER_VENDOR || userType === 1;
+                                  const isApproved = items.some((item) => item.status === "APPROVED");
+                                  const hasOfficerActed = items.some(
+                                    (it) => it.updated_by === "HSL" || (it.created_by_id && String(it.created_by_id).trim().length !== 10)
+                                  );
+                                  const canVendorAct = isVendor && hasOfficerActed && !isApproved;
+                                  const canOfficerAct = !isVendor && !allAssigned && !isApproved && isAssignedToLoggedInUser(refNo, items);
+                                  const canTakeAction = canVendorAct || canOfficerAct;
+
                                   return (
                                     <Fragment key={idx}>
                                       <tr>
                                         <td colSpan={7}>
                                           <b>{refNo}</b>
                                         </td>
-                                        {isQapHandler && !allAssigned && (
+                                        {isQapHandler && (
                                           <td>
-                                            <DynamicButton
-                                              label="ACTION"
-                                              onClick={() => {
-                                                const vendorOfficer = getAssignedOfficerForRef(refNo);
-                                                setIsPopup(true);
-                                                setFormData((prev) => ({
-                                                  ...prev,
-                                                  reference_no: refNo,
-                                                  assign_to: vendorOfficer || "",
-                                                }));
-                                              }}
-                                              className="btn btn-sm fw-bold btn-primary"
-                                            />
+                                            {canTakeAction && (
+                                              <DynamicButton
+                                                label="ACTION"
+                                                onClick={() => {
+                                                  const vendorOfficer = getAssignedOfficerForRef(refNo);
+                                                  setIsPopup(true);
+                                                  setFormData((prev) => ({
+                                                    ...prev,
+                                                    reference_no: refNo,
+                                                    assign_to: vendorOfficer || "",
+                                                  }));
+                                                }}
+                                                className="btn btn-sm fw-bold btn-primary"
+                                              />
+                                            )}
                                           </td>
                                         )}
                                       </tr>
