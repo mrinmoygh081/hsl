@@ -115,8 +115,6 @@ const materialBtnInitialPayload = (payload, tokenData) => {
     return successAndErrorObjectBulider(true, 200, validation.message, NEW_PAYLOAD, validation);
 }
 
-
-
 const materialBtnFinalPayload = (payload, tokenData) => {
     const pl = {
         btn_num: payload.btn_num,
@@ -161,8 +159,6 @@ const materialBtnFinalPayload = (payload, tokenData) => {
         invoice_filename: payload.invoice_filename,
         invoice_file_path: payload.invoice_file_path,
 
-        // invoice_supporting_doc_filename: payload.invoice_supporting_doc_filename,
-        // invoice_supporting_doc_file_path: payload.invoice_supporting_doc_file_path,
         suppoting_invoice_filename: payload.invoice_supporting_doc_filename,
         suppoting_invoice_file_path: payload.invoice_supporting_doc_file_path,
 
@@ -243,9 +239,6 @@ const materialBtnAssignPayload = (payload) => {
     };
 };
 
-
-
-
 const getContractualDates = async (client, purchasing_doc_no) => {
 
     let c_sdbg_date_q = `SELECT PLAN_DATE as "PLAN_DATE", MTEXT as "MTEXT", MID AS "MID" FROM zpo_milestone WHERE EBELN = $1`;
@@ -306,25 +299,21 @@ const setAactualDateIntoPayload = (a_dates) => {
         if (Number(item.MID) === Number(MID_SDBG)) {
             if (!item.PLAN_DATE) {
                 return successAndErrorObjectBulider(false, 200, `${A_SDBG_DATE} is missing!`,)
-                // return resSend(res, false, 200, `${A_SDBG_DATE} is missing!`, null, null);
             }
             aDatePayload = { ...aDatePayload, a_sdbg_date: item.PLAN_DATE };
         } else if (Number(item.MID) === Number(MID_DRAWING)) {
             if (!item.PLAN_DATE) {
                 return successAndErrorObjectBulider(false, 200, `${A_SDBG_DATE} is missing!`,)
-                // return resSend(res, false, 200, `${A_SDBG_DATE} is missing!`, null, null);
             }
             aDatePayload = { ...aDatePayload, a_drawing_date: item.PLAN_DATE };
         } else if (Number(item.MID) === Number(MID_QAP)) {
             if (!item.PLAN_DATE) {
                 return successAndErrorObjectBulider(false, 200, `${A_QAP_DATE} is missing!`,)
-                // resSend(res, false, 200, `${A_QAP_DATE} is missing!`, null, null);
             }
             aDatePayload = { ...aDatePayload, a_qap_date: item.PLAN_DATE };
         } else if (Number(item.MID) === Number(MID_ILMS)) {
             if (!item.PLAN_DATE) {
                 return successAndErrorObjectBulider(false, 200, `${A_ILMS_DATE} is missing!`,)
-                // return resSend(res, false, 200, `${A_ILMS_DATE} is missing!`, null, null);
             }
             aDatePayload = { ...aDatePayload, a_ilms_date: item.PLAN_DATE };
         }

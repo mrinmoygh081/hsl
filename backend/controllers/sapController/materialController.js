@@ -39,7 +39,6 @@ const makt = async (req, res) => {
         return responseSend(res, "F", 400, Message.INVALID_PAYLOAD, null, null);
       }
 
-      // await client.beginTransaction();
       await client.query("BEGIN");
       // makt table payload 
       insertPayload = {
@@ -100,8 +99,6 @@ const makt = async (req, res) => {
         );
       }
 
-      // await client.commit(); // Commit the transaction if everything was successful
-
       await client.query("COMMIT");
 
       transactionSuccessful = true;
@@ -135,10 +132,6 @@ const mseg = async (req, res) => {
       if (!isPresent) {
         return responseSend(res, "S", 200, Message.NON_OBPS_DATA, 'NON OBPS PO/data.', null);
       }
-
-
-      // adding QMATV field i.e icgrn required value with compare logic
-      // const modifiedPayload = await compareGrnData(client, payloadObj);
 
       const msegTableInsertQobj = await generateQueryForMultipleData(
         payloadObj,
@@ -189,7 +182,6 @@ const mkpf = async (req, res) => {
       if (!req.body) {
         responseSend(res, "F", 400, Message.INVALID_PAYLOAD, null, null);
       }
-      // const payload = req.body;
 
       let payload = [];
       if (req.body && Array.isArray(req.body)) {
@@ -234,7 +226,6 @@ const mkpf = async (req, res) => {
   }
 };
 
-
 /**
 * COMPARE DATA WITH MSEG DATA WITH MATERIAL MARA TABLE
 * WHETHERE THE GRN NEED ICGRN OR NOT
@@ -244,22 +235,5 @@ const mkpf = async (req, res) => {
 * @param payload 
 * @returns 
 */
-// const compareGrnData = async (client, payload) => {
-
-//   try {
-//     const matNumArr = payload.map((msg) => msg?.MATNR);
-//     const placeholder = matNumArr.map((_, index) => `$${index + 1}`).join(",");
-//     const getMatQuery = `SELECT MATNR as "MATNR", QMATV AS "QMATV" FROM mara WHERE MATNR IN (${placeholder})`;
-//     const materialData = await poolQuery({ client, query: getMatQuery, values: matNumArr });
-//     //  const materialData = [{ MATNR: "1", QMATV: "X" }];
-//     const mappingData = payload.map((el) => {
-//       const reqIcgrn = materialData.find((data) => data.MATNR == el.MATNR);
-//       return { ...el, QMATV: reqIcgrn?.QMATV || null };
-//     });
-//     return mappingData;
-//   } catch (error) {
-//     throw error;
-//   }
-// }
 
 module.exports = { makt, mseg, mkpf };

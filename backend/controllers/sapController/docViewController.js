@@ -24,7 +24,6 @@ const serviceEntryReport = async (req, res) => {
                 LEFT JOIN lfa1 as vendorDetails
                 	ON( ekko.LIFNR = vendorDetails.LIFNR)`;
 
-
     serviceEntryReportQ = `SELECT 
         ESSR.EBELN as "purchising_doc_no",
 	      ESSR.EBELP as "po_lineitem", 
@@ -54,7 +53,6 @@ const serviceEntryReport = async (req, res) => {
           ON( ekko.EBELN = essr.ebeln)
         LEFT JOIN lfa1 as vendorDetails
           ON( ekko.LIFNR = vendorDetails.LIFNR)`;
-    // 'claim_amount', ESLL_SUBLINE.NETWR
     const val = [];
     let whereClause = " WHERE 1 = 1";
     let count = 0;
@@ -258,46 +256,6 @@ const icgrnReport = async (req, res) => {
       return resSend(res, false, 200, "plese send docNo", [], null);
     }
     let icgrnGetQuery = "";
-    // `SELECT
-    // qals.PRUEFLOS as inspectionLotNumber,
-    // qals.EBELN as purchasing_doc_no,
-    // qals.EBELP as purchasing_doc_no_item,
-    // ekko.AEDAT as purchasing_doc_date,
-    // qals.MBLNR as docNo,
-    // qals.BUDAT as docDate,
-    // qals.LIFNR as suppplier,
-    // vendor_table.LAND1 as vendorCountry,
-    // vendor_table.NAME1 as vendorName,
-    // vendor_table.ORT01 as vendorCity,
-    // vendor_table.ORT02 as vendorDistrict,
-    // vendor_table.PFACH as vendorPinCode,
-    // qals.MATNR AS materialNumber,
-    // makt.MAKTX as materialDesc,
-    // qals.MATNR as material,
-    // qals.PAENDTERM as endDate,
-    // qals.PAENDZEIT as endTime,
-    // qals.PS_PSP_PNR as wbsElement,
-    // qals.BWART as momentType,
-    // ekpo.MEINS as baseUnit,
-    // qals.LMENGE01 as acceptedQty,
-    // qals.LMENGE07 as rejectedQty,
-    // qals.LMENGE01 as unrestrictedUseStock,
-    // qals.LMENGEIST as supplyQuantity,
-    // qals.LTEXTKZ as remarks,
-    // qave.vcode as udCode,
-    // qals.ENSTEHDAT as inspDate
-    // FROM qals as qals
-    // LEFT JOIN lfa1 as vendor_table
-    // 	ON( qals.LIFNR = vendor_table.LIFNR)
-    // LEFT JOIN ekko as ekko
-    // 	ON( qals.EBELN = ekko.EBELN)
-    // LEFT JOIN qave as qave
-    // 	ON( qals.PRUEFLOS = qave.prueflos)
-    // LEFT JOIN makt as makt
-    // 	ON ( makt.MATNR = qals.MATNR)
-    // LEFT JOIN ekpo as ekpo
-    // 	ON ( ekpo.EBELN = qals.EBELN AND ekpo.EBELP =  qals.EBELP AND ekpo.MATNR = qals.MATNR)
-    // WHERE 1 = 1`;
 
     icgrnGetQuery = `
                 SELECT 
@@ -365,18 +323,8 @@ const icgrnReport = async (req, res) => {
       whereClause += ` AND qals.EBELN = $${++count}`;
       val.push(req.body.purchasing_doc_no);
     }
-    // const response = await promiseConnection.execute(icgrnGetQuery);
     const finalQuery = icgrnGetQuery + whereClause;
     const response = await getQuery({ query: finalQuery, values: val });
-    // const poDetailsCheck = await getPoDetails(null,
-    //   { EBELN: response[0]?.purchasing_doc_no },
-    //   `bsart as "poDocumentType"`);
-    // let quantitySelectField = "LMENGE01"
-    // if (poDetailsCheck[0] && (
-    //   poDetailsCheck[0]?.poDocumentType === PO_DOCUMENT_TYPE_1 ||
-    //   poDetailsCheck[0]?.poDocumentType === PO_DOCUMENT_TYPE_2)) {
-    //   quantitySelectField = "LMENGEPR"
-    // }
 
     if (response && response.length) {
       const resp = response[0];

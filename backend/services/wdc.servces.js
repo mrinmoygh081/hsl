@@ -87,25 +87,6 @@ const wdcLinePayload = (obj) => {
 function comparePreviousDataAndSetNewData(oldItems, newItems) {
   return newItems.map((nItem) => ({ ...wdcLinePayload(nItem) }));
 
-  // return oldItems.map(oldItem => {
-  //     // Find the matching item in newItems using the composite key
-  //     const match = newItems.find(newItem =>
-  //         newItem.reference_no === oldItem.reference_no &&
-  //         newItem.purchasing_doc_no === oldItem.purchasing_doc_no &&
-  //         newItem.lineitem === oldItem.lineitem &&
-  //         newItem.sublineitem === oldItem.sublineitem
-  //     );
-
-  //     if (!match) return wdcLinePayload(oldItem); // No match, return original
-
-  //     // Check if any field has changed
-  //     const hasChanged = Object.keys(oldItem).some(key => {
-  //         return oldItem[key] !== match[key];
-  //     });
-
-  //     // Return updated item if something changed
-  //     return hasChanged ? wdcLinePayload({ ...oldItem, ...match }) : wdcLinePayload(oldItem);
-  // });
 }
 
 async function handeWdclMail(tokenData, payload, event) {
@@ -127,7 +108,6 @@ async function handeWdclMail(tokenData, payload, event) {
       });
       await sendMail(event, dataObj, { users: emailUserDetails }, event);
     } else if (tokenData.user_type == USER_TYPE_HSL && (payload.status == REJECTED || payload.status == APPROVED)) {
-      // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
       emailUserDetailsQuery = getUserDetailsQuery("vendor_by_po", "$1");
 
       emailUserDetails = await getQuery({
@@ -137,12 +117,8 @@ async function handeWdclMail(tokenData, payload, event) {
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
       await sendMail(event, dataObj, { users: emailUserDetails }, event);
     } else {
-      // let buildQuery = "SELECT * FROM (";
       let buildQuery = "";
       buildQuery += getUserDetailsQuery("wdc_certifing_authrity", "$1");
-      // buildQuery += "UNION";
-      // buildQuery += getUserDetailsQuery("assingee", "$2");
-      // buildQuery += ") AS mail_info";
 
       emailUserDetails = await getQuery({ query: buildQuery, values: [payload.action_on] });
 

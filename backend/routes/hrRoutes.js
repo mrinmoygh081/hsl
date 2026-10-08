@@ -10,21 +10,12 @@ const { checkServerAccess } = require("../middleware/gatekeeper");
    HR ROUTES
 -------------------------------------------------------------- */
 
-// router.post(
-//   "/hrComplianceUpload",
-//   verifyAccessToken,
-//   dynamicallyUpload.single("file"),
-//   hrController.hrComplianceUpload
-// );
-
 router.post(
   "/compliance/upload",
   verifyAccessToken,
   uploadExcelData.single("file"),
   hrController.updoadExcelFileController
 );
-
-// router.get("/compliance/list", verifyAccessToken, hrController.complianceList);
 
 router.post(
   "/compliance/entry",

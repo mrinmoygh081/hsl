@@ -52,7 +52,6 @@ const ClaimIncorrectDeductions = () => {
       if (response?.status) {
         setGstData(response?.data[0]);
 
-        // setInvoiceData(JSON.parse(response?.data[0]?.icgrn_nos));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -521,24 +520,6 @@ const ClaimIncorrectDeductions = () => {
                                 </button>
                               </div>
 
-                              {/* <div className="text-center">
-                                <button
-                                  className="btn btn-sm btn-primary me-3"
-                                  type="button"
-                                  onClick={() =>
-                                    navigate(`/bill-other-claims/${id}`)
-                                  }
-                                >
-                                  BACK
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-success"
-                                  type="submit"
-                                  onClick={() => handleSubmit()}
-                                >
-                                  SUBMIT
-                                </button>
-                              </div> */}
                             </div>
                           </div>
                         </div>

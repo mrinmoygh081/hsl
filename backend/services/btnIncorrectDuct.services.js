@@ -22,11 +22,7 @@ const btnIncorrectDuctionPayload = (payloadObject) => {
         "ref_invoice4_file_path": payloadObject.ref_invoice4_file_path || null,
         "ref_invoice4_amount": payloadObject.ref_invoice4_amount ?? 0,
         "ref_invoice4_remarks": payloadObject.ref_invoice4_remarks || null,
-        // "balance_claim_invoice": payloadObject.balance_claim_invoice || null,
-        // "balance_claim_invoice_file_path": payloadObject.balance_claim_invoice_file_path || null,
-        // "balance_claim_invoice_fileame": payloadObject.balance_claim_invoice_fileame || null,
         "total_claim_amount": payloadObject.total_claim_amount ?? 0,
-        // "net_payable_amount": payloadObject.net_payable_amount ?? 0,
         "btn_type": payloadObject.btn_type || null,
         "letter_reference_no": payloadObject.letter_reference_no || null,
         "letter_date": payloadObject.letter_date || null,
@@ -38,7 +34,5 @@ const btnIncorrectDuctionPayload = (payloadObject) => {
     return pl;
 
 }
-
-
 
 module.exports = { btnIncorrectDuctionPayload }

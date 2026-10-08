@@ -35,7 +35,7 @@ const QAPSub = () => {
   const initialFormData = {
     reference_no: null,
     action_type: "",
-    QapFile: null, // { file_name, file_path }
+    QapFile: null,
     remarks: "",
     supporting_doc: [], // [ { file_name, file_path }, ... ]
     assign_to: "",
@@ -619,7 +619,6 @@ const QAPSub = () => {
                                               ? JSON.parse(qap.supporting_doc).map((doc, docIdx) => (
                                                   <div key={docIdx}>
                                                     <a href={formatFilePath(doc.file_path)} target="_blank" rel="noreferrer">
-                                                      {/* {doc.file_name} */}
                                                       View File
                                                     </a>
                                                   </div>

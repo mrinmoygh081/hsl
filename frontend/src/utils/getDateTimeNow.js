@@ -23,18 +23,9 @@ export const tenDaysEarlierDate = () => {
   // Calculate 10 days earlier
   let tenDaysEarlierTimestamp = currentTimestamp - 10 * 24 * 60 * 60;
 
-  // console.log("Current timestamp:", currentTimestamp);
-  // console.log("10 days earlier timestamp:", tenDaysEarlierTimestamp);
   return tenDaysEarlierTimestamp;
 };
 
-// export const convertToEpoch = (date) => {
-//   if (date) {
-//     return Math.floor(date.getTime() / 1000);
-//   } else {
-//     return null;
-//   }
-// };
 export const convertToEpoch = (date) => {
   if (!date || date === "" || date === "null") {
     return null;
@@ -65,13 +56,10 @@ export const formatEpochToDate = (epochTimestamp) => {
 };
 
 export const formatDate = (epochTime) => {
-  // let date = new Date(epochTime);
-  // console.log(epochTime);
   if (!epochTime) {
     return "--";
   }
   const et = isNaN(epochTime) ? epochTime : parseInt(epochTime);
-  // const et = isNaN(parseInt(epochTime)) ? epochTime : parseInt(epochTime);
   let date = new Date(et);
 
   let day = date.getDate();
@@ -104,10 +92,7 @@ export const calDatesDiff = (date1, date2) => {
 };
 
 export const formatDashedDate = (epochTime) => {
-  // let date = new Date(epochTime);
-  // console.log(epochTime);
   const et = isNaN(epochTime) ? epochTime : parseInt(epochTime);
-  // const et = isNaN(parseInt(epochTime)) ? epochTime : parseInt(epochTime);
   let date = new Date(et);
 
   let day = date.getDate();
@@ -140,7 +125,6 @@ export const formatFilePathBTN = (path) => {
     return fileDefaultPath + "/NO-FILE";
   }
 
-  // const replacedPath = path.replace(/\\/g, "/").replace(/\/\//g, "/");
   return fileDefaultPath + "/uploads/btns/" + path;
 };
 
@@ -150,7 +134,6 @@ export const formatFilePathWDC = (path) => {
     return fileDefaultPath + "/NO-FILE";
   }
 
-  // const replacedPath = path.replace(/\\/g, "/").replace(/\/\//g, "/");
   return fileDefaultPath + "/uploads/wdcs/" + path;
 };
 

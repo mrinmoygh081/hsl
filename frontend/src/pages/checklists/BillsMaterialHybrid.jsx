@@ -193,7 +193,6 @@ const BillsMaterialHybrid = () => {
   }, [form?.net_claim_amount, form?.cgst, form?.sgst, form?.igst]);
 
   const getData = async () => {
-    // setLoading(true);
     try {
       const d = await apiCallBack("GET", `po/btn/getBTNData?id=${id}`, null, token);
       if (d?.status) {
@@ -483,23 +482,6 @@ const BillsMaterialHybrid = () => {
                                       <tr>
                                         <td>Additional PO:</td>
                                         <td>
-                                          {/* <Select
-                                            className="basic-multi-select"
-                                            classNamePrefix="select"
-                                            isClearable={true}
-                                            isSearchable={true}
-                                            isMulti
-                                            name="associated_po"
-                                            id="associated_po"
-                                            options={associated}
-                                            value={associated?.filter((item) => form?.associated_po?.includes(item.value))}
-                                            onChange={(selectedOptions) =>
-                                              setForm({
-                                                ...form,
-                                                associated_po: selectedOptions ? selectedOptions.map((opt) => opt.value) : [],
-                                              })
-                                            }
-                                          /> */}
                                           <MultiSearchableSelect
                                             options={associated}
                                             value={form?.associated_po?.map((val) => ({ value: val, label: val })) || []}
@@ -512,79 +494,6 @@ const BillsMaterialHybrid = () => {
                                             placeholder="Select Additional PO(s)"
                                           />
 
-                                          {/* <div className="d-flex align-items-start flex-column">
-                                          {checkTypeArr(form?.associated_po) &&
-                                            form.associated_po.map((item, i) => (
-                                              <div key={i} className="d-flex align-items-center gap-1 mb-1">
-                                                <input
-                                                  type="text"
-                                                  className="form-control"
-                                                  name="associated_po"
-                                                  value={item?.a_po}
-                                                  onChange={(e) => {
-                                                    const newValue = e.target.value;
-                                                    if (newValue === id) {
-                                                      toast.error("This PO value matches the existing PO and cannot be added!");
-                                                      return;
-                                                    }
-                                                    const isDuplicate = form.associated_po.some((po, index) => po.a_po === newValue && index !== i);
-
-                                                    if (isDuplicate) {
-                                                      toast.error("Duplicate PO entry is not allowed!");
-                                                      return;
-                                                    }
-                                                    const updatedPOs = [...form.associated_po];
-                                                    updatedPOs[i].a_po = newValue;
-
-                                                    setForm({
-                                                      ...form,
-                                                      associated_po: updatedPOs,
-                                                    });
-                                                  }}
-                                                />
-                                                {i > 0 && (
-                                                  <button
-                                                    className="btn btn-sm btn-danger d-flex align-items-center ms-2"
-                                                    style={{
-                                                      fontSize: "16px",
-                                                    }}
-                                                    type="button"
-                                                    onClick={() => {
-                                                      const updatedPOs = form.associated_po.filter((_, index) => index !== i);
-                                                      setForm({
-                                                        ...form,
-                                                        associated_po: updatedPOs,
-                                                      });
-                                                    }}
-                                                  >
-                                                    <FaMinus />
-                                                  </button>
-                                                )}
-                                                {form.associated_po.length - 1 === i && (
-                                                  <button
-                                                    className="btn btn-sm btn-primary d-flex align-items-center"
-                                                    style={{
-                                                      fontSize: "16px",
-                                                    }}
-                                                    type="button"
-                                                    onClick={() =>
-                                                      setForm({
-                                                        ...form,
-                                                        associated_po: [
-                                                          ...form?.associated_po,
-                                                          {
-                                                            a_po: "",
-                                                          },
-                                                        ],
-                                                      })
-                                                    }
-                                                  >
-                                                    <FaPlus />
-                                                  </button>
-                                                )}
-                                              </div>
-                                            ))}
-                                        </div> */}
                                         </td>
                                       </tr>
                                     )}
@@ -654,54 +563,6 @@ const BillsMaterialHybrid = () => {
                                       </td>
                                     </tr>
 
-                                    {/* <tr>
-                                      <td>CGST:</td>
-                                      <td className="btn_value">
-                                        <input
-                                          type="number"
-                                          className="form-control"
-                                          onWheel={inputOnWheelPrevent}
-                                          name="cgst"
-                                          value={form?.cgst}
-                                          onChange={(e) => {
-                                            inputTypeChange(e, form, setForm);
-                                          }}
-                                        />
-                                        <span className="ms-1">%</span>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>SGST:</td>
-                                      <td className="btn_value">
-                                        <input
-                                          type="number"
-                                          className="form-control"
-                                          onWheel={inputOnWheelPrevent}
-                                          name="sgst"
-                                          value={form?.sgst}
-                                          onChange={(e) => {
-                                            inputTypeChange(e, form, setForm);
-                                          }}
-                                        />
-                                        <span className="ms-1">%</span>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>IGST:</td>
-                                      <td className="btn_value">
-                                        <input
-                                          type="number"
-                                          className="form-control"
-                                          onWheel={inputOnWheelPrevent}
-                                          name="igst"
-                                          value={form?.igst}
-                                          onChange={(e) => {
-                                            inputTypeChange(e, form, setForm);
-                                          }}
-                                        />
-                                        <span className="ms-1">%</span>
-                                      </td>
-                                    </tr> */}
                                     {!form?.CAPEX_IND && (
                                       <>
                                         <tr>
@@ -867,16 +728,6 @@ const BillsMaterialHybrid = () => {
                                         />
                                       </td>
                                     </tr>
-                                    {/* <tr>
-                                      <td>Gate Entry Acknowledgement no.</td>
-                                      <td className="btn_value">
-                                        {loading
-                                          ? "Loading..."
-                                          : form.gate_entry_no
-                                          ? form.gate_entry_no
-                                          : "NA"}
-                                      </td>
-                                    </tr> */}
                                     <tr>
                                       <td>Gate Entry Acknowledgement no.</td>
                                       <td className="btn_value">
@@ -889,36 +740,6 @@ const BillsMaterialHybrid = () => {
                                         <b>{form.gate_entry_date && form.gate_entry_date}</b>
                                       </td>
                                     </tr>
-                                    {/* <tr>
-                                      <td>GRN No </td>
-                                      <td className="btn_value">
-                                        <p>
-                                          {checkTypeArr(form?.grn_nos) &&
-                                            form?.grn_nos.map((item, i) => (
-                                              <b key={i} className="mx-2">
-                                                {item?.grn_no
-                                                  ? item.grn_no
-                                                  : "NA"}
-                                              </b>
-                                            ))}
-                                        </p>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>ICGRN no </td>
-                                      <td className="btn_value">
-                                        <p>
-                                          {checkTypeArr(form?.icgrn_nos) &&
-                                            form?.icgrn_nos?.map((item, i) => (
-                                              <b key={i} className="mx-2">
-                                                {item?.grn_no
-                                                  ? item.grn_no
-                                                  : "NA"}
-                                              </b>
-                                            ))}
-                                        </p>
-                                      </td>
-                                    </tr> */}
                                     <tr>
                                       <td>GRN No </td>
                                       <td className="btn_value">

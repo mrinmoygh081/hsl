@@ -60,7 +60,6 @@ const DisplayStoreActions = () => {
   };
 
   const CheckFileHandler = (item) => {
-    // console.log(item, "lllllll itemitem");
 
     if (item.documentType === "reservation_report") {
       return { reservationNumber: item.reservationNumber };

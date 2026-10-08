@@ -46,7 +46,6 @@ const ClaimIncorrectDeductionsview = () => {
       if (response?.status) {
         setGstData(response?.data[0]);
 
-        // setInvoiceData(JSON.parse(response?.data[0]?.icgrn_nos));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -249,47 +248,7 @@ const ClaimIncorrectDeductionsview = () => {
                                   </tbody>
                                 </table>
                               </div>
-                              {/* <div className="text-center">
-                                    {user?.user_type === USER_VENDOR && (
-                                      <button
-                                        type="button"
-                                        className="btn fw-bold btn-primary me-3"
-                                        onClick={() => handleSubmit()}
-                                      >
-                                        SUBMIT
-                                      </button>
-                                    )}
-                                    <button
-                                      className="btn fw-bold btn-primary me-3"
-                                      type="button"
-                                      onClick={() =>
-                                        navigate(
-                                          `/invoice-and-payment-process/${id}`
-                                        )
-                                      }
-                                    >
-                                      BACK
-                                    </button>
-                                  </div> */}
 
-                              {/* <div className="text-center">
-                                    <button
-                                      className="btn btn-sm btn-primary me-3"
-                                      type="button"
-                                      onClick={() =>
-                                        navigate(`/bill-other-claims/${id}`)
-                                      }
-                                    >
-                                      BACK
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-success"
-                                      type="submit"
-                                      onClick={() => handleSubmit()}
-                                    >
-                                      SUBMIT
-                                    </button>
-                                  </div> */}
                             </div>
                           </div>
                         </div>

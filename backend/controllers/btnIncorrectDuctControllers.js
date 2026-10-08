@@ -14,8 +14,6 @@ const QueryBuilder = require("../utils/QueryBuilder");
 
 /**  --------------------------------------------------------------------------------------- */
 
-
-
 const btnInvoiceCheck = async (client, letter_reference_no, purchasing_doc_no) => {
   let check_invoice_q =
     `SELECT 
@@ -40,17 +38,14 @@ const btnInvoiceCheck = async (client, letter_reference_no, purchasing_doc_no) =
 }
 
 const submitIncorrectDuct = async (req, res) => {
-  //return resSend(res, false, 200, "Basic Value is mandatory.", null, null);
   let client;
   try {
     client = await poolClient();
     await client.query("BEGIN");
     let { total_claim_amount, letter_reference_no, purchasing_doc_no } = req.body;
 
-    // let payloadFiles = req.files;
     const tokenData = req.tokenData;
     let payload = btnIncorrectDuctionPayload(req.body);
-
 
     // Handle uploaded files
     if (req.files.invoice_file && req.files.invoice_file[0].filename) {
@@ -72,7 +67,6 @@ const submitIncorrectDuct = async (req, res) => {
       updated_by: "VENDOR"
     };
 
-
     const check_invoice = await btnInvoiceCheck(client, letter_reference_no, purchasing_doc_no);
     if (check_invoice.length == 0 || (check_invoice.length > 0 && check_invoice[0].status == REJECTED)) {
       // generate btn num
@@ -80,14 +74,12 @@ const submitIncorrectDuct = async (req, res) => {
       payload = { ...payload, btn_num };
 
       payload.net_claim_amount = total_claim_amount;
-      // payload.net_payable_amount = total_claim_amount;
 
       const doDetails = await poolQuery({
         client,
         query: getUserDetailsQuery("do", "$1"),
         values: [payload.purchasing_doc_no]
       });
-
 
       // INSERT Data into btn table
       const btnAddToListPayload = {
@@ -119,7 +111,6 @@ const submitIncorrectDuct = async (req, res) => {
 
 const getBtnFile = async (req, res) => {
   let client;
-  // await client.query("BEGIN");
   try {
     client = await poolClient();
     const btn_num = req.query.btn_num;
@@ -207,8 +198,6 @@ const getIncorrectDeductionData = async (req, res) => {
 
     const incorrDectBtnDetails = qb.toJSON();
 
-
-
     const result = await getQuery({ query: incorrDectBtnDetails.sql, values: incorrDectBtnDetails.params });
 
     resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, null);
@@ -217,6 +206,5 @@ const getIncorrectDeductionData = async (req, res) => {
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   }
 }
-
 
 module.exports = { submitIncorrectDuct, getBtnFile, getGstnByPo, getIncorrectDeductionData };

@@ -39,10 +39,6 @@ const QapDashboard = () => {
     try {
       const vendorTypeParam = selectedVendorType !== "All" ? `&vendor_type=${selectedVendorType}` : "";
       const pageQuery = `/qap?pageNo=${page + 1}&pageSize=${pageSize}&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}${vendorTypeParam}`;
-      // const pageQuery =
-      //   pageSize === "All"
-      //     ? `?type=qap_submission&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}`
-      //     : `?type=qap_submissin&pageNo=${page + 1}&pageSize=${pageSize}&search=${encodeURIComponent(debouncedSearchQuery)}&status=${encodeURIComponent(selectedStatus)}`;
 
       const response = await apiCallBack("GET", `stat${pageQuery}`, null, token);
 
@@ -150,7 +146,6 @@ const QapDashboard = () => {
   return (
     <div className="d-flex flex-column flex-row-fluid">
       <div className="page d-flex flex-row flex-column-fluid">
-        {/* <SidebarDashboard /> */}
         <div className="d-flex flex-column flex-row-fluid">
           <MainHeader title="QA Dashboard" id={id} />
           <div className="card">
@@ -230,19 +225,6 @@ const QapDashboard = () => {
                 <option value="All">All</option>
               </select>
             </div>
-            {/* <div className="table-info">
-              {loading ? (
-                <SkeletonLoader />
-              ) : (
-                <tr className="row-count">
-                  <td colSpan={10}>
-                    {" "}
-                    Number of AG {filteredData.length}{" "}
-                    {filteredData.length === 1 ? "row" : "rows"}
-                  </td>
-                </tr>
-              )}
-            </div> */}
             <div className="table-responsive">
               <table className="table table-striped table-bordered table_height">
                 <thead>
@@ -255,7 +237,6 @@ const QapDashboard = () => {
                   <tr className="border-0">
                     <th className="min-w-150px">QAP NO.</th>
                     <th className="min-w-150px">PO Number</th>
-                    {/* <th className="min-w-150px">Material Description</th> */}
                     <th className="min-w-150px">Vendor Name</th>
                     <th className="min-w-150px">Vendor Code</th>
                     <th className="min-w-150px">Assigned To</th>
@@ -287,7 +268,6 @@ const QapDashboard = () => {
                           </td>
 
                           <td>{file.purchasing_doc_no}</td>
-                          {/* <td>{""}</td> */}
                           <td>{file.vendor_name}</td>
                           <td>
                             {file.vendor_code}
@@ -313,7 +293,6 @@ const QapDashboard = () => {
                           <td>{file.assigned_to}</td>
                           <td>{file.assigned_on ? formatDateassign(new Date(parseInt(file.assigned_on, 10))) : "N/A"}</td>
 
-                          {/* <td>{file.accepted_on}</td> */}
                           <td>{file.accepted_on ? formatDateassign(new Date(parseInt(file.accepted_on, 10))) : "N/A"}</td>
                           <td className={`${clrLegend(file?.status)} bold`}>{file.status}</td>
                           <td>{formatDate(file.created_at)}</td>

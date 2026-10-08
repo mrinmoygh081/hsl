@@ -20,7 +20,6 @@ const {
 const { getEpochTime, generateQuery } = require("../lib/utils");
 const {  getEpochFirstLastToday, formatDateYYYYMMDDHHMMSSMS } = require("../utils/dateTime");
 
-
 /**
  * Modify SDBG Payload object to insert data
  * @param {Object} payload
@@ -128,22 +127,6 @@ const hrCompliancePayload = (payload) => {
 };
 const wdcPayload = (payload, line_item_array) => {
   let line_item = JSON.parse(payload.line_item_array);
-  // let line_item =  [
-  //   {
-  //     line_item_no:15,
-  //   contractual_start_date:"1234",
-  //   Contractual_completion_date:"5678",
-  //   delay:"10",
-  //   status:ACCEPTED
-  //   },
-  //   {
-  //     line_item_no:20,
-  //     contractual_start_date:"12qqqq34",
-  //     Contractual_completion_date:"qqqq5678",
-  //     delay:"qqq0",
-  //     status:REJECTED
-  //     }
-  // ];
   let last_data_line_item_array = JSON.parse(line_item_array);
 
   let resData;
@@ -159,43 +142,6 @@ const wdcPayload = (payload, line_item_array) => {
   payload.line_item_array = JSON.stringify(resData);
   return payload;
 
-  // const payloadObj = {
-  //   reference_no: payload.reference_no,
-  //   purchasing_doc_no: payload.purchasing_doc_no,
-  //   action_type: payload.action_type,
-  //   vendor_code: payload.vendor_code,
-  //   file_name: payload.fileName ? payload.fileName : null,
-  //   file_path: payload.filePath ? payload.filePath : null,
-  //   remarks: payload.remarks,
-  //   status: payload.status,
-  //   updated_by: payload.updated_by,
-  //   created_at: payload.created_at ? payload.created_at : getEpochTime(),
-  //   created_by_id: payload.created_by_id,
-  //   wdc_date: payload.wdc_date ? payload.wdc_date : null,
-  //   po_line_iten_no: payload.po_line_iten_no ? payload.po_line_iten_no : null,
-  //   job_location: payload.job_location ? payload.job_location : null,
-  //   yard_no: payload.yard_no ? payload.yard_no : null,
-  //   actual_start_date: payload.actual_start_date
-  //     ? payload.actual_start_date
-  //     : null,
-  //   actual_completion_date: payload.actual_completion_date
-  //     ? payload.actual_completion_date
-  //     : null,
-  //   unit: payload.unit ? payload.unit : null,
-  //   messurment: payload.messurment ? payload.messurment : null,
-  //   quantity: payload.quantity ? payload.quantity : null,
-  //   entry_by_production: payload.entry_by_production
-  //     ? payload.entry_by_production
-  //     : null,
-  //   stage_datiels: payload.stage_datiels ? payload.stage_datiels : null,
-  //   actual_payable_amount: payload.actual_payable_amount
-  //     ? payload.actual_payable_amount
-  //     : null,
-  // };
-  // let line_item_array = JSON.parse(payload.line_item_array);
-  // if(!payload || Array.isArray(line_item_array)) {
-  //   return [];
-  //   }
 };
 
 const shippingDocumentsPayload = (payload, status) => {
@@ -269,7 +215,6 @@ const poModifyData = (queryResult) => {
       }
 
       resArr.push({ po, sdbg, drawing });
-      // po = sdbg = drawing = {};
     }
 
     return { po, sdbg, drawing };
@@ -317,54 +262,6 @@ async function poDataModify(data) {
   return obj;
 }
 
-
-// function poDataModify2(data) {
-
-//   if (!data || !Array.isArray(data) || !data.length) return [];
-//   let obj = new Map()
-//   data.forEach((element) => {
-//     let key = element.poNb;
-
-//     if (obj.has(key)) {
-//       let val = obj.get(key);
-//       let newVal = {
-//         poType: element.poType,
-//         m_number: element.m_number,
-//         MTART: element.MTART,
-//         MATNR: element.MATNR,
-//         vendor_code: element.vendor_code,
-//         vendor_name: element.vendor_name,
-//         createdAt: element.createdAt,
-//         po_creator: element.po_creator,
-//         po_creator_name: element.po_creator_name
-
-//         // wbs_id: element.wbs_id,
-//         // project_code: element.project_code,
-//       };
-
-//       obj.set([...val, newVal]);
-//     } else {
-//       obj.set(key, [
-//         {
-//           poType: element.poType,
-//           m_number: element.m_number,
-//           MTART: element.MTART,
-//           MATNR: element.MATNR,
-//           vendor_code: element.vendor_code,
-//           vendor_name: element.vendor_name,
-//           createdAt: element.createdAt,
-//           po_creator: element.po_creator,
-//           po_creator_name: element.po_creator_name
-//           // wbs_id: element.wbs_id,
-//           // project_code: element.project_code,
-//         },
-//       ]);
-//     }
-//   });
-
-//   return obj;
-// }
-
 function poDataModify2(data) {
 
   if (!data || !Array.isArray(data) || !data.length) return [];
@@ -386,8 +283,6 @@ function poDataModify2(data) {
         po_creator: element.po_creator,
         po_creator_name: element.po_creator_name,
 
-        // wbs_id: element.wbs_id,
-        // project_code: element.project_code,
       };
 
       obj.set(key, [...val, newVal]);
@@ -404,8 +299,6 @@ function poDataModify2(data) {
           createdAt: element.createdAt,
           po_creator: element.po_creator,
           po_creator_name: element.po_creator_name,
-          // wbs_id: element.wbs_id,
-          // project_code: element.project_code,
         },
       ]);
     }
@@ -413,7 +306,6 @@ function poDataModify2(data) {
 
   return obj;
 }
-
 
 /**
  * insertActualSubmission funton
@@ -490,7 +382,6 @@ async function setActualSubmissionDate(payload, mid, tokenData, status, client =
 
   } catch (error) {
 
-
     console.error("errorerrorerrorerrorerror", error);
 
     throw error;
@@ -498,9 +389,7 @@ async function setActualSubmissionDate(payload, mid, tokenData, status, client =
 }
 
 const setActualSubmissionDateSdbg = async (payload, tokenData) => {
-  // return 1;
 
-  //const select_bg_date_query = `SELECT bg_date FROM ${SDBG_ENTRY} WHERE reference_no = ? AND purchasing_doc_no = ?`;
   const select_bg_date_query = `SELECT created_at FROM ${SDBG} WHERE action_type = ? AND reference_no = ? AND purchasing_doc_no = ?`;
 
   const select_bg_date = await query({
@@ -551,7 +440,6 @@ const create_btn_no = async (client) => {
     let today = getEpochTime();
     let { firstEpochTime, lastEpochTime } = getEpochFirstLastToday();
 
-    // let btn_num_q = `SELECT count(*) as count FROM ${BTN_LIST} WHERE created_at BETWEEN $1 AND $2`;
     let btn_num_q = `SELECT COUNT(DISTINCT btn_num) as count FROM ${BTN_LIST} WHERE created_at BETWEEN $1 AND $2 AND status = $3`;
     let btn_res = [];
     if (client) {
@@ -559,9 +447,7 @@ const create_btn_no = async (client) => {
     } else {
       btn_res = await getQuery({ query: btn_num_q, values: [firstEpochTime, lastEpochTime, SUBMITTED_BY_VENDOR] });
     }
-    // btn_res = btn_res?.rows;
     let threeDigit = 999 - parseInt(btn_res[0]?.count);
-    // const reference_no = `${type}${dateNeed}${threeDigit}`;
     const reference_no = `${dateNeed}${threeDigit}`;
     return reference_no;
   } catch (error) {
@@ -569,7 +455,6 @@ const create_btn_no = async (client) => {
     throw error;
   }
 };
-
 
 /**
  * GET LAST DATA FROM TABLE 
@@ -600,7 +485,6 @@ const get_latest_activity = async (client,
     console.error("ERROR:"`${error.message}`);
   }
 };
-
 
 const getActualAndCurrentDetails = async (client, values) => {
 
@@ -714,7 +598,6 @@ const getActualAndCurrentDetails = async (client, values) => {
         WHERE 
       	result.purchasing_doc_no IN(${placeholders})`;
 
-
     const result = await poolQuery({ client, query: getActualAndCurrentQuery, values });
 
     return result;
@@ -777,7 +660,6 @@ LEFT JOIN pa0002 AS users ON users.pernr::CHARACTER VARYING = ekko_limited_resul
 ORDER BY 
     ekko_limited_result.aedat, ekko_limited_result.ebeln`;
 
-
     const result = poolQuery({ client, query: getPoQuey, values: values });
 
     return result;
@@ -795,7 +677,6 @@ const getCount = async (client, values, whereCondQuery) => {
       FROM ekko 
     WHERE 
       	${whereCondQuery} AND ekko.ebeln IN(${placeholders})`;
-
 
     const result = await poolQuery({ client, query: getPoQuey, values: values });
 
@@ -839,10 +720,6 @@ const getPoDetails = async (client, whereConditionObj = {}, selectFields = "*") 
     throw error;
   }
 }
-
-
-
-
 
 function setMileStoneActivity(purchasing_doc_no, contractualDates) {
   const flags = ["sdbg", "drawing", "qap", "ilms"];

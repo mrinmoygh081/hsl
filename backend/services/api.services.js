@@ -5,9 +5,6 @@ const { INSERT, LAN_SERVER } = require("../lib/constant");
 const { generateQuery, getEpochTime } = require("../lib/utils");
 
 const apiLog = async (req, res, next) => {
-  // if (req.method === "POST" || req.method === "PUT") {
-  //   // console.log('Req Body: ', req.body);
-  // }
   const originalSend = res.send;
   res.send = async function (body) {
     // Log response status code
@@ -58,7 +55,6 @@ const apiLog = async (req, res, next) => {
       );
       saveLogInDb(req.ip, req.originalUrl, req.method, res.statusCode, msg, "apilog");
     }
-
 
     if (process.env.SERVER_ENV === LAN_SERVER && process.env.NODE_ENV === 'production' && req.method == 'POST'
     ) { 

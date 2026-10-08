@@ -65,22 +65,6 @@ const AdvanceBillHybrid = () => {
     getData();
   }, []);
 
-  // useEffect(() => {
-  //   if (data) {
-  //     const firstEntry = data[0];
-  //     setForm({
-  //       ...form,
-  //       purchasing_doc_no: firstEntry.purchasing_doc_no,
-  //       vendor_code: firstEntry.vendor_code,
-  //       vendor_name: firstEntry.vendor_name,
-  //       a_sdbg_date: firstEntry.a_sdbg_sub_date,
-  //       c_sdbg_date: firstEntry.c_sdbg_sub_date,
-  //       c_sdbg_filename: firstEntry.c_sdbg_filename,
-  //       c_sdbg_file_path: firstEntry.c_sdbg_file_path,
-  //     });
-  //   }
-  // }, [data]);
-
   // calculate gst function
   useEffect(() => {
     calculateNetClaimAmountWithGST();
@@ -511,35 +495,6 @@ const AdvanceBillHybrid = () => {
                                           </label>
                                         </div>
 
-                                        {/* <div className="form-check">
-                                          <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            id="hsn_gstn_tax"
-                                            name="hsn_gstn_tax"
-                                            value={form?.hsn_gstn_tax}
-                                            onClick={(e) =>
-                                              setForm({
-                                                ...form,
-                                                hsn_gstn_tax: e.target.checked,
-                                              })
-                                            }
-                                          />
-                                          <label
-                                            className="form-check-label"
-                                            htmlFor="hsn_gstn_icgrn"
-                                            onClick={() =>
-                                              setForm({
-                                                ...form,
-                                                hsn_gstn_tax:
-                                                  !form?.hsn_gstn_tax,
-                                              })
-                                            }
-                                          >
-                                            Whether HSN code, GSTIN, Tax rate is
-                                            as per PO
-                                          </label>
-                                        </div> */}
                                       </td>
                                     </tr>
                                   </tbody>

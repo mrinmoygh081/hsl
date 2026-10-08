@@ -5,7 +5,6 @@ const svgCaptcha = require("svg-captcha");
 const { getAccessToken, getRefreshToken, verifiedRefreshTokenData } = require("../../services/jwt.services");
 const { resSend } = require("../../lib/resSend");
 const { AUTH, REGISTRATION_OTP, EMPLAYEE_MASTER_PA0002, VENDOR_MASTER_LFA1 } = require("../../lib/tableName");
-// const { USER_TYPE_VENDOR, INSERT, UPDATE, ASSIGNER, LAN_SERVER, USER_TYPE_VENDOR_TEXT, STAFF, USER_TYPE_HSL_TEXT, YES_SORT_FORM, NIC_SERVER, SESSION_STAGE_AWAITING_OTP } = require("../../lib/constant");
 const {
   USER_TYPE_VENDOR,
   INSERT,
@@ -19,15 +18,12 @@ const {
   SESSION_STAGE_AWAITING_OTP,
   USER_TYPE_HSL,
 } = require("../../lib/constant");
-// const rolePermission = require("../../lib/role/deptWiseRolePermission");
-// const { getEpochTime, generateQuery, maskEmailAddress, generateInsertUpdateQuery } = require("../../lib/utils");
 const { getEpochTime, generateQuery, maskEmailAddress } = require("../../lib/utils");
 const Message = require("../../utils/messages");
 const localData = require("../../utils/localData.json");
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { EMAIL_TEMPLAE } = require("../../templates/mail-template");
 const { SENDMAIL, SENDMAILFROMNIC } = require("../../lib/mailSend");
-// const { convertIsoTimestampToYYYYMMDDHHMMSSMs } = require("../../utils/dateTime");
 const { decryptData } = require("../../utils/encryption");
 const { isAccountLocked, handleFailedAttempt, fetchUserEmail, processAndSendOtp, verifyOtpFromDb, resetAttempts } = require("../../services/auth.services");
 const { STATUS_VERIFIED } = require("../../lib/status");
@@ -37,8 +33,7 @@ const REFRESH_TOKEN_VALIDITY = process.env.REFRESH_TOKEN_VALIDITY;
 /**---------------------------------------------------------------------------------
                       AUTH API START
  ------------------------------------------------------------------------------------*/
-// const MAX_AGE = 12 * 60 * 60 * 1000;
-let captchaStore = {}; // { sessionId: captchaText }
+let captchaStore = {};
 
 const captchaHandler = async (req, res) => {
   const cap = svgCaptcha.create({
@@ -60,220 +55,10 @@ const captchaHandler = async (req, res) => {
 };
 
 // Global variabel
-// const MAX_ATTEMPTS = parseInt(process.env.MAX_LOGIN_ATTEMPTS) || 5; // 5 times
-// const LOCK_TIME_MS = parseInt(process.env.LOCK_TIME_AFTER_WRONG_PWD_ENTRY || 5) * 60 * 1000; // 5 minutes
-
-// /**
-//  * Utility: check if account is locked
-//  */
-// async function isAccountLocked(client, vendorCode) {
-//   const checkAcoutLock = await poolQuery({
-//     client,
-//     query: `SELECT attempt_count, lock_until FROM auth_login_attempts WHERE vendor_code = $1`,
-//     values: [vendorCode],
-//   });
-
-//   if (!checkAcoutLock.length) return false;
-
-//   const { lock_until } = checkAcoutLock[0];
-//   return lock_until && new Date(lock_until) > new Date();
-// }
-
-// /**
-//  * Utility: record failed attempt
-//  */
-// // eslint-disable-next-line no-unused-vars
-// async function recordFailedAttempt(client, vendorCode, currentAttempts, isLocked) {
-//   const attempts = parseFloat(currentAttempts) + 1;
-//   const lockUntil = attempts >= MAX_ATTEMPTS ? convertIsoTimestampToYYYYMMDDHHMMSSMs(new Date(Date.now() + LOCK_TIME_MS)) : null;
-//   const saveIsLocked = attempts >= MAX_ATTEMPTS ? YES_SORT_FORM : null;
-//   const wrongAttempPayload = { vendor_code: vendorCode, attempt_count: attempts, lock_until: lockUntil, is_locked: saveIsLocked };
-
-//   // if (attempts >= MAX_ATTEMPTS && isLocked && isLocked === YES_SORT_FORM) {
-
-//   //   await poolQuery({
-//   //     client,
-//   //     query: `INSERT INTO auth_login_attempts (vendor_code, attempt_count, is_locked)
-//   //        VALUES ($1, $2, $3)
-//   //        ON CONFLICT (vendor_code)
-//   //        DO UPDATE SET attempt_count = $2, is_locked = $3`,
-//   //     values: [vendorCode, attempts, YES_SORT_FORM]
-//   //   });
-//   // } else {
-
-//   //   await poolQuery({
-//   //     client,
-//   //     query: `INSERT INTO auth_login_attempts (vendor_code, attempt_count, lock_until, is_locked)
-//   //        VALUES ($1, $2, $3, $4)
-//   //        ON CONFLICT (vendor_code)
-//   //        DO UPDATE SET attempt_count = $2, lock_until = $3, is_locked = $4`,
-//   //     values: [vendorCode, attempts, lockUntil, saveIsLocked]
-//   //   });
-
-//   // }
-
-//   const { q, val } = await generateInsertUpdateQuery(wrongAttempPayload, "auth_login_attempts", ["vendor_code"]);
-//   await poolQuery({ client, query: q, values: val });
-//   return attempts >= MAX_ATTEMPTS;
-// }
-
-// /**
-//  * Utility: reset attempts after successful login
-//  */
-// async function resetAttempts(client, vendorCode) {
-//   await poolQuery({
-//     client,
-//     query: `DELETE FROM auth_login_attempts WHERE vendor_code = $1`,
-//     values: [vendorCode],
-//   });
-// }
 
 /**
  * Login Route
  */
-// const login = async (req, res) => {
-//   let client;
-
-//   try {
-//     const { vendor_code, password, captchaValue, sessionId } = req.body;
-
-//     if (!vendor_code || typeof vendor_code !== "string" || !password || typeof password !== "string") {
-//       return resSend(res, false, 200, Message.MANDATORY_INPUTS_REQUIRED);
-//     }
-
-//     client = await poolClient();
-//     // Check lock status
-//     const isAccLocked = await isAccountLocked(client, vendor_code);
-
-//     if (isAccLocked) {
-//       // return resSend(res, true, 403, "ACCOUNT_LOCKED_FOR_5_MINUTES");
-//       return resSend(res, false, 200, Message.TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED);
-//     }
-
-//     if (!captchaValue || !sessionId) {
-//       return resSend(res, false, 200, Message.ENTER_VALID_CAPTHA);
-//     }
-
-//     const storedCaptcha = captchaStore[sessionId];
-
-//     if (!storedCaptcha) {
-//       return resSend(res, false, 200, Message.CAPTHA_GEN_ERROR);
-//     }
-
-//     if (storedCaptcha !== captchaValue.toLowerCase()) {
-//       return resSend(res, false, 200, Message.INVALID_CAPTCHA);
-//     }
-//     // Prevent reuse
-//     delete captchaStore[sessionId];
-
-//     let authApproveQuery = "SELECT vendor_code, is_active FROM auth where vendor_code = $1";
-//     let userCheck = await poolQuery({ client, query: authApproveQuery, values: [vendor_code] });
-
-//     if (!userCheck.length) {
-//       return resSend(res, false, 200, Message.INVALID_CREDINTIAL, { vendor_code });
-//     }
-
-//     if (userCheck[0]?.is_active !== 1) {
-//       return resSend(res, false, 200, Message.USER_NOT_APPROVED, { vendor_code });
-//     }
-
-//     const login_Q = `SELECT t1.vendor_code, t1.user_type, t1.username, t1.password, t1.department_id,
-//                           t1.internal_role_id,  t2.name AS department_name, t3.name AS role
-//                   FROM auth AS t1
-// 			              LEFT JOIN
-//                       depertment_master AS t2 ON (t1.department_id = t2.id)
-//                     LEFT JOIN 	internal_role_master AS t3 ON	(t1.internal_role_id = t3.id)
-//                       WHERE t1.vendor_code = $1 AND t1.is_active = 1`;
-
-//     const users = await poolQuery({ client, query: login_Q, values: [vendor_code] });
-//     if (!users.length) {
-//       // return resSend(res, true, 404, Message.INVALID_CREDINTIAL);
-//       return resSend(res, false, 200, Message.INVALID_CREDINTIAL);
-//     }
-
-//     let user = users[0];
-//     let permission = {};
-//     let userDetails = [];
-
-//     // 🔑 Validate password and decrypt password
-//     let decreptedPasseword = decryptData(password);
-
-//     // console.log("decreptedPasseword", typeof decreptedPasseword, decreptedPasseword,  password);
-
-//     const match = await bcrypt.compare(decreptedPasseword.toString(), user.password);
-//     // deleting password from response
-//     decreptedPasseword = null;
-//     delete user.password;
-
-//     if (!match) {
-//       const attemptQuery = `SELECT attempt_count, is_locked FROM auth_login_attempts WHERE vendor_code = $1`;
-//       const attemptRows = await poolQuery({ client, query: attemptQuery, values: [vendor_code] });
-
-//       const currentAttempts = attemptRows.length ? parseInt(attemptRows[0].attempt_count) : 0;
-//       const is_locked = attemptRows.length ? attemptRows[0].is_locked : null;
-//       const locked = await recordFailedAttempt(client, vendor_code, currentAttempts, is_locked);
-
-//       if (locked) {
-//         return resSend(res, false, 200, Message.TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED);
-//       }
-
-//       return resSend(res, false, 200, Message.INVALID_CREDINTIAL);
-//     }
-
-//     if (user.user_type === USER_TYPE_VENDOR) {
-//       const vendorDetailsQ = `SELECT t1.NAME1 AS name, t1.email FROM lfa1 AS t1 WHERE t1.LIFNR = $1`;
-//       userDetails = await poolQuery({ client, query: vendorDetailsQ, values: [vendor_code] });
-
-//       if (userDetails.length) {
-//         user = { ...user, ...userDetails[0] };
-//         // const { department_name, role } = user;
-//         const deptPermission = rolePermission["VENDOR"];
-//         // eslint-disable-next-line no-unused-vars
-//         permission = deptPermission;
-//       }
-//     }
-//     if (user.user_type !== USER_TYPE_VENDOR) {
-//       const grseDetaisQ = `SELECT t1.CNAME AS name,t1.EMAIL AS email FROM pa0002 AS t1 WHERE t1.PERNR = $1`;
-
-//       userDetails = await poolQuery({ client, query: grseDetaisQ, values: [vendor_code] });
-//       if (userDetails.length) {
-//         user = { ...user, ...userDetails[0] };
-//         const { department_name, role } = user;
-//         const deptPermission = rolePermission[department_name];
-//         if (deptPermission) {
-//           deptPermission[role] = true;
-//         }
-//         // permission = deptPermission ? deptPermission : {};
-//       }
-//     }
-
-//     // ✅ Successful login → reset attempts
-//     await resetAttempts(client, vendor_code);
-
-//     // 🔐 Generate tokens
-//     const payload = {
-//       username: user.username,
-//       vendor_code: user.vendor_code,
-//       user_type: user.user_type,
-//       department_id: user.department_id,
-//       internal_role_id: user.internal_role_id,
-//     };
-
-//     const accessToken = getAccessToken(payload, "1d");
-//     const refreshToken = getRefreshToken(payload, "7d");
-
-//     if (!accessToken || !refreshToken) {
-//       return resSend(res, false, 500, Message.TOKEN_GENERATION_ERROR);
-//     }
-
-//     resSend(res, true, 200, Message.USER_AUTHENTICATION_SUCCESS, { user }, { accessToken, refreshToken });
-//   } catch (err) {
-//     console.error("Login error:", err);
-//     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, err.message);
-//   } finally {
-//     if (client) client.release();
-//   }
-// };
 
 const sendOtp = async (req, res) => {
   let client;
@@ -338,7 +123,6 @@ const sendOtp = async (req, res) => {
       html: EMAIL_TEMPLAE(`Your One Time Password(OTP) to Complete Registration in OBPS is : ${otp}. Valid for ${otpValidInSec} second, Do not share it with anyone.`),
     };
     try {
-      // await SENDMAIL(mailOptions);
       if (process.env.SERVER_ENV == LAN_SERVER) {
         await SENDMAIL(mailOptions);
       } else if (process.env.SERVER_ENV == NIC_SERVER) {
@@ -397,7 +181,6 @@ const forgotPasswordOtp = async (req, res) => {
 
   try {
     client = await poolClient();
-    // const { captchaValue, sessionId, is_resend, ...obj } = req.body;
     const { captchaValue, ...obj } = req.body;
     if (!obj.user_code) {
       return resSend(res, false, 200, Message.INVALID_PAYLOAD, null, null);
@@ -412,24 +195,6 @@ const forgotPasswordOtp = async (req, res) => {
 
     // Security: Clear captcha immediately so it cannot be reused
     req.session.captcha = null;
-
-    // if (is_resend !== "y") {
-    //   if (!captchaValue || !sessionId) {
-    //     return resSend(res, false, 200, "CAPTCHA_REQUIRED");
-    //   }
-
-    //   const storedCaptcha = captchaStore[sessionId];
-
-    //   if (!storedCaptcha) {
-    //     return resSend(res, false, 200, "CAPTCHA_EXPIRED");
-    //   }
-
-    //   if (storedCaptcha !== captchaValue.toLowerCase()) {
-    //     return resSend(res, false, 200, "INVALID_CAPTCHA");
-    //   }
-    //   // Prevent reuse
-    //   delete captchaStore[sessionId];
-    // }
 
     let tableName = obj.user_code.length == 6 ? "pa0002" : "lfa1";
     let fieldName = obj.user_code.length == 6 ? "pernr" : "lifnr";
@@ -470,9 +235,7 @@ const forgotPasswordOtp = async (req, res) => {
       html: EMAIL_TEMPLAE(`Your One Time Password(OTP) to Reset Password in OBPS is : ${otp}. Valid for ${validateOtpInSec} seconds, Do not share it with anyone.`),
     };
     try {
-      // await SENDMAIL(mailOptions);
 
-      // await SENDMAIL(mailOptions);
       if (process.env.SERVER_ENV == LAN_SERVER) {
         await SENDMAIL(mailOptions);
       } else if (process.env.SERVER_ENV == NIC_SERVER) {
@@ -536,7 +299,6 @@ const otpVefify = async (req, res) => {
       query: otpVefifyQuery,
       values: [start, getEpochTime(), obj.user_code, obj.otp],
     });
-    //return false;
     let msg;
     let status;
     if (otpVefifyQueryRes && otpVefifyQueryRes[0].count == 1) {
@@ -571,7 +333,6 @@ const otpVefify = async (req, res) => {
 const setPassword = async (req, res) => {
   let client;
   try {
-    // client = await poolClient();
     const { ...obj } = req.body;
     if (!obj.password || !obj.user_code || !obj.otp || !obj.status) {
       return resSend(res, false, 200, Message.INVALID_PAYLOAD, null, null);
@@ -579,8 +340,6 @@ const setPassword = async (req, res) => {
     if (obj.status != "CREATE" && obj.status != "UPDATE") {
       return resSend(res, false, 200, "Please send valid status.", null, null);
     }
-
-    // const vefifyQuery = `SELECT * FROM ${REGISTRATION_OTP} where user_code = '${obj.user_code}' AND status = 'VERIFIED' AND otp = '${obj.otp}'`;
 
     // DB CLIENT AND TRASINSATON
     client = await poolClient();
@@ -652,29 +411,6 @@ const setPassword = async (req, res) => {
     if (otpVefifyQueryRes[0].user_type == USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === ASSIGNER) {
       // SEND MAIL TO NODAL OFFICERS //
 
-      // let getNodalOfficersQ = `SELECT t1.vendor_code, t2.email FROM auth AS t1
-      //         LEFT JOIN
-      //             pa0002 AS t2
-      //         ON
-      //             t1.vendor_code = t2.pernr  :: character varying WHERE
-      //         t1.department_id = $1 AND t1.internal_role_id = $2`;
-
-      // const getNodalOfficersR = await getQuery({
-      //   query: getNodalOfficersQ,
-      //   values: [otpVefifyQueryRes[0].functional_area, ASSIGNER],
-      // });
-      // let emails = "";
-      // if (getNodalOfficersR.length > 0) {
-      //   getNodalOfficersR.forEach((item) => {
-      //     if (item.email && item.email != "") {
-      //       if (emails === "") {
-      //         emails += item.email;
-      //       } else {
-      //         emails += "," + item.email;
-      //       }
-      //     }
-      //   });
-      // }
       let emails = localData.registrationApprovedAuthority.map((user) => user.email).join(",");
 
       if (emails != "") {
@@ -686,7 +422,6 @@ const setPassword = async (req, res) => {
             `${name} (${username}) trying to register as a nodal officier in ${otpVefifyQueryRes[0].deptname} depertment as nodal officer in OBPS system. \n  Please login to your OBPS portal to take the necessary action.`,
           ),
         };
-        // await SENDMAIL(mailOptions);
 
         if (process.env.SERVER_ENV == LAN_SERVER) {
           await SENDMAIL(mailOptions);
@@ -896,7 +631,6 @@ const login = async (req, res) => {
       // faild count record save . . . . .
       // eslint-disable-next-line no-unused-vars
       const isLocked = await handleFailedAttempt(client, vendor_code);
-      // if (isLocked) return resSend(res, false, 200, Message.TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED);
       return resSend(res, false, 200, Message.INVALID_CREDINTIAL);
     }
 
@@ -955,10 +689,6 @@ const verifyLoginOtp = async (req, res) => {
       return resSend(res, false, 401, "Session expired or invalid flow. Please login again.");
     }
 
-    // if (!req.session.captcha || req.session.captcha !== captchaValue?.toLowerCase()) {
-    //   return resSend(res, false, 200, Message.INVALID_CAPTCHA);
-    // }
-
     // ✅ CHANGE 3: Get Vendor Code from Server Memory (Safe)
     const { vendor_code } = req.session.login_otp;
 
@@ -987,7 +717,6 @@ const verifyLoginOtp = async (req, res) => {
 
     // ⚠️ RESTORED LOGIC: You need this to get user name/email/permissions
     // If you haven't made the helper function, paste the original logic here.
-    // user = await attachUserDetailsAndPermissions(client, user, rolePermission);
 
     // --- 3. Reset Login Attempts ---
     await resetAttempts(client, vendor_code);

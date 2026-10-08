@@ -11,15 +11,12 @@ const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const Message = require("../../utils/messages");
 
 const insert = async (req, res) => {
-  // return resSend(res, true, 200, "inserted!", req.body, null);
 
   try {
     const tokenData = { ...req.tokenData };
     const obj = { ...req.body };
 
     if (!obj.purchasing_doc_no || !obj.status) {
-      //     // const directory = path.join(__dirname, '..', 'uploads', lastParam);
-      //     // const isDel = handleFileDeletion(directory, req.file.filename);
       return resSend(res, false, 200, "Please send valid payload", null, null);
     }
 
@@ -42,13 +39,7 @@ const insert = async (req, res) => {
       if (!obj.action_type || obj.action_type == "") {
         return resSend(res, false, 200, "please send a valid action_type!", null, null);
       }
-      // if(!obj.request_amount || obj.request_amount < 0) {
-      //     return resSend(res, false, 200, "please send a valid request_amount!", null, null);
-      // }
       let reference_no = create_reference_no("DM", tokenData.vendor_code);
-
-      // obj.request_amount = 0;
-      // obj.recived_quantity = 0;
 
       payload = {
         ...obj,
@@ -62,9 +53,6 @@ const insert = async (req, res) => {
       if (!obj.reference_no || obj.reference_no == "") {
         return resSend(res, false, 200, "please send reference_no!", null, null);
       }
-      // if(!obj.recived_quantity || obj.recived_quantity < 0) {
-      //     return resSend(res, false, 200, "please send a valid recived_quantity!", null, null);
-      // }
 
       let last_data = await get_latest_activity(null, DEMAND_MANAGEMENT, obj.purchasing_doc_no, obj.reference_no);
       if (last_data) {
@@ -82,15 +70,6 @@ const insert = async (req, res) => {
       }
     }
 
-    // return;
-    //   let { q, val } =
-    //   obj.status == STATUS_RECEIVED
-    //         ? generateQuery(UPDATE, DEMAND_MANAGEMENT, payload, whereCondition)
-    //         : generateQuery(INSERT, DEMAND_MANAGEMENT, payload);
-
-    //         const response = await query({ query: q, values: val });
-    //     // return;
-
     let { q, val } = generateQuery(INSERT, DEMAND_MANAGEMENT, payload);
     const response = await query({ query: q, values: val });
     if (response) {
@@ -103,10 +82,6 @@ const insert = async (req, res) => {
       return resSend(res, false, 400, "something went wrong!", response, null);
     }
 
-    // }
-    // else {
-    //     resSend(res, false, 400, "Please upload a valid File", fileData, null);
-    // }
   } catch (error) {
     console.error(error.message);
 
@@ -128,22 +103,6 @@ const list = async (req, res) => {
     if (!req.query.poNo) {
       return resSend(res, false, 400, "Please send poNo", null, "");
     }
-    //req.query.poNo
-    // const insp_call_query =`WITH available_amount AS (
-    //     SELECT EBELN, EBELP, SUM(MENGE) AS total_amount
-    //     FROM mseg
-    //     GROUP BY EBELP
-    // ),
-    // request_amount AS (
-    //     SELECT purchasing_doc_no, line_item_no, SUM(request_amount) AS total_request_amount
-    //     FROM demande_management
-    //     GROUP BY line_item_no
-    // )
-    // SELECT ua.purchasing_doc_no, ua.line_item_no, aa.total_amount, ua.total_request_amount,tq.KTMNG AS total_target_amount
-    // FROM available_amount AS aa
-    // LEFT JOIN ekpo AS tq ON (aa.EBELN = tq.EBELN and aa.EBELP = tq.EBELP)
-    // JOIN request_amount AS ua ON (aa.EBELN = ua.purchasing_doc_no and aa.EBELP = ua.line_item_no) WHERE aa.EBELN = ?
-    // GROUP BY aa.EBELP;`;
 
     const demande_query = `SELECT * FROM demande_management WHERE purchasing_doc_no = $1`;
     const result = await query({
@@ -160,7 +119,6 @@ const list = async (req, res) => {
     console.error("[error]", error);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, "");
   }
-  //  return resSend(res, true, 200, "oded!", `list`, null);
 };
 
 const getRestAmount = async (req, res) => {
@@ -191,40 +149,14 @@ const getRestAmount = async (req, res) => {
       });
       total_amount_result = total_amount_result[0].total_amount == null ? 0 : total_amount_result[0].total_amount;
 
-      // const target_amount_query = `SELECT KTMNG AS target_amount from ekpo WHERE EBELN = ? AND EBELP = ?`;
-      // let target_amount_result = await query({ query: target_amount_query, values: [req.query.po_no, req.query.line_item_no] });
-      // target_amount_result = (target_amount_result[0].target_amount == null) ? 0 : target_amount_result[0].target_amount;
-
       let target_amount_result = get_data_result[0].target_amount ? get_data_result[0].target_amount : 0;
-      // const total_requested_amount_query = `SELECT SUM(request_amount) AS total_requested_amount from demande_management WHERE purchasing_doc_no = '${req.query.po_no}' AND line_item_no = ${req.query.line_item_no} AND status = '${SUBMITTED}'`;
-      // let total_requested_amount_result = await query({ query: total_requested_amount_query, values: [] });
-      // total_requested_amount_result = (total_requested_amount_result[0].total_requested_amount == null) ? 0 : total_requested_amount_result[0].total_requested_amount;
-
-      // const total_recived_amount_from_dm_table_query = `SELECT SUM(recived_quantity) AS total_recived_amount_from_dm_table from demande_management WHERE purchasing_doc_no = ? AND line_item_no = ? AND status = ?  `;
-      // let total_recived_amount_from_dm_table_result = await query({ query: total_recived_amount_from_dm_table_query, values: [req.query.po_no, req.query.line_item_no, STATUS_RECEIVED] });
-      // total_recived_amount_from_dm_table_result = (total_recived_amount_from_dm_table_result[0].total_recived_amount_from_dm_table == null) ? 0 : total_recived_amount_from_dm_table_result[0].total_recived_amount_from_dm_table;
-
-      // const total_recived_amount_from_dm_table_query = `SELECT demand from demande_management WHERE purchasing_doc_no = ? AND status = ?  `;
-      // let total_recived_amount_from_dm_table_result = await query({ query: total_recived_amount_from_dm_table_query, values: [req.query.po_no, STATUS_RECEIVED] });
-
-      // let recived_amount_from_dm_table = 0;
-      // total_recived_amount_from_dm_table_result.map( (item) => {
-      //     let datas = JSON.parse(item.demand);
-      //     const find_line_item_no = datas.find(({ line_item_no }) => line_item_no == req.query.line_item_no);
-      //     if(find_line_item_no) {
-
-      //         recived_amount_from_dm_table += parseInt(find_line_item_no.recived_quantity);
-      //     }
-      // });
 
       target_amount_result = parseFloat(target_amount_result).toFixed(3);
       total_amount_result = parseFloat(total_amount_result).toFixed(3);
 
-      //const rest_amount = parseInt(target_amount_result) - (parseInt(total_amount_result) + parseInt(recived_amount_from_dm_table));
       let rest_amount = target_amount_result - total_amount_result;
       rest_amount = rest_amount.toFixed(3);
 
-      // if (rest_amount) {
       const resData = get_data_result[0];
       resData.rest_amount = rest_amount;
 
@@ -262,9 +194,6 @@ const getRestAmount = async (req, res) => {
       resData.rest_amount_wdc = parseFloat(rest_amount_wdc).toFixed(3);
 
       resSend(res, true, 200, "Rest Amount fetched succesfully!", resData, null);
-      // } else {
-      //     return resSend(res, false, 200, "something went wrong!", null, null);
-      // }
     } catch (err) {
       console.error(err.message);
       resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, "");
@@ -273,13 +202,8 @@ const getRestAmount = async (req, res) => {
     }
   } catch (error) {
     console.error(error.message);
-    //return resSend(res, false, 500, "error in db conn!", error, "");
   }
 };
-
-// async function handleEmail() {
-//     // Maill trigger to QA, user dept and dealing officer upon uploading of each inspection call letters.
-// }
 
 async function handleEmail(data) {
   // Maill trigger to VENDOR.

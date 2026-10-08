@@ -93,11 +93,6 @@ const details = async (req, res) => {
                 ( a.EBELN = sub.purchasing_doc_no and sub.milestoneId = '04')
             WHERE a.EBELN = $4 AND a.MID = '04')
         `;
-    // const timeline = await poolQuery({
-    //   client,
-    //   query: timeLineQuery,
-    //   values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
-    // });
 
     const getLatest = `
         (SELECT purchasing_doc_no, status AS current_status, '01' as flag FROM sdbg WHERE purchasing_doc_no = $1 ORDER BY created_at DESC LIMIT 1)
@@ -114,12 +109,6 @@ const details = async (req, res) => {
 
         (SELECT purchasing_doc_no, status  AS current_status, '04' as flag FROM ilms WHERE purchasing_doc_no = $4 ORDER BY created_at DESC LIMIT 1)`;
 
-    // const curret_data = await poolQuery({
-    //   client,
-    //   query: getLatest,
-    //   values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
-    // });
-
     const getAcknowledgementntQry = `
         (SELECT purchasing_doc_no, status, '01' as flag, created_at as acknowledgementnt_date FROM sdbg WHERE purchasing_doc_no = $1 AND status = '${APPROVED}' ORDER BY created_at DESC LIMIT 1)
 
@@ -134,12 +123,6 @@ const details = async (req, res) => {
         UNION
 
         (SELECT purchasing_doc_no, status, '04' as flag, created_at as acknowledgementnt_date FROM ilms WHERE purchasing_doc_no = $4 AND status = '${ACCEPTED}' ORDER BY created_at DESC LIMIT 1);`;
-
-    // const acknowledgementnt_date = await poolQuery({
-    //   client,
-    //   query: getAcknowledgementntQry,
-    //   values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
-    // });
 
     const [timeline, curret_data, acknowledgementnt_date] = await Promise.all([
       poolQuery({
@@ -181,9 +164,6 @@ const details = async (req, res) => {
         return el2;
       });
     }
-    // let tableName = (result[0].BSART === 'ZDM') ? EKPO : (result[0].BSART === 'ZGSR') ? EKBE : null;
-
-    // let resDate;
 
     // TO DO
     /**
@@ -207,18 +187,7 @@ const details = async (req, res) => {
                     ON (materialMaster.MATNR = mat.MATNR)
             WHERE 1 = 1 AND mat.EBELN = $1`;
 
-    // let materialResult = await poolQuery({
-    //   client,
-    //   query: materialQuery,
-    //   values: [queryParams.id],
-    // });
-
     const materialTypeQuery = "SELECT * FROM material_type";
-    // const materialType = await poolQuery({
-    //   client,
-    //   query: materialTypeQuery,
-    //   values: [],
-    // });
 
     const [materials, materialType, currStageData, DO] = await Promise.all([
       poolQuery({ client, query: materialQuery, values: [queryParams.id] }),
@@ -234,13 +203,6 @@ const details = async (req, res) => {
       materialResult = materialResult.filter((elem) => elem.isdeleted != PO_LINE_ITEM_DELETE_FLAG);
     }
 
-    // const materialTypeQuery = "SELECT * FROM material_type";
-    // const materialType = await poolQuery({
-    //   client,
-    //   query: materialTypeQuery,
-    //   values: [],
-    // });
-
     const isMaterialTypePO = poTypeCheck(materialResult, materialType);
 
     const poType = isMaterialTypePO;
@@ -250,12 +212,7 @@ const details = async (req, res) => {
       current: "",
     };
 
-    // currentStage.current = await currentStageHandler(queryParams.id);
-    // currentStage.current = await currentStageHandleForAllActivity(client, [queryParams.id]);
-    // const currStageData = await currentStageHandleForAllActivity(client, [queryParams.id]);
     currentStage.current = currStageData ? currStageData[queryParams.id] : "";
-
-    // const DO = await doDetails(queryParams.id);
 
     result[0]["currentStage"] = currentStage;
     result[0]["poType"] = poType;
@@ -276,28 +233,8 @@ function isDO(po, user_id) {
   return po.ERNAM == user_id;
 }
 
-// async function poTypeCheck(materialData) {
-//   // const regex = /DIEN/; // USE FOR IDENTIFY SERVICE PO as discuss with Preetham
-//   const regex = /ZDIN/;   // NOT USE FOR IDENTIFY SERVICE PO
-//   // regex.test(materialType);
-//   let isMatched = true;
-
-//   const materialTypeQuery = "SELECT * FROM material_type";
-//   const result = await query({query:  materialTypeQuery, values: []});
-
-//   for (let i = 0; i < materialData.length; i++) {
-//     isMatched = regex.test(materialData[i]?.MTART);
-//     if (isMatched === false) break;
-//   }
-
-//   return isMatched;
-// }
-
 // eslint-disable-next-line no-unused-vars
 function poTypeCheck(materialData, materialType) {
-  // const types = materialData.map((mat) => mat.MTART);
-  // const service = new Set(materialType.filter((el) => el.material_type === SERVICE_TYPE).map((e) => e.material_type_value));
-  // const material = new Set(materialType.filter((el) => el.material_type === MATERIAL_TYPE).map((e) => e.material_type_value));
 
   let isService = false;
   let isMaterial = false;
@@ -316,26 +253,6 @@ function poTypeCheck(materialData, materialType) {
     }
   }
 
-  // const isService = types.every(type => service.has(type));
-  // const isMaterial = types.every(type => material.has(type));
-  // let isService = false;
-  // let isMaterial = false;
-
-  // for (const type of types) {
-  //   if (service.has(type)) {
-  //     isService = true;
-  //     break;
-  //   }
-  // }
-
-  // for (const type of types) {
-  //   if (type && !service.has(type)) {
-  //     isMaterial = true;
-  //     break;
-  //   }
-  // }
-  // // types.every(type => material.includes(type));
-
   if (isService && !isMaterial) {
     return "service";
   } else if (isMaterial && !isService) {
@@ -348,7 +265,6 @@ function poTypeCheck(materialData, materialType) {
 }
 
 const download = async (req, res) => {
-  // const queryParams = req.query;
 
   const typeArr = ["drawing", "sdbg", "qap"];
 
@@ -482,26 +398,8 @@ const poList = async (req, res) => {
     let poArr = poDetails.map((el) => el?.EBELN || el?.ebeln || el?.purchasing_doc_no || el?.poNb);
     poArr = [...new Set(poArr)];
 
-    // Execute Count Query with its own values
-    // const poCountData = await poolQuery({ client, query: CountQuery, values: countValues });
-
-    // const poCount = parseInt(poCountData[0]?.total_count || 0);
-    // const poCountData = await poolQuery({ client, query: CountQuery, values: countValues });
-
-    // const contractualDates = await getActualAndCurrentDetails(client, poArr);
-    // const currentActivity = await currentStageHandleForAllActivity(client, poArr);
-    // const materialTypeQuery = "SELECT * FROM material_type";
-    // const materialType = await poolQuery({ client, query: materialTypeQuery, values: [] });
     const materialTypeQuery = "SELECT * FROM material_type";
 
-    // const [contractualDates, currentActivity, materialType, poCountData] = await Promise.all(
-    //   [
-    //     getActualAndCurrentDetails(client, poArr),
-    //     currentStageHandleForAllActivity(client, poArr),
-    //     poolQuery({ client, query: materialTypeQuery, values: [] }),
-    //     poolQuery({ client, query: CountQuery, values: countValues })
-    //   ]
-    // )
     const contractualDates = await getActualAndCurrentDetails(client, poArr);
     const currentActivity = await currentStageHandleForAllActivity(client, poArr);
     const materialType = await poolQuery({
@@ -596,7 +494,6 @@ function poListByEkko(tokenData, search, po, vendor_type, pageNo, limit, values)
   }
 
   selectedItem += conditionQuery;
-  // const orderBy = " ORDER BY EKKO.AEDAT, EKKO.EBELN DESC";
   const orderBy = " ORDER BY EKKO.AEDAT DESC";
   selectedItem += orderBy;
 
@@ -768,7 +665,6 @@ const poListQuery = (tokenData, searchValue, po, vendor_type, pageNo, pageSize, 
         countValues.push(...tempValues);
 
         CountQuery = poListCountForOtherUser(tempQuery);
-        // tempQuery += orderByPo; // ordering handled in main function
         Query = poListForOtherUser(tempQuery, searchValue, po, pageNo, pageSize, queryValues);
       }
       break;

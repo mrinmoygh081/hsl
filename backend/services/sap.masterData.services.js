@@ -1,4 +1,3 @@
-// const { getEpochTime, formatDate, formatTime } = require("../lib/utils");
 
 /*
  * Modify lifnrPayload payload object to insert data
@@ -28,7 +27,6 @@ const lfa1Payload = async (payload) => {
   return pl;
 };
 
-
 const addUserPayload = async (obj) => {
   if (!obj || !Array.isArray(obj) || !obj.length) {
     throw new Error("Please send valid payload");
@@ -42,7 +40,5 @@ const addUserPayload = async (obj) => {
   }));
   return pl;
 };
-
-
 
 module.exports = { lfa1Payload, addUserPayload };

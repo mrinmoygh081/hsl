@@ -42,21 +42,8 @@ const MRSSub = () => {
     getData();
   }, [id, token]);
 
-  // const optionss = [
-  //   {
-  //     file_type_name: "Upload MRS",
-  //   },
-  //   {
-  //     file_type_name: "Remarks",
-  //   },
-  //   {
-  //     file_type_name: "Others",
-  //   },
-  // ];
-
   const submitHandler = async (flag) => {
     try {
-      // if (selectedActionTypeName !== "") {
       if (formData?.mrsFile) {
         const formDataToSend = new FormData();
         formDataToSend.append("purchasing_doc_no", id);
@@ -90,9 +77,6 @@ const MRSSub = () => {
       } else {
         toast.warn("Please choose a valid file!");
       }
-      // } else {
-      //   toast.warn("Please choose action type!");
-      // }
     } catch (error) {
       toast.error("Error uploading MRS:", error);
     }
@@ -132,7 +116,6 @@ const MRSSub = () => {
                                   <th>MRS File</th>
                                   <th>Action By</th>
                                   <th className="min-w-150px">Remarks</th>
-                                  {/* <th>Status</th> */}
                                 </tr>
                               </thead>
                               <tbody style={{ maxHeight: "100%" }}>
@@ -158,7 +141,6 @@ const MRSSub = () => {
                                         {item?.created_by_id}
                                       </td>
                                       <td className="">{item?.remarks}</td>
-                                      {/* <td className="">{item?.status}</td> */}
                                     </tr>
                                   ))}
                               </tbody>
@@ -193,21 +175,6 @@ const MRSSub = () => {
             <form>
               <div className="row">
                 <div className="col-12">
-                  {/* <div className="my-3">
-                    <select
-                      className="form-select"
-                      onChange={(e) => {
-                        setSelectedActionTypeName(e.target.value);
-                      }}
-                    >
-                      <option value="">Choose Action Type</option>
-                      {optionss.map((option, i) => (
-                        <option key={i} value={option.file_type_name}>
-                          {option.file_type_name}
-                        </option>
-                      ))}
-                    </select>
-                  </div> */}
                   <div className="mb-3">
                     <label className="form-label d-flex align-items-center gap-2">
                       MRS File <span className="red">*</span>
@@ -250,21 +217,6 @@ const MRSSub = () => {
                       SUBMIT
                     </button>
 
-                    {/* {userType !== 1 && (
-                      <button
-                        onClick={() =>
-                          reConfirm(
-                            { file: true },
-                            () => submitHandler("ACKNOWLEDGED"),
-                            "You're approving the MRS. Please confirm!"
-                          )
-                        }
-                        className="btn fw-bold btn-success"
-                        type="button"
-                      >
-                        ACKNOWLEDGE
-                      </button>
-                    )} */}
                   </div>
                 </div>
               </div>

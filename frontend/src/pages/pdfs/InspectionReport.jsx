@@ -7,14 +7,11 @@ import { checkTypeArr } from "../../utils/smallFun";
 function InspectionReport() {
   const location = useLocation();
   const [apiData, setApiData] = useState([]);
-  // const [payloadData , setPayloadData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { token } = useSelector((state) => state.auth);
   const searchParams = new URLSearchParams(location.search);
 
   const poNumber = searchParams.get("po");
-
-  // console.log("payload iss--", location.state)
 
   const currentDate = new Date().toLocaleDateString();
   const currentTime = new Date().toLocaleTimeString([], {
@@ -26,7 +23,6 @@ function InspectionReport() {
     window.print();
   };
 
-  // let payloadData = location.state;
   const { payload } = useParams();
   const payloadData = JSON.parse(payload);
   console.log("payload iss params--", payloadData);
@@ -96,12 +92,8 @@ function InspectionReport() {
                   <tr>
                     <td>Doc Date</td>
                     <td className="text-start">:</td>
-                    {/* <td>{apiData?.docdate}</td> */}
                     <td>
                       {" "}
-                      {/* {apiData?.docdate
-                        ? new Date(apiData?.docdate).toLocaleDateString()
-                        : ""} */}
                       {apiData.docdate &&
                         new Date(apiData.docdate).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -135,14 +127,8 @@ function InspectionReport() {
                   <tr>
                     <td>Purchase Order Date</td>
                     <td>:</td>
-                    {/* <td>{apiData?.purchasing_doc_date}</td> */}
                     <td>
                       {" "}
-                      {/* {apiData?.purchasing_doc_date
-                        ? new Date(
-                            apiData?.purchasing_doc_date
-                          ).toLocaleDateString()
-                        : ""} */}
                       {apiData.purchasing_doc_date &&
                         new Date(apiData.purchasing_doc_date).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -154,18 +140,13 @@ function InspectionReport() {
                   <tr>
                     <td>Gate Entry Number</td>
                     <td>:</td>
-                    {/* <td>{apiData?.purchasing_doc_date}</td> */}
                     <td> {apiData?.gateEntryNo}</td>
                   </tr>
                   <tr>
                     <td>Gate Entry Date</td>
                     <td>:</td>
-                    {/* <td>{apiData?.purchasing_doc_date}</td> */}
                     <td>
                       {" "}
-                      {/* {apiData?.gateEntryDate
-                        ? new Date(apiData?.gateEntryDate).toLocaleDateString()
-                        : ""} */}
                       {apiData.gateEntryDate &&
                         new Date(apiData.gateEntryDate).toLocaleDateString("en-GB", {
                           day: "2-digit",
@@ -242,18 +223,6 @@ function InspectionReport() {
             )}
           </table>
 
-          {/* <div className="col-12">
-            <h6 className="m-0">Remarks</h6>
-            {checkTypeArr(apiData?.lineItems) &&
-              apiData?.lineItems.map((itemm, index) => (
-                <p
-                  className="m-0 w-75"
-                  style={{ wordWrap: "break-word", fontSize: "14px" }}
-                >
-                  {itemm?.remarks}
-                </p>
-              ))}
-          </div> */}
         </div>
         <div className="col-12 text-center">
           <Link className="no_print btn-primary btn" to={`/display-store-actions/${poNumber}`}>
@@ -276,7 +245,6 @@ function InspectionReport() {
       <div className="date_time_container" style={{ position: "fixed", top: 0, right: 0, fontSize: "10px" }}>
         <p className="m-0 p-0">Date: {currentDate}</p>
         <p className="m-0 p-0">Time: {currentTime}</p>
-        {/* <p className="m-0 p-0">page 1/2</p> */}
       </div>
     </div>
   );

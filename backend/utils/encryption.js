@@ -1,7 +1,5 @@
 /* eslint-disable no-undef */
-// utils/encryption.js
 const CryptoJS = require("crypto-js");
-
 
 const SECRET_KEY = process.env.PWD_ENCRYPTION_KEY || 'your-secret-key-here-32-chars-long';
 

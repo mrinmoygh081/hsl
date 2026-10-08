@@ -141,9 +141,6 @@ const ManageVendorActivities = () => {
                                       inspectioncall.map((inspection) => (
                                         <tr key={inspection.id}>
                                           <td className="table_center">
-                                            {/* {moment(inspection.created_at)
-                                          .utc()
-                                          .format("DD/MM/YY (HH:mm)")} */}
                                             {inspection.created_at &&
                                               formatDate(inspection.created_at)}
                                           </td>
@@ -286,13 +283,6 @@ const ManageVendorActivities = () => {
                 </div>
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    {/* <button
-                      onClick={() => actionHandler("SUBMITTED")}
-                      className="btn fw-bold btn-primary"
-                      type="button"
-                    >
-                      SUBMIT
-                    </button> */}
                     <DynamicButton
                       label="SUBMIT"
                       onClick={() => actionHandler("SUBMITTED")}

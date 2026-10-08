@@ -62,17 +62,6 @@ export const groupedByActiontype = (data) => {
   }, {});
 };
 
-// export const groupByDocumentType = (data) => {
-//   return data.reduce((result, item) => {
-//     const byType = item.documentType;
-//     if (!result[byType]) {
-//       result[byType] = [];
-//     }
-//     result[byType].push(item);
-//     return result;
-//   }, {});
-// };
-// same function
 export const groupByDocumentType = (data) => {
   return data.reduce((result, item) => {
     const byType = item.documentType;

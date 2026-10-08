@@ -1,5 +1,4 @@
 const { RESERVATION_RKPF_TABLE, RESERVATION_RESB_TABLE, SERVICE_ENTRY_TABLE_SAP, SERVICE_ENTRY_ESLL_TABLE_SAP } = require("../../lib/tableName");
-// const { connection, query } = require("../../config/dbConfig");
 const { responseSend, resSend } = require("../../lib/resSend");
 const { generateInsertUpdateQuery, generateQueryForMultipleData } = require("../../lib/utils");
 const { reservationLineItemPayload, reservationHeaderPayload, serviceEntryPayload, serviceEntryLineItemPayload } = require("../../services/sap.user.services");
@@ -27,7 +26,6 @@ const reservation = async (req, res) => {
       if (!obj || typeof obj !== "object" || !Object.keys(obj).length || !obj.RSNUM) {
         return responseSend(res, "F", 400, Message.INVALID_PAYLOAD, payload, null);
       }
-      // await client.beginTransaction();
 
       await client.query("BEGIN");
 
@@ -68,7 +66,6 @@ const reservation = async (req, res) => {
 
       await client.query("COMMIT");
 
-      // const comm = await client.commit(); // Commit the transaction if everything was successful
       transactionSuccessful = true;
     } catch (error) {
       responseSend(res, "F", 502, Message.DATA_INSERT_FAILED, error.message, null);
@@ -90,9 +87,7 @@ const serviceEntry = async (req, res) => {
   let payload = [];
 
   try {
-    // const promiseConnection = await connection();
     const client = await poolClient();
-    // let transactionSuccessful = false;
 
     if (Array.isArray(req.body)) {
       payload = req.body;
@@ -101,7 +96,6 @@ const serviceEntry = async (req, res) => {
     }
 
     try {
-      // await client.beginTransaction();
 
       const essrPayload = await serviceEntryPayload(payload);
 
@@ -114,8 +108,6 @@ const serviceEntry = async (req, res) => {
       const essrTableInsert = await generateQueryForMultipleData(essrPayload, SERVICE_ENTRY_TABLE_SAP, ["lblni"]);
       const response = await poolQuery({ client, query: essrTableInsert.q, values: essrTableInsert.val });
       responseSend(res, "S", 200, Message.DATA_SEND_SUCCESSFULL, response, null);
-      // Commit the transaction if everything was successful
-      // transactionSuccessful = true;
     } catch (error) {
       responseSend(res, "F", 502, Message.DATA_INSERT_FAILED, error.message, null);
     } finally {
@@ -130,9 +122,7 @@ const serviceEntryLineItem = async (req, res) => {
   let payload = [];
 
   try {
-    // const promiseConnection = await connection();
     const client = await poolClient();
-    // let transactionSuccessful = false;
 
     if (Array.isArray(req.body)) {
       payload = req.body;
@@ -142,12 +132,6 @@ const serviceEntryLineItem = async (req, res) => {
 
     try {
       const elssPayload = await serviceEntryLineItemPayload(payload);
-
-      // CHECKING THE PO/DATA IS NOT PART OF OBPS PROJECT
-      // const isPresent = await isPresentInObps(client, `ebeln = '${essrPayload[0]?.ebeln}'`).count();
-      // if (!isPresent) {
-      //   return responseSend(res, "S", 200, Message.NON_OBPS_DATA, 'NON OBPS PO/data.', null);
-      // }
 
       const esllTableInsert = await generateQueryForMultipleData(elssPayload, SERVICE_ENTRY_ESLL_TABLE_SAP, ["packno", "introw"]);
 
@@ -205,11 +189,6 @@ const reservationList = async (req, res) => {
     WHERE 1 = 1 `;
 
     let val = [];
-
-    // if (req.body.RSNUM) {
-    //     q = q.concat(" AND rkpf.RSNUM = ?");
-    //     val.push(req.body.RSNUM);
-    // }
 
     if (!req.body.reservationNumber) {
       return resSend(res, false, 200, "plese send reservationNumber", [], null);

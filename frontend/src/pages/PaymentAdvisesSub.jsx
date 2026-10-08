@@ -72,29 +72,6 @@ const PaymentAdvisesSub = () => {
                                   <td>Payment Advice</td>
                                   <td>Mrinmoy Ghosh</td>
                                 </tr>
-                                {/* {paymentAdvisesData.map(
-                                  (paymentItem, index) => (
-                                    <tr key={index}>
-                                      <td className="table_center">
-                                        {moment(paymentItem.created_at)
-                                          .utc()
-                                          .format("YYYY-MM-DD")}
-                                      </td>
-                                      <td>
-                                        <a
-                                          href={`${process.env.REACT_APP_BACKEND_API}po/download?id=${paymentItem.id}&type=qap`}
-                                          target="_blank"
-                                          rel="noreferrer"
-                                        >
-                                          Check File
-                                        </a>
-                                      </td>
-                                      <td>{paymentItem.document_type}</td>
-                                      <td>{paymentItem.id}</td>
-                                      <td>{paymentItem.updated_by}</td>
-                                    </tr>
-                                  )
-                                )} */}
                               </tbody>
                             </table>
                           </div>

@@ -76,14 +76,6 @@ const WDCattach = () => {
     },
   ];
 
-  // const formDataSecondSection = [
-  //   { label: "Date:", name: "date" },
-  //   {
-  //     label: "Schedule Completion / Actual Date of Completion:",
-  //     name: "scheduleCompletion",
-  //   },
-  // ];
-
   return (
     <>
       <div className="d-flex flex-column flex-root">
@@ -167,32 +159,6 @@ const WDCattach = () => {
                   </div>
 
                   <div className="row">
-                    {/* <div className="col-12 col-md-6">
-                      <div className="left_content">
-                        <p>
-                          _________________________________________________________________
-                          <br /> (Signature of authorised Rep. of Vendor) Vendor
-                          <br />
-                          Name of Rep.
-                          :________________________________________________
-                        </p>
-                      </div>
-                    </div> */}
-                    {/* <div className="col-12 col-md-6">
-                      <div className="right_content">
-                        <p>
-                          ______________________________________________
-                          <br />
-                          (Signature of HSL Rep.)
-                          <br />
-                          Name :___________________________________
-                          <br />
-                          Designation :_____________________________
-                          <br />
-                          Shop No : ________________________________
-                        </p>
-                      </div>
-                    </div> */}
                   </div>
                 </div>
               </div>
