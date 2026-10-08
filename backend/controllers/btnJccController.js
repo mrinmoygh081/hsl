@@ -14,15 +14,12 @@ const { getVendorDetails } = require("../utils/btnUtils");
 const Message = require("../utils/messages");
 const { btnCurrentDetailsCheck } = require("./btnControllers");
 
-
 // api start //
 const initJccData = async (client, payload) => {
-
 
     try {
         const { poNo } = payload;
         if (!poNo) {
-            // return resSend(res, false, 200, "Please send PO No", Message.MANDATORY_INPUTS_REQUIRED, null);
             return { success: false, statusCode: 200, message: "Please send PO No", data: null };
 
         }
@@ -36,8 +33,6 @@ const initJccData = async (client, payload) => {
         }
 
         return { success: true, statusCode: 200, message: Message.DATA_FETCH_SUCCESSFULL, data: initialResponseData };
-
-        // resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result[0] || {}, "")
 
     } catch (error) {
         console.error("err", error);
@@ -54,7 +49,6 @@ const submitJccBtn = async (req, res) => {
         const filesPaylaod = req.files;
         const tempPayload = req.body;
         const tokenData = req.tokenData;
-
 
         // Check required fields
         if (!tempPayload.net_claim_amount) {
@@ -76,11 +70,9 @@ const submitJccBtn = async (req, res) => {
 
         let check_invoice = await poolQuery({ client, query: check_invoice_q, values: [tokenData.vendor_code, tempPayload.jcc_number] });
 
-
         if (check_invoice && check_invoice[0].count > 0) {
             return resSend(res, false, 200, "BTN is already created under the invoice number/jcc.", null, null);
         }
-
 
         /**
          * FILE PAYLOADS AND FILE VALIDATION
@@ -131,7 +123,6 @@ const submitJccBtn = async (req, res) => {
     }
 };
 
-
 const getJccBtnData = async (req, res) => {
     let client;
     try {
@@ -181,7 +172,6 @@ const getJccBtnData = async (req, res) => {
 
 }
 
-
 const getJcc = async (client, data) => {
 
     const { purchasing_doc_no, reference_no, type } = data;
@@ -201,11 +191,9 @@ const getJcc = async (client, data) => {
         const wdcList = await poolQuery({ client, query: wdcListQuery, values: val });
         return { success: true, statusCode: 200, message: Message.DATA_FETCH_SUCCESSFULL, data: wdcList };
 
-        // return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, wdcList, null);
     }
 
     if (!reference_no) {
-        // return resSend(res, false, 400, Message.MANDATORY_PARAMETR_MISSING, "Reference_no missing", null);
         return { success: false, statusCode: 400, message: "Reference_no missing", data: [] };
 
     }
@@ -223,16 +211,13 @@ const getJcc = async (client, data) => {
     let result = await poolQuery({ client, query: q, values: [reference_no, APPROVED, 'JCC'] });
 
     if (!result.length) {
-        // return resSend(res, false, 200, "JCC not approved yet.", [], null);
         return { success: false, statusCode: 200, message: "JCC not approved yet.", data: [] };
 
     }
 
-    // resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, null);
     return { success: true, statusCode: 200, message: Message.DATA_FETCH_SUCCESSFULL, data: result[0] };
 
 };
-
 
 const jccBtnforwordToFinace = async (req, res) => {
 
@@ -262,15 +247,6 @@ const jccBtnforwordToFinace = async (req, res) => {
         if (!payload.recomend_payment || !payload.assign_to || !payload.purchasing_doc_no) {
             return resSend(res, false, 400, Message.MANDATORY_PARAMETR_MISSING, "Entry_no or net_payable_amount assign_to missing", null);
         }
-        // const btnChkQuery = `SELECT COUNT(*) from btn_jcc WHERE btn_num = $1 AND bill_certifing_authority = $2`;
-        // const validAuthrityCheck = await poolQuery({ client, query: btnChkQuery, values: [payload.btn_num, tokenData.vendor_code] });
-        // if (!parseInt(validAuthrityCheck[0]?.count)) {
-        //     return resSend(res, false, 200, "You are not authorised!", Message.YOU_ARE_UN_AUTHORIZED, null);
-        // }
-
-
-
-
 
         //  BTN FINANCE AUTHORITY DATA INSERT
         payload.created_by_id = tokenData.vendor_code;
@@ -286,7 +262,6 @@ const jccBtnforwordToFinace = async (req, res) => {
         // ADDING TO BTN LIST WITH CURRENT STATUS
         const latesBtnData = await getLatestBTN(client, payload);
         await addToBTNListFn(client, { ...latesBtnData, ...payload, assign_by: tokenData.vendor_code }, SUBMITTED_BY_CAUTHORITY);
-        // const sendSap = true; //await jccBtnSubmitToSAPF01({ btn_num, purchasing_doc_no, assign_to }, tokenData);
         const sendSap = await jccBtnSubmitToSAPF01(payload, tokenData);
 
         if (sendSap == false) {
@@ -309,25 +284,19 @@ const jccBtnforwordToFinace = async (req, res) => {
 
 }
 
-
 async function btnReject(data, tokenData, client) {
-    // const obj = { btn_num: data.btn_num };
 
     await updateServiceBtnListTable(client, data, tokenData);
 
-    // const sendSap = true; // await jccBtnSubmitToSAPF01({ ...data, assign_to: null }, tokenData);
     const sendSap = await jccBtnSubmitToSAPF01({ ...data, assign_to: null }, tokenData);
 
     if (sendSap == false) {
         throw new Error("SAP not connected.");
     } else if (sendSap == true) {
         serviceBtnMailSend(tokenData, data, BTN_REJECT);
-        // resSend(res, true, 200, "Finance Staff has been assigned!", null, null);
     }
     return { btn_num: data.btn_num };
 }
-
-
 
 module.exports = {
     submitJccBtn,

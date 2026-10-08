@@ -21,10 +21,8 @@ function GoodsIssueSlip() {
     window.print();
   };
 
-  // let payloadData = location.state;
   const { payload } = useParams();
   const payloadData = JSON.parse(payload);
-  // console.log("payloadData",payloadData)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -92,7 +90,6 @@ function GoodsIssueSlip() {
               <tr>
                 <td>Issue Date</td>
                 <td className="text-start">:</td>
-                {/* <td>{apiData.issuDate}</td> */}
                 <td>
                   {" "}
                   {apiData.issuDate &&
@@ -196,7 +193,6 @@ function GoodsIssueSlip() {
       <div className="date_time_container" style={{ position: "fixed", top: 0, right: 0, fontSize: "10px" }}>
         <p className="m-0 p-0">Date: {currentDate}</p>
         <p className="m-0 p-0">Time: {currentTime}</p>
-        {/* <p className="m-0 p-0">page 1/2</p> */}
       </div>
     </div>
   );

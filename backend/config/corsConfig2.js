@@ -21,11 +21,7 @@ function getEnvCorsConfig() {
 
     production: {
       origins: [
-        "http://10.18.1.242:3000", // LAN Host IP
-        "https://obps.grse.co.in", // LAN Host URL
-        "https://obps.grse.in", // Frontend Host URL
         "http://10.181.1.53:8018", // SAP Host IP
-        "https://stageobps.grse.in", // STAGE OBPS Host
         "http://localhost:3000", // LOCAL HOST
         "http://172.16.5.182:3000",
         "http://43.204.173.109:3001",
@@ -43,28 +39,22 @@ function getEnvCorsConfig() {
  */
 function corsOriginValidator(origin, callback) {
   const envConfig = getEnvCorsConfig();
-  // console.log("envConfig production", envConfig)
 
   // Case: No Origin (curl, Postman, mobile apps, backend → backend)
   if (!origin) {
-    // logOrigin(origin, "ALLOWED (No Origin Sent)");
     return callback(null, true);
   }
 
   // Wildcard (dev): allow any origin
   if (envConfig.origins === "*") {
-    // logOrigin(origin, "ALLOWED (Wildcard)");
     return callback(null, true);
   }
 
   // Check whitelist
   if (envConfig.origins.includes(origin)) {
-    // logOrigin(origin, "ALLOWED");
     return callback(null, true);
   }
 
-  // Not allowed
-  // logOrigin(origin, "BLOCKED");
   return callback(new Error(`CORS Error: Origin ${origin} not allowed`), false);
 }
 

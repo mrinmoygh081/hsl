@@ -10,7 +10,6 @@ const MAIL_SEND_MAIL_ID = process.env.MAIL_SEND_MAIL_ID
 // eslint-disable-next-line no-undef
 const OTP_MAX_VALIDITY = process.env.OTP_MAX_VALIDITY
 
-
 // --- OTP HELPER FUNCTIONS ---
 const verifyOtpFromDb = async (client, userCode, otpInput) => {
   // 1. Fetch the latest PENDING OTP for this user
@@ -29,13 +28,10 @@ const verifyOtpFromDb = async (client, userCode, otpInput) => {
 
   const record = rows[0];
 
-
   // 2. Check Matching Code
   if (record.otp !== otpInput) {
     return { valid: false, message: "Invalid OTP" };
   }
-
-
 
   // 3. Check Expiry (e.g., 5 Minutes = 300,000 ms)
   const timeDiff = parseInt(BigInt(Date.now()) - BigInt(record.created_at)); // Convert DB bigint to number if needed
@@ -136,15 +132,10 @@ const resetAttempts = async (client, vendor_code) => {
     const deleteQ = `DELETE FROM auth_login_attempts WHERE vendor_code = $1`;
     await poolQuery({ client, query: deleteQ, values: [vendor_code] });
 
-    // OR if you prefer to keep the row:
-    // const resetQ = `UPDATE auth_login_attempts SET attempt_count = 0, is_locked = 0, lock_time = NULL WHERE vendor_code = $1`;
-    // await poolQuery({ client, query: resetQ, values: [vendor_code] });
   } catch (error) {
     console.error("Error in resetAttempts:", error);
   }
 };
-
-
 
 /**
  * Utility: check if account is locked
@@ -172,7 +163,6 @@ async function isAccountLocked(client, vendorCode) {
   return now < lockExpiry;
 }
 
-
 // --- OTP SERVICE / HELPER FUNCTIONS ---
 
 const generateOtpCode = () => {
@@ -197,8 +187,6 @@ const saveOtpToDb = async (client, userCode, userType, otp, actionType = 'LOGIN'
 };
 
 const sendOtpEmail = async (email, otp) => {
-  // console.log(`📧 Sending OTP ${otp} to ${email}`);
-  // await sendOtpMail(email, otp); 
   let mailOptions = {
     to: email,
     from: MAIL_SEND_MAIL_ID,
@@ -206,19 +194,13 @@ const sendOtpEmail = async (email, otp) => {
     html: EMAIL_TEMPLAE(`Your One Time Password(OTP) to login in OBPS is : ${otp}. Valid for ${OTP_MAX_VALIDITY} seconds, Do not share it with anyone.`),
   };
 
-  // console.log("ootpotpotpotpotptp", otp,"to", email);
-  // const mail_response = await SENDMAIL(mailOptions);
-  // console.log("mail_response", mail_response)
   if (SERVER_ENV === LAN_SERVER) {
     // eslint-disable-next-line no-unused-vars
     const mail_response = await SENDMAIL(mailOptions);
-    // console.log("mail_response", mailOptions.to, mail_response);
 
   } else if (SERVER_ENV === NIC_SERVER) {
     // eslint-disable-next-line no-unused-vars
     const mail_response = await SENDMAILFROMNIC(MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html);
-
-    // console.log("mail_response", mailOptions.to, mail_response);
 
   }
 
@@ -233,13 +215,9 @@ const processAndSendOtp = async (client, vendor_code, user_type, email, action_t
   // 2. Save
   await saveOtpToDb(client, vendor_code, user_type, otp, action_type);
 
-  // 3. Send
-  // await sendOtpEmail(email, otp);
-
   sendOtpEmail(email, otp).catch(error => {
     console.error(`[sendOtpEmail ERROR] Failed to send OTP to ${email}:`, error.message);
   });
-
 
   return otp; // Return it just in case the controller needs it for logging
 };

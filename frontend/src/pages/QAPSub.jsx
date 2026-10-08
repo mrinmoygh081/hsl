@@ -35,7 +35,7 @@ const QAPSub = () => {
   const initialFormData = {
     reference_no: null,
     action_type: "",
-    QapFile: null, // { file_name, file_path }
+    QapFile: null,
     remarks: "",
     supporting_doc: [], // [ { file_name, file_path }, ... ]
     assign_to: "",
@@ -62,7 +62,7 @@ const QAPSub = () => {
         let options =
           res?.data &&
           res.data.map((item) => ({
-            value: item.emp_id,
+            value: String(item.emp_id).trim(),
             label: `${item.cname} (${item.emp_id})`,
           }));
         setEmpOption(options || []);
@@ -71,6 +71,34 @@ const QAPSub = () => {
       console.error("Error fetching drawing assignee list:", error);
     }
   };
+
+  const getAssignedOfficerForRef = (refNo) => {
+    if (!refNo || !allQap || allQap.length === 0) return "";
+    const refItems = allQap.filter((item) => item.reference_no === refNo);
+    if (!refItems || refItems.length === 0) return "";
+
+    const vendorSubmitted = refItems.find(
+      (it) => (it.assigned_to || it.assign_to) && (it.updated_by === "VENDOR" || it.created_by_id?.length === 10)
+    );
+    if (vendorSubmitted) {
+      return String(vendorSubmitted.assigned_to || vendorSubmitted.assign_to).trim();
+    }
+
+    const anyItemWithAssignee = refItems.slice().reverse().find((it) => it.assigned_to || it.assign_to);
+    if (anyItemWithAssignee) {
+      return String(anyItemWithAssignee.assigned_to || anyItemWithAssignee.assign_to).trim();
+    }
+
+    const overallAssigned = allQap.slice().reverse().find((it) => it.assigned_to || it.assign_to);
+    return overallAssigned ? String(overallAssigned.assigned_to || overallAssigned.assign_to).trim() : "";
+  };
+
+  const displayOptions = useMemo(() => {
+    if (formData?.assign_to && !empOption.some((opt) => String(opt.value).trim() === String(formData.assign_to).trim())) {
+      return [{ value: String(formData.assign_to).trim(), label: `Officer (${formData.assign_to})` }, ...empOption];
+    }
+    return empOption;
+  }, [empOption, formData?.assign_to]);
 
   const groupedData = useMemo(() => {
     return allQap.length > 0 ? groupedByRefNo(allQap) : {};
@@ -131,6 +159,7 @@ const QAPSub = () => {
   const fetchSavedQap = async () => {
     try {
       const res = await apiCallBack("GET", `po/getQapSave?reference_no=${formData.reference_no}`, null, token);
+      const defaultOfficer = getAssignedOfficerForRef(formData.reference_no);
       if (res?.status && res.data?.length > 0) {
         const { remarks, action_type, QapFile, supporting_doc, assign_to, assigned_to } = res.data[0];
         let parsedQapFile = null;
@@ -145,7 +174,7 @@ const QAPSub = () => {
           ...prev,
           remarks: remarks || "",
           action_type: action_type || "",
-          assign_to: assign_to || assigned_to || prev.assign_to || "",
+          assign_to: assign_to || assigned_to || defaultOfficer || prev.assign_to || "",
           QapFile: parsedQapFile,
           supporting_doc: supporting_doc
             ? JSON.parse(supporting_doc).map((doc) => ({
@@ -156,15 +185,22 @@ const QAPSub = () => {
         }));
       } else {
         setFormData((prev) => ({
-          ...initialFormData,
-          reference_no: prev.reference_no,
+          ...prev,
+          remarks: "",
+          action_type: "",
+          QapFile: null,
+          supporting_doc: [],
+          assign_to: defaultOfficer || prev.assign_to || "",
         }));
       }
     } catch (error) {
-      toast.error("Error fetching saved QAP data");
       setFormData((prev) => ({
-        ...initialFormData,
-        reference_no: prev.reference_no,
+        ...prev,
+        remarks: "",
+        action_type: "",
+        QapFile: null,
+        supporting_doc: [],
+        assign_to: getAssignedOfficerForRef(prev.reference_no) || prev.assign_to || "",
       }));
     }
   };
@@ -297,8 +333,9 @@ const QAPSub = () => {
       return;
     }
 
-    if (userType === USER_VENDOR && !reference_no && !assign_to) {
-      toast.warn("Please select an Assign Officer!");
+    const isUploadAction = action_type?.toLowerCase() === "upload qap file";
+    if (isUploadAction && !QapFile) {
+      toast.warn("Please upload QAP file!");
       return;
     }
 
@@ -356,6 +393,12 @@ const QAPSub = () => {
     }
     if (!remarks.trim()) {
       toast.warn("Remarks are mandatory!");
+      return;
+    }
+
+    const isUploadAction = action_type?.toLowerCase() === "upload qap file";
+    if (isUploadAction && !QapFile) {
+      toast.warn("Please upload QAP file!");
       return;
     }
 
@@ -463,6 +506,8 @@ const QAPSub = () => {
     if (formData.reference_no) fetchSavedQap();
   }, [formData.reference_no]);
 
+  const isUploadAction = formData.action_type?.toLowerCase() === "upload qap file";
+
   return (
     <div className="d-flex flex-column flex-root">
       <div className="page d-flex flex-row flex-column-fluid">
@@ -543,12 +588,12 @@ const QAPSub = () => {
                                             <DynamicButton
                                               label="ACTION"
                                               onClick={() => {
-                                                const lastAssignedItem = items.slice().reverse().find((item) => item.assigned_to);
+                                                const vendorOfficer = getAssignedOfficerForRef(refNo);
                                                 setIsPopup(true);
                                                 setFormData((prev) => ({
                                                   ...prev,
                                                   reference_no: refNo,
-                                                  assign_to: lastAssignedItem?.assigned_to || "",
+                                                  assign_to: vendorOfficer || "",
                                                 }));
                                               }}
                                               className="btn btn-sm fw-bold btn-primary"
@@ -574,7 +619,6 @@ const QAPSub = () => {
                                               ? JSON.parse(qap.supporting_doc).map((doc, docIdx) => (
                                                   <div key={docIdx}>
                                                     <a href={formatFilePath(doc.file_path)} target="_blank" rel="noreferrer">
-                                                      {/* {doc.file_name} */}
                                                       View File
                                                     </a>
                                                   </div>
@@ -609,7 +653,7 @@ const QAPSub = () => {
       </div>
 
       {isQapHandler && (
-        <div className={isPopup ? "popup active" : "popup"} aria-hidden={!isPopup}>
+        <div className={isPopup ? "popup active" : "popup"} style={{ maxWidth: "850px", width: "min(850px, 92%)" }} aria-hidden={!isPopup}>
           <div className="card card-xxl-stretch mb-5 mb-xl-8">
             <div className="card-header border-0 pt-5">
               <h3 className="card-title align-items-start flex-column">
@@ -619,138 +663,148 @@ const QAPSub = () => {
             </div>
             <form aria-label="QAP Submission Form">
               <div className="row">
-                <div className="col-12">
-                  <div className="my-3">
-                    <label htmlFor="action_type" className="form-label">
-                      Action Type <span className="text-danger">*</span>
-                    </label>
-                    <select
-                      id="action_type"
-                      className="form-select"
-                      value={formData.action_type}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, action_type: e.target.value }))}
-                      aria-required="true"
-                    >
-                      <option value="">Choose Action Type</option>
-                      <option value="UPLOAD QAP File">Upload QAP File</option>
-                      <option value="Add Remarks">Add Remarks</option>
-                      <option value="Others">Others</option>
-                    </select>
+                {/* 1. Action Type */}
+                <div className="col-12 col-md-6 mb-3">
+                  <label htmlFor="action_type" className="form-label">
+                    Action Type <span className="text-danger">*</span>
+                  </label>
+                  <select
+                    id="action_type"
+                    className="form-select"
+                    value={formData.action_type}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, action_type: e.target.value }))}
+                    aria-required="true"
+                  >
+                    <option value="">Choose Action Type</option>
+                    <option value="UPLOAD QAP File">Upload QAP File</option>
+                    <option value="Add Remarks">Add Remarks</option>
+                    <option value="Others">Others</option>
+                  </select>
+                </div>
+
+                {/* 2. File Info */}
+                <div className="col-12 col-md-6 mb-3">
+                  <label htmlFor="qap_file" className="form-label d-flex align-items-center gap-2">
+                    File Info
+                    {isUploadAction && <span className="text-danger">*</span>}
+                    <FileUploadInfoIcon />
+                  </label>
+                  <div className="d-flex align-items-center">
+                    <input id="qap_file" type="file" className="form-control me-2" ref={qapFileRef} accept=".pdf" disabled={isQapUploading} aria-describedby="qap_file_help" />
+                    <DynamicButton label="Upload" onClick={handleQapFileUpload} className="btn btn-primary btn-sm" disabled={isQapUploading} />
                   </div>
-                  <div className="mb-3">
-                    <label htmlFor="qap_file" className="form-label d-flex align-items-center gap-2">
-                      File Info
-                      <FileUploadInfoIcon />
-                    </label>
-                    <div className="d-flex align-items-center">
-                      <input id="qap_file" type="file" className="form-control me-2" ref={qapFileRef} accept=".pdf" disabled={isQapUploading} aria-describedby="qap_file_help" />
-                      <DynamicButton label="Upload" onClick={handleQapFileUpload} className="btn btn-primary btn-sm" disabled={isQapUploading} />
+                  <small id="qap_file_help" className="form-text text-muted">
+                    Upload a single PDF file, up to 5MB.
+                  </small>
+                  {isQapUploading && <p className="text-muted mt-2">Uploading file...</p>}
+                  {formData.QapFile && (
+                    <div className="mt-2">
+                      <div className="d-flex justify-content-between align-items-center">
+                        <span>{formData.QapFile.file_name}</span>
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm"
+                          onClick={removeQapFile}
+                          disabled={isQapUploading}
+                          aria-label={`Remove ${formData.QapFile.file_name}`}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                    <small id="qap_file_help" className="form-text text-muted">
-                      Upload a single PDF file, up to 5MB.
-                    </small>
-                    {isQapUploading && <p className="text-muted mt-2">Uploading file...</p>}
-                    {formData.QapFile && (
-                      <div className="mt-2">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span>{formData.QapFile.file_name}</span>
+                  )}
+                </div>
+
+                {/* 3. Supporting Documents */}
+                <div className="col-12 col-md-6 mb-3">
+                  <label htmlFor="supporting_doc" className="form-label d-flex align-items-center gap-2">
+                    Supporting Documents
+                    <FileUploadInfoIcon />
+                  </label>
+                  <div className="d-flex align-items-center">
+                    <input
+                      id="supporting_doc"
+                      type="file"
+                      className="form-control me-2"
+                      multiple
+                      ref={supportingDocRef}
+                      onChange={handleSupportingFileSelect}
+                      accept=".pdf"
+                      disabled={isSupportingUploading}
+                      aria-describedby="supporting_doc_help"
+                    />
+                    <DynamicButton label="Upload" onClick={handleSupportingFileUpload} className="btn btn-primary btn-sm" disabled={isSupportingUploading} />
+                  </div>
+                  <small id="supporting_doc_help" className="form-text text-muted">
+                    Upload up to 5 PDF files, each up to 5MB.
+                  </small>
+                  {isSupportingUploading && <p className="text-muted mt-2">Uploading files...</p>}
+                  {pendingSupportingFiles.length > 0 && (
+                    <div className="mt-2">
+                      <p className="fw-bold">Selected Files:</p>
+                      {pendingSupportingFiles.map((file, idx) => (
+                        <div key={idx} className="d-flex justify-content-between align-items-center mt-1">
+                          <span>{file.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {formData.supporting_doc.length > 0 && (
+                    <div className="mt-2">
+                      <p className="fw-bold">Uploaded Files:</p>
+                      {formData.supporting_doc.map((doc, idx) => (
+                        <div key={idx} className="d-flex justify-content-between align-items-center mt-1">
+                          <span>{doc.file_name}</span>
                           <button
                             type="button"
                             className="btn btn-danger btn-sm"
-                            onClick={removeQapFile}
-                            disabled={isQapUploading}
-                            aria-label={`Remove ${formData.QapFile.file_name}`}
+                            onClick={() => removeSupportingFile(idx)}
+                            disabled={isSupportingUploading}
+                            aria-label={`Remove ${doc.file_name}`}
                           >
                             Remove
                           </button>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="supporting_doc" className="form-label d-flex align-items-center gap-2">
-                      Supporting Documents
-                      <FileUploadInfoIcon />
-                    </label>
-                    <div className="d-flex align-items-center">
-                      <input
-                        id="supporting_doc"
-                        type="file"
-                        className="form-control me-2"
-                        multiple
-                        ref={supportingDocRef}
-                        onChange={handleSupportingFileSelect}
-                        accept=".pdf"
-                        disabled={isSupportingUploading}
-                        aria-describedby="supporting_doc_help"
-                      />
-                      <DynamicButton label="Upload" onClick={handleSupportingFileUpload} className="btn btn-primary btn-sm" disabled={isSupportingUploading} />
+                      ))}
                     </div>
-                    <small id="supporting_doc_help" className="form-text text-muted">
-                      Upload up to 5 PDF files, each up to 5MB.
-                    </small>
-                    {isSupportingUploading && <p className="text-muted mt-2">Uploading files...</p>}
-                    {pendingSupportingFiles.length > 0 && (
-                      <div className="mt-2">
-                        <p className="fw-bold">Selected Files:</p>
-                        {pendingSupportingFiles.map((file, idx) => (
-                          <div key={idx} className="d-flex justify-content-between align-items-center mt-1">
-                            <span>{file.name}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {formData.supporting_doc.length > 0 && (
-                      <div className="mt-2">
-                        <p className="fw-bold">Uploaded Files:</p>
-                        {formData.supporting_doc.map((doc, idx) => (
-                          <div key={idx} className="d-flex justify-content-between align-items-center mt-1">
-                            <span>{doc.file_name}</span>
-                            <button
-                              type="button"
-                              className="btn btn-danger btn-sm"
-                              onClick={() => removeSupportingFile(idx)}
-                              disabled={isSupportingUploading}
-                              aria-label={`Remove ${doc.file_name}`}
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div className="mb-3">
-                    <label className="form-label">Assign Officer</label>
-                    &nbsp;&nbsp;
-                    {!formData?.reference_no && <span className="text-danger">*</span>}
-                    <HrSearchableSelect
-                      options={empOption}
-                      value={formData?.assign_to}
-                      onChange={(val) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          assign_to: val?.value || "",
-                        }))
-                      }
-                      placeholder="Select officer"
-                      isClearable={true}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="remarks" className="form-label">
-                      Remarks <span className="text-danger">*</span>
-                    </label>
-                    <textarea
-                      id="remarks"
-                      className="form-control"
-                      rows="4"
-                      value={formData.remarks}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, remarks: e.target.value }))}
-                      aria-required="true"
-                    />
-                  </div>
+                  )}
                 </div>
+
+                {/* 4. Assign Officer */}
+                <div className="col-12 col-md-6 mb-3">
+                  <label className="form-label">
+                    Assign Officer
+                  </label>
+                  <HrSearchableSelect
+                    options={displayOptions}
+                    value={formData?.assign_to}
+                    onChange={(val) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        assign_to: val?.value || "",
+                      }))
+                    }
+                    placeholder="Select officer"
+                    isClearable={true}
+                  />
+                </div>
+
+                {/* 5. Remarks */}
+                <div className="col-12 mb-3">
+                  <label htmlFor="remarks" className="form-label">
+                    Remarks <span className="text-danger">*</span>
+                  </label>
+                  <textarea
+                    id="remarks"
+                    className="form-control"
+                    rows="4"
+                    value={formData.remarks}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, remarks: e.target.value }))}
+                    aria-required="true"
+                  />
+                </div>
+
+                {/* 6. Action Buttons */}
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
                     {userType !== 1 ? (
@@ -763,12 +817,12 @@ const QAPSub = () => {
                             className="btn fw-bold btn-warning me-2"
                             confirmMessage="Confirm sending info to Vendor?"
                           />
-                          <DynamicButton
+                          {/* <DynamicButton
                             label="ACCEPT"
                             onClick={() => updateQAP("ACCEPTED")}
                             className="btn fw-bold btn-success me-2"
                             confirmMessage="Confirm accepting the QAP? (Not approving)"
-                          />
+                          /> */}
                           <DynamicButton label="REJECT" onClick={() => updateQAP("REJECTED")} className="btn fw-bold btn-danger" confirmMessage="Confirm rejecting the QAP?" />
                         </div>
                         <DynamicButton label="APPROVE" onClick={() => updateQAP("APPROVED")} className="btn fw-bold btn-success" confirmMessage="Confirm approving the QAP?" />

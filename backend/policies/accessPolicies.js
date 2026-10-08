@@ -39,8 +39,6 @@ const policies = {
     },
 };
 
-
-
 const checkPermission = (policyName, tokenData, newStatus) => {
     const policy = policies[policyName];
 
@@ -59,41 +57,3 @@ const checkPermission = (policyName, tokenData, newStatus) => {
 
 module.exports = checkPermission;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-// const { APPROVED, REJECTED, STATUS_DELEGATE, NOT_RECOMMEND } = require("../lib/status");
-
-// const policy = {
-//     wdc1: {
-//         "resource": "wdc",
-//         "resourceId": "1",
-//         "target": ["admin", "grse"],
-//         "targetId": ["100", "2"],
-//         "subTarget": ["nodal", "general", "user", "user"],
-//         "subTargetId": ["1", "2", "600200", "600504"],
-//         "effect": "allow",
-//         "action": [APPROVED, REJECTED, STATUS_DELEGATE]
-//     },
-
-//     wdc2: {
-//         "resource": "wdc",
-//         "resourceId": "1",
-//         "target": ["admin", "grse"],
-//         "targetId": ["100", "2"],
-//         "subTarget": ["staff"],
-//         "subTargetId": ["2"],
-//         "effect": "allow",
-//         "action": [APPROVED, REJECTED, STATUS_DELEGATE, NOT_RECOMMEND, NOT_RECOMMEND]
-//     }
-// }

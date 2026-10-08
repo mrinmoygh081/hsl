@@ -28,23 +28,15 @@ const LDRefundSupplyMaterial = () => {
     ref_invoice1_no: "",
     ref_invoice1_amount: "",
     ref_invoice1_remarks: "",
-    // ref_invoice1_file: null,
-    //invoice_file: null,
-    // invoice_attachment_file: null,
-    // worksheet_excel_file: null,
-    // po_amendment_file: null,
     ref_invoice2_no: "",
     ref_invoice2_amount: "",
     ref_invoice2_remarks: "",
-    // ref_invoice2_file: null,
     ref_invoice3_no: "",
     ref_invoice3_amount: "",
     ref_invoice3_remarks: "",
-    // ref_invoice3_file: null,
     ref_invoice4_no: "",
     ref_invoice4_amount: "",
     ref_invoice4_remarks: "",
-    //ref_invoice4_file: null,
     claimType: "",
     invoiceReferenceNo: "",
     invoiceDate: null,
@@ -58,11 +50,6 @@ const LDRefundSupplyMaterial = () => {
     ref_invoice3_file: null,
     ref_invoice4_file: null,
   });
-  // const handleInputChange = (field, index, e) => {
-  //   const newRows = { ...rows };
-  //   newRows[field][index] = e.target.value;
-  //   setRows(newRows);
-  // };
 
   const handleDownloadTemplate = () => {
     // Define a blank worksheet
@@ -83,7 +70,6 @@ const LDRefundSupplyMaterial = () => {
       if (response?.status) {
         setGstData(response?.data[0]);
 
-        // setInvoiceData(JSON.parse(response?.data[0]?.icgrn_nos));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -92,13 +78,6 @@ const LDRefundSupplyMaterial = () => {
   useEffect(() => {
     getData();
   }, []);
-  // const handleChange = (e) => {
-  //   const { name, value, files } = e.target;
-  //   setFormData((prevData) => ({
-  //     ...prevData,
-  //     [name]: files ? files[0] : value,
-  //   }));
-  // };
 
   const handleChange = async (e) => {
     const { name, value, files } = e.target;
@@ -309,122 +288,6 @@ const LDRefundSupplyMaterial = () => {
                                         />
                                       </td>
                                     </tr>
-                                    {/* <tr>
-                                      <td>Attachment:</td>
-                                      <td className="btn_value">
-                                        <input
-                                          type="file"
-                                          className="form-control"
-                                          name="invoice_attachment_file"
-                                          accept=".pdf"
-                                          onChange={handleChange}
-                                        />
-                                      </td>
-                                      <td>
-                                        <div className="btn_value">
-                                          <input
-                                            type="file"
-                                            name="invoice_attachment_file"
-                                            accept=".pdf"
-                                            className="form-control me-3"
-                                            onChange={handleChange}
-                                          />
-                                          <button
-                                            type="button"
-                                            className="btn btn-success btn-sm"
-                                            onClick={() =>
-                                              handleFileUpload(
-                                                "invoice_attachment_file"
-                                              )
-                                            }
-                                          >
-                                            Upload
-                                          </button>
-                                        </div>
-                                      </td>
-                                    </tr> */}
-                                    {/* <tr>
-                                      <td>PO Amendment Copy :</td>
-                                      <td>
-                                        <div className="btn_value">
-                                          {!fileUploadResponses.po_amendment_file ? (
-                                            <input type="file" name="po_amendment_file" className="form-control me-3" onChange={handleChange} />
-                                          ) : (
-                                            <div className="d-flex align-items-center">
-                                              <a href={fileUploadResponses.po_amendment_file.fileUrl} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm me-2">
-                                                View Uploaded File
-                                              </a>
-                                              <button
-                                                className="btn btn-sm fw-bold btn-danger"
-                                                onClick={() =>
-                                                  setFileUploadResponses((prevResponses) => ({
-                                                    ...prevResponses,
-                                                    po_amendment_file: null,
-                                                  }))
-                                                }
-                                              >
-                                                Remove
-                                              </button>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Worksheet Excel Upload:</td>
-                                      <td className="btn_value">
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                          }}
-                                        >
-                                          {!fileUploadResponses.worksheet_excel_file ? (
-                                            <div className="d-flex align-items-center gap-2">
-                                              <input type="file" className="form-control me-3" name="worksheet_excel_file" accept=".xlsx, .xls" onChange={handleChange} />
-                                              <FileUploadInfoIcon warningText={BTN_UPLOAD_WARNING} />
-                                            </div>
-                                          ) : (
-                                            <div className="d-flex align-items-center">
-                                              <a href={fileUploadResponses.worksheet_excel_file.fileUrl} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm me-2">
-                                                View Uploaded File
-                                              </a>
-                                              <button
-                                                className="btn btn-sm fw-bold btn-danger"
-                                                onClick={() =>
-                                                  setFileUploadResponses((prevResponses) => ({
-                                                    ...prevResponses,
-                                                    worksheet_excel_file: null,
-                                                  }))
-                                                }
-                                              >
-                                                Remove
-                                              </button>
-                                            </div>
-                                          )}
-                                          <span
-                                            style={{
-                                              marginLeft: "10px",
-                                              fontSize: "12px",
-                                              color: "#888",
-                                            }}
-                                          >
-                                            Required format: .xlsx, .xls
-                                          </span>
-                                          <a
-                                            href={`${process.env.REACT_APP_PDF_URL}/ld_sample_excel/LD_Reversal.xlsx`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="btn btn-success btn-sm"
-                                            style={{
-                                              marginLeft: "20px",
-                                            }}
-                                          >
-                                            VIEW
-                                          </a>
-                                        </div>
-                                      </td>
-                                    </tr> */}
                                   </tbody>
                                 </table>
                                 <table className="table table-striped table-bordered table_height">
@@ -713,24 +576,6 @@ const LDRefundSupplyMaterial = () => {
                                 </button>
                               </div>
 
-                              {/* <div className="text-center">
-                                <button
-                                  className="btn btn-sm btn-primary me-3"
-                                  type="button"
-                                  onClick={() =>
-                                    navigate(`/bill-other-claims/${id}`)
-                                  }
-                                >
-                                  BACK
-                                </button>
-                                <button
-                                  className="btn btn-sm btn-success"
-                                  type="submit"
-                                  onClick={() => handleSubmit()}
-                                >
-                                  SUBMIT
-                                </button>
-                              </div> */}
                             </div>
                           </div>
                         </div>

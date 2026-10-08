@@ -7,7 +7,6 @@ import { formatDate } from "../../utils/getDateTimeNow";
 function Gateentrypdf() {
   const location = useLocation();
   const [apiData, setApiData] = useState([]);
-  // const [payloadData , setPayloadData] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const { token } = useSelector((state) => state.auth);
   const searchParams = new URLSearchParams(location.search);
@@ -15,8 +14,6 @@ function Gateentrypdf() {
   const poNumber = searchParams.get("po");
 
   console.log(poNumber, "abhinit");
-
-  // console.log("payload iss--", location.state)
 
   const currentDate = new Date().toLocaleDateString();
   const currentTime = new Date().toLocaleTimeString([], {
@@ -28,7 +25,6 @@ function Gateentrypdf() {
     window.print();
   };
 
-  // let payloadData = location.state;
   const { payload } = useParams();
   const payloadData = JSON.parse(payload);
   console.log("payload iss params--", payloadData);
@@ -94,26 +90,12 @@ function Gateentrypdf() {
                       :
                     </td>
                     <td>{apiData?.gate_entry_no}</td>
-                    {/* <td>{2345678}</td> */}
                   </tr>
                   <tr>
                     <td>Date</td>
                     <td className="text-start">:</td>
-                    {/* <td>{apiData?.entry_date}</td> */}
                     <td>
                       {" "}
-                      {/* {entry_date?.entry_date
-                        ? new Date(apiData?.entry_date).toLocaleDateString()
-                        : ""} */}
-                      {/* {apiData.entry_date &&
-                        new Date(apiData.entry_date).toLocaleDateString(
-                          "en-GB",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          }
-                        )} */}
                       {formatDate(apiData?.entry_date)}
                     </td>
                   </tr>
@@ -121,56 +103,15 @@ function Gateentrypdf() {
                   <tr>
                     <td>Vendor</td>
                     <td>:</td>
-                    {/* <td>{apiData?.purchasing_doc_no}</td> */}
                     <td>{apiData?.vendor_name}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            {/* <div className="col-6 ">
-              <div className="w-75">
-                <h5 className="m-2" style={{ fontSize: "13px" }}>
-                  Invoice No :
-                </h5>
-                <p className="m-0" style={{ fontSize: "14px" }}>
-                  {apiData?.invoice_number}
-                </p>
-                <p
-                  className="m-2 w-50 p-0 text-end"
-                  style={{ fontSize: "14px" }}
-                ></p>
-              </div>
-              <div className="w-75">
-                <h5 className="m-2" style={{ fontSize: "13px" }}>
-                  Vehicle No :
-                </h5>
-                <p className="m-0" style={{ fontSize: "14px" }}>
-                  {apiData?.suppplier}, {apiData?.vendorName} <br />
-                  {apiData?.vendorCity} <br /> {apiData?.vendorPinCode} <br />
-                  {apiData?.vendorCountry}
-                </p>
-                <p
-                  className="m-2 w-50 p-0 text-end"
-                  style={{ fontSize: "14px" }}
-                >
-                  {apiData?.vendorDistrict}
-                </p>
-                
-              </div>
-            </div> */}
-
             <div className="col-6 d-flex justify-content-start top_info_table">
               <table className="w-75 h-75" style={{ fontSize: "14px" }}>
                 <tbody>
-                  {/* <tr>
-                    <td width={"60%"}>Invoice No</td>
-                    <td className="text-start" width={"5%"}>
-                      :
-                    </td>
-                    <td> {apiData?.invoice_number}</td>
-                    <td>{2345678}</td>
-                  </tr> */}
                   <tr>
                     <td> Vehicle No</td>
                     <td className="text-start">:</td>
@@ -182,33 +123,6 @@ function Gateentrypdf() {
           </>
         )}
       </div>
-
-      {/* <div className="row" style={{ minHeight: "300px" }}>
-        <div className="col-12">
-          <table className="table table_container_1">
-            <thead>
-              <tr>
-                <th>PO NO</th>
-                <th>Item</th>
-                <th>Quantity</th>
-                <th>Challan Quantity</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              <tr>
-                <td>{item.purchasing_doc_no_item}</td>
-                    <td>{item.materialNumber}</td>
-                    <td>{item.materialDesc}</td>
-                <td>{1234}</td>
-                <td>{10}</td>
-                <td>{9}</td>
-                <td>{13}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div> */}
 
       <div className="row" style={{ minHeight: "300px" }}>
         <div className="col-12">
@@ -260,7 +174,6 @@ function Gateentrypdf() {
       <div className="date_time_container" style={{ position: "fixed", top: 0, right: 0, fontSize: "10px" }}>
         <p className="m-0 p-0">Date: {currentDate}</p>
         <p className="m-0 p-0">Time: {currentTime}</p>
-        {/* <p className="m-0 p-0">page 1/2</p> */}
       </div>
     </div>
   );

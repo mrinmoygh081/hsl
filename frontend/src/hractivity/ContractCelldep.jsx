@@ -46,7 +46,6 @@ const ContractCelldep = () => {
       const response = await apiCallBack("POST", `${hrUrl}/upload`, formData, token);
       if (response?.status) {
         toast.success(response.message || "File uploaded successfully!");
-        // localStorage.setItem("uploadedFile", JSON.stringify(response.data));
         setUploadedFile(response.data);
         setFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";

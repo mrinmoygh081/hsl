@@ -19,116 +19,6 @@ export const getGrnIcgrnByInvoice = async (po, invoice_no, token) => {
   }
 };
 
-// export const actionHandlerBTN = async (flag, token, id, form, setForm, initialData, navigate) => {
-//   try {
-//     const {
-//       yard,
-//       stage,
-//       invoice_no,
-//       invoice_type,
-//       invoice_filename,
-//       invoice_supporting_doc,
-//       invoice_value,
-//       invoice_date,
-//       debit_note,
-//       credit_note,
-//       net_claim_amount,
-//       cgst,
-//       sgst,
-//       igst,
-//       debit_credit_filename,
-//       total_price,
-//       hsn_gstn_icgrn,
-//       agree_to_declaration,
-//       demand_raise_filename,
-//       associated_po,
-//     } = form;
-
-//     if (!invoice_type || invoice_type.trim() === "") {
-//       toast.warning("Please choose Invoice Type.");
-//       return;
-//     }
-
-//     if (!invoice_value || invoice_value.trim() === "") {
-//       toast.warning("Basic Value is mandatory.");
-//       return;
-//     }
-//     // if (!invoice_date || invoice_date.toString().trim() === "" || invoice_date.toString().trim() === "--") {
-//     //   toast.warning("Invoice Date is mandatory.");
-//     //   return;
-//     // }
-//     if (!invoice_date || invoice_date === null || invoice_date.toString().trim() === "" || invoice_date.toString().trim() === "--") {
-//       toast.warning("Invoice Date is mandatory.");
-//       return;
-//     }
-//     if (!agree_to_declaration) {
-//       toast.warning("Please check to agree the Declaration.");
-//       return;
-//     }
-//     if (!hsn_gstn_icgrn) {
-//       toast.warning("Please check the HSN code, GSTIN, Tax rate is as per PO.");
-//       return;
-//     }
-//     if (!invoice_filename) {
-//       toast.warning("Invoice file is mandatory.");
-//       return;
-//     }
-//     if ((parseFloat(debit_note) > 0 || parseFloat(credit_note) > 0) && !debit_credit_filename) {
-//       toast.warning("Debit/Credit Note file is mandatory.");
-//       return;
-//     }
-//     if (parseInt(total_price) !== parseInt(net_claim_amount)) {
-//       toast.warning("Total price and net claim amount should be equal!");
-//       return;
-//     }
-//     const fDToSend = new FormData();
-//     fDToSend.append("yard", yard);
-//     fDToSend.append("stage", stage);
-//     fDToSend.append("purchasing_doc_no", id);
-//     fDToSend.append("invoice_no", invoice_no);
-//     fDToSend.append("invoice_type", invoice_type);
-//     fDToSend.append("invoice_value", invoice_value);
-//     fDToSend.append("invoice_date", invoice_date);
-//     fDToSend.append("debit_note", debit_note);
-//     fDToSend.append("credit_note", credit_note);
-//     fDToSend.append("hsn_gstn_icgrn", hsn_gstn_icgrn);
-//     fDToSend.append("cgst", cgst);
-//     fDToSend.append("sgst", sgst);
-//     fDToSend.append("igst", igst);
-//     console.log("associated_po", associated_po);
-//     if (checkTypeArr(associated_po)) {
-//       fDToSend.append("associated_po", JSON.stringify(associated_po.map((item) => ({ a_po: item }))));
-//     }
-//     fDToSend.append("invoice_filename", invoice_filename);
-//     if (invoice_supporting_doc) {
-//       fDToSend.append("invoice_supporting_doc", invoice_supporting_doc);
-//     }
-
-//     if (debit_credit_filename) {
-//       fDToSend.append("debit_credit_filename", debit_credit_filename);
-//     }
-//     // if (get_entry_filename) {
-//     //   fDToSend.append("get_entry_filename", get_entry_filename);
-//     // }
-//     if (demand_raise_filename) {
-//       fDToSend.append("demand_raise_filename", demand_raise_filename);
-//     }
-//     const response = await apiCallBack("POST", "po/btn/BillsMaterialHybrid", fDToSend, token);
-
-//     if (response?.status) {
-//       toast.success(response?.message);
-//       setForm(initialData);
-//       // getData();
-//       navigate(`/invoice-and-payment-process/${id}`);
-//     } else {
-//       toast.error(response?.message);
-//     }
-//   } catch (error) {
-//     console.error("error", error?.message);
-//     toast.error("Error:", error.message);
-//   }
-// };
-
 export const actionHandlerBTN = async (flag, token, id, form, setForm, initialData, navigate) => {
   try {
     const {
@@ -314,45 +204,6 @@ export const actionHandlerBTN = async (flag, token, id, form, setForm, initialDa
     toast.error("Error:", error.message);
   }
 };
-// export const actionHandlerByDO = async (doForm, setDoForm, initialData, data, navigate, id, token) => {
-//   console.log("doForm", doForm);
-//   try {
-//     doForm.purchasing_doc_no = id;
-//     if (!doForm?.assign_to || doForm?.assign_to === "") {
-//       return toast.warn("Please choose the finance authority.");
-//     }
-//     if (!doForm?.ld_ge_date || doForm?.ld_ge_date === "") {
-//       return toast.warn("Please select gate entry date");
-//     }
-//     if (!doForm?.contractual_ld || doForm?.contractual_ld === "") {
-//       return toast.warn("Please select contractual delivery date.");
-//     }
-//     if (!doForm?.max_ld || doForm?.max_ld === "") {
-//       return toast.warn(" Please select Max LD.");
-//     }
-//     if (!doForm?.max_penalty || doForm?.max_penalty === "") {
-//       return toast.warn(" Please select Max Penalty.");
-//     }
-//     if (!doForm?.other_deduction || doForm?.other_deduction === "") {
-//       return toast.warn("Please fill retension percentage.");
-//     }
-//     if (!data?.invoice_date || data?.invoice_date === "") {
-//       return toast.warn("Invoice Date is mandatory.");
-//     }
-
-//     const response = await apiCallBack("POST", "po/btn/BillsMaterialHybridByDO", doForm, token);
-//     console.log("response2", response);
-//     if (response?.status) {
-//       toast.success(response?.message);
-//       setDoForm(initialData);
-//       navigate(`/invoice-and-payment-process/${id}`);
-//     } else {
-//       toast.error(response?.message);
-//     }
-//   } catch (error) {
-//     toast.error("Error:", error);
-//   }
-// };
 
 // SERVICE BTN
 
@@ -557,7 +408,6 @@ export const actionHandlerServiceBTN = async (flag, token, user, id, form, setFo
 };
 
 //JCC
-// export const actionHandlerJCCBTN = async (
 //   flag,
 //   token,
 //   user,
@@ -565,10 +415,7 @@ export const actionHandlerServiceBTN = async (flag, token, user, id, form, setFo
 //   form,
 //   setForm,
 //   navigate
-// ) => {
-//   try {
 //     // Destructuring form fields
-//     const {
 //       btn_num,
 //       purchasing_doc_no,
 //       vendor_code,
@@ -587,86 +434,7 @@ export const actionHandlerServiceBTN = async (flag, token, user, id, form, setFo
 //       hsn_gstn_icgrn,
 //       remarks,
 //       suppoting_invoice_filename, // Added suppoting_invoice_filename to the form
-//     } = form;
 
-//     // Validation checks for mandatory fields
-//     // if (!purchasing_doc_no || purchasing_doc_no === "") {
-//     //   return toast.warn("Purchasing document number is mandatory.");
-//     // }
-//     // if (!bill_certifing_authority || bill_certifing_authority === "") {
-//     //   return toast.warn("Please choose a HSL officer.");
-//     // }
-//     // if (!invoice_type || invoice_type.trim() === "") {
-//     //   return toast.warning("Please choose Invoice Type.");
-//     // }
-//     // if (!invoice_no || invoice_no === "") {
-//     //   return toast.warning("Invoice number is mandatory.");
-//     // }
-//     // if (!invoice_filename || invoice_filename === "") {
-//     //   return toast.warning("Invoice file is mandatory.");
-//     // }
-//     // if (!invoice_value || invoice_value.trim() === "") {
-//     //   return toast.warning("Basic value is mandatory.");
-//     // }
-//     // if (!hsn_gstn_icgrn) {
-//     //   return toast.warning(
-//     //     "Please verify the HSN code, GSTIN, and Tax rate as per the PO."
-//     //   );
-//     // }
-
-//     // FormData object for submitting form data
-//     const formDataToSend = new FormData();
-//     formDataToSend.append("purchasing_doc_no", purchasing_doc_no);
-//     formDataToSend.append("btn_num", btn_num);
-//     formDataToSend.append("vendor_code", vendor_code);
-//     formDataToSend.append("invoice_no", invoice_no);
-//     formDataToSend.append("invoice_value", invoice_value);
-//     formDataToSend.append("yard", yard);
-//     formDataToSend.append("jcc_ref_number", jcc_ref_number);
-//     formDataToSend.append("jcc_job_start_date", jcc_job_start_date);
-//     formDataToSend.append("jcc_job_end_date", jcc_job_end_date);
-//     formDataToSend.append("hsn_gstn_icgrn", hsn_gstn_icgrn);
-//     formDataToSend.append("remarks", remarks);
-//     formDataToSend.append("bill_certifing_authority", bill_certifing_authority);
-//     formDataToSend.append("net_claim_amount", net_claim_amount);
-//     formDataToSend.append("invoice_type", invoice_type);
-//     formDataToSend.append("invoice_date", invoice_date);
-
-//     // Attach files if they exist
-//     if (invoice_filename) {
-//       formDataToSend.append("invoice_filename", invoice_filename);
-//     }
-//     if (suppoting_invoice_filename) {
-//       formDataToSend.append(
-//         "suppoting_invoice_filename",
-//         suppoting_invoice_filename
-//       ); // Add supporting invoice file
-//     }
-//     if (jcc_filename) {
-//       formDataToSend.append("jcc_filename", jcc_filename);
-//     }
-
-//     // API call
-//     const response = await apiCallBack(
-//       "POST",
-//       "po/btn/jcc-submit",
-//       formDataToSend,
-//       token
-//     );
-
-//     // Handle response
-//     if (response?.status) {
-//       toast.success(response?.message);
-//       setForm(initialDataService); // Reset form to initial state
-//       navigate(`/invoice-and-payment-process/${id}`); // Redirect to appropriate page
-//     } else {
-//       toast.error(response?.message);
-//     }
-//   } catch (error) {
-//     console.error("Error in actionHandlerJCCBTN:", error);
-//     toast.error("An error occurred: " + error.message);
-//   }
-// };
 export const actionHandlerServiceByEmp = async (empForm, grnsesData, setEmpForm, initialEmpData, navigate, id, token, form, remarksforword) => {
   try {
     const {
@@ -695,15 +463,9 @@ export const actionHandlerServiceByEmp = async (empForm, grnsesData, setEmpForm,
     if (!total_price || total_price === "") {
       return toast.warn("Service entry sheet value or GRN Value is mandatory.");
     }
-    // if (Number(total_price) !== Number(net_claim_amount)) {
-    //   return toast.warn("SES/GRN Value and Net Claim Amount should be matched.");
-    // }
     if (Math.round(parseFloat(total_price)) !== Math.round(parseFloat(net_claim_amount))) {
       return toast.warn("SES/GRN Value and Net Claim Amount should be matched.");
     }
-    // if (!other_deduction || other_deduction === "") {
-    //   return toast.warn("Please fill retension percentage.");
-    // }
     if (max_ld === "" || max_ld === undefined || max_ld === null) {
       return toast.warn("Please select Max LD.");
     }
@@ -715,8 +477,6 @@ export const actionHandlerServiceByEmp = async (empForm, grnsesData, setEmpForm,
       purchasing_doc_no: id,
       btn_num: btn_num,
       assign_to: finance_authority,
-      // entry_type: type === TYPE_SERVICE ? "service-entry" : type === TYPE_GRN ? "grn" : null,
-      // entry_number: number,
       check_wdc_number,
       grn_no,
       max_ld,

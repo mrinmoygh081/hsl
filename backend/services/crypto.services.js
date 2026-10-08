@@ -1,7 +1,5 @@
 const bcrypt = require("bcryptjs");
 
-// const secret = process.env.SECRET || "secret";
-
 const getHashedText = (plainText, salt) => {
   return bcrypt.hashSync(plainText, salt);
 };

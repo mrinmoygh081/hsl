@@ -39,9 +39,6 @@ const zbts_st = async (req, res) => {
        * NOT INSERT IN OBPS DB
        * IGNORE THIS BTN WHICH IS SEND FROM SAP
        */
-      // const q = `SELECT count(*) as btn_count from btn_list where btn_num = $1`;
-      // const btn_num = payload.zbtno || payload.ZBTNO;
-      // const btnCount = await poolQuery({ client, query: q, values: [btn_num] });
 
       // CHECKING THE PO/DATA IS NOT PART OF OBPS PROJECT
       const btn_num = payload.zbtno || payload.ZBTNO;
@@ -69,7 +66,6 @@ const zbts_st = async (req, res) => {
       const zbtsmPayload = ZBTSM || zbtsm;
 
       if (zbtsmPayload) {
-        // response2 = await query({ query: btnPaymentLineItemQuery, values: [] });
 
         // SAP BTN TABLE UPDATE
         try {
@@ -138,18 +134,12 @@ const updateBtnListTable = async (client, data) => {
       btnListTablePaylod.assign_by = Number(data?.fpernr1) || data?.fpernr1; // selected finance aut
       btnListTablePaylod.assign_to = Number(data?.fpernr1) || data?.fpernr1; // selected finance aut
       btnListTablePaylod.remarks = data?.zrmk3;
-      // btnListTablePaylod.assign_by = data?.ZMODIFIEDBY || data?.ZCREATEDBY;
-      // btnListTablePaylod.assign_to = data?.ZMODIFIEDBY || data?.ZCREATEDBY;
     }
     if (btnListTablePaylod.status === BTN_STATUS_HOLD_TEXT && !data.hold) {
       currentStatus = BTN_STATUS_UNHOLD_TEXT;
-      // btnListTablePaylod.assign_by = null;
-      // btnListTablePaylod.assign_to = FI_PAYMENT_HEAD || "";
       btnListTablePaylod.assign_by = Number(data?.fpernr1) || data?.fpernr1; // selected finance aut
       btnListTablePaylod.assign_to = Number(data?.fpernr1) || data?.fpernr1; // selected finance aut
       btnListTablePaylod.remarks = data?.zrmk3;
-      // btnListTablePaylod.assign_by = data?.ZMODIFIEDBY || data?.ZCREATEDBY;
-      // btnListTablePaylod.assign_to = data?.ZMODIFIEDBY || data?.ZCREATEDBY;
     }
 
     // BANK TO PAYMENT
@@ -174,14 +164,14 @@ const updateBtnListTable = async (client, data) => {
         query: getDoQuery,
         values: [btnListTablePaylod.btn_num],
       });
-      btnListTablePaylod.assign_by = Number(data?.fpernr1) || data?.fpernr1; // data?.frernam
+      btnListTablePaylod.assign_by = Number(data?.fpernr1) || data?.fpernr1;
       btnListTablePaylod.assign_to = doDetails[0]?.do_id; // DO //data?.rernam
       btnListTablePaylod.remarks = data?.zrmk3;
     }
 
     // BANK
     if (data.fstatus === "4") {
-      btnListTablePaylod.assign_by = Number(data?.faernam) || data?.faernam; // data?.frernam
+      btnListTablePaylod.assign_by = Number(data?.faernam) || data?.faernam;
       btnListTablePaylod.assign_to = FI_PAYMENT_HEAD; // BANK
     }
 
@@ -192,7 +182,7 @@ const updateBtnListTable = async (client, data) => {
         query: getVQuery,
         values: [btnListTablePaylod.btn_num],
       });
-      btnListTablePaylod.assign_by = Number(data?.frernam) || data?.frernam; // data?.frernam
+      btnListTablePaylod.assign_by = Number(data?.frernam) || data?.frernam;
       btnListTablePaylod.assign_to = vDetails[0]?.do_id; // DO
       btnListTablePaylod.remarks = data?.zrmk3;
     }
@@ -223,10 +213,6 @@ const updateBtnListTable = async (client, data) => {
     }
     if (btnListTablePaylod.btn_type == BTN_HYBRID_BILL_MATERIAL) {
       const mBtnUpdatePayload = { status: currentStatus };
-      // if (currentStatus === BTN_STATUS_DRETURN) {
-      //   sBtnUpdatePayload.current_ca = btnListTablePaylod.assign_to;
-      //   sBtnUpdatePayload.is_dreturn = YES_SORT_FORM;
-      // }
       await updateBtnByBtnNumber(client, btnListTablePaylod, mBtnUpdatePayload);
     }
 
@@ -236,7 +222,6 @@ const updateBtnListTable = async (client, data) => {
       await handelMail(btnListTablePaylod, client);
     }
   } else {
-    // console.log("NO BTN FOUND IN LIST TO BE UPDATED btn controller");
   }
 };
 
@@ -262,7 +247,6 @@ async function handelMail(payload, client) {
 const zbts_bstatus_update = async (req, res) => {
   try {
     const client = await poolClient();
-    // let transactionSuccessful = false;
 
     try {
       if (!req.body || typeof req.body != "object" || !Object.keys(req.body)?.length) {
@@ -279,9 +263,6 @@ const zbts_bstatus_update = async (req, res) => {
        * NOT INSERT IN OBPS DB
        * IGNORE THIS BTN WHICH IS SEND FROM SAP
        */
-      // const q = `SELECT count(*) as btn_count from btn_list where btn_num = $1`;
-      // const btn_num = payload.zbtno || payload.ZBTNO;
-      // const btnCount = await poolQuery({ client, query: q, values: [btn_num] });
 
       // CHECKING THE PO/DATA IS NOT PART OF OBPS PROJECT
       const btn_num = payload.zbtno || payload.ZBTNO;

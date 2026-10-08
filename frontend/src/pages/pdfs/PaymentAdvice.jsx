@@ -21,7 +21,6 @@ function PaymentAdvice() {
   const handlePrint = () => {
     window.print();
   };
-  // let payloadData = location.state;
   const { payload } = useParams();
   const payloadData = JSON.parse(payload);
   console.log("payloadData", payloadData);
@@ -88,11 +87,6 @@ function PaymentAdvice() {
                   MIRA BHYANDAR ROAD , MIRA ROAD EAST <br />
                   401107 THANE
                 </p>
-                {/* <p className="m-0">Plant: Palnt Bailey bridge</p>
-            <p className="m-0">
-              Address: 61 Garden Reach Road , Kolkata, Pin - 700024
-            </p>
-            <p className="m-0">State: West Bengal , GSTIN: 19AAACG9371K1J4</p> */}
               </div>
               <div className="col-6 d-flex justify-content-end top_info_table">
                 <table className="h-75 w-100" style={{ fontSize: "14px" }}>
@@ -243,7 +237,6 @@ function PaymentAdvice() {
                     <tr>
                       <td>BTN Date</td>
                       <td className="text-start">:</td>
-                      {/* <td>{apiData?.btnDate}</td> */}
                       <td>
                         {apiData.btnDate &&
                           new Date(apiData.btnDate).toLocaleDateString("en-GB", {
@@ -479,7 +472,6 @@ function PaymentAdvice() {
       <div className="date_time_container" style={{ position: "fixed", top: 0, right: 0, fontSize: "10px" }}>
         <p className="m-0 p-0">Date: {currentDate}</p>
         <p className="m-0 p-0">Time: {currentTime}</p>
-        {/* <p className="m-0 p-0">page 1/2</p> */}
       </div>
     </div>
   );

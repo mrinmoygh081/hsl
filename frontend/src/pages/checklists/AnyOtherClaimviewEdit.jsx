@@ -50,7 +50,6 @@ const AnyOtherClaimviewEdit = () => {
       if (response?.status) {
         setGstData(response?.data[0]);
 
-        // setInvoiceData(JSON.parse(response?.data[0]?.icgrn_nos));
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -93,13 +92,6 @@ const AnyOtherClaimviewEdit = () => {
     }
 
     setLoading(true);
-    // const formData = new FormData();
-    // formData.append("btn_num", state);
-    // formData.append("net_payable_amount", data.total_claim_amount);
-    // formData.append("assigned_to", doForm.assign_to);
-    // formData.append("purchasing_doc_no", id);
-    // formData.append("status", status);
-    // if (remarks) formData.append("remarks", remarks);
     const paylod = {
       btn_num: state,
       assign_to: doForm.assign_to,
@@ -334,22 +326,6 @@ const AnyOtherClaimviewEdit = () => {
                                               <tr>
                                                 <td>Finance Authority</td>
                                                 <td className="btn_value">
-                                                  {/* <Select
-                                                    className="basic-single w-100"
-                                                    classNamePrefix="select"
-                                                    isClearable={true}
-                                                    isSearchable={true}
-                                                    name="emp"
-                                                    id="emp"
-                                                    options={emp}
-                                                    value={emp && emp.find((item) => item.value === doForm?.assign_to)}
-                                                    onChange={(val) =>
-                                                      setDoForm({
-                                                        ...doForm,
-                                                        assign_to: val ? val.value : null,
-                                                      })
-                                                    }
-                                                  /> */}
                                                   <HrSearchableSelect
                                                     options={emp}
                                                     value={doForm.assign_to}
@@ -365,23 +341,12 @@ const AnyOtherClaimviewEdit = () => {
                                                   />
                                                 </td>
                                               </tr>
-                                              {/* <tr>
-                                                <td>BTN Number:</td>
-                                                <td className="btn_value">
-                                                  <b>{state}</b>
-                                                </td>
-                                              </tr> */}
                                             </tbody>
                                           </table>
                                         </div>
 
                                         <div className="row">
                                           <div className="col-6 text-start">
-                                            {/* <DynamicButton
-                                      label="Approve"
-                                      className="btn fw-bold btn-primary me-3"
-                                      onClick={handleApproval}
-                                    /> */}
                                             <button className="btn btn-sm fw-bold btn-primary me-3" onClick={handleApproval} disabled={loading}>
                                               {loading ? "Loading..." : "APPROVE"}{" "}
                                             </button>
@@ -416,56 +381,7 @@ const AnyOtherClaimviewEdit = () => {
                                   </div>
                                 </div>
                               )}
-                              {/* <div className="text-center">
-                                    {user?.user_type === USER_VENDOR && (
-                                      <button
-                                        type="button"
-                                        className="btn fw-bold btn-primary me-3"
-                                        onClick={() => handleSubmit()}
-                                      >
-                                        SUBMIT
-                                      </button>
-                                    )}
-                                    <button
-                                      className="btn fw-bold btn-primary me-3"
-                                      type="button"
-                                      onClick={() =>
-                                        navigate(
-                                          `/invoice-and-payment-process/${id}`
-                                        )
-                                      }
-                                    >
-                                      BACK
-                                    </button>
-                                  </div> */}
 
-                              {/* <div className="text-center">
-                                    <button
-                                      className="btn btn-sm btn-primary me-3"
-                                      type="button"
-                                      onClick={() =>
-                                        navigate(`/bill-other-claims/${id}`)
-                                      }
-                                    >
-                                      BACK
-                                    </button>
-                                    <button
-                                      className="btn btn-sm btn-success"
-                                      type="submit"
-                                      onClick={() => handleSubmit()}
-                                    >
-                                      SUBMIT
-                                    </button>
-                                  </div> */}
-                              {/* <button
-                                className="btn fw-bold btn-primary me-3"
-                                type="button"
-                                onClick={() =>
-                                  navigate(`/invoice-and-payment-process/${id}`)
-                                }
-                              >
-                                BACK
-                              </button> */}
                             </div>
                           </div>
                         </div>

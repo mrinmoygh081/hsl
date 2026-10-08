@@ -3,7 +3,6 @@
 const nodemailer = require("nodemailer");
 const { gmailApiInstance } = require("../config/configEmail/GmailApiSender");
 
-
 let transporter = nodemailer.createTransport({
   service: process.env.MAIL_SERVICE_NAME,
   host: process.env.MAIL_HOST_URL,
@@ -16,12 +15,9 @@ let transporter = nodemailer.createTransport({
   },
 });
 
-
-
 const SENDMAIL = async (mailOptions) => {
   try {
     const info = await transporter.sendMail(mailOptions);
-    // callback("mail sent to ->", mailDetails);
     return info;
   } catch (error) {
     console.error("[ERROR] SENDMAIL", error.message, error);
@@ -32,7 +28,6 @@ const SENDMAIL = async (mailOptions) => {
 
 const SENDMAILFROMNIC = async (from, to, subject, body, isHtml = true, replyTo = null) => {
   try {
-    
 
     const res = await  gmailApiInstance.sendEmail(from, to, subject, body, isHtml = true, replyTo = null);
     return res;

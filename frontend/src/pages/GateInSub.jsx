@@ -54,7 +54,6 @@ const GateInSub = () => {
                                   <th>DateTime </th>
                                   <th>Document</th>
                                   <th>Document Type</th>
-                                  {/* <th>ID</th> */}
                                   <th>Action By</th>
                                 </tr>
                               </thead>
@@ -101,27 +100,6 @@ const GateInSub = () => {
                                   <td>ICGRN Report</td>
                                   <td>Mrinmoy Ghosh(65432)</td>
                                 </tr>
-                                {/* {icgrnData.map((icgrnItem, index) => (
-                                  <tr key={index}>
-                                    <td className="table_center">
-                                      {moment(icgrnItem.created_at)
-                                        .utc()
-                                        .format("YYYY-MM-DD")}
-                                    </td>
-                                    <td>
-                                      <a
-                                        href={`${process.env.REACT_APP_BACKEND_API}po/download?id=${icgrnItem.file_path}&type=qap`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                      >
-                                        Check File
-                                      </a>
-                                    </td>
-                                    <td>{icgrnItem.document_type}</td>
-                                    <td>{icgrnItem.id}</td>
-                                    <td>{icgrnItem.updated_by}</td>
-                                  </tr>
-                                ))} */}
                               </tbody>
                             </table>
                           </div>

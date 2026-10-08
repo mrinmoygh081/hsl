@@ -18,7 +18,6 @@ const { getLastAssignee, getAssigneeList, checkIsAssigned, checkIsApprovedReject
 const { sdbgPayloadVendor, sdbgEntryPayload } = require("../../services/sdbg.services");
 const Message = require("../../utils/messages");
 const QueryBuilder = require("../../utils/QueryBuilder");
-// const { handleFileDeletion } = require("../../lib/deleteFile");
 
 // SDBG SUBMISSION BY VENDOR
 const submitSDBG = async (req, res) => {
@@ -349,7 +348,6 @@ const sdbgUpdateByFinance = async (req, res) => {
       return resSend(res, false, 200, `This BG is ${RETURN_TO_DO}.Befoure take action by DO. YOU CAN not do any action!`, null, null);
     }
 
-    // return;
     const star = `file_name,file_path,vendor_code,action_type,bg_no`;
 
     const get_sdbg_query = `SELECT ${star} FROM ${SDBG} WHERE purchasing_doc_no = $1 AND reference_no = $2`;
@@ -488,30 +486,6 @@ const sdbgUpdateByFinance = async (req, res) => {
         const sendSap = await sendBgToSap({ ...get_sdbg_entry_data[0], bg_file_no: uFile }, sdgbRollBackId);
         if (sendSap == false) {
           await client.query("ROLLBACK");
-          // if (sdgbRollBackId) {
-          //   const deleteRollBackQuery = `DELETE FROM ${SDBG} WHERE id = $1`;
-          //   const deleteRollBack = await getQuery({
-          //     query: deleteRollBackQuery,
-          //     values: [sdgbRollBackId],
-          //   });
-          // }
-          // const whereCondition = {
-          //   purchasing_doc_no: obj.purchasing_doc_no,
-          //   reference_no: obj.reference_no,
-          // };
-
-          // ({ q, val } = generateQuery(
-          //   UPDATE,
-          //   SDBG_ENTRY,
-          //   { status: FORWARD_TO_FINANCE, bg_file_no: null },
-          //   whereCondition
-          // ));
-
-          // let sdbgEntryQuery2 = await poolQuery({
-          //   client,
-          //   query: q,
-          //   values: val,
-          // });
 
           return resSend(res, false, 200, `SAP not connected.`, sdbgQuery, null);
         } else if (sendSap == true) {
@@ -607,9 +581,6 @@ async function handelEmail(payload, tokenData) {
     await sendMail(BG_RETURN_TO_DO, dataObj, { users: emailUserDetails }, BG_RETURN_TO_DO);
   }
   if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == FORWARD_TO_FINANCE) {
-    // BG_ACCEPT_REJECT
-    // emailUserDetailsQuery = getUserDetailsQuery('vendor_by_po', '$1');
-    // emailUserDetails = await getQuery({ query: emailUserDetailsQuery, values: [payload.purchasing_doc_no] });
     await sendMail(BG_ENTRY_BY_DO, dataObj, { users: [] }, BG_ENTRY_BY_DO);
   }
 }
@@ -853,7 +824,6 @@ async function update_in_all_obps_sdbgs_table(payload) {
     }
   } catch (err) {
     console.error("data not fetched", err);
-    // resSend(res, false, 500, "Internal server error", null, null);
   } finally {
     if (client) client.release();
   }
@@ -907,42 +877,3 @@ module.exports = {
   checkIsDEO,
 };
 
-// {
-//   FILE_NO: '43t11111',
-//   REF_NO: 'SD-1719998396925-7545',
-//   BANKERS_NAME: 'kolkata',
-//   BANKERS_BRANCH: '46546546',
-//   BANKERS_ADD1: 'new town, kolkata, India',
-//   BANKERS_ADD2: 'ee3',
-//   BANKERS_ADD3: 'ww',
-//   BANKERS_CITY: 'kolkata',
-//   B_PIN_CODE: '157',
-//   BANK_GU_NO: '10',
-//   BG_DATE: '20240703',
-//   BG_AMOUNT: '2345',
-//   PO_NUMBER: '4700026717',
-//   DEPARTMENT: 'mainak',
-//   PO_DATE: '20240503',
-//   YARD_NO: '10',
-//   VALIDITY_DATE: '20240718',
-//   CLAIM_PERIOD: '20240723',
-//   CHECKLIST_REF: 'SD-1719998396925-7545',
-//   CHECKLIST_DATE: '20240703',
-//   BG_TYPE: 'SDBG',
-//   VENDOR_NAME: 'DCG DATA CORE 03.04.2024',
-//   VENDOR_ADD1: '',
-//   VENDOR_ADD2: '',
-//   VENDOR_ADD3: '',
-//   VENDOR_CITY: 'KOLKATA',
-//   V_PIN_CODE: 0,
-//   CONFIRMATION: 'yes',
-//   EXTENTION_DATE1: '0',
-//   EXTENTION_DATE2: '0',
-//   EXTENTION_DATE3: '0',
-//   EXTENTION_DATE4: '0',
-//   EXTENTION_DATE5: '',
-//   EXTENTION_DATE6: '',
-//   RELEASE_DATE: '0',
-//   DEM_NOTICE_DATE: '0',
-//   EXT_LETTER_DATE: ''
-// }

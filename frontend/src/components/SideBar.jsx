@@ -9,16 +9,10 @@ import { reConfirm } from "../utils/reConfirm";
 export default function SideBar({ id }) {
   const dispatch = useDispatch();
   const { po, poType } = useSelector((state) => state.selectedPO);
-  // const { userType } = useSelector((state) => state.auth);
 
   const logOutFun = () => {
     dispatch(logoutHandler());
     dispatch(poRemoveHandler());
-    // window.location.href = "/";
-    // Persistor.pause();
-    // Persistor.flush().then(() => {
-    //   return Persistor.purge();
-    // });
   };
 
   return (
@@ -27,7 +21,6 @@ export default function SideBar({ id }) {
         <div className="aside-logo flex-column-auto" onClick={() => dispatch(poRemoveHandler())}>
           <Link to="/po" className="logo_link">
             <img src={require("../images/image001.jpg")} alt="" className="img-fluid" style={{ width: "80px" }} />
-            {/* <span>HSL</span> */}
           </Link>
         </div>
         {/* Aside menu */}

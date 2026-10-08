@@ -209,17 +209,6 @@ const Shippingdocuments = () => {
                             </button>
                           </>
                         )}
-                        {/* {(user?.department_id === DEPT_STORE ||
-                          user?.department_id === DEPT_RIC) && (
-                          <>
-                            <button
-                              onClick={() => setIsPopupstore(true)}
-                              className="btn fw-bold btn-primary me-3"
-                            >
-                              ACTION
-                            </button>
-                          </>
-                        )} */}
                       </div>
                     </div>
                     <div className="col-12">
@@ -253,31 +242,6 @@ const Shippingdocuments = () => {
                                   </>
                                 ) : (
                                   <>
-                                    {/* {checkTypeArr(data) &&
-                                      data.map((item, index) => (
-                                        <tr key={index}>
-                                          <td className="table_center">
-                                            {item.created_at &&
-                                              formatDate(item.created_at)}
-                                          </td>
-                                          <td>
-                                            {item.file_name && (
-                                              <a
-                                                href={formatFilePath(
-                                                  item.file_path
-                                                )}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                              >
-                                                View File
-                                              </a>
-                                            )}
-                                          </td>
-                                          <td>{item.file_type_name}</td>
-                                          <td>{item.updated_by}</td>
-                                          <td>{item.remarks}</td>
-                                        </tr>
-                                      ))} */}
 
                                     {Object.keys(groupedIlms).map(
                                       (it, index) => {
@@ -497,55 +461,6 @@ const Shippingdocuments = () => {
       )}
 
       {/* store  ric*/}
-      {/* {(user?.department_id === 5 || user?.department_id === 16) && (
-        <div className={isPopupstore ? "popup active" : "popup"}>
-          <div className="card card-xxl-stretch mb-5 mb-xxl-8">
-            <div className="card-header border-0 pt-5 pb-3">
-              <h3 className="card-title align-items-start flex-column">
-                <span className="card-label fw-bold fs-3 mb-1">
-                  Request For Required Shipping Documents
-                </span>
-              </h3>
-              <button
-                className="btn fw-bold btn-danger"
-                onClick={() => setIsPopupstore(false)}
-              >
-                Close
-              </button>
-            </div>
-            <form>
-              <div className="row">
-                <div className="col-12">
-                  <div className="mb-3">
-                    <label className="form-label">Remarks</label>
-                    &nbsp;&nbsp;
-                    <span className="mandatorystart">*</span>
-                    <textarea
-                      name=""
-                      id=""
-                      rows="4"
-                      className="form-control"
-                      value={formData?.remarks}
-                      onChange={(e) =>
-                        setFormData({ ...formData, remarks: e.target.value })
-                      }
-                    ></textarea>
-                  </div>
-                </div>
-                <div className="col-12">
-                  <div className="mb-3 d-flex justify-content-between">
-                    <DynamicButton
-                      label="SUBMIT"
-                      onClick={() => shippingdocumentsBtn("REQUESTED")}
-                      className="btn fw-bold btn-primary"
-                    />
-                  </div>
-                </div>
-              </div>
-            </form>
-          </div>
-        </div>
-      )} */}
     </>
   );
 };

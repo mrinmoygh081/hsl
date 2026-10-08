@@ -3,7 +3,6 @@ import Footer from "../components/Footer";
 import SideBar from "../components/SideBar";
 import Header from "../components/Header";
 import { useParams } from "react-router-dom";
-// import { useSelector } from "react-redux";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import HrSearchableSelect from "../components/HrSearchableSelect";
 
@@ -12,7 +11,6 @@ const RaiseDemand = () => {
   const [dynamicFields, setDynamicFields] = useState([{ bank: null, quantity: "" }]);
 
   const { id } = useParams();
-  // const { user, token, userType } = useSelector((state) => state.auth);
 
   const bankOptions = [
     { value: "102", label: "50" },

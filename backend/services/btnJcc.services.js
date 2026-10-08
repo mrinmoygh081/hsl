@@ -65,7 +65,6 @@ const getWdcInfoServiceHybrid = async (req, res) => {
 
 };
 
-
 const jccBtnforwordToFinacePaylaod = (payload) => {
 
   const obj = {
@@ -99,43 +98,33 @@ const jccPayloadObj = (payload) => {
     purchasing_doc_no: payload.purchasing_doc_no,
     vendor_code: payload.vendor_code,
     invoice_no: payload.jcc_ref_number,
-    // invoice_value: payload.invoice_value,
     yard: payload.yard,
-    // jcc_filename: payload.jcc_filename || null,
-    // invoice_filename: payload.invoice_filename || "",
     invoice_type: "JCC",
     invoice_date: payload.jcc_date || null,
-    // suppoting_invoice_filename: payload.suppoting_invoice_filename || "",
     bill_certifing_authority: payload.bill_certifing_authority,
     net_claim_amount: payload.net_claim_amount || "0",
     jcc_ref_number: payload.jcc_ref_number,
-    // jcc_job_start_date: payload.jcc_job_start_date,
-    // jcc_job_end_date: payload.jcc_job_end_date,
     hsn_gstn_icgrn: "1",
     remarks: payload.remarks || null,
     ref_invoice1_no: payload.ref_invoice1_no || null,
     ref_invoice1_filename: payload.ref_invoice1_filename || null,
     ref_invoice1_file_path: payload.ref_invoice1_file_path || null,
     ref_invoice1_amount: payload.ref_invoice1_amount ?? "0",
-    // ref_invoice1_file: payload.ref_invoice1_file || null,
     ref_invoice1_remarks: payload.ref_invoice1_remarks || null,
     ref_invoice2_no: payload.ref_invoice2_no || null,
     ref_invoice2_filename: payload.ref_invoice2_filename || null,
     ref_invoice2_file_path: payload.ref_invoice2_file_path || null,
     ref_invoice2_amount: payload.ref_invoice2_amount ?? "0",
-    // ref_invoice2_file: payload.ref_invoice2_file || null,
     ref_invoice2_remarks: payload.ref_invoice2_remarks || null,
     ref_invoice3_no: payload.ref_invoice3_no || null,
     ref_invoice3_filename: payload.ref_invoice3_filename || null,
     ref_invoice3_file_path: payload.ref_invoice3_file_path || null,
     ref_invoice3_amount: payload.ref_invoice3_amount ?? "0",
-    // ref_invoice3_file: payload.ref_invoice3_file || null,
     ref_invoice3_remarks: payload.ref_invoice3_remarks || null,
     ref_invoice4_no: payload.ref_invoice4_no || null,
     ref_invoice4_filename: payload.ref_invoice4_filename || null,
     ref_invoice4_file_path: payload.ref_invoice4_file_path || null,
     ref_invoice4_amount: payload.ref_invoice4_amount ?? "0",
-    // ref_invoice4_file: payload.ref_invoice4_file || null,
     ref_invoice4_remarks: payload.ref_invoice4_remarks || null,
     created_by_id: payload.created_by_id,
     created_at: getEpochTime(),
@@ -145,7 +134,6 @@ const jccPayloadObj = (payload) => {
 
   return obj;
 }
-
 
 async function getJccBTNDetails(client, data) {
   try {
@@ -185,7 +173,6 @@ async function getJccBTNDetails(client, data) {
     // AND s_btn.bill_certifing_authority = '600700'
     // btn_assign.*,
     // LEFT JOIN btn_assign AS btn_assign
-    // ON(s_btn.btn_num = btn_assign.btn_num)
     const result = await poolQuery({ client, query: getBtnQuery, values: val });
     const vendor = await getVendorDetails(client, [data.poNo || ""])
     let response = result[0] || {};
@@ -200,7 +187,6 @@ async function getJccBTNDetails(client, data) {
     throw error;
   }
 }
-
 
 async function checkHrCompliances(client, data) {
 
@@ -232,8 +218,6 @@ async function checkHrCompliances(client, data) {
     return response;
   }
 
-
-
   compliences.forEach(ele => {
     if (ele.compliance && typeof ele.compliance == "string") {
       const compl = ele.compliance.toLowerCase() + "_compliance";
@@ -246,39 +230,8 @@ async function checkHrCompliances(client, data) {
   }
 
   return response;
-  // compliences.forEach(ele => {
-
-  //   if (ele.leave_salary_compliance == YES_SORT_FORM) {
-  //     response.status = false;
-  //     response.leave_salary_compliance = ele.leave_salary_compliance;
-  //     response.bonus_compliance = ele.bonus_compliance;
-  //     response.last_complient_date = ele.last_complient_date;
-  //     response.hr_remarks = ele.hr_remarks;
-  //   }
-
-  //   if (ele.bonus_compliance == YES_SORT_FORM) {
-  //     response.status = false;
-  //     response.leave_salary_compliance = ele.leave_salary_compliance;
-  //     response.bonus_compliance = ele.bonus_compliance;
-  //     response.last_complient_date = ele.last_complient_date;
-  //     response.hr_remarks = ele.hr_remarks;
-  //   }
-  //   if (ele.leave_salary_compliance == YES_SORT_FORM && ele.bonus_compliance == YES_SORT_FORM) {
-  //     response.status = true;
-  //     response.leave_salary_compliance = ele.leave_salary_compliance;
-  //     response.bonus_compliance = ele.bonus_compliance;
-  //     response.last_complient_date = ele.last_complient_date;
-  //     response.hr_remarks = ele.hr_remarks;
-  //   }
-  // });
-
-  // return response;
 
 }
-
-
-
-
 
 module.exports = {
   jccPayloadObj,

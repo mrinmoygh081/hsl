@@ -35,15 +35,12 @@ const AdvanceBillHybrid = lazy(() => import("./pages/checklists/AdvanceBillHybri
 const BillsMaterialHybrid = lazy(() => import("./pages/checklists/BillsMaterialHybrid"));
 const ClaimAgainstPBGSubmission = lazy(() => import("./pages/checklists/ClaimAgainstPBGSubmission"));
 const Checklist = lazy(() => import("./pages/Checklist"));
-// const ClaimIncorrectDeductions = lazy(() => import("./pages/checklists/ClaimIncorrectDeductions"));
-// const LDPenaltyRefund = lazy(() => import("./pages/checklists/LDPenaltyRefund"));
 const IlmsSub = lazy(() => import("./pages/IlmsSub"));
 const MRSSub = lazy(() => import("./pages/MRSSub"));
 const MaterialIssueReqSub = lazy(() => import("./pages/MaterialIssueReqSub"));
 const WMCSub = lazy(() => import("./pages/WMCSub"));
 const DemandDeliveryLeadTime = lazy(() => import("./pages/DemandDeliveryLeadTime"));
 const Inspectionreleasenote = lazy(() => import("./pages/Inspectionreleasenote"));
-// const HrCompliance = lazy(() => import("./pages/HrCompliance"));
 const DemandManagement = lazy(() => import("./pages/DemandManagement"));
 const DisplayStoreActions = lazy(() => import("./pages/DisplayStoreActions"));
 const ManageVendorActivities = lazy(() => import("./pages/ManageVendorActivities"));
@@ -144,7 +141,6 @@ function Layout() {
           <Route path="/manage-vendor-activities/:id" element={<ManageVendorActivities />} />
           <Route path="/invoice-and-payment-process/:id" element={<Checklist />} />
           <Route path="/inspection-release-note/:id" element={<Inspectionreleasenote />} />
-          {/* <Route path="/hr-compliance/:id" element={<HrCompliance />} /> */}
           <Route path="/shipping-documents/:id" element={<Shippingdocuments />} />
           <Route path="/gate-in/:id" element={<GateInSub />} />
           {/* Material Checklist  */}
@@ -158,7 +154,6 @@ function Layout() {
           <Route path="/checklist/bill-service/edit/:id" element={<ServiceContractBillsEdit />} />
 
           {/* Advance Checklist  */}
-          {/* <Route path="/checklist/advance-bill/:id" element={<AdvanceBillHybrid />} /> */}
           <Route path="/checklist/advance-bill/view/:id" element={<AdvanceBillHybridView />} />
           <Route path="/checklist/advance-bill/edit/:id" element={<AdvanceBillHybridEdit />} />
 
@@ -189,49 +184,12 @@ function Layout() {
           <Route path="/checklist/ld-penalty-refund/view/:id" element={<LDRefundSupplyMaterialView />} />
           <Route path="/checklist/ld-penalty-refund/edit/:id" element={<LDRefundSupplyMaterialEdit />} />
 
-          {/* <Route
-          path="/checklist/bill-incorrect-deductions/:id"
-          element={<ClaimIncorrectDeductions />}
-        />
-        <Route
-          path="/checklist/bill-incorrect-deductions/view/:id"
-          element={<ClaimIncorrectDeductionsview />}
-        />
-        <Route
-          path="/checklist/ld-penalty-refund/view/:id"
-          element={<ClaimIncorrectDeductionsview />}
-        />
-        <Route
-          path="/checklist/other-retentions/view/:id"
-          element={<ClaimIncorrectDeductionsview />}
-        />
-
-        <Route
-          path="/checklist/bill-incorrect-deductions/edit/:id"
-          element={<ClaimIncorrectDeductionsEdit />}
-        />
-        <Route
-          path="/checklist/ld-penalty-refund/edit/:id"
-          element={<ClaimIncorrectDeductionsEdit />}
-        />
-        <Route
-          path="/checklist/other-retentions/edit/:id"
-          element={<ClaimIncorrectDeductionsEdit />}
-        />
-        
-        
-        
-        <Route
-          path="/checklist/ld-penalty-refund/:id"
-          element={<LDPenaltyRefund />}
-        /> */}
           <Route path="/bill-registration-number/:id" element={<BRNSub />} />
           <Route path="/payment-advise/:id" element={<PaymentAdvisesSub />} />
           <Route path="/pbg-upload/:id" element={<PBGuploadSub />} />
           <Route path="/bg-extension" element={<BGExtensionSub />} />
           <Route path="/po-pull" element={<Pofetch />} />
           <Route path="/support" element={<SupportTeam />} />
-          {/* <Route path="/contract-cell" element={<Contractcell />} /> */}
           <Route path="/contract-cell" element={<HrContractvendor />} />
           {(user?.department_id === DEPT_QAP ||
             user?.department_id === DEPT_DESIGN ||
@@ -241,24 +199,12 @@ function Layout() {
           {(user?.department_id === DEPT_DESIGN || user?.department_id === DEPT_IT || user?.vendor_code === "600233" || user?.vendor_code === "601824") && (
             <Route path="/dashboard/drawing" element={<QapDrawing />} />
           )}
-          {/* {(user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.vendor_code === "600233" || user?.vendor_code === "601824") && (
-            <>
-              <Route path="/dashboard/bg" element={<BGfinance />} />
-              <Route path="/dashboard/btn" element={<BTNfinance />} />
-              <Route path="/dashboard/wdc" element={<WDCDashboard />} />
-            </>
-          )} */}
           {/* BG Dashboard */}
           {(user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.vendor_code === "600233" || user?.vendor_code === "601824") && (
             <Route path="/dashboard/bg" element={<BGfinance />} />
           )}
 
           {/* BTN Dashboard */}
-          {/* {(user?.department_id === DEPT_FI ||
-            user?.department_id === DEPT_IT ||
-            user?.vendor_code === "600233" ||
-            user?.vendor_code === "487220" ||
-            user?.vendor_code === "601824") && <Route path="/dashboard/btn" element={<BTNfinance />} />} */}
           {user?.user_type !== USER_VENDOR && <Route path="/dashboard/btn" element={<BTNfinance />} />}
 
           {/* WDC Dashboard */}
@@ -266,11 +212,9 @@ function Layout() {
             <Route path="/dashboard/wdc" element={<WDCDashboard />} />
           )}
 
-          {/* {(user?.department_id === DEPT_FI || user?.department_id === DEPT_IT || user?.department_id === USER_HSL_PURCHASE) && ( */}
           <>
             <Route path="/dashboard/task-list" element={<TaskList />} />
           </>
-          {/* )} */}
 
           <Route path="/claim-letter/:id" element={<ClaimLatterSub />} />
           <Route path="/wdc/:id" element={<WDCSub />} />

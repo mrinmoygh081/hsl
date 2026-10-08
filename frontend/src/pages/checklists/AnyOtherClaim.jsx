@@ -300,8 +300,6 @@ const AnyOtherClaim = () => {
                                         >
                                           <option value="">Choose Your Claim Type</option>
                                           <option value="bill-incorrect-deductions">Excess Deductions</option>
-                                          {/* <option value="advance-bill">Advance Payment</option> */}
-                                          {/* <option value="claim-against-jcc">Claim Against JCC</option> */}
                                           <option value="other-retentions">Other Retentions</option>
                                           <option value="ld-penalty-refund">LD-Penalty Refund</option>
                                         </select>

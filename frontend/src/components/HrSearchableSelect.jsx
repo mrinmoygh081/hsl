@@ -10,7 +10,13 @@ const HrSearchableSelect = ({ options = [], value, onChange, placeholder = "Sele
   const dropdownRef = useRef(null); // ← NEW: dropdown scroll control ke liye
   const listRef = useRef(null);
 
-  const selectedOption = options.find((opt) => opt.value === value) || null;
+  const selectedOption =
+    options.find(
+      (opt) =>
+        opt.value === value ||
+        (value && opt.value && String(opt.value).trim() === String(value).trim()) ||
+        (value && opt.value && !isNaN(Number(opt.value)) && !isNaN(Number(value)) && Number(opt.value) === Number(value))
+    ) || null;
 
   const filteredOptions = options.filter((opt) => opt.label.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -106,7 +112,9 @@ const HrSearchableSelect = ({ options = [], value, onChange, placeholder = "Sele
         role="combobox"
         aria-expanded={isOpen}
       >
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{selectedOption ? selectedOption.label : placeholder}</span>
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>
+          {selectedOption ? selectedOption.label : value ? `Officer (${value})` : placeholder}
+        </span>
         <span style={{ position: "absolute", right: "10px" }}>
           {isClearable && selectedOption && (
             <span onClick={handleClear} style={{ marginRight: "8px", cursor: "pointer", color: "#999" }}>

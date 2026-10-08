@@ -13,8 +13,6 @@ const { poolClient, getQuery } = require("../config/pgDbConfig");
 const { getUserDetailsQuery } = require("../utils/mailFunc");
 const { sendMail } = require("../services/mail.services");
 
-
-
 const insertPOData = async (req, res) => {
   console.log("PO API CALL");
   let insertPayload = {};
@@ -29,9 +27,7 @@ const insertPOData = async (req, res) => {
       payload = req.body;
     }
 
-    //  console.log("PO payload", payload);
     const { EKPO, ZPO_MILESTONE, ...obj } = payload;
-
 
     try {
       if (
@@ -152,39 +148,6 @@ const insertPOData = async (req, res) => {
   }
 };
 
-// async function sendMail(data) {
-//     const q =
-//         `SELECT v_add.smtp_addr AS vendor_email,
-//     v.name1         AS vendor_name
-//     FROM   adr6 AS v_add
-//     LEFT JOIN lfa1 AS v
-//     ON v.lifnr = v_add.persnumber
-//     WHERE  v_add.persnumber = ? ;`;
-//     const result = await query({ query: q, values: [data.LIFNR] });
-//     // const result = [
-//     //     {
-//     //       vendor_email: 'mainak.dutta@datacoresystems.co.in',
-//     //       vendor_name: 'PriceWaterhouseCoopers Pvt Ltd'
-//     //     }
-//     //   ];
-//     console.log(result);
-//     console.log(data);
-//     //console.log(res);
-//     if (result.length) {
-//         console.log(result.length);
-//         const payload = {
-//             purchasing_doc_no: data.EBELN,
-//             vendor_name: result[0].vendor_name,
-//             upload_date: data.AEDAT,
-//             vendor_email: result[0].vendor_email
-//         }
-//         console.log(payload);
-
-//         await mailTrigger(payload, PO_UPLOAD_IN_LAN_NIC);
-//     }
-
-// }
-
 async function handelMail(data) {
   try {
     let vendorAndDoDetails = getUserDetailsQuery("vendor_and_do", "$1");
@@ -210,7 +173,6 @@ const archivePo = async (req, res) => {
   let payload = {};
 
   try {
-    // const promiseConnection = await connection();
     const client = await poolClient();
     let transactionSuccessful = false;
     if (Array.isArray(req.body)) {
@@ -223,7 +185,6 @@ const archivePo = async (req, res) => {
     const cdpos_table_data = payload.CDPOS_LINE_ITEM || payload.cdpos_line_item;
 
     try {
-      // await promiseConnection.beginTransaction();
       await client.query("BEGIN");
 
       if (cdhdr_table_data?.length) {
@@ -234,7 +195,6 @@ const archivePo = async (req, res) => {
             "cdhdr",
             ["OBJECTCLAS"]
           );
-          // const [results] = await promiseConnection.execute(cdhdrTableInsert);
           await client.query(
             cdhdrTableInsert.q,
             cdhdrTableInsert.val
@@ -262,7 +222,6 @@ const archivePo = async (req, res) => {
             "cdpos",
             ["OBJECTCLAS", "OBJECTID", "CHANGENR", "TABNAME", "TABKEY"]
           );
-          // const [results] = await promiseConnection.execute(insert_cdpos_table);
           await client.query(
             insert_cdpos_table.q,
             insert_cdpos_table.val
@@ -272,7 +231,6 @@ const archivePo = async (req, res) => {
         }
       }
 
-      // const comm = await client.commit(); // Commit the transaction if everything was successful
       await client.query("COMMIT");
       transactionSuccessful = true;
       if (transactionSuccessful === TRUE) {
@@ -289,10 +247,8 @@ const archivePo = async (req, res) => {
       responseSend(res, "F", 502, "Data insert failed !!", error, null);
     } finally {
       if (!transactionSuccessful) {
-        // await promiseConnection.rollback();
         await client.query("ROLLBACK");
       }
-      // const connEnd = await promiseConnection.end();
       client.release();
     }
   } catch (error) {

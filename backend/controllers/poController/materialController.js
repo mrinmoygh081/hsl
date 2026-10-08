@@ -2,7 +2,6 @@ const { resSend } = require("../../lib/resSend");
 const { getQuery } = require("../../config/pgDbConfig");
 const Message= require("../../utils/messages");
 
-
 /** APIS START ----->  */
 
 const materialIssue = async (req, res) => {
@@ -58,22 +57,6 @@ const materialIssue = async (req, res) => {
       reservationNo: null,
       lineItem: result,
     };
-
-    // {
-    //     issueNo: '1000001014',
-    //     materialNumber: null,
-    //     materialDescription: null,
-    //     unit: null,
-    //     batchNo: null,
-    //     issueQty: null,
-    //     BPMNG: null,
-    //     issuDate: null,
-    //     purchasing_doc_no: null,
-    //     poItemNumber: null,
-    //     reserationNo: null,
-    //     vendor_code: '50000437',
-    //     requiredQty: null
-    //   }
 
     if (result.length > 0) {
       response.issueNo = result[0]?.issueNo;

@@ -1,20 +1,7 @@
 /* eslint-disable no-undef */
 
 function getLocalIpAddress() {
-  // const networkInterfaces = os.networkInterfaces();
   let ipAddress = process.env.SERVER_IP_ADDRESS;
-
-  // for (const name of Object.keys(networkInterfaces)) {
-  //     for (const net of networkInterfaces[name]) {
-  //         if (net.family === 'IPv4' && !net.internal) {
-  //             ipAddress = net.address;
-  //             break;
-  //         }
-  //     }
-  //     if (ipAddress) {
-  //         break;
-  //     }
-  // }
 
   return ipAddress;
 }

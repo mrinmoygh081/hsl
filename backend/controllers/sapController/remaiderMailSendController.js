@@ -19,7 +19,6 @@ const sendPOMilestoneEXPReminderMail = async () => {
     }
   }
 
-  // resSend(res, true, 200, "success", timeLineData, null);
 };
 
 async function getTimeLineData() {
@@ -102,9 +101,6 @@ async function getTimeLineData() {
             WHERE (t.PLAN_DATE BETWEEN $1 AND $2)
 			 GROUP  BY t.ebeln, t.mid, v_name.email,  v_name.lifnr, p.table_name`;
 
-  //   GROUP  BY t.ebeln,
-  //   t.mid;
-  // const q = `SELECT * FROM zpo_milestone WHERE PLAN_DATE BETWEEN '${dueDate} 00:00:00' AND '${dueDate} 23:59:59';`;
   const firstTime = `${dueDate} 00:00:00`;
   const lastTime = `${dueDate} 23:59:59`;
   const result = await getQuery({ query: q, values: [firstTime, lastTime] });
@@ -237,26 +233,7 @@ function isOver3WorkingDaysOld(inputDate, currentDate) {
     if (day === 0 || day == 6) {
       // Saturday, Sunday – skip
     }
-    // } else if (day === 6) {
-    //   // Saturday – check if it's 2nd or 4th
-    //   const date = checkDate.getDate();
-    //   const month = checkDate.getMonth();
-    //   const year = checkDate.getFullYear();
 
-    //   const firstDay = new Date(year, month, 1);
-    //   let saturdayCount = 0;
-
-    //   for (let d = 1; d <= date; d++) {
-    //     const temp = new Date(year, month, d);
-    //     if (temp.getDay() === 6) {
-    //       saturdayCount++;
-    //     }
-    //   }
-
-    //   if (saturdayCount === 2 || saturdayCount === 4) {
-    //     count++;
-    //   }
-    // }
     else {
       // Monday to Friday –> count
       count++;
@@ -266,11 +243,6 @@ function isOver3WorkingDaysOld(inputDate, currentDate) {
   }
   return count >= 3;
 }
-
-// inputDate = '2025-07-02'
-// currentDate = '2025-07-07';
-
-// const r = isOver3WorkingDaysOld(new Date(inputDate), new Date(currentDate));
 
 async function getDrawingData() {
   let client;
@@ -308,14 +280,11 @@ async function getDrawingData() {
 
           const { q, val } = generateQuery(INSERT, "drawing", payload);
 
-          // promiseArr.push(poolQuery({ client, query: q, values: val }));
           await poolQuery({ client, query: q, values: val });
-          // promiseArr.push(setActualSubmissionDate(payload, MID_DRAWING, { vendor_code: dw.vendor_code }, SUBMITTED, client));
           await setActualSubmissionDate(payload, MID_DRAWING, { vendor_code: dw.vendor_code }, SUBMITTED, client);
         }
       }
 
-      // const re = await Promise.all(promiseArr);
       return true;
     }
 
