@@ -173,14 +173,28 @@ function formatDate(inputDate) {
   }
 
   // Convert the input date string to a Date object
-  const year = inputDate.slice(0, 4);
-  const month = inputDate.slice(4, 6);
-  const day = inputDate.slice(6, 8);
+  // const year = inputDate.slice(0, 4);
+  // const month = inputDate.slice(4, 6);
+  // const day = inputDate.slice(6, 8);
+
+  let year, month, day;
+
+  if (/^\d{8}$/.test(inputDate)) {
+    // for YYYYMMDD
+    year = inputDate.slice(0, 4);
+    month = inputDate.slice(4, 6);
+    day = inputDate.slice(6, 8);
+  } else if (/^\d{4}-\d{2}-\d{2}$/.test(inputDate)) {
+    //for YYYY-MM-DD
+    [year, month, day] = inputDate.split("-");
+  } else {
+    return null;
+  }
 
   const dateObject = new Date(`${year}-${month}-${day}`);
 
   if (isNaN(dateObject.getTime())) {
-    return null; // Return null for an invalid date
+    return null;
   }
 
   const formattedDate = dateObject.toISOString().split("T")[0];
@@ -209,12 +223,12 @@ function formatTime(inputTime) {
 }
 
 /**
- * GENERATE QUERY FOR MULTIPLE DATA 
+ * GENERATE QUERY FOR MULTIPLE DATA
  * SPECIALLY USE FOR SAP DATA
- * @param {*} array 
- * @param {*} tableName 
- * @param {*} multiplePKs 
- * @returns 
+ * @param {*} array
+ * @param {*} tableName
+ * @param {*} multiplePKs
+ * @returns
  */
 async function generateQueryForMultipleData(array, tableName, multiplePKs) {
   if (!array || !Array.isArray(array) || !array.length || !multiplePKs) {
@@ -257,8 +271,8 @@ async function generateQueryForMultipleData(array, tableName, multiplePKs) {
     (col) => !multiplePKs.includes(col) && col !== "created_at",
   );
 
-  console.log(52, columnArr);
-  console.log(55, columnArrWithOutPK);
+  // console.log(52, columnArr);
+  // console.log(55, columnArrWithOutPK);
   const columnArrWithOutPKLen = columnArrWithOutPK.length - 1;
   queryText += ` DO UPDATE SET `;
 
@@ -293,6 +307,7 @@ async function generateInsertUpdateQuery(
     ...paylaodObject,
     sync: false,
     created_at: getEpochTime(),
+    last_changed_at: getEpochTime(),
   };
   const columnArr = Object.keys(obj);
   let valuesArray = Object.values(obj);
