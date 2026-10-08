@@ -28,8 +28,10 @@ module.exports = {
   NON_OBPS_DATA: "This PO/item is not part of the OBPS project.",
   BTN_CREATED: "BTN created successfully!",
   MANDATORY_PARAMETR_MISSING: "Please send the mandatory parameter.",
-  SOMTHING_WENT_WRONG: "Something went wrong. Please try again and contact the administrator if the issue persists.",
-  USER_NOT_APPROVED: "You're not authorized. Please contact the nodal point for approval.",
+  SOMTHING_WENT_WRONG:
+    "Something went wrong. Please try again and contact the administrator if the issue persists.",
+  USER_NOT_APPROVED:
+    "You're not authorized. Please contact the nodal point for approval.",
   COMPLIANCE_STATUS_WARNING_MSG: "Compliance already - ",
   COMPLIANCE_ACTION_MSG: "Action taken successfully!",
   COMPLIANCE_INSERT_MSG: "Data inserted successfully.",
@@ -37,26 +39,34 @@ module.exports = {
   AUTHORIZED_TO_TAKE_ACTION: "You are authorized to take action.",
   INVOICE_NO_NOT_VALID: "Invoice number is not valid!",
   LOGIN_AS_VALID_USER: "Please log in as a valid user!",
-  YOU_CANT_TAKE_ACTION_AGAINST_REF_NO: "You can't take any action against this reference number.",
+  YOU_CANT_TAKE_ACTION_AGAINST_REF_NO:
+    "You can't take any action against this reference number.",
   PLEASE_SEND_VALID_REF_NO: "Please send a valid reference number.",
   FILE_REQUIRED_MSG: "File is required.",
-  NO_VALID_EMAIL: "Please enter a valid registerd email to continue. Please contact the administrator.",
-  VENDOR_REGISTER_SERVER_ERR_MSG: "Please use the Vendor OBPS portal to register.",
+  NO_VALID_EMAIL:
+    "Please enter a valid registerd email to continue. Please contact the administrator.",
+  VENDOR_REGISTER_SERVER_ERR_MSG:
+    "Please use the Vendor OBPS portal to register.",
   FILE_UPLOAD_SUCCESSFULLY: "File uploaded successfully!",
-  ILLIAL_SERVER_ACCESS_MSG_FOR_LAN: "Violation of process - will be reported to the admin. Try from https://obps.grse.in",
-  ILLIAL_SERVER_ACCESS_MSG_FOR_AWS: "Violation of process - will be reported to the admin. Try from http://obps.grse.co.in",
+  ILLIAL_SERVER_ACCESS_MSG_FOR_LAN:
+    "Violation of process - will be reported to the admin. Try from https://ovms.hsl.in",
+  ILLIAL_SERVER_ACCESS_MSG_FOR_AWS:
+    "Violation of process - will be reported to the admin. Try from http://ovms.hsl.co.in",
   SAP_NOT_CONNECTED: "SAP is not connected!",
   VALIDATION_SUCCESSFULL: "Validation successful.",
   VALIDATION_UNSUCCESSFULL: "Validation unsuccessful!",
   INVALID_CREDINTIAL: "Wrong login credential. Try again.",
   REGISTRATION_MSG: "Complete your registration to continue",
-  TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED: "Too many failed attempts. Your account has been locked. Try after some time.",
+  TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED:
+    "Too many failed attempts. Your account has been locked. Try after some time.",
   TOKEN_GENERATION_ERROR: "Token generation error",
   INVALID_CAPTCHA: "Wrong input captcha. Try again",
-  REGISTRATION_OTP_EMAIL_SUBJECT: "One-time password (OTP) to complete registration in OBPS",
+  REGISTRATION_OTP_EMAIL_SUBJECT:
+    "One-time password (OTP) to complete registration in OBPS",
   LOGIN_OTP_EMAIL_SUBJECT: "One-time password (OTP) to log in to OBPS",
   ENTER_VALID_CAPTHA: "Enter a valid captcha to continue",
   CAPTHA_GEN_ERROR: "Captcha error",
   TOO_MANY_REQUEST_FROM_IP: "Too many requests from this IP",
-  FILE_UPLOAD_SECURITY_FAIL_MSG: "Security validation failed. File not uploaded. Please upload fresh/proper PDF file.",
+  FILE_UPLOAD_SECURITY_FAIL_MSG:
+    "Security validation failed. File not uploaded. Please upload fresh/proper PDF file.",
 };

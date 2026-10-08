@@ -47,7 +47,8 @@ const insertPOData = async (req, res) => {
         BSTYP: obj.BSTYP ? obj.BSTYP : null,
         BSART: obj.BSART ? obj.BSART : null,
         LOEKZ: obj.LOEKZ ? obj.LOEKZ : null,
-        AEDAT: formatDate(obj.AEDAT),
+        // AEDAT: formatDate(obj.AEDAT),
+        AEDAT: obj.AEDAT,
         ERNAM: obj.ERNAM ? obj.ERNAM : null,
         LIFNR: obj.LIFNR ? obj.LIFNR : null,
         EKORG: obj.EKORG ? obj.EKORG : null,
@@ -56,19 +57,12 @@ const insertPOData = async (req, res) => {
       const ekkoTableInsert = await generateInsertUpdateQuery(
         insertPayload,
         EKKO,
-        ["EBELN"]
+        ["EBELN"],
       );
       try {
         await client.query(ekkoTableInsert.q, ekkoTableInsert.val);
       } catch (error) {
-        return responseSend(
-          res,
-          "F",
-          502,
-          error.message,
-          error.stack,
-          null
-        );
+        return responseSend(res, "F", 502, error.message, error.stack, null);
       }
 
       try {
@@ -86,13 +80,13 @@ const insertPOData = async (req, res) => {
           const insert_zpo_milestone_table = await generateQueryForMultipleData(
             zmilestonePayload,
             "zpo_milestone",
-            ["EBELN", "MID"]
+            ["EBELN", "MID"],
           );
           insertPromiseFn.push(
             client.query(
               insert_zpo_milestone_table.q,
-              insert_zpo_milestone_table.val
-            )
+              insert_zpo_milestone_table.val,
+            ),
           );
         } catch (error) {
           console.error(error.message);
@@ -105,10 +99,10 @@ const insertPOData = async (req, res) => {
           const insert_ekpo_table = await generateQueryForMultipleData(
             ekpopayload,
             "ekpo",
-            ["EBELN", "EBELP"]
+            ["EBELN", "EBELP"],
           );
           insertPromiseFn.push(
-            client.query(insert_ekpo_table.q, insert_ekpo_table.val)
+            client.query(insert_ekpo_table.q, insert_ekpo_table.val),
           );
         } catch (error) {
           console.error(error.message);
@@ -125,12 +119,33 @@ const insertPOData = async (req, res) => {
       if (insertPayload.LIFNR && transactionSuccessful === TRUE) {
         try {
           handelMail(insertPayload);
-          responseSend(res, "S", 200, "data insert succeed with mail trigere", [], null);
+          responseSend(
+            res,
+            "S",
+            200,
+            "data insert succeed with mail trigere",
+            [],
+            null,
+          );
         } catch (error) {
-          responseSend(res, "F", 201, "Data insert but mail not send !!", error.toString(), null);
+          responseSend(
+            res,
+            "F",
+            201,
+            "Data insert but mail not send !!",
+            error.toString(),
+            null,
+          );
         }
       } else {
-        responseSend(res, "S", 200, "data insert succeed without mail.", [], null);
+        responseSend(
+          res,
+          "S",
+          200,
+          "data insert succeed without mail.",
+          [],
+          null,
+        );
       }
     } catch (error) {
       console.log("error", error.message, error.stack);
@@ -162,7 +177,12 @@ async function handelMail(data) {
       do_name: mail_details[1]?.u_name,
       upload_date: new Date().toDateString(),
     };
-    await sendMail(PO_UPLOAD_IN_LAN, dataObj, { users: mail_details }, PO_UPLOAD_IN_LAN);
+    await sendMail(
+      PO_UPLOAD_IN_LAN,
+      dataObj,
+      { users: mail_details },
+      PO_UPLOAD_IN_LAN,
+    );
   } catch (error) {
     console.error(error.message);
   }
@@ -190,15 +210,13 @@ const archivePo = async (req, res) => {
       if (cdhdr_table_data?.length) {
         try {
           insertPayload = await archivePoHeaderPayload(cdhdr_table_data);
+
           const cdhdrTableInsert = await generateQueryForMultipleData(
             insertPayload,
             "cdhdr",
-            ["OBJECTCLAS"]
+            ["OBJECTCLAS", "OBJECTID", "CHANGENR"],
           );
-          await client.query(
-            cdhdrTableInsert.q,
-            cdhdrTableInsert.val
-          );
+          await client.query(cdhdrTableInsert.q, cdhdrTableInsert.val);
         } catch (error) {
           console.error(error.message);
           return responseSend(
@@ -207,25 +225,30 @@ const archivePo = async (req, res) => {
             502,
             "Data insert failed !!",
             error,
-            null
+            null,
           );
         }
       }
 
       if (cdpos_table_data?.length) {
         try {
-          const cdposTablePayload = await archivePoLineItemsPayload(
-            cdpos_table_data
-          );
+          const cdposTablePayload =
+            await archivePoLineItemsPayload(cdpos_table_data);
           const insert_cdpos_table = await generateQueryForMultipleData(
             cdposTablePayload,
             "cdpos",
-            ["OBJECTCLAS", "OBJECTID", "CHANGENR", "TABNAME", "TABKEY"]
+            [
+              "OBJECTCLAS",
+              "OBJECTID",
+              "CHANGENR",
+              "TABNAME",
+              "TABKEY",
+              "FNAME",
+              "CHNGIND",
+            ],
           );
-          await client.query(
-            insert_cdpos_table.q,
-            insert_cdpos_table.val
-          );
+          // CONSTRAINT cdpos_pkey PRIMARY KEY (objectclas, objectid, changenr, tabname, tabkey, fname, chngind)
+          await client.query(insert_cdpos_table.q, insert_cdpos_table.val);
         } catch (error) {
           console.error(error.message);
         }
@@ -240,7 +263,7 @@ const archivePo = async (req, res) => {
           200,
           "data insert succeed with mail trigere",
           [],
-          null
+          null,
         );
       }
     } catch (error) {

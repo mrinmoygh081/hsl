@@ -18,6 +18,7 @@ const zpo_milestonePayload = async (payload) => {
     MTEXT: obj.MTEXT || null,
     MO: obj.MO || null,
   }));
+
   return pl;
 };
 
@@ -31,7 +32,7 @@ const ekpoTablePayload = async (payload, poNo) => {
     EBELP: obj.EBELP,
     LOEKZ: obj.LOEKZ || null,
     STATU: obj.STATU || null,
-    AEDAT: obj.AEDAT,
+    AEDAT: formatDate(obj.AEDAT),
     TXZ01: obj.TXZ01 || null,
     MATNR: obj.MATNR || null,
     BUKRS: obj.BUKRS || null,
@@ -44,7 +45,7 @@ const ekpoTablePayload = async (payload, poNo) => {
     NETPR: obj.NETPR || null,
     NETWR: obj.NETWR || null,
     MWSKZ: obj.MWSKZ || null,
-    EINDT: obj.EINDT,
+    EINDT: formatDate(obj.EINDT),
     PACKNO: obj.PACKNO || null,
   }));
   return pl;
