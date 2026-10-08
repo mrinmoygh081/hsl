@@ -62,7 +62,7 @@ const QAPSub = () => {
         let options =
           res?.data &&
           res.data.map((item) => ({
-            value: item.emp_id,
+            value: String(item.emp_id).trim(),
             label: `${item.cname} (${item.emp_id})`,
           }));
         setEmpOption(options || []);
@@ -71,6 +71,34 @@ const QAPSub = () => {
       console.error("Error fetching drawing assignee list:", error);
     }
   };
+
+  const getAssignedOfficerForRef = (refNo) => {
+    if (!refNo || !allQap || allQap.length === 0) return "";
+    const refItems = allQap.filter((item) => item.reference_no === refNo);
+    if (!refItems || refItems.length === 0) return "";
+
+    const vendorSubmitted = refItems.find(
+      (it) => (it.assigned_to || it.assign_to) && (it.updated_by === "VENDOR" || it.created_by_id?.length === 10)
+    );
+    if (vendorSubmitted) {
+      return String(vendorSubmitted.assigned_to || vendorSubmitted.assign_to).trim();
+    }
+
+    const anyItemWithAssignee = refItems.slice().reverse().find((it) => it.assigned_to || it.assign_to);
+    if (anyItemWithAssignee) {
+      return String(anyItemWithAssignee.assigned_to || anyItemWithAssignee.assign_to).trim();
+    }
+
+    const overallAssigned = allQap.slice().reverse().find((it) => it.assigned_to || it.assign_to);
+    return overallAssigned ? String(overallAssigned.assigned_to || overallAssigned.assign_to).trim() : "";
+  };
+
+  const displayOptions = useMemo(() => {
+    if (formData?.assign_to && !empOption.some((opt) => String(opt.value).trim() === String(formData.assign_to).trim())) {
+      return [{ value: String(formData.assign_to).trim(), label: `Officer (${formData.assign_to})` }, ...empOption];
+    }
+    return empOption;
+  }, [empOption, formData?.assign_to]);
 
   const groupedData = useMemo(() => {
     return allQap.length > 0 ? groupedByRefNo(allQap) : {};
@@ -131,6 +159,7 @@ const QAPSub = () => {
   const fetchSavedQap = async () => {
     try {
       const res = await apiCallBack("GET", `po/getQapSave?reference_no=${formData.reference_no}`, null, token);
+      const defaultOfficer = getAssignedOfficerForRef(formData.reference_no);
       if (res?.status && res.data?.length > 0) {
         const { remarks, action_type, QapFile, supporting_doc, assign_to, assigned_to } = res.data[0];
         let parsedQapFile = null;
@@ -145,7 +174,7 @@ const QAPSub = () => {
           ...prev,
           remarks: remarks || "",
           action_type: action_type || "",
-          assign_to: assign_to || assigned_to || prev.assign_to || "",
+          assign_to: assign_to || assigned_to || defaultOfficer || prev.assign_to || "",
           QapFile: parsedQapFile,
           supporting_doc: supporting_doc
             ? JSON.parse(supporting_doc).map((doc) => ({
@@ -156,15 +185,22 @@ const QAPSub = () => {
         }));
       } else {
         setFormData((prev) => ({
-          ...initialFormData,
-          reference_no: prev.reference_no,
+          ...prev,
+          remarks: "",
+          action_type: "",
+          QapFile: null,
+          supporting_doc: [],
+          assign_to: defaultOfficer || prev.assign_to || "",
         }));
       }
     } catch (error) {
-      toast.error("Error fetching saved QAP data");
       setFormData((prev) => ({
-        ...initialFormData,
-        reference_no: prev.reference_no,
+        ...prev,
+        remarks: "",
+        action_type: "",
+        QapFile: null,
+        supporting_doc: [],
+        assign_to: getAssignedOfficerForRef(prev.reference_no) || prev.assign_to || "",
       }));
     }
   };
@@ -297,8 +333,9 @@ const QAPSub = () => {
       return;
     }
 
-    if (userType === USER_VENDOR && !reference_no && !assign_to) {
-      toast.warn("Please select an Assign Officer!");
+    const isUploadAction = action_type?.toLowerCase() === "upload qap file";
+    if (isUploadAction && !QapFile) {
+      toast.warn("Please upload QAP file!");
       return;
     }
 
@@ -356,6 +393,12 @@ const QAPSub = () => {
     }
     if (!remarks.trim()) {
       toast.warn("Remarks are mandatory!");
+      return;
+    }
+
+    const isUploadAction = action_type?.toLowerCase() === "upload qap file";
+    if (isUploadAction && !QapFile) {
+      toast.warn("Please upload QAP file!");
       return;
     }
 
@@ -463,6 +506,8 @@ const QAPSub = () => {
     if (formData.reference_no) fetchSavedQap();
   }, [formData.reference_no]);
 
+  const isUploadAction = formData.action_type?.toLowerCase() === "upload qap file";
+
   return (
     <div className="d-flex flex-column flex-root">
       <div className="page d-flex flex-row flex-column-fluid">
@@ -543,15 +588,12 @@ const QAPSub = () => {
                                             <DynamicButton
                                               label="ACTION"
                                               onClick={() => {
-                                                const lastAssignedItem = items
-                                                  .slice()
-                                                  .reverse()
-                                                  .find((item) => item.assigned_to);
+                                                const vendorOfficer = getAssignedOfficerForRef(refNo);
                                                 setIsPopup(true);
                                                 setFormData((prev) => ({
                                                   ...prev,
                                                   reference_no: refNo,
-                                                  assign_to: lastAssignedItem?.assigned_to || "",
+                                                  assign_to: vendorOfficer || "",
                                                 }));
                                               }}
                                               className="btn btn-sm fw-bold btn-primary"
@@ -644,6 +686,7 @@ const QAPSub = () => {
                 <div className="col-12 col-md-6 mb-3">
                   <label htmlFor="qap_file" className="form-label d-flex align-items-center gap-2">
                     File Info
+                    {isUploadAction && <span className="text-danger">*</span>}
                     <FileUploadInfoIcon />
                   </label>
                   <div className="d-flex align-items-center">
@@ -731,10 +774,9 @@ const QAPSub = () => {
                 <div className="col-12 col-md-6 mb-3">
                   <label className="form-label">
                     Assign Officer
-                    {!formData?.reference_no && <span className="text-danger">*</span>}
                   </label>
                   <HrSearchableSelect
-                    options={empOption}
+                    options={displayOptions}
                     value={formData?.assign_to}
                     onChange={(val) =>
                       setFormData((prev) => ({
