@@ -200,14 +200,21 @@ const QAPSub = () => {
       const res = await apiCallBack("GET", `po/getQapSave?reference_no=${formData.reference_no}`, null, token);
       const defaultOfficer = getAssignedOfficerForRef(formData.reference_no);
       if (res?.status && res.data?.length > 0) {
-        const { remarks, action_type, QapFile, supporting_doc, assign_to, assigned_to } = res.data[0];
-        let parsedQapFile = null;
+        const row = res.data[0];
+        const { remarks, action_type, supporting_doc, assign_to, assigned_to } = row;
+        // Postgres returns unquoted column names in lower case, so accept every spelling.
+        const QapFile = row.QapFile ?? row.qapfile ?? row.file;
+        let parsedQapFile = row.file_path ? { file_name: row.file_name, file_path: row.file_path } : null;
         if (QapFile) {
-          const parsed = JSON.parse(QapFile);
-          parsedQapFile = {
-            file_name: parsed.fileName,
-            file_path: parsed.filePath,
-          };
+          try {
+            const parsed = typeof QapFile === "string" ? JSON.parse(QapFile) : QapFile;
+            parsedQapFile = {
+              file_name: parsed.fileName,
+              file_path: parsed.filePath,
+            };
+          } catch (e) {
+            parsedQapFile = null;
+          }
         }
         setFormData((prev) => ({
           ...prev,
@@ -470,7 +477,7 @@ const QAPSub = () => {
         fetchQapList();
         fetchSavedQap();
       } else {
-        toast.error(res?.message || "Failed to save QAP");
+        toast.error([res?.message || "Failed to save QAP", typeof res?.data === "string" ? res.data : ""].filter(Boolean).join(" - "));
       }
     } catch (error) {
       toast.error(`Error saving QAP: ${error.message}`);
@@ -613,12 +620,12 @@ const QAPSub = () => {
                                   const items = groupedData[refNo];
                                   const allAssigned = items.every((item) => item.status === "ASSIGNED");
                                   const isVendor = userType === USER_VENDOR || userType === 1;
-                                  const isApproved = items.some((item) => item.status === "APPROVED");
-                                  const hasOfficerActed = items.some(
-                                    (it) => it.updated_by === "HSL" || (it.created_by_id && String(it.created_by_id).trim().length !== 10)
-                                  );
-                                  const canVendorAct = isVendor && hasOfficerActed && !isApproved;
-                                  const canOfficerAct = !isVendor && !allAssigned && !isApproved && isAssignedToLoggedInUser(refNo, items);
+                                  // A reference is closed once it is APPROVED or REJECTED (the backend refuses any further action on it).
+                                  const isClosed = items.some((item) => item.status === "APPROVED" || item.status === "REJECTED");
+                                  // Vendor keeps the ACTION button on an open reference, so they can upload again
+                                  // after their own submission (no need to wait for the officer to act first).
+                                  const canVendorAct = isVendor && !isClosed;
+                                  const canOfficerAct = !isVendor && !allAssigned && !isClosed && isAssignedToLoggedInUser(refNo, items);
                                   const canTakeAction = canVendorAct || canOfficerAct;
 
                                   return (

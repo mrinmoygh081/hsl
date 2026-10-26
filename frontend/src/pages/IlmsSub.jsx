@@ -23,6 +23,9 @@ const IlmsSub = () => {
   const [selectedActionTypeName, setSelectedActionTypeName] = useState("");
   const { id } = useParams();
   const { user, token, userType } = useSelector((state) => state.auth);
+  const isVendor = userType === 1;
+  const isIlmsOfficer = user?.department_id === 17;
+  const showActionCol = isVendor || isIlmsOfficer;
 
   const optionss = [{ file_type_name: "Upload ILMS" }, { file_type_name: "Remarks" }, { file_type_name: "Others" }];
 
@@ -106,14 +109,19 @@ const IlmsSub = () => {
     return Object.keys(groupedIlms).map((groupKey, index) => {
       const items = groupedIlms[groupKey];
       const firstItem = items[0];
+      // A reference is closed once ACCEPTED / REJECTED (backend refuses further action on it).
+      const isClosed = items.some((it) => it.status === "ACCEPTED" || it.status === "REJECTED");
+      // Vendor keeps ACTION on an open reference so they can upload again; officer acts once the vendor has submitted.
+      const canAct = !isClosed && (isVendor || (isIlmsOfficer && firstItem.status === "SUBMITTED"));
       return (
         <Fragment key={index}>
           <tr>
-            <td colSpan={user.department_id === 17 ? 6 : 5}>
+            <td colSpan={showActionCol ? 6 : 5}>
               <b>{groupKey}</b>
             </td>
-            {user.department_id === 17 && firstItem.status === "SUBMITTED" && (
+            {showActionCol && (
               <td>
+                {canAct && (
                 <DynamicButton
                   label="ACTION"
                   onClick={() => {
@@ -122,6 +130,7 @@ const IlmsSub = () => {
                   }}
                   className="btn fw-bold btn-primary mx-3"
                 />
+                )}
               </td>
             )}
           </tr>
@@ -164,7 +173,16 @@ const IlmsSub = () => {
                 <div className="row g-5 g-xl-8">
                   <div className="col-12">
                     <div className="screen_header">
-                      {userType === 1 && <DynamicButton label="ACTION" onClick={() => setIsPopup(true)} className="btn fw-bold btn-primary mx-3" />}
+                      {isVendor && (
+                        <DynamicButton
+                          label="ACTION"
+                          onClick={() => {
+                            setreferenceNo("");
+                            setIsPopup(true);
+                          }}
+                          className="btn fw-bold btn-primary mx-3"
+                        />
+                      )}
                     </div>
                   </div>
                   <div className="col-12">
@@ -180,14 +198,14 @@ const IlmsSub = () => {
                                 <th>Action To</th>
                                 <th className="min-w-150px">Remarks</th>
                                 <th>Status</th>
-                                {user.department_id === 17 && <th>Action</th>}
+                                {showActionCol && <th>Action</th>}
                               </tr>
                             </thead>
                             <tbody style={{ maxHeight: "100%" }}>
                               {isLoading ? (
                                 <tr>
-                                  <td colSpan={user.department_id === 17 ? 6 : 5}>
-                                    <SkeletonLoader col={user.department_id === 17 ? 6 : 5} row={6} />
+                                  <td colSpan={showActionCol ? 6 : 5}>
+                                    <SkeletonLoader col={showActionCol ? 6 : 5} row={6} />
                                   </td>
                                 </tr>
                               ) : (

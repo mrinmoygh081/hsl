@@ -33,6 +33,23 @@ const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const { sendMail } = require("../../services/mail.services");
 const Messages = require("../../utils/messages");
 
+// Departments allowed to keep a QAP draft (same ids as the frontend: 2 = Design, 3 = QAP)
+const QAP_DRAFT_DEPARTMENTS = new Set([USER_TYPE_HSL_DRAWING, 3]);
+const canUseQapDraft = (tokenData) =>
+  tokenData?.user_type !== USER_TYPE_VENDOR && QAP_DRAFT_DEPARTMENTS.has(Number(tokenData?.department_id));
+
+// Column names of qap_save (lower case), read once from the database.
+let qapSaveColumns;
+const getQapSaveColumns = async () => {
+  if (qapSaveColumns) return qapSaveColumns;
+  const cols = await getQuery({
+    query: `SELECT column_name FROM information_schema.columns WHERE table_name = $1`,
+    values: [QAP_SAVE],
+  });
+  if (cols?.length) qapSaveColumns = new Set(cols.map((c) => c.column_name.toLowerCase()));
+  return qapSaveColumns || new Set();
+};
+
 // add new post
 const submitQAP = async (req, res) => {
   let client;
@@ -409,25 +426,54 @@ async function handelMail(tokenData, payload, event) {
 async function insertQapSave(req, res) {
   try {
     const tokenData = { ...req.tokenData };
+    const { purchasing_doc_no, reference_no, remarks, action_type, file, supporting_doc } = req.body;
 
-    let payload = { ...req.body, created_at: getEpochTime() };
-
-    if (!req.body.reference_no) {
+    if (!reference_no) {
       return resSend(res, false, 200, "Please send valid reference_no!.", null, null);
     }
-    if (tokenData.user_type === USER_TYPE_VENDOR) {
+    if (!canUseQapDraft(tokenData)) {
       return resSend(res, false, 200, "Please login as valid user!.", null, null);
     }
 
-    payload.created_by_id = tokenData.vendor_code;
-    payload.man_no = tokenData.vendor_code;
+    const columns = await getQapSaveColumns();
+    const payload = {
+      purchasing_doc_no,
+      reference_no,
+      remarks,
+      action_type,
+      supporting_doc: supporting_doc || null,
+      created_at: getEpochTime(),
+      created_by_id: tokenData.vendor_code,
+      man_no: tokenData.vendor_code,
+    };
+
+    // The uploaded QAP file is stored in whichever way qap_save was designed.
+    if (file) {
+      if (columns.has("qapfile")) {
+        payload.qapfile = file;
+      } else if (columns.has("file_name") && columns.has("file_path")) {
+        const parsed = JSON.parse(file);
+        payload.file_name = parsed.fileName || null;
+        payload.file_path = parsed.filePath || null;
+      } else {
+        return resSend(
+          res,
+          false,
+          500,
+          `Failed to save QAP: qap_save has no column for the QAP file. Existing columns: ${[...columns].join(", ")}`,
+          null,
+          null,
+        );
+      }
+    }
+
     const { q, val } = generateQuery(INSERT, QAP_SAVE, payload);
     const response = await getQuery({ query: q, values: val });
 
     return resSend(res, true, 200, "Data inserted.", response, null);
   } catch (error) {
-    console.error(error);
-    return resSend(res, false, 400, "error.", error, null);
+    console.error("insertQapSave error", error);
+    return resSend(res, false, 500, `Failed to save QAP: ${error.message}`, null, null);
   }
 }
 
@@ -435,7 +481,7 @@ async function getQapSave(req, res) {
   try {
     const tokenData = req.tokenData;
 
-    if (!req.query.reference_no || tokenData.department_id != USER_TYPE_HSL_QAP) {
+    if (!req.query.reference_no || !canUseQapDraft(tokenData)) {
       return resSend(res, true, 200, "Please send valid payload!.", null, null);
     }
 
@@ -460,14 +506,14 @@ async function deleteQapSave(req, res) {
   try {
     const tokenData = req.tokenData;
 
-    if (!req.query.reference_no || tokenData.department_id != USER_TYPE_HSL_QAP) {
+    if (!req.query.reference_no || !canUseQapDraft(tokenData)) {
       return resSend(res, true, 200, "you dont have permination!.", null, null);
     }
 
-    const deleteQapSaveQuery = `DELETE FROM ${QAP_SAVE} WHERE reference_no = $1`;
+    const deleteQapSaveQuery = `DELETE FROM ${QAP_SAVE} WHERE reference_no = $1 AND man_no = $2`;
     const deleteQapSave = await getQuery({
       query: deleteQapSaveQuery,
-      values: [req.query.reference_no],
+      values: [req.query.reference_no, tokenData.vendor_code],
     });
 
     return resSend(res, true, 200, "delete successfully.", deleteQapSave, null);

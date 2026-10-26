@@ -84,7 +84,23 @@ const submitILMS = async (req, res) => {
 
     // Vendor-specific logic
     if (isVendor) {
-      payload.reference_no = create_reference_no("ILMS", tokenData.vendor_code);
+      if (reference_no) {
+        // Vendor uploads again under an existing reference: it must belong to this PO + vendor and still be open.
+        const own = await getQuery({
+          query: `SELECT COUNT(*) AS count_val FROM ${ILMS} WHERE purchasing_doc_no = $1 AND reference_no = $2 AND vendor_code = $3`,
+          values: [purchasing_doc_no, reference_no, poDetails.vendor_code],
+        });
+        if (!Number(own?.[0]?.count_val)) {
+          return resSend(res, false, 200, Message.PLEASE_SEND_VALID_REF_NO, Message.MANDATORY_PARAMETR_MISSING, null);
+        }
+        const closed = await checkIsApprovedRejected(ILMS, purchasing_doc_no, reference_no, ACCEPTED, REJECTED);
+        if (closed > 0) {
+          return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, Message.YOU_ARE_UN_AUTHORIZED, null);
+        }
+        payload.reference_no = reference_no;
+      } else {
+        payload.reference_no = create_reference_no("ILMS", tokenData.vendor_code);
+      }
       payload.action_on = poDetails.po_creator;
     }
 
