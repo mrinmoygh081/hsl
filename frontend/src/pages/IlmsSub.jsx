@@ -1,5 +1,3 @@
-
-
 import React, { Fragment, useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -68,7 +66,7 @@ const IlmsSub = () => {
       toast.warn("Please choose an action type!");
       return;
     }
-    if (flag === "SUBMITTED" && !formData.drawingFile) {
+    if (userType === 1 && !formData.drawingFile) {
       toast.warn("Please upload an ILMS file!");
       return;
     }
@@ -79,7 +77,7 @@ const IlmsSub = () => {
     try {
       const formDataToSend = new FormData();
       formDataToSend.append("purchasing_doc_no", id);
-      if (flag === "SUBMITTED" && formData.drawingFile) {
+      if (formData.drawingFile) {
         formDataToSend.append("file", formData.drawingFile);
       }
       formDataToSend.append("remarks", formData.remarks);
@@ -245,7 +243,7 @@ const IlmsSub = () => {
                   </div>
                   <div className="mb-3">
                     <label className="form-label d-flex align-items-center gap-2">
-                      ILMS File <span className="mandatorystart">*</span>
+                      ILMS File {userType === 1 && <span className="mandatorystart">*</span>}
                       <FileUploadInfoIcon />
                     </label>
                     <input type="file" className="form-control" onChange={handleFileChange} accept=".pdf" aria-label="Upload ILMS PDF file" />
