@@ -109,10 +109,11 @@ const IlmsSub = () => {
     return Object.keys(groupedIlms).map((groupKey, index) => {
       const items = groupedIlms[groupKey];
       const firstItem = items[0];
-      // A reference is closed once ACCEPTED / REJECTED (backend refuses further action on it).
-      const isClosed = items.some((it) => it.status === "ACCEPTED" || it.status === "REJECTED");
-      // Vendor keeps ACTION on an open reference so they can upload again; officer acts once the vendor has submitted.
-      const canAct = !isClosed && (isVendor || (isIlmsOfficer && firstItem.status === "SUBMITTED"));
+      // ACCEPTED closes the reference. After REJECTED the vendor can upload again,
+      // while the officer waits for that new upload.
+      const isAccepted = items.some((it) => it.status === "ACCEPTED");
+      const lastStatus = items[items.length - 1]?.status;
+      const canAct = !isAccepted && (isVendor || (isIlmsOfficer && firstItem.status === "SUBMITTED" && lastStatus !== "REJECTED"));
       return (
         <Fragment key={index}>
           <tr>

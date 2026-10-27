@@ -620,12 +620,12 @@ const QAPSub = () => {
                                   const items = groupedData[refNo];
                                   const allAssigned = items.every((item) => item.status === "ASSIGNED");
                                   const isVendor = userType === USER_VENDOR || userType === 1;
-                                  // A reference is closed once it is APPROVED or REJECTED (the backend refuses any further action on it).
-                                  const isClosed = items.some((item) => item.status === "APPROVED" || item.status === "REJECTED");
-                                  // Vendor keeps the ACTION button on an open reference, so they can upload again
-                                  // after their own submission (no need to wait for the officer to act first).
-                                  const canVendorAct = isVendor && !isClosed;
-                                  const canOfficerAct = !isVendor && !allAssigned && !isClosed && isAssignedToLoggedInUser(refNo, items);
+                                  // APPROVED closes the reference. After REJECTED the vendor can upload again,
+                                  // while the officer waits for that new upload.
+                                  const isApproved = items.some((item) => item.status === "APPROVED");
+                                  const lastStatus = items[items.length - 1]?.status;
+                                  const canVendorAct = isVendor && !isApproved;
+                                  const canOfficerAct = !isVendor && !allAssigned && !isApproved && lastStatus !== "REJECTED" && isAssignedToLoggedInUser(refNo, items);
                                   const canTakeAction = canVendorAct || canOfficerAct;
 
                                   return (

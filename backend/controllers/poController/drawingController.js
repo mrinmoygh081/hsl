@@ -13,6 +13,18 @@ const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const { sendMail } = require("../../services/mail.services");
 const { getLastAssignee, getAssigneeList, checkIsAssigned, getFristRow, checkIsApprovedRejected, checkPoType } = require("../../services/lastassignee.servces");
 
+// true = no action allowed on this reference.
+// APPROVED / ACKNOWLEDGED closes the reference for everyone. After REJECTED the vendor may upload again,
+// while the officer has to wait for that new upload.
+const isDrawingRefBlocked = async (purchasing_doc_no, reference_no, forVendor = false) => {
+  const rows = await getQuery({
+    query: `SELECT status FROM ${DRAWING} WHERE purchasing_doc_no = $1 AND reference_no = $2 ORDER BY created_at DESC`,
+    values: [purchasing_doc_no, reference_no],
+  });
+  if (rows.some((r) => r.status === APPROVED || r.status === ACKNOWLEDGED)) return true;
+  return !forVendor && rows[0]?.status === REJECTED;
+};
+
 const submitDrawing = async (req, res) => {
   let client;
   try {
@@ -44,8 +56,7 @@ const submitDrawing = async (req, res) => {
     const action_type_with_vendor_code = await getFristRow(DRAWING, star, payload.purchasing_doc_no);
 
     if (poType === "MATERIAL" && tokenData.user_type != USER_TYPE_VENDOR) {
-      const check = await checkIsApprovedRejected(DRAWING, payload.purchasing_doc_no, payload.reference_no, APPROVED, REJECTED);
-      if (check > 0) {
+      if (await isDrawingRefBlocked(payload.purchasing_doc_no, payload.reference_no)) {
         return resSend(res, false, 200, `You can't take any action against this reference no.`, null, null);
       }
     }
@@ -146,6 +157,20 @@ const submitDrawing = async (req, res) => {
       });
       if (poArr[0].po_count == 0) {
         return resSend(res, false, 200, "you are not authorised.", null, null);
+      }
+
+      // Vendor uploads again under an existing reference: it must be this vendor's own drawing reference and still open.
+      if (payload.reference_no) {
+        const own = await getQuery({
+          query: `SELECT COUNT(*) AS count_val FROM ${DRAWING} WHERE purchasing_doc_no = $1 AND reference_no = $2 AND vendor_code = $3 AND reference_no NOT LIKE 'DRAWING %'`,
+          values: [payload.purchasing_doc_no, payload.reference_no, tokenData.vendor_code],
+        });
+        if (!Number(own?.[0]?.count_val)) {
+          return resSend(res, false, 200, Message.PLEASE_SEND_VALID_REF_NO, null, null);
+        }
+        if (await isDrawingRefBlocked(payload.purchasing_doc_no, payload.reference_no, true)) {
+          return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, null, null);
+        }
       }
     }
     payload.vendor_code = tokenData.vendor_code;
@@ -360,7 +385,7 @@ const updateDrawingFn = async (req, res) => {
     await client.query("BEGIN");
     const lastDrawingData = await poolQuery({
       client,
-      query: "SELECT * FROM drawing WHERE reference_no = $1 AND status = $2 ORDER BY created_at ASC",
+      query: "SELECT * FROM drawing WHERE reference_no = $1 AND status = $2 ORDER BY created_at DESC",
       values: [payload.reference_no, SUBMITTED],
     });
 
@@ -368,8 +393,7 @@ const updateDrawingFn = async (req, res) => {
       return resSend(res, false, 200, Message.NO_DATA_FOUND, null, null);
     }
 
-    const check = await checkIsApprovedRejected(DRAWING, payload.purchasing_doc_no, payload.reference_no, ACKNOWLEDGED, REJECTED);
-    if (parseInt(check) && lastDrawingData[0]?.assign_from != tokenData.vendor_code) {
+    if (await isDrawingRefBlocked(payload.purchasing_doc_no, payload.reference_no)) {
       return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, null, null);
     }
 

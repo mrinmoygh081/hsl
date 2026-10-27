@@ -132,13 +132,7 @@ const submitQAP = async (req, res) => {
           null,
         );
       }
-      let count_val = await checkIsApprovedOrRejected(
-        client,
-        purchasing_doc_no,
-        payload.reference_no,
-        APPROVED,
-        REJECTED,
-      );
+      let count_val = await checkIsApprovedOrRejected(client, purchasing_doc_no, payload.reference_no);
       if (count_val > 0) {
         return resSend(
           res,
@@ -199,13 +193,7 @@ const submitQAP = async (req, res) => {
     }
     if (tokenData.user_type === USER_TYPE_VENDOR) {
       if (payload.reference_no || payload.reference_no != "") {
-        let count_val = await checkIsApprovedOrRejected(
-          client,
-          purchasing_doc_no,
-          payload.reference_no,
-          APPROVED,
-          REJECTED,
-        );
+        let count_val = await checkIsApprovedOrRejected(client, purchasing_doc_no, payload.reference_no, true);
         if (count_val > 0) {
           return resSend(
             res,
@@ -297,14 +285,18 @@ const submitQAP = async (req, res) => {
   }
 };
 
-const checkIsApprovedOrRejected = async (client, purchasing_doc_no, reference_no, status1, status2) => {
-  const check = `SELECT COUNT(status) AS count_val FROM qap_submission WHERE purchasing_doc_no = $1 AND reference_no = $2 AND (status = $3 OR status = $4)`;
-  const resAssigneQry = await poolQuery({
+// 1 = no action allowed on this reference.
+// APPROVED closes the reference for everyone. After REJECTED the vendor may upload again,
+// while the officer has to wait for that new upload.
+const checkIsApprovedOrRejected = async (client, purchasing_doc_no, reference_no, forVendor = false) => {
+  const rows = await poolQuery({
     client,
-    query: check,
-    values: [purchasing_doc_no, reference_no, status1, status2],
+    query: `SELECT status FROM qap_submission WHERE purchasing_doc_no = $1 AND reference_no = $2 ORDER BY id DESC`,
+    values: [purchasing_doc_no, reference_no],
   });
-  return resAssigneQry[0].count_val;
+  if (rows.some((r) => r.status === APPROVED)) return 1;
+  if (!forVendor && rows[0]?.status === REJECTED) return 1;
+  return 0;
 };
 
 const list = async (req, res) => {
