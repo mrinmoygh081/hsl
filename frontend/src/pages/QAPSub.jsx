@@ -380,8 +380,14 @@ const QAPSub = () => {
     }
 
     const isUploadAction = action_type?.toLowerCase() === "upload qap file";
-    if (isUploadAction && !QapFile) {
+    // New reference (top ACTION button): QAP file and assign officer are both mandatory.
+    const isNewReference = !reference_no;
+    if ((isUploadAction || isNewReference) && !QapFile) {
       toast.warn("Please upload QAP file!");
+      return;
+    }
+    if (isNewReference && !assign_to) {
+      toast.warn("Please select an officer to assign!");
       return;
     }
 
@@ -739,7 +745,7 @@ const QAPSub = () => {
                 <div className="col-12 col-md-6 mb-3">
                   <label htmlFor="qap_file" className="form-label d-flex align-items-center gap-2">
                     File Info
-                    {isUploadAction && <span className="text-danger">*</span>}
+                    {(isUploadAction || !formData.reference_no) && <span className="text-danger">*</span>}
                     <FileUploadInfoIcon />
                   </label>
                   <div className="d-flex align-items-center">
@@ -827,6 +833,7 @@ const QAPSub = () => {
                 <div className="col-12 col-md-6 mb-3">
                   <label className="form-label">
                     Assign Officer
+                    {!formData.reference_no && <span className="text-danger"> *</span>}
                   </label>
                   <HrSearchableSelect
                     options={displayOptions}
