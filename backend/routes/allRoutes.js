@@ -25,6 +25,7 @@ const bgExtensionRoutes = require("./bgExtensionRoutes");
 const shippingDocumentsRoutes = require("./shippingDocumentsRoutes");
 const materialRoutes = require("./materialRouter");
 const { taskController } = require("../controllers/taskControllers");
+const { getMyNotifications } = require("../controllers/notificationController");
 const { browsingLimiter } = require("../config/rateLimiter");
 
 // --------------------- START ROUTES ---------------------------------------------- //
@@ -158,6 +159,17 @@ router.get(poPrefix + "/internalDepartmentEmpList",
 router.get(poPrefix + "/task", [verifyAccessToken], (req, res) => {
   taskController(req, res);
 });
+
+/**-------------------------------------------------------------------------------
+ * NOTIFICATION
+ -------------------------------------------------------------------------------*/
+router.get(
+  poPrefix + "/notifications",
+  [verifyAccessToken],
+  (req, res) => {
+    getMyNotifications(req, res);
+  }
+);
 
 /**---------------------------------------------------------------------------------------
  * BG EXTENSION

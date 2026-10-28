@@ -3,6 +3,9 @@ const { resSend } = require("../../lib/resSend");
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
 const {
+  createQAPSubmissionNotification
+} = require("../../services/notification.services");
+const {
   INSERT,
   USER_TYPE_HSL_QAP,
   QAP_STAFF,
@@ -271,6 +274,28 @@ const submitQAP = async (req, res) => {
     }
 
     if (response) {
+      // QAP notification for the currently assigned officer
+      if (
+        tokenData.user_type === USER_TYPE_VENDOR &&
+        [SUBMITTED, RE_SUBMITTED].includes(activity_type)
+      ) {
+        try {
+          const notification =
+            await createQAPSubmissionNotification(client, payload);
+
+          if (notification) {
+            console.log(
+              "QAP notification created:",
+              notification.id
+            );
+          }
+        } catch (notificationError) {
+          console.error(
+            "QAP notification creation failed:",
+            notificationError
+          );
+        }
+      }
       handelMail(tokenData, payload, QAP_UPLOAD_BY_VENDOR);
       resSend(res, true, 200, "Inserted successfully", response, null);
     } else {
