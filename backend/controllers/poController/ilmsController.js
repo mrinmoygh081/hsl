@@ -11,6 +11,18 @@ const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const { ILMS_ACKNOWLEDGE_RECEIPT, ILMS_UPLOAD_TO_CDO } = require("../../lib/event");
 const Message = require("../../utils/messages");
 
+// true = no action allowed on this reference.
+// ACCEPTED closes the reference for everyone. After REJECTED the vendor may upload again,
+// while the officer has to wait for that new upload.
+const isIlmsRefBlocked = async (purchasing_doc_no, reference_no, forVendor = false) => {
+  const rows = await getQuery({
+    query: `SELECT status FROM ${ILMS} WHERE purchasing_doc_no = $1 AND reference_no = $2 ORDER BY created_at DESC`,
+    values: [purchasing_doc_no, reference_no],
+  });
+  if (rows.some((r) => r.status === ACCEPTED)) return true;
+  return !forVendor && rows[0]?.status === REJECTED;
+};
+
 const submitILMS = async (req, res) => {
   let client;
   try {
@@ -73,8 +85,7 @@ const submitILMS = async (req, res) => {
         payload.action_on = poDetails.vendor_code;
       }
 
-      const check = await checkIsApprovedRejected(ILMS, purchasing_doc_no, reference_no, ACCEPTED, REJECTED);
-      if (check > 0) {
+      if (await isIlmsRefBlocked(purchasing_doc_no, reference_no)) {
         return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, Message.YOU_ARE_UN_AUTHORIZED, null);
       }
       if (status === SUBMITTED && isVendor) {
@@ -84,7 +95,22 @@ const submitILMS = async (req, res) => {
 
     // Vendor-specific logic
     if (isVendor) {
-      payload.reference_no = create_reference_no("ILMS", tokenData.vendor_code);
+      if (reference_no) {
+        // Vendor uploads again under an existing reference: it must belong to this PO + vendor and still be open.
+        const own = await getQuery({
+          query: `SELECT COUNT(*) AS count_val FROM ${ILMS} WHERE purchasing_doc_no = $1 AND reference_no = $2 AND vendor_code = $3`,
+          values: [purchasing_doc_no, reference_no, poDetails.vendor_code],
+        });
+        if (!Number(own?.[0]?.count_val)) {
+          return resSend(res, false, 200, Message.PLEASE_SEND_VALID_REF_NO, Message.MANDATORY_PARAMETR_MISSING, null);
+        }
+        if (await isIlmsRefBlocked(purchasing_doc_no, reference_no, true)) {
+          return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, Message.YOU_ARE_UN_AUTHORIZED, null);
+        }
+        payload.reference_no = reference_no;
+      } else {
+        payload.reference_no = create_reference_no("ILMS", tokenData.vendor_code);
+      }
       payload.action_on = poDetails.po_creator;
     }
 

@@ -200,14 +200,21 @@ const QAPSub = () => {
       const res = await apiCallBack("GET", `po/getQapSave?reference_no=${formData.reference_no}`, null, token);
       const defaultOfficer = getAssignedOfficerForRef(formData.reference_no);
       if (res?.status && res.data?.length > 0) {
-        const { remarks, action_type, QapFile, supporting_doc, assign_to, assigned_to } = res.data[0];
-        let parsedQapFile = null;
+        const row = res.data[0];
+        const { remarks, action_type, supporting_doc, assign_to, assigned_to } = row;
+        // Postgres returns unquoted column names in lower case, so accept every spelling.
+        const QapFile = row.QapFile ?? row.qapfile ?? row.file;
+        let parsedQapFile = row.file_path ? { file_name: row.file_name, file_path: row.file_path } : null;
         if (QapFile) {
-          const parsed = JSON.parse(QapFile);
-          parsedQapFile = {
-            file_name: parsed.fileName,
-            file_path: parsed.filePath,
-          };
+          try {
+            const parsed = typeof QapFile === "string" ? JSON.parse(QapFile) : QapFile;
+            parsedQapFile = {
+              file_name: parsed.fileName,
+              file_path: parsed.filePath,
+            };
+          } catch (e) {
+            parsedQapFile = null;
+          }
         }
         setFormData((prev) => ({
           ...prev,
@@ -373,8 +380,14 @@ const QAPSub = () => {
     }
 
     const isUploadAction = action_type?.toLowerCase() === "upload qap file";
-    if (isUploadAction && !QapFile) {
+    // New reference (top ACTION button): QAP file and assign officer are both mandatory.
+    const isNewReference = !reference_no;
+    if ((isUploadAction || isNewReference) && !QapFile) {
       toast.warn("Please upload QAP file!");
+      return;
+    }
+    if (isNewReference && !assign_to) {
+      toast.warn("Please select an officer to assign!");
       return;
     }
 
@@ -470,7 +483,7 @@ const QAPSub = () => {
         fetchQapList();
         fetchSavedQap();
       } else {
-        toast.error(res?.message || "Failed to save QAP");
+        toast.error([res?.message || "Failed to save QAP", typeof res?.data === "string" ? res.data : ""].filter(Boolean).join(" - "));
       }
     } catch (error) {
       toast.error(`Error saving QAP: ${error.message}`);
@@ -613,12 +626,12 @@ const QAPSub = () => {
                                   const items = groupedData[refNo];
                                   const allAssigned = items.every((item) => item.status === "ASSIGNED");
                                   const isVendor = userType === USER_VENDOR || userType === 1;
+                                  // APPROVED closes the reference. After REJECTED the vendor can upload again,
+                                  // while the officer waits for that new upload.
                                   const isApproved = items.some((item) => item.status === "APPROVED");
-                                  const hasOfficerActed = items.some(
-                                    (it) => it.updated_by === "HSL" || (it.created_by_id && String(it.created_by_id).trim().length !== 10)
-                                  );
-                                  const canVendorAct = isVendor && hasOfficerActed && !isApproved;
-                                  const canOfficerAct = !isVendor && !allAssigned && !isApproved && isAssignedToLoggedInUser(refNo, items);
+                                  const lastStatus = items[items.length - 1]?.status;
+                                  const canVendorAct = isVendor && !isApproved;
+                                  const canOfficerAct = !isVendor && !allAssigned && !isApproved && lastStatus !== "REJECTED" && isAssignedToLoggedInUser(refNo, items);
                                   const canTakeAction = canVendorAct || canOfficerAct;
 
                                   return (
@@ -732,7 +745,7 @@ const QAPSub = () => {
                 <div className="col-12 col-md-6 mb-3">
                   <label htmlFor="qap_file" className="form-label d-flex align-items-center gap-2">
                     File Info
-                    {isUploadAction && <span className="text-danger">*</span>}
+                    {(isUploadAction || !formData.reference_no) && <span className="text-danger">*</span>}
                     <FileUploadInfoIcon />
                   </label>
                   <div className="d-flex align-items-center">
@@ -820,6 +833,7 @@ const QAPSub = () => {
                 <div className="col-12 col-md-6 mb-3">
                   <label className="form-label">
                     Assign Officer
+                    {!formData.reference_no && <span className="text-danger"> *</span>}
                   </label>
                   <HrSearchableSelect
                     options={displayOptions}

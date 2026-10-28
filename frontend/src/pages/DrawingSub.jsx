@@ -153,6 +153,7 @@ const DrawingSub = () => {
         toast.success(response.message);
         setIsPopup(false);
         setFormData(initialData);
+        setreferenceNo("");
         if (inputFileRef.current) inputFileRef.current.value = null;
         getData();
       } else {
@@ -161,6 +162,18 @@ const DrawingSub = () => {
     } catch (error) {
       toast.error(`Error: ${error}`);
     }
+  };
+
+  const isVendor = userType === USER_VENDOR;
+  const isMaterialPo = poType === "material" || poType === "hybrid";
+  const showActionCol = (isVendor && isMaterialPo) || (user?.department_id === DEPT_DESIGN && poType !== "service");
+
+  // open the action popup for one reference (vendor re-uploads under the same reference)
+  const openActionFor = (refNo, items) => {
+    const latest = items.reduce((a, b) => (Number(b.created_at) >= Number(a.created_at) ? b : a), items[0]);
+    setreferenceNo(refNo);
+    setFormData({ ...initialData, assign_to: isVendor ? latest?.assign_to || "" : "" });
+    setIsPopup(true);
   };
 
   useEffect(() => {
@@ -186,6 +199,8 @@ const DrawingSub = () => {
                         {userType === 1 && (poType === "material" || poType === "hybrid") ? (
                           <button
                             onClick={() => {
+                              setreferenceNo("");
+                              setFormData(initialData);
                               setIsPopup(true);
                             }}
                             className="btn fw-bold btn-primary mx-3"
@@ -221,7 +236,7 @@ const DrawingSub = () => {
                                   <th>Action By</th>
                                   <th className="min-w-150px">Remarks</th>
                                   <th>Status</th>
-                                  {user.department_id === 2 && poType !== "service" && <th>Action</th>}
+                                  {showActionCol && <th>Action</th>}
                                 </tr>
                               </thead>
                               <tbody style={{ maxHeight: "100%" }}>
@@ -238,12 +253,28 @@ const DrawingSub = () => {
                                   <>
                                     {Object.keys(groupedData).map((it, index) => {
                                       let items = groupedData[it];
+                                      const isAssignGroup = it === "DRAWING ASSIGNED";
+                                      // APPROVED / ACKNOWLEDGED closes the reference. After REJECTED the vendor can upload again,
+                                      // while the design officer waits for that new upload.
+                                      const isFinal = items.some((x) => x.status === "APPROVED" || x.status === "ACKNOWLEDGED");
+                                      const latest = items.reduce((a, b) => (Number(b.created_at) >= Number(a.created_at) ? b : a), items[0]);
+                                      const canVendorAct = isVendor && isMaterialPo && !isAssignGroup && !isFinal;
+                                      const canOfficerAct = user?.department_id === DEPT_DESIGN && poType !== "service" && !isAssignGroup && !isFinal && latest?.status === "SUBMITTED" && user?.vendor_code === latest?.assign_to;
                                       return (
                                         <Fragment key={index}>
                                           <tr>
-                                            <td colSpan={10}>
+                                            <td colSpan={showActionCol ? 5 : 6}>
                                               <b>{it}</b>
                                             </td>
+                                            {showActionCol && (
+                                              <td>
+                                                {(canVendorAct || canOfficerAct) && (
+                                                  <button onClick={() => openActionFor(it, items)} className="btn fw-bold btn-primary mx-3">
+                                                    ACTION
+                                                  </button>
+                                                )}
+                                              </td>
+                                            )}
                                           </tr>
                                           {items &&
                                             items.map((item, i) => (
@@ -257,22 +288,7 @@ const DrawingSub = () => {
                                                 <td className="table_center">{item.created_by_id}</td>
                                                 <td className="align-middle">{item.remarks}</td>
                                                 <td className={`${clrLegend(item?.status)} bold`}>{item.status}</td>
-                                                <td>
-                                                  {user.department_id === DEPT_DESIGN &&
-                                                    user?.vendor_code === item?.assign_to &&
-                                                    poType !== "service" &&
-                                                    item.status === "SUBMITTED" && (
-                                                      <button
-                                                        onClick={() => {
-                                                          setIsPopup(true);
-                                                          setreferenceNo(item.reference_no);
-                                                        }}
-                                                        className="btn fw-bold btn-primary mx-3"
-                                                      >
-                                                        ACTION
-                                                      </button>
-                                                    )}
-                                                </td>
+                                                {showActionCol && <td></td>}
                                               </tr>
                                             ))}
                                         </Fragment>
@@ -350,6 +366,7 @@ const DrawingSub = () => {
                 onClick={() => {
                   setIsPopup(false);
                   setFormData(initialData);
+                  setreferenceNo("");
                 }}
               >
                 Close
