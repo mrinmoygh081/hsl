@@ -6,3 +6,4 @@ dev.env
 qa.env
 /sync
 error.log
+/config/configEmail/token.json
