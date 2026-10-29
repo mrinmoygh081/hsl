@@ -329,12 +329,38 @@ const submitDrawingFn = async (req, res) => {
 
     const payload = { ...req.body, ...fileData, created_at: getEpochTime() };
 
-    if (!payload.purchasing_doc_no || !payload.assign_to) {
+    if (!payload.purchasing_doc_no) {
       return resSend(res, false, 400, Message.MANDATORY_INPUTS_REQUIRED, null, null);
     }
 
     if (tokenData.user_type != USER_TYPE_VENDOR && tokenData.department_id != USER_TYPE_HSL_DRAWING) {
       return resSend(res, true, 200, Message.LOGIN_AS_VALID_USER, null, null);
+    }
+
+    // Vendor uploads again under an existing reference (per-reference ACTION button).
+    // It must be this vendor's own drawing reference and still open (not APPROVED / ACKNOWLEDGED).
+    let existingReferenceNo = null;
+    if (tokenData.user_type == USER_TYPE_VENDOR && payload.reference_no) {
+      const refRows = await getQuery({
+        query: `SELECT status, assign_to FROM ${DRAWING} WHERE purchasing_doc_no = $1 AND reference_no = $2 AND vendor_code = $3 AND reference_no NOT LIKE 'DRAWING %' ORDER BY created_at DESC`,
+        values: [payload.purchasing_doc_no, payload.reference_no, tokenData.vendor_code],
+      });
+      if (!refRows.length) {
+        return resSend(res, false, 200, Message.PLEASE_SEND_VALID_REF_NO, null, null);
+      }
+      if (await isDrawingRefBlocked(payload.purchasing_doc_no, payload.reference_no, true)) {
+        return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, null, null);
+      }
+      existingReferenceNo = payload.reference_no;
+      // officer is optional on re-upload: keep the officer of the last submission
+      if (!payload.assign_to) {
+        payload.assign_to = refRows.find((r) => r.status === SUBMITTED && r.assign_to)?.assign_to;
+      }
+    }
+
+    // a new reference needs an officer; file is optional on the backend as before
+    if (!payload.assign_to) {
+      return resSend(res, false, 400, Message.MANDATORY_INPUTS_REQUIRED, null, null);
     }
 
     const poType = await checkPoType(payload.purchasing_doc_no);
@@ -351,7 +377,7 @@ const submitDrawingFn = async (req, res) => {
     payload.assign_from = tokenData.vendor_code;
     payload.updated_by = tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
     payload.created_by_id = tokenData.vendor_code;
-    payload.reference_no = await create_reference_no("DW", tokenData.vendor_code);
+    payload.reference_no = existingReferenceNo || (await create_reference_no("DW", tokenData.vendor_code));
     payload.action_by = tokenData.vendor_code;
     payload.action_on = payload.assign_to;
 
