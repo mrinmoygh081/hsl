@@ -103,6 +103,9 @@ const qapPayload = (payload, status) => {
     created_at: payload.created_at ? payload.created_at : getEpochTime(),
     created_by_name: payload.action_by_name ? payload.action_by_name : null,
     created_by_id: payload.action_by_id,
+    action_by: payload.action_by,
+    action_on: payload.action_on,
+    action_to: payload.action_to,
   };
 
   return payloadObj;
