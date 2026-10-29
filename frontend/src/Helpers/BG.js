@@ -16,6 +16,8 @@ export const bgInputs = {
   bg_date: "",
   bg_recived_date: "",
   bg_ammount: "",
+  currency: "INR",
+  bg_mode: "",
   department: "",
   yard_no: "",
   validity_date: "",
@@ -57,6 +59,8 @@ export const BGEntry = async (formDatainput, token, flag) => {
     validity_date,
     claim_priod,
     bg_type,
+    bg_mode,
+    currency,
   } = formDatainput;
 
   if (
@@ -74,7 +78,9 @@ export const BGEntry = async (formDatainput, token, flag) => {
     bg_recived_date === "" ||
     validity_date === "" ||
     claim_priod === "" ||
-    bg_type === ""
+    bg_type === "" ||
+    !bg_mode ||
+    !currency
   ) {
     toast.warn("Please enter the required fields!");
     return false;
@@ -96,6 +102,7 @@ export const BGEntry = async (formDatainput, token, flag) => {
   const d = await postAPI("po/sdbg/sdbgSubmitByDealingOfficer", form, token);
   if (d?.status) {
     toast.success(d?.message);
+    if (d?.data?.warning) toast.warn(d.data.warning, { autoClose: 8000 });
     return true;
   } else {
     toast.error(d?.message);
@@ -128,6 +135,8 @@ export const BGEntrySave = async (formDatainput, token) => {
     validity_date,
     claim_priod,
     bg_type,
+    bg_mode,
+    currency,
     department,
   } = formDatainput;
 
@@ -151,6 +160,8 @@ export const BGEntrySave = async (formDatainput, token) => {
     validity_date: convertToEpochh(new Date(validity_date * 1000)),
     claim_priod: convertToEpochh(new Date(claim_priod * 1000)),
     bg_type,
+    bg_mode,
+    currency,
     department,
     status: "SAVED",
     remarks: "BG has been saved.",

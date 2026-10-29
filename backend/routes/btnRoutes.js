@@ -25,6 +25,7 @@ const {
 } = require("../controllers/btnServiceHybridControllers");
 
 const jccBtnController = require("../controllers/btnJccController");
+const bgRetentionController = require("../controllers/btnBgRetentionController");
 const abhController = require("../controllers/btnAdvPaymentAgainstBgController");
 const btnPbgControllers = require("../controllers/btnPbgControllers");
 const {
@@ -37,6 +38,7 @@ const {
   btnAdvanceBillHybridUploadFile,
   serviceBtnFilesUpload,
   btnJccUploadFile,
+  btnBgRetentionUploadFile,
 } = require("../services/btnmw");
 const { verifyAccessToken } = require("../services/jwt.services");
 const {
@@ -188,6 +190,29 @@ router.post(
   verifyAccessToken,
   checkServerAccess(LAN_SERVER),
   jccBtnController.jccBtnforwordToFinace
+);
+
+/* -------------------- BG RETENTION RELEASE BTN -------------------- */
+router.get("/bg-retention", verifyAccessToken, bgRetentionController.getBgRetentionData);
+router.post(
+  "/submit-bg-retention",
+  verifyAccessToken,
+  checkServerAccess(NIC_SERVER),
+  checkVendorLogin,
+  btnBgRetentionUploadFile(),
+  bgRetentionController.submitBgRetention
+);
+router.post(
+  "/submit-bg-retention-do",
+  verifyAccessToken,
+  checkServerAccess(LAN_SERVER),
+  bgRetentionController.bgRetentionActionByDo
+);
+router.post(
+  "/submit-bg-retention-fi",
+  verifyAccessToken,
+  checkServerAccess(LAN_SERVER),
+  bgRetentionController.bgRetentionActionByFinance
 );
 
 module.exports = router;

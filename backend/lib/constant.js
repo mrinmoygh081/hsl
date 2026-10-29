@@ -100,3 +100,9 @@ exports.SESSION_STAGE_AWAITING_OTP = "AWAITING_OTP";
 exports.DATA_SYNC_CRON = "DATA_SYNC_CRON";
 exports.DEFAULT_PAGE_NO = 1;
 exports.DEFAULT_PAGE_SIZE = 10;
+exports.BTN_BG_RETENTION_RELEASE = "bg-retention-release";
+exports.BG_MODES = ["PHYSICAL", "E-BG", "HYBRID", "DD"];
+// Staged BG expiry alerts (To-Be 6.2.4), counted in working days (weekends + holiday_calendar excluded)
+exports.BG_EXPIRY_ALERT_WORKING_DAYS = [45, 30, 15];
+// Finance nodal point placeholder on BGs forwarded by the DO, until a Finance Officer is assigned
+exports.FINANCE_NODAL = "FINANCE_NODAL";

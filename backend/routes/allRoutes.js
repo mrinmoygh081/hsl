@@ -21,6 +21,7 @@ const hrRoutes = require("./hrRoutes");
 const vendorActivitiesRoutes = require("./vendorActivitiesRoutes");
 const btnRoutes = require("./btnRoutes");
 const bgExtensionRoutes = require("./bgExtensionRoutes");
+const holidayRoutes = require("./holidayRoutes");
 
 const shippingDocumentsRoutes = require("./shippingDocumentsRoutes");
 const materialRoutes = require("./materialRouter");
@@ -175,5 +176,6 @@ router.get(
  * BG EXTENSION
  ---------------------------------------------------------------------------------------*/
 router.use("/bg-extension", [verifyAccessToken], bgExtensionRoutes);
+router.use("/holiday", holidayRoutes);
 
 module.exports = router;

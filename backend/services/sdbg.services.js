@@ -4,6 +4,7 @@ const { successAndErrorObjectBulider } = require("../lib/resSend");
 const { getEpochTime } = require("../lib/utils");
 const { VALIDATION_SUCCESSFULL } = require("../utils/messages");
 const { validatePayload } = require("../utils/validationCheck");
+const { BG_MODES } = require("../lib/constant");
 
 /**
  * Modify SDBG Payload object to insert data
@@ -32,10 +33,12 @@ const sdbgEntryPayload = (payload, status) => {
     bg_ammount: { required: true, type: "number", min: 1, max: 5000000000 },
     bg_date: { required: true, type: "number", min: 10000 },
     check_list_date: { required: true, type: "number", min: 10000 },
-    bg_recived_date: { required: false, type: "number" },
+    bg_recived_date: { required: true, type: "number", min: 10000 },
     bg_type: { required: true, type: "string", max: 60 },
+    bg_mode: { required: true, type: "string", max: 20 },
+    currency: { required: true, type: "string", max: 5 },
     yard_no: { required: false, type: "string", max: 10 },
-    claim_priod: { required: false, type: "number" },
+    claim_priod: { required: true, type: "number", min: 10000 },
     validity_date: { required: true, type: "number" },
     created_at: { required: true, type: "number" },
     created_by: { required: true, type: "string" },
@@ -50,6 +53,10 @@ const sdbgEntryPayload = (payload, status) => {
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!EMAIL_REGEX.test(String(payload.bank_email))) {
     return successAndErrorObjectBulider(false, 200, "Please provide a valid Banker's Email Id.", {}, []);
+  }
+
+  if (!BG_MODES.includes(payload.bg_mode)) {
+    return successAndErrorObjectBulider(false, 200, `Mode of BG must be one of: ${BG_MODES.join(", ")}.`, {}, []);
   }
 
   const payloadObj = {
@@ -71,6 +78,8 @@ const sdbgEntryPayload = (payload, status) => {
     branch_name: payload.branch_name,
     bank_pin_code: payload.bank_pin_code,
     bg_ammount: payload.bg_ammount,
+    currency: payload.currency,
+    bg_mode: payload.bg_mode,
     bg_date: payload.bg_date,
     bg_recived_date: payload.bg_recived_date,
     yard_no: payload.yard_no,

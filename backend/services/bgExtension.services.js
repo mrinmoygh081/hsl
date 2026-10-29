@@ -1,8 +1,9 @@
 
 const { poolQuery } = require("../config/pgDbConfig");
-const { INSERT, UPDATE, USER_TYPE_VENDOR } = require("../lib/constant");
+const { INSERT, UPDATE, USER_TYPE_VENDOR, ASSIGNER } = require("../lib/constant");
 const { successAndErrorObjectBulider } = require("../lib/resSend");
 const { SDBG_EXTENSION, SDBG_ENTRY, SDBG } = require("../lib/tableName");
+const { getPoBgTerms } = require("./poBgTerms.services");
 const { generateQuery, getEpochTime } = require("../lib/utils");
 const { SUBMITTED, FORWARD_TO_FINANCE, REJECTED, APPROVED } = require("../lib/status");
 const { FINANCE } = require("../lib/depertmentMaster");
@@ -22,7 +23,16 @@ async function getBgExtensionList(client, params, tokenData) {
   if (tokenData.user_type === USER_TYPE_VENDOR) {
     qb.where("created_by", "=", tokenData.vendor_code);
   } else if (tokenData.department_id === FINANCE) {
+    // Requests go to the Finance Officer who originally accepted the BG; the nodal point sees all
     qb.where("status", "=", FORWARD_TO_FINANCE);
+    if (tokenData.internal_role_id != ASSIGNER) {
+      const myBgs = await poolQuery({
+        client,
+        query: `SELECT DISTINCT reference_no FROM ${SDBG} WHERE status = $1 AND created_by_id = $2`,
+        values: [APPROVED, tokenData.vendor_code],
+      });
+      qb.whereIn("sdbg_reference_no", myBgs.length ? myBgs.map((r) => r.reference_no) : [""]);
+    }
   } else {
     qb.where("status", "=", SUBMITTED);
   }
@@ -44,6 +54,14 @@ async function getBgExtensionList(client, params, tokenData) {
 async function getBgExtensionDetails(client, reference_no) {
   const q = `SELECT * FROM ${SDBG_EXTENSION} WHERE reference_no = $1`;
   const result = await poolQuery({ client, query: q, values: [reference_no] });
+  if (result[0]) {
+    // Release is recommended only after cross-verifying warranty period and PO closure in SAP (To-Be 6.2.6)
+    const terms = await getPoBgTerms(client, result[0].purchasing_doc_no);
+    result[0].warranty_expiry_date = terms.warranty_expiry_date || null;
+    result[0].po_closed = terms.po_closed ?? null;
+    result[0].po_closed_date = terms.po_closed_date || null;
+    result[0].fi_officer = await getOriginalApprovingOfficer(client, result[0].sdbg_reference_no);
+  }
   return result;
 }
 
@@ -145,13 +163,13 @@ async function applyExtensionToOriginalBg(client, ext) {
   const slots = ["extension_date1", "extension_date2", "extension_date3", "extension_date4", "extension_date5", "extension_date6"];
   const nextEmptySlot = slots.find((slot) => !original[slot]);
 
-  // sdbg_extension stores dates as native DATE columns; sdbg_entry stores them as epoch millis.
-  const newValidityEpoch = new Date(ext.validity_date).getTime();
+  // sdbg_extension stores dates as native DATE columns; sdbg_entry stores BG dates as epoch seconds.
+  const newValidityEpoch = Math.floor(new Date(ext.validity_date).getTime() / 1000);
 
   const updatePayload = {
     validity_date: newValidityEpoch,
   };
-  if (ext.bg_date) updatePayload.bg_date = new Date(ext.bg_date).getTime();
+  if (ext.bg_date) updatePayload.bg_date = Math.floor(new Date(ext.bg_date).getTime() / 1000);
   if (ext.bank_gu_no) updatePayload.bg_no = ext.bank_gu_no;
   if (nextEmptySlot) updatePayload[nextEmptySlot] = newValidityEpoch;
 
@@ -163,7 +181,7 @@ async function applyExtensionToOriginalBg(client, ext) {
  * On Finance approval of a RELEASE request: set the release date on the original BG.
  */
 async function applyReleaseToOriginalBg(client, ext) {
-  const { q, val } = generateQuery(UPDATE, SDBG_ENTRY, { release_date: getEpochTime() }, { reference_no: ext.sdbg_reference_no });
+  const { q, val } = generateQuery(UPDATE, SDBG_ENTRY, { release_date: Math.floor(getEpochTime() / 1000) }, { reference_no: ext.sdbg_reference_no });
   await poolQuery({ client, query: q, values: val });
 }
 

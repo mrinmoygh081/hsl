@@ -247,6 +247,7 @@ const Checklist = () => {
       else if (firstItem.btn_type === "bill-incorrect-deductions") type = "any-other";
       else if (firstItem.btn_type === "other-retentions") type = "any-other";
       else if (firstItem.btn_type === "claim-against-jcc") type = "claim-against-jcc";
+      else if (firstItem.btn_type === "bg-retention-release") type = "bg-retention-release";
       else if (firstItem.btn_type === "ld-penalty-refund") type = "ld-penalty-refund";
 
       navigate(`/checklist/${type}/view/${id}`, {
@@ -361,6 +362,7 @@ const Checklist = () => {
                               <option value="contract-bill-service">Checklist for Service Bill</option>
                               <option value="claim-against-pbg">Checklist for Claim Against PBG</option>
                               <option value="claim-against-jcc">Checklist for Claim Against JCC</option>
+                              <option value="bg-retention-release">Checklist for BG Retention Release</option>
                               <option value="any-other">Checklist for Any Other Claims</option>
                               <option value="advance-bill">Checklist for Advance Bill Payment(Adv BG)</option>
                             </select>
@@ -455,6 +457,7 @@ const Checklist = () => {
                                                   else if (firstItem.btn_type === "bill-incorrect-deductions") type = "any-other";
                                                   else if (firstItem.btn_type === "other-retentions") type = "any-other";
                                                   else if (firstItem.btn_type === "claim-against-jcc") type = "claim-against-jcc";
+                                                  else if (firstItem.btn_type === "bg-retention-release") type = "bg-retention-release";
                                                   else if (firstItem.btn_type === "ld-penalty-refund") type = "ld-penalty-refund";
                                                   navigate(`/checklist/${type}/view/${id}`, {
                                                     state: `${firstItem?.btn_num}`,

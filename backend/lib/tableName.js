@@ -77,3 +77,8 @@ exports.BTN_JCC_CERTIFY_AUTHORITY = "btn_jcc_certify_authority";
 exports.HR_COMPLIANCE = "hr_compliance";
 exports.HR_COMPLIANCE_DATA = "hr_compliance_data";
 exports.SDBG_EXTENSION = "sdbg_extension";
+
+exports.PO_BG_TERMS = "po_bg_terms";
+exports.HOLIDAY_CALENDAR = "holiday_calendar";
+exports.BTN_BG_RETENTION = "btn_bg_retention";
+exports.BTN_BG_RETENTION_LINE = "btn_bg_retention_line";

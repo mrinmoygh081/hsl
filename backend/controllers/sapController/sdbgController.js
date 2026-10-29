@@ -8,6 +8,8 @@ const { update_in_all_obps_sdbgs_table } = require("../poController/sdbgControll
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const { sendMail } = require("../../services/mail.services");
 const { BG_EXTENSION_RELEASE } = require("../../lib/event");
+const { upsertPoBgTerms } = require("../../services/poBgTerms.services");
+const { sapToGetEpochTime } = require("../../lib/utils");
 
 const sdbgPaymentAdvice = async (req, res) => {
 
@@ -40,6 +42,42 @@ const sdbgPaymentAdvice = async (req, res) => {
     }
   } catch (error) {
     responseSend(res, "F", 500, Message.DB_CONN_ERROR, error.message, null);
+  }
+};
+
+/**
+ * SAP PO replication -> per-PO BG terms (To-Be stage 2): BG %/amount/basis,
+ * warranty expiry and PO closure. Dates in SAP YYYYMMDD format.
+ */
+const poBgTerms = async (req, res) => {
+  let client;
+  try {
+    const rows = Array.isArray(req.body) ? req.body : [req.body];
+    if (!rows.length || rows.some((r) => !r?.EBELN)) {
+      return responseSend(res, "F", 400, "Please send a valid payload (EBELN required).", null, null);
+    }
+    client = await poolClient();
+    for (const r of rows) {
+      await upsertPoBgTerms(client, {
+        purchasing_doc_no: r.EBELN,
+        bg_percentage: r.BG_PERCENT,
+        bg_amount: r.BG_AMOUNT,
+        bg_basis: r.BG_BASIS,
+        currency: r.WAERS,
+        bg_submission_date: r.BG_SUB_DATE ? sapToGetEpochTime(r.BG_SUB_DATE) : null,
+        warranty_expiry_date: r.WARRANTY_DATE ? sapToGetEpochTime(r.WARRANTY_DATE) : null,
+        po_closed: r.PO_CLOSED === "X",
+        po_closed_date: r.PO_CLOSED_DATE ? sapToGetEpochTime(r.PO_CLOSED_DATE) : null,
+        sd_percentage: r.SD_PERCENT,
+        sd_amount: r.SD_AMOUNT,
+      });
+    }
+    responseSend(res, "S", 200, Message.DATA_SEND_SUCCESSFULL, null, null);
+  } catch (err) {
+    console.error("poBgTerms error", err.message);
+    responseSend(res, "F", 500, Message.DATA_INSERT_FAILED, err.message, null);
+  } finally {
+    if (client) client.release();
   }
 };
 
@@ -172,4 +210,4 @@ async function handelMail(data) {
   }
 }
 
-module.exports = { sdbgPaymentAdvice, ztfi_bil_deface, bgList };
+module.exports = { sdbgPaymentAdvice, ztfi_bil_deface, bgList, poBgTerms };

@@ -5,7 +5,7 @@ const { setActualSubmissionDate, create_reference_no, getPoDetails } = require("
 const { resSend } = require("../../lib/resSend");
 const { query, getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime, getDateString, sapToGetEpochTime } = require("../../lib/utils");
-const { INSERT, UPDATE, USER_TYPE_VENDOR, ASSIGNER, STAFF, USER_TYPE_HSL_FINANCE, ACTION_SDBG, ACTION_DD, ACTION_IB, MID_SDBG } = require("../../lib/constant");
+const { INSERT, UPDATE, USER_TYPE_VENDOR, ASSIGNER, STAFF, FINANCE_NODAL, USER_TYPE_HSL_FINANCE, ACTION_SDBG, ACTION_DD, ACTION_IB, MID_SDBG } = require("../../lib/constant");
 const { EKKO, SDBG_ENTRY, SDBG, ACTUAL_SUBMISSION_DB, SDBG_SAVE, SDBG_RECOMMENDATION, EMPLAYEE_MASTER_PA0002 } = require("../../lib/tableName");
 const { FINANCE } = require("../../lib/depertmentMaster");
 const { ASSIGNED, RE_SUBMITTED, REJECTED, FORWARD_TO_FINANCE, RETURN_TO_DO, APPROVED, SUBMITTED, SAVED } = require("../../lib/status");
@@ -14,8 +14,9 @@ const { BG_UPLOAD_BY_VENDOR, BG_ENTRY_BY_DO, BG_ASSIGN, BG_RETURN_TO_DO, BG_RECE
 const { makeHttpRequest } = require("../../config/sapServerConfig");
 const { zfi_bgm_1_Payload } = require("../../services/sap.services");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
-const { getLastAssignee, getAssigneeList, checkIsAssigned, checkIsApprovedRejected, insertSdbgEntrySave } = require("../../services/lastassignee.servces");
+const { getAssigneeList, checkIsApprovedRejected, insertSdbgEntrySave } = require("../../services/lastassignee.servces");
 const { sdbgPayloadVendor, sdbgEntryPayload } = require("../../services/sdbg.services");
+const { getPoBgTerms, getBgAmountWarning } = require("../../services/poBgTerms.services");
 const Message = require("../../utils/messages");
 const QueryBuilder = require("../../utils/QueryBuilder");
 
@@ -71,8 +72,11 @@ const submitSDBG = async (req, res) => {
     await Promise.all([poolQuery({ client, query: qb1.q, values: qb1.val }), poolQuery({ client, query: qb2.q, values: qb2.val })]);
     await client.query("COMMIT");
 
+    // BG value vs PO terms is a warning only, never blocks submission
+    const warning = await getBgAmountWarning(client, payload.purchasing_doc_no, payload.bg_ammount);
+
     handelEmail(payload, tokenData);
-    resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no }, null);
+    resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no, warning }, null);
   } catch (error) {
     console.error("submitSDBG error", error, error.message);
     if (client) {
@@ -123,7 +127,8 @@ const getSdbgEntry = async (req, res) => {
 
     if (tokenData.department_id === USER_TYPE_HSL_FINANCE && tokenData.internal_role_id === ASSIGNER) {
       qb1.where("t2.status", "=", FORWARD_TO_FINANCE);
-    } else if (tokenData.department_id === USER_TYPE_HSL_FINANCE && tokenData.internal_role_id === STAFF) {
+    } else if (tokenData.department_id === USER_TYPE_HSL_FINANCE) {
+      qb1.where("t2.status", "=", ASSIGNED);
       qb1.where("t2.assigned_to", "=", tokenData.vendor_code);
     } else if (dealingOfficer !== 1) {
       return resSend(res, false, 200, "You are not authorized.", null, null);
@@ -136,6 +141,18 @@ const getSdbgEntry = async (req, res) => {
     console.error("GET SDBG ENTRY ERROR", error.message, error);
     resSend(res, false, 400, Message.DATA_FETCH_ERROR, null, null);
   }
+};
+
+/**
+ * Finance Officer the nodal point assigned this BG reference to (latest ASSIGNED row).
+ * Falls back to the old PO-level assignment rows (reference_no "SDBG ASSIGNED").
+ */
+const getAssignedFinanceOfficer = async (client, purchasing_doc_no, reference_no) => {
+  const q = `SELECT assigned_to FROM ${SDBG}
+             WHERE purchasing_doc_no = $1 AND status = $3 AND last_assigned = 1 AND reference_no IN ($2, 'SDBG ASSIGNED')
+             ORDER BY (reference_no = $2) DESC, created_at DESC LIMIT 1`;
+  const result = await poolQuery({ client, query: q, values: [purchasing_doc_no, reference_no, ASSIGNED] });
+  return result[0]?.assigned_to || null;
 };
 
 const checkIsDealingOfficer = async (purchasing_doc_no, vendor_code) => {
@@ -205,6 +222,8 @@ const sdbgSubmitByDealingOfficer = async (req, res) => {
           obj.bg_recived_date == null ||
           !obj.bg_type ||
           obj.bg_type == null ||
+          !obj.bg_mode ||
+          !obj.currency ||
           !obj.claim_priod ||
           obj.claim_priod == "" ||
           !obj.validity_date ||
@@ -241,13 +260,14 @@ const sdbgSubmitByDealingOfficer = async (req, res) => {
         remarks: obj.status === REJECTED ? `This BG is ${REJECTED}` : `BG entry forwarded to Finance.`,
         status: obj.status,
         assigned_from: tokenData.vendor_code,
-        assigned_to: obj.status == REJECTED ? sdbgDataResult?.vendor_code : "FINANCE_NODAL",
+        // Forwarded BGs go to the Finance nodal point, who assigns a Finance Officer
+        assigned_to: obj.status == REJECTED ? sdbgDataResult?.vendor_code : FINANCE_NODAL,
         created_at: getEpochTime(),
         created_by_name: "Dealing officer",
         created_by_id: tokenData.vendor_code,
         updated_by: "HSL",
         action_by: tokenData.vendor_code,
-        action_on: obj.status == REJECTED ? sdbgDataResult?.vendor_code : "FINANCE_NODAL",
+        action_on: obj.status == REJECTED ? sdbgDataResult?.vendor_code : FINANCE_NODAL,
       };
 
       let insertsdbg_q = generateQuery(INSERT, SDBG, insertPayloadForSdbg);
@@ -257,8 +277,9 @@ const sdbgSubmitByDealingOfficer = async (req, res) => {
         values: insertsdbg_q["val"],
       });
 
-      let msg = obj.status === REJECTED ? `This BG is Rejected.` : `Forworded to finance successfully!`;
-      return resSend(res, true, 200, msg, sdbgQuery[0], null);
+      let msg = obj.status === REJECTED ? `This BG is Rejected.` : `Forwarded to Finance nodal point successfully!`;
+      const warning = obj.status === FORWARD_TO_FINANCE ? await getBgAmountWarning(client, obj.purchasing_doc_no, obj.bg_ammount) : null;
+      return resSend(res, true, 200, msg, { ...sdbgQuery[0], warning }, null);
     } catch (error) {
       console.error(error);
       return resSend(res, false, 201, "Data not insert!!", error, null);
@@ -285,57 +306,68 @@ const sdbgUpdateByFinance = async (req, res) => {
     if (tokenData.department_id != FINANCE) {
       return resSend(res, false, 200, "please login as finance!", null, null);
     }
-    if (tokenData.internal_role_id == ASSIGNER && obj.assigned_to && obj.status == ASSIGNED) {
-      /**
-       * checked already assigned to
-       */
-      const check_assign_to_query = `SELECT * FROM ${SDBG}  WHERE purchasing_doc_no = $1 AND assigned_to = $2`;
-      const check_assign_to_data = await poolQuery({
-        client,
-        query: check_assign_to_query,
-        values: [obj.purchasing_doc_no, obj.assigned_to],
-      });
+    if (!obj.reference_no) {
+      return resSend(res, false, 200, "please send a valid reference no!", null, null);
+    }
+    const isNodal = tokenData.internal_role_id == ASSIGNER;
 
-      if (check_assign_to_data.length) {
+    // Finance nodal point assigns the forwarded BG to a Finance Officer
+    if (obj.status == ASSIGNED) {
+      if (!isNodal) {
+        return resSend(res, false, 200, "Only the Finance nodal point can assign a BG.", null, null);
+      }
+      if (!obj.assigned_to) {
+        return resSend(res, false, 200, "Please choose a Finance Officer to assign.", null, null);
+      }
+      const forwarded = await poolQuery({
+        client,
+        query: `SELECT file_name, file_path, action_type, vendor_code, bg_no FROM ${SDBG} WHERE purchasing_doc_no = $1 AND reference_no = $2 AND status = $3 ORDER BY created_at DESC LIMIT 1`,
+        values: [obj.purchasing_doc_no, obj.reference_no, FORWARD_TO_FINANCE],
+      });
+      if (!forwarded.length) {
+        return resSend(res, false, 200, "This BG is not forwarded to Finance yet.", null, null);
+      }
+      const currentOfficer = await getAssignedFinanceOfficer(client, obj.purchasing_doc_no, obj.reference_no);
+      if (currentOfficer === obj.assigned_to) {
         return resSend(res, false, 200, `The BG is already assigned to : ${obj.assigned_to} `, null, null);
       }
-      const insertPayloadForSdbg = {
+
+      await client.query("BEGIN");
+      await poolQuery({
+        client,
+        query: `UPDATE ${SDBG} SET last_assigned = 0 WHERE purchasing_doc_no = $1 AND reference_no = $2`,
+        values: [obj.purchasing_doc_no, obj.reference_no],
+      });
+      const assignPayload = {
+        ...forwarded[0],
         purchasing_doc_no: obj.purchasing_doc_no,
-        reference_no: "SDBG ASSIGNED",
-        status: obj.status,
-        file_name: "",
-        file_path: "",
-        action_type: "",
-        vendor_code: "",
+        reference_no: obj.reference_no,
+        status: ASSIGNED,
+        remarks: obj.remarks,
         assigned_from: tokenData.vendor_code,
         assigned_to: obj.assigned_to,
         action_by: tokenData.vendor_code,
         action_on: obj.assigned_to,
         last_assigned: 1,
         created_at: getEpochTime(),
-        created_by_name: "finance dept",
+        created_by_name: "finance nodal point",
         created_by_id: tokenData.vendor_code,
         updated_by: "HSL",
       };
+      const assignQuery = generateQuery(INSERT, SDBG, assignPayload);
+      await poolQuery({ client, query: assignQuery.q, values: assignQuery.val });
+      await client.query("COMMIT");
 
-      let { q, val } = generateQuery(INSERT, SDBG, insertPayloadForSdbg);
-
-      await poolQuery({
-        client,
-        query: q,
-        values: val,
-      });
-
-      const update_assign_to = `UPDATE ${SDBG} SET last_assigned = 0 WHERE purchasing_doc_no = $1 AND assigned_to != $2`;
-      await poolQuery({
-        client,
-        query: update_assign_to,
-        values: [obj.purchasing_doc_no, obj.assigned_to],
-      });
-
-      handelEmail(insertPayloadForSdbg, tokenData);
-
+      handelEmail(assignPayload, tokenData);
       return resSend(res, true, 200, `The BG is ASSIGNED successfully.`, null, null);
+    }
+
+    // Accept / reject / hold / return: the assigned Finance Officer (or the nodal point)
+    if (!isNodal) {
+      const assignedOfficer = await getAssignedFinanceOfficer(client, obj.purchasing_doc_no, obj.reference_no);
+      if (assignedOfficer !== tokenData.vendor_code) {
+        return resSend(res, false, 200, "This BG is not assigned to you!", null, null);
+      }
     }
     await client.query("BEGIN");
     const get_sdbg_entry_query = `SELECT * FROM ${SDBG_ENTRY} WHERE purchasing_doc_no = $1 AND reference_no = $2`;
@@ -356,15 +388,6 @@ const sdbgUpdateByFinance = async (req, res) => {
       query: get_sdbg_query,
       values: [obj.purchasing_doc_no, obj.reference_no],
     });
-
-    if (tokenData.internal_role_id == STAFF) {
-      const assign = `assigned_to`;
-      let checkAssig = await checkIsAssigned(SDBG, obj.purchasing_doc_no, tokenData.vendor_code, assign);
-
-      if (checkAssig != 1) {
-        return resSend(res, false, 200, "This PO is not assign to you!", null, null);
-      }
-    }
 
     const check = await checkIsApprovedRejected(SDBG, obj.purchasing_doc_no, obj.reference_no, APPROVED, REJECTED);
     if (check > 0) {
@@ -445,7 +468,7 @@ const sdbgUpdateByFinance = async (req, res) => {
       reference_no: obj.reference_no,
     };
 
-    ({ q, val } = generateQuery(UPDATE, SDBG_ENTRY, { status: obj.status, bg_file_no: uFile }, whereCondition));
+    const { q, val } = generateQuery(UPDATE, SDBG_ENTRY, { status: obj.status, bg_file_no: uFile }, whereCondition);
 
     await poolQuery({
       client,
@@ -505,21 +528,60 @@ const sdbgUpdateByFinance = async (req, res) => {
   }
 };
 
+// Finance Officers the nodal point can assign a BG to
 const assigneeList = async (req, res) => {
   try {
     const tokenData = { ...req.tokenData };
 
     if (tokenData.department_id != FINANCE || tokenData.internal_role_id != ASSIGNER) {
-      return resSend(res, true, 200, "Please Login as Finance Assigner.", null, null);
+      return resSend(res, true, 200, "Please Login as Finance nodal point.", null, null);
     }
 
-    const dept_id = FINANCE;
-    const internal_role_id = 2;
-    let result = await getAssigneeList(dept_id, internal_role_id);
+    let result = await getAssigneeList(FINANCE, STAFF);
     resSend(res, true, 200, "SDBG assigneeList fetch successfully!", result, null);
   } catch (error) {
     console.error("Error executing the query:", error.message);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
+  }
+};
+
+// Finance Officer currently assigned to a BG reference
+const getCurrentAssignee = async (req, res) => {
+  let client;
+  try {
+    if (!req.query.poNo || !req.query.reference_no) {
+      return resSend(res, true, 200, "Please send PO Number and reference no.", null, null);
+    }
+    client = await poolClient();
+    const assigned_to = await getAssignedFinanceOfficer(client, req.query.poNo, req.query.reference_no);
+    resSend(res, true, 200, assigned_to ? "assigne fetched successfully" : "not assigend.", { assigned_to }, null);
+  } catch (error) {
+    console.error("Error executing the query:", error.message);
+    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
+  } finally {
+    if (client) client.release();
+  }
+};
+
+/**
+ * PO BG terms (from SAP) for the BG screens: expected BG amount, Finance Officer,
+ * warranty expiry and PO closure (shown to the DO when recommending a release).
+ */
+const getPoBgTermsDetails = async (req, res) => {
+  let client;
+  try {
+    if (!req.query.poNo) {
+      return resSend(res, false, 200, "Please send PO Number.", null, null);
+    }
+    client = await poolClient();
+    const terms = await getPoBgTerms(client, req.query.poNo);
+    const warning = req.query.bg_amount ? await getBgAmountWarning(client, req.query.poNo, req.query.bg_amount) : null;
+    resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, { ...terms, warning }, null);
+  } catch (error) {
+    console.error("getPoBgTermsDetails error", error.message, error);
+    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
+  } finally {
+    if (client) client.release();
   }
 };
 
@@ -552,21 +614,24 @@ async function handelEmail(payload, tokenData) {
     dataObj = { ...dataObj, vendor_name: vendorDetail?.u_name };
     await sendMail(BG_RECEIVED, dataObj, { users: emailUserDetails }, BG_RECEIVED);
 
-    // On acceptance only, also send a confirmation to the Banker
+    // On acceptance only, send the confirmation to the Banker, copying Vendor, Dealing Officer and Finance Officer
     if (payload.status == APPROVED && payload.bank_email) {
+      const fiOfficerDetails = await getQuery({
+        query: getUserDetailsQuery("bg_assignee", "$1"),
+        values: [tokenData.vendor_code],
+      });
+      const fiOfficer = fiOfficerDetails.map((u) => ({ ...u, u_type: "finance_officer" }));
       await sendMail(
         BG_APPROVED_BANK_CONFIRM,
         dataObj,
-        { users: [{ u_id: payload.bg_no, u_name: payload.bank_name, u_email: payload.bank_email, u_type: "bank" }] },
+        { users: [{ u_id: payload.bg_no, u_name: payload.bank_name, u_email: payload.bank_email, u_type: "bank" }, ...emailUserDetails, ...fiOfficer] },
         BG_APPROVED_BANK_CONFIRM,
       );
     }
   }
   if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == ASSIGNED) {
-    // BG_ACCEPT_REJECT
-    emailUserDetailsQuery = getUserDetailsQuery("bg_assignee", "$1");
     emailUserDetails = await getQuery({
-      query: emailUserDetailsQuery,
+      query: getUserDetailsQuery("bg_assignee", "$1"),
       values: [payload.assigned_to],
     });
     await sendMail(BG_ASSIGN, dataObj, { users: emailUserDetails }, BG_ASSIGN);
@@ -581,7 +646,8 @@ async function handelEmail(payload, tokenData) {
     await sendMail(BG_RETURN_TO_DO, dataObj, { users: emailUserDetails }, BG_RETURN_TO_DO);
   }
   if (tokenData.dept_id != USER_TYPE_VENDOR && payload.status == FORWARD_TO_FINANCE) {
-    await sendMail(BG_ENTRY_BY_DO, dataObj, { users: [] }, BG_ENTRY_BY_DO);
+    emailUserDetails = await getQuery({ query: getUserDetailsQuery("finance_nodal") });
+    await sendMail(BG_ENTRY_BY_DO, dataObj, { users: emailUserDetails }, BG_ENTRY_BY_DO);
   }
 }
 
@@ -631,25 +697,6 @@ async function GetspecificBG(req, res) {
     return resSend(res, false, 400, "reference_no and purchasing_doc_no are required", null, null);
   }
 }
-
-const getCurrentAssignee = async (req, res) => {
-  try {
-    if (!req.query.poNo) {
-      return resSend(res, true, 200, "Please send PO Number.", null, null);
-    }
-    const assign = `assigned_to`;
-    let result = await getLastAssignee(SDBG, req.query.poNo, assign);
-
-    if (result.length > 0) {
-      resSend(res, true, 200, "assigne fetched successfully", result[0], null);
-    } else {
-      resSend(res, true, 200, "no record found", "not assigend.", null);
-    }
-  } catch (error) {
-    console.error("Error executing the query:", error.message);
-    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
-  }
-};
 
 async function insertSdbgSave(req, res) {
   let client;
@@ -863,13 +910,15 @@ async function checkIsDEO(req, res) {
 module.exports = {
   submitSDBG,
   getSdbgEntry,
+  getPoBgTermsDetails,
   assigneeList,
+  getCurrentAssignee,
   sdbgSubmitByDealingOfficer,
   sdbgUpdateByFinance,
   checkIsDealingOfficer,
+  getAssignedFinanceOfficer,
   getSDBGData,
   GetspecificBG,
-  getCurrentAssignee,
   insertSdbgSave,
   getSdbgSave,
   getingFileNo,
