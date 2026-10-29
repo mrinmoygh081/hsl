@@ -74,7 +74,8 @@ const drawingPayload = (payload, status) => {
     assign_from: payload.assign_from || null,
     assign_to: payload.assign_to || null,
     action_by: payload.action_by,
-    action_on: payload.action_on
+    action_on: payload.action_on,
+    action_to: payload.action_to,
   };
 
   return payloadObj;

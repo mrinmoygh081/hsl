@@ -217,11 +217,52 @@ const list = async (req, res) => {
       return resSend(res, false, 400, "Please send po number", null, null);
     }
 
-    const result = await getQuery({ query: `SELECT * FROM  ${DRAWING} WHERE purchasing_doc_no = $1`, values: [req.query.poNo] });
-    resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, null);
+    const query = `
+      SELECT
+        d.*,
+        COALESCE(emp_by.cname, ven_by.name1) AS action_by_name,
+        COALESCE(emp_to.cname, ven_to.name1) AS action_to_name
+      FROM ${DRAWING} d
+
+      LEFT JOIN pa0002 emp_by
+        ON TRIM(emp_by.pernr::text) = TRIM(d.action_by::text)
+
+      LEFT JOIN lfa1 ven_by
+        ON TRIM(ven_by.lifnr::text) = TRIM(d.action_by::text)
+
+      LEFT JOIN pa0002 emp_to
+        ON TRIM(emp_to.pernr::text) = TRIM(d.action_to::text)
+
+      LEFT JOIN lfa1 ven_to
+        ON TRIM(ven_to.lifnr::text) = TRIM(d.action_to::text)
+
+      WHERE d.purchasing_doc_no = $1
+      ORDER BY d.id ASC
+    `;
+
+    const result = await getQuery({
+      query,
+      values: [req.query.poNo],
+    });
+
+    return resSend(
+      res,
+      true,
+      200,
+      Message.DATA_FETCH_SUCCESSFULL,
+      result,
+      null
+    );
   } catch (err) {
-    console.error("data not fetched", err.message);
-    resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
+    console.error("Drawing data not fetched", err);
+    return resSend(
+      res,
+      false,
+      500,
+      Message.SOMTHING_WENT_WRONG,
+      null,
+      null
+    );
   }
 };
 
@@ -379,7 +420,8 @@ const submitDrawingFn = async (req, res) => {
     payload.created_by_id = tokenData.vendor_code;
     payload.reference_no = existingReferenceNo || (await create_reference_no("DW", tokenData.vendor_code));
     payload.action_by = tokenData.vendor_code;
-    payload.action_on = payload.assign_to;
+    payload.action_to = payload.assign_to;
+    payload.action_on = getEpochTime();
 
     const insertObj = drawingPayload(payload, SUBMITTED);
     const { q, val } = generateQuery(INSERT, DRAWING, insertObj);
@@ -403,7 +445,7 @@ const updateDrawingFn = async (req, res) => {
     const tokenData = req.tokenData;
     const payload = req.body;
 
-    const allowStatus = [REJECTED, ACKNOWLEDGED];
+    const allowStatus = [ACCEPTED, APPROVED, REJECTED];
     if (!payload.purchasing_doc_no || !payload.status || !payload.reference_no || !allowStatus.includes(payload.status)) {
       return resSend(res, false, 400, Message.PLEASE_SEND_VALID_PAYLOAD, null, null);
     }
@@ -423,6 +465,33 @@ const updateDrawingFn = async (req, res) => {
       return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, null, null);
     }
 
+    const actionTime = getEpochTime();
+
+    let actionTo = null;
+
+    if (payload.status === ACCEPTED) {
+      // Get the vendor who originally submitted this drawing
+      const vendorResult = await poolQuery({
+        client,
+        query: `
+          SELECT vendor_code
+          FROM drawing
+          WHERE purchasing_doc_no = $1
+            AND reference_no = $2
+            AND status = $3
+          ORDER BY created_at ASC
+          LIMIT 1
+        `,
+        values: [
+          payload.purchasing_doc_no,
+          payload.reference_no,
+          SUBMITTED,
+        ],
+      });
+
+      actionTo = vendorResult[0]?.vendor_code || null;
+    }
+
     const updatedPayload = {
       ...lastDrawingData[0],
       remarks: payload.remarks,
@@ -432,14 +501,15 @@ const updateDrawingFn = async (req, res) => {
       assign_from: tokenData.vendor_code,
       created_at: getEpochTime(),
       action_by: tokenData.vendor_code,
-      action_on: "--",
+      action_to: actionTo,
+      action_on: getEpochTime(),
     };
 
     let insertObj = drawingPayload(updatedPayload, payload.status);
     const { q, val } = generateQuery(INSERT, DRAWING, insertObj);
     const response = await poolQuery({ client, query: q, values: val });
 
-    if (payload.status === ACKNOWLEDGED) {
+    if ([ACCEPTED, APPROVED].includes(payload.status)) {
       payload.created_at = getEpochTime();
       await setActualSubmissionDate(payload, MID_DRAWING, tokenData, SUBMITTED);
     }
