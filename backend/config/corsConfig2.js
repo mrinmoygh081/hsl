@@ -6,6 +6,10 @@
 function getEnvCorsConfig() {
   const env = process.env.NODE_ENV || "dev";
 
+
+  const CORS_ORIGINS = process.env.CORS_ORIGINS;
+  // console.log(33, CORS_ORIGINS);
+
   const config = {
     dev: {
       origins: "*",
@@ -14,18 +18,20 @@ function getEnvCorsConfig() {
     },
 
     qa: {
-      origins: ["http://10.18.7.123:3000", "http://10.18.1.242:3000", "http://localhost:3000", "http://10.181.1.31:8010", "http://172.16.5.182:3000", "http://43.204.173.109:3001"],
+      // origins: ["http://10.18.7.123:3000", "http://10.18.1.242:3000", "http://localhost:3000", "http://10.181.1.31:8010", "http://172.16.5.182:3000", "http://43.204.173.109:3001"],
+      origins: CORS_ORIGINS,
       credentials: true,
       methods: ["OPTIONS", "GET", "POST", "PUT", "DELETE"],
     },
 
     production: {
-      origins: [
-        "http://10.181.1.53:8018", // SAP Host IP
-        "http://localhost:3000", // LOCAL HOST
-        "http://172.16.5.182:3000",
-        "http://43.204.173.109:3001",
-      ],
+      // origins: [
+      //   "http://10.181.1.53:8018", // SAP Host IP
+      //   "http://localhost:3000", // LOCAL HOST
+      //   "http://172.16.5.182:3000",
+      //   "http://43.204.173.109:3001",
+      // ],
+      origins: CORS_ORIGINS,
       credentials: true,
       methods: ["OPTIONS", "GET", "POST"],
     },
