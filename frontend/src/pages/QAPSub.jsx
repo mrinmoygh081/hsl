@@ -78,19 +78,19 @@ const QAPSub = () => {
     if (!refItems || refItems.length === 0) return "";
 
     const vendorSubmitted = refItems.find(
-      (it) => (it.assigned_to || it.assign_to) && (it.updated_by === "VENDOR" || it.created_by_id?.length === 10)
+      (it) => (it.assigned_to || it.assign_to || it.action_to) && (it.updated_by === "VENDOR" || it.created_by_id?.length === 10)
     );
     if (vendorSubmitted) {
-      return String(vendorSubmitted.assigned_to || vendorSubmitted.assign_to).trim();
+      return String(vendorSubmitted.assigned_to || vendorSubmitted.assign_to || vendorSubmitted.action_to).trim();
     }
 
-    const anyItemWithAssignee = refItems.slice().reverse().find((it) => it.assigned_to || it.assign_to);
+    const anyItemWithAssignee = refItems.slice().reverse().find((it) => it.assigned_to || it.assign_to || it.action_to);
     if (anyItemWithAssignee) {
-      return String(anyItemWithAssignee.assigned_to || anyItemWithAssignee.assign_to).trim();
+      return String(anyItemWithAssignee.assigned_to || anyItemWithAssignee.assign_to || anyItemWithAssignee.action_to).trim();
     }
 
-    const overallAssigned = allQap.slice().reverse().find((it) => it.assigned_to || it.assign_to);
-    return overallAssigned ? String(overallAssigned.assigned_to || overallAssigned.assign_to).trim() : "";
+    const overallAssigned = allQap.slice().reverse().find((it) => it.assigned_to || it.assign_to || it.action_to);
+    return overallAssigned ? String(overallAssigned.assigned_to || overallAssigned.assign_to || overallAssigned.action_to).trim() : "";
   };
 
   const normalizeCode = (val) => {
@@ -106,13 +106,13 @@ const QAPSub = () => {
 
     if (loggedInCodes.length === 0) return false;
 
-    const lastAssignedItem = items.slice().reverse().find((item) => item.assigned_to || item.assign_to);
-    const primaryAssigned = lastAssignedItem?.assigned_to || lastAssignedItem?.assign_to || getAssignedOfficerForRef(refNo);
+    const lastAssignedItem = items.slice().reverse().find((item) => item.assigned_to || item.assign_to || item.action_to);
+    const primaryAssigned = lastAssignedItem?.assigned_to || lastAssignedItem?.assign_to || lastAssignedItem?.action_to || getAssignedOfficerForRef(refNo);
 
     const candidateOfficers = [
       primaryAssigned,
       getAssignedOfficerForRef(refNo),
-      ...(items || []).map((it) => it.assigned_to || it.assign_to),
+      ...(items || []).map((it) => it.assigned_to || it.assign_to || it.action_to),
     ].filter((c) => c !== null && c !== undefined && String(c).trim() !== "");
 
     return candidateOfficers.some((assigned) => {
@@ -143,7 +143,7 @@ const QAPSub = () => {
     return allQap.length > 0 ? groupedByRefNo(allQap) : {};
   }, [allQap]);
 
-  const tableColumns = isQapHandler ? 8 : 7;
+  const tableColumns = isQapHandler ? 9 : 8;
 
   const fetchDepartments = async () => {
     try {
@@ -602,7 +602,8 @@ const QAPSub = () => {
                                 <th scope="col">Action Type</th>
                                 <th scope="col">File Info</th>
                                 <th scope="col">Supporting Documents</th>
-                                <th scope="col">Action By</th>
+                                <th scope="col" className="min-w-200px">Action By</th>
+                                <th scope="col" className="min-w-200px">Action To</th>
                                 <th scope="col" className="min-w-150px">
                                   Remarks
                                 </th>
@@ -637,7 +638,7 @@ const QAPSub = () => {
                                   return (
                                     <Fragment key={idx}>
                                       <tr>
-                                        <td colSpan={7}>
+                                        <td colSpan={8}>
                                           <b>{refNo}</b>
                                         </td>
                                         {isQapHandler && (
@@ -684,9 +685,19 @@ const QAPSub = () => {
                                                 ))
                                               : "-"}
                                           </td>
-                                          <td>{qap.created_by_id || "-"}</td>
+                                          <td className="min-w-200px text-nowrap">
+                                            {qap.action_by_name
+                                              ? `${qap.action_by_name} ${qap.action_by || qap.created_by_id ? `(${qap.action_by || qap.created_by_id})` : ""}`.trim()
+                                              : qap.action_by || qap.created_by_id || "-"}
+                                          </td>
+                                          <td className="min-w-200px text-nowrap">
+                                            {qap.action_to_name
+                                              ? `${qap.action_to_name} ${qap.action_to || qap.assigned_to ? `(${qap.action_to || qap.assigned_to})` : ""}`.trim()
+                                              : qap.action_to || qap.assigned_to || "-"}
+                                          </td>
                                           <td>{qap.remarks || "-"}</td>
                                           <td className={`${clrLegend(qap.status)} bold`}>{qap.status || "-"}</td>
+                                          {isQapHandler && <td></td>}
                                         </tr>
                                       ))}
                                     </Fragment>
