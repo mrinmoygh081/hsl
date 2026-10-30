@@ -4,7 +4,7 @@ const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
 const { INSERT, USER_TYPE_VENDOR, MID_ILMS, BLANK_ASSIGN_USER_CODE } = require("../../lib/constant");
 const { ILMS } = require("../../lib/tableName");
-const { SUBMITTED, ACCEPTED, REJECTED } = require("../../lib/status");
+const { SUBMITTED, ACCEPTED, APPROVED,REJECTED } = require("../../lib/status");
 const { sendMail } = require("../../services/mail.services");
 const { checkIsApprovedRejected } = require("../../services/lastassignee.servces");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
@@ -19,7 +19,7 @@ const isIlmsRefBlocked = async (purchasing_doc_no, reference_no, forVendor = fal
     query: `SELECT status FROM ${ILMS} WHERE purchasing_doc_no = $1 AND reference_no = $2 ORDER BY created_at DESC`,
     values: [purchasing_doc_no, reference_no],
   });
-  if (rows.some((r) => r.status === ACCEPTED)) return true;
+  if (rows.some((r) => r.status === APPROVED)) return true;
   return !forVendor && rows[0]?.status === REJECTED;
 };
 
@@ -32,7 +32,7 @@ const submitILMS = async (req, res) => {
     const { purchasing_doc_no, type, status, reference_no } = body;
 
     // Basic validation
-    const allowedStatuses = new Set([SUBMITTED, ACCEPTED, REJECTED]);
+    const allowedStatuses = new Set([SUBMITTED, ACCEPTED, REJECTED,APPROVED]);
     if (!purchasing_doc_no || !type || !allowedStatuses.has(status)) {
       return resSend(res, false, 200, Message.PLEASE_SEND_VALID_PAYLOAD, null, null);
     }
@@ -59,16 +59,18 @@ const submitILMS = async (req, res) => {
     if (isVendor && !fileData.file_name) {
       return resSend(res, false, 200, Message.MANDATORY_INPUTS_REQUIRED, "File Missing", null);
     }
-
+    const actionTime = getEpochTime();
     // Build payload
     const payload = {
       ...body,
       ...fileData,
-      created_at: getEpochTime(),
+      created_at: actionTime,
       created_by_id: tokenData.vendor_code,
-      action_by: tokenData.vendor_code,
       vendor_code: poDetails.vendor_code,
       updated_by: isVendor ? "VENDOR" : "HSL",
+      action_by: tokenData.vendor_code,
+      action_to: null,
+      action_on: actionTime,
     };
 
     // DO-specific logic
@@ -79,16 +81,38 @@ const submitILMS = async (req, res) => {
       // IF ACCEPTED THEN PROCESS FLOW IS END , ELSE ASSIGN TO VENDOR AGAIN
 
       if (status == ACCEPTED) {
-        payload.action_on = BLANK_ASSIGN_USER_CODE;
+        // Find the vendor who originally submitted this ILMS
+        const vendorResult = await poolQuery({
+          client,
+          query: `
+            SELECT action_by
+            FROM ${ILMS}
+            WHERE purchasing_doc_no = $1
+              AND reference_no = $2
+              AND status = $3
+            ORDER BY created_at ASC
+            LIMIT 1
+          `,
+          values: [purchasing_doc_no, reference_no, SUBMITTED],
+        });
+
+        payload.action_by = tokenData.vendor_code; // DO/officer
+        payload.action_on = actionTime;
+        payload.action_to = vendorResult[0]?.action_by || poDetails.vendor_code;
       }
-      if (status == SUBMITTED || status == REJECTED) {
-        payload.action_on = poDetails.vendor_code;
+      if (status == REJECTED || status == APPROVED) {
+        payload.action_on = actionTime;
+        payload.action_by = tokenData.vendor_code; // Vendor who submitted
+        payload.action_to = null;
       }
 
       if (await isIlmsRefBlocked(purchasing_doc_no, reference_no)) {
         return resSend(res, false, 200, Message.YOU_CANT_TAKE_ACTION_AGAINST_REF_NO, Message.YOU_ARE_UN_AUTHORIZED, null);
       }
       if (status === SUBMITTED && isVendor) {
+        payload.action_by = tokenData.vendor_code; // Vendor who submitted
+        payload.action_to = poDetails.po_creator;  // DO/officer receiving it
+        payload.action_on = getEpochTime();
         sendMailToDO(payload);
       }
     }
@@ -111,7 +135,9 @@ const submitILMS = async (req, res) => {
       } else {
         payload.reference_no = create_reference_no("ILMS", tokenData.vendor_code);
       }
-      payload.action_on = poDetails.po_creator;
+      payload.action_by = tokenData.vendor_code;
+      payload.action_to = poDetails.po_creator;
+      payload.action_on = actionTime;
     }
 
     // Insert ILMS data
@@ -119,7 +145,7 @@ const submitILMS = async (req, res) => {
     await poolQuery({ client, query: q, values: val });
 
     // Additional side effects
-    if (status === ACCEPTED) {
+    if (status === APPROVED) {
       await setActualSubmissionDate(payload, MID_ILMS, tokenData, SUBMITTED, client);
       sendMailToVendor(payload);
     }

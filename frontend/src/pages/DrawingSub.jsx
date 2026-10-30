@@ -109,8 +109,13 @@ const DrawingSub = () => {
     const { drawingFile, remarks, assign_to, actionType } = formData;
 
     // Validation checks
-    if (flag === "SUBMITTED" && (actionType.trim() === "" || assign_to.trim() === "" || !drawingFile)) {
-      return toast.warn("Please fill all the required fields!");
+    if (flag === "SUBMITTED") {
+      // New reference (top ACTION button): drawing file and officer are mandatory.
+      // Existing reference (row ACTION button): only action type is mandatory.
+      const isNewReference = !referenceNo;
+      if (actionType.trim() === "") return toast.warn("Please select action type!");
+      if (isNewReference && !drawingFile) return toast.warn("Please upload drawing file!");
+      if (isNewReference && assign_to.trim() === "") return toast.warn("Please select an officer to assign!");
     }
 
     let isApproved = flag;
@@ -129,7 +134,7 @@ const DrawingSub = () => {
       formDataToSend.append("reference_no", referenceNo);
 
       if (flag === "SUBMITTED") {
-        formDataToSend.append("file", drawingFile);
+        if (drawingFile) formDataToSend.append("file", drawingFile);
         formDataToSend.append("updated_by", uType);
         formDataToSend.append("vendor_code", user.vendor_code);
         formDataToSend.append("action_by_name", user.name);
@@ -281,9 +286,13 @@ const DrawingSub = () => {
                                               <tr key={i}>
                                                 <td className="table_center">{formatDate(item?.created_at)}</td>
                                                 <td className="table_center">
-                                                  <a href={formatFilePath(item.file_path)} target="_blank" rel="noreferrer">
-                                                    View File
-                                                  </a>
+                                                  {item.file_path ? (
+                                                    <a href={formatFilePath(item.file_path)} target="_blank" rel="noreferrer">
+                                                      View File
+                                                    </a>
+                                                  ) : (
+                                                    "-"
+                                                  )}
                                                 </td>
                                                 <td className="table_center">{item.created_by_id}</td>
                                                 <td className="align-middle">{item.remarks}</td>
