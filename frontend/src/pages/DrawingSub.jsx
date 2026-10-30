@@ -176,8 +176,9 @@ const DrawingSub = () => {
   // open the action popup for one reference (vendor re-uploads under the same reference)
   const openActionFor = (refNo, items) => {
     const latest = items.reduce((a, b) => (Number(b.created_at) >= Number(a.created_at) ? b : a), items[0]);
+    const assignedOfficer = items.find((x) => x.assign_to)?.assign_to || latest?.assign_to || "";
     setreferenceNo(refNo);
-    setFormData({ ...initialData, assign_to: isVendor ? latest?.assign_to || "" : "" });
+    setFormData({ ...initialData, assign_to: isVendor ? assignedOfficer : "" });
     setIsPopup(true);
   };
 
@@ -260,12 +261,17 @@ const DrawingSub = () => {
                                     {Object.keys(groupedData).map((it, index) => {
                                       let items = groupedData[it];
                                       const isAssignGroup = it === "DRAWING ASSIGNED";
-                                      // APPROVED / ACKNOWLEDGED closes the reference. After REJECTED the vendor can upload again,
-                                      // while the design officer waits for that new upload.
-                                      const isFinal = items.some((x) => x.status === "APPROVED" || x.status === "ACKNOWLEDGED" || x.status === "ACCEPTED");
                                       const latest = items.reduce((a, b) => (Number(b.created_at) >= Number(a.created_at) ? b : a), items[0]);
-                                      const canVendorAct = isVendor && isMaterialPo && !isAssignGroup && !isFinal;
-                                      const canOfficerAct = user?.department_id === DEPT_DESIGN && poType !== "service" && !isAssignGroup && !isFinal && latest?.status === "SUBMITTED" && user?.vendor_code === latest?.assign_to;
+                                      const latestStatus = (latest?.status || "").toUpperCase();
+                                      const hasApproved = items.some((x) => {
+                                        const s = (x?.status || "").toUpperCase();
+                                        return s === "APPROVED" || s === "ACKNOWLEDGED";
+                                      });
+                                      const isAllowedStatus = !hasApproved && (latestStatus === "SUBMITTED" || latestStatus === "ACCEPTED");
+                                      const assignedOfficer = items.find((x) => x.assign_to)?.assign_to || currentAssign?.assign_to || latest?.assign_to;
+                                      const isAssignedOfficer = !assignedOfficer || String(user?.vendor_code).trim() === String(assignedOfficer).trim();
+                                      const canVendorAct = isVendor && isMaterialPo && !isAssignGroup && isAllowedStatus;
+                                      const canOfficerAct = user?.department_id === DEPT_DESIGN && poType !== "service" && !isAssignGroup && isAllowedStatus && isAssignedOfficer;
                                       return (
                                         <Fragment key={index}>
                                           <tr>
@@ -295,15 +301,16 @@ const DrawingSub = () => {
                                                     "-"
                                                   )}
                                                 </td>
+                                                {/* Action By */}
                                                 <td className="min-w-200px text-nowrap">
-                                                  {item.action_by_name
-                                                    ? `${item.action_by_name} ${item.action_by || item.created_by_id ? `(${item.action_by || item.created_by_id})` : ""}`.trim()
-                                                    : item.action_by || item.created_by_id || "-"}
+                                                  {item?.action_by_name
+                                                    ? `${item.action_by_name} ${item?.action_by || item?.created_by_id ? `(${item.action_by || item.created_by_id})` : ""}`.trim()
+                                                    : item?.action_by || item?.created_by_id || "-"}
                                                 </td>
+
+                                                {/* Action To */}
                                                 <td className="min-w-200px text-nowrap">
-                                                  {item.action_to_name
-                                                    ? `${item.action_to_name} ${item.action_to || item.assign_to ? `(${item.action_to || item.assign_to})` : ""}`.trim()
-                                                    : item.action_to || item.assign_to || "-"}
+                                                  {item?.action_to_name ? `${item.action_to_name} ${item?.action_to ? `(${item.action_to})` : ""}`.trim() : item?.action_to || "-"}
                                                 </td>
                                                 <td className="align-middle">{item.remarks}</td>
                                                 <td className={`${clrLegend(item?.status)} bold`}>{item.status}</td>
@@ -468,12 +475,7 @@ const DrawingSub = () => {
                             className="btn fw-bold btn-success"
                             confirmMessage="Please confirm your approving the drawing."
                           />
-                          <DynamicButton
-                            label="REJECT"
-                            onClick={() => updateDrawing("REJECTED")}
-                            className="btn fw-bold btn-danger"
-                            confirmMessage="Drawing file rejected!!"
-                          />
+                          <DynamicButton label="REJECT" onClick={() => updateDrawing("REJECTED")} className="btn fw-bold btn-danger" confirmMessage="Drawing file rejected!!" />
                         </>
                       )}
                     </div>

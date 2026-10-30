@@ -152,15 +152,13 @@ const IlmsSub = () => {
               {/* Action By */}
               <td className="min-w-200px text-nowrap">
                 {item?.action_by_name
-                  ? `${item.action_by_name} ${item?.action_by || item?.created_by_id ? `(${item.action_by || item.created_by_id})` : ""}`
+                  ? `${item.action_by_name} ${item?.action_by || item?.created_by_id ? `(${item.action_by || item.created_by_id})` : ""}`.trim()
                   : item?.action_by || item?.created_by_id || "-"}
               </td>
 
               {/* Action To */}
               <td className="min-w-200px text-nowrap">
-                {item?.action_to_name || item?.action_on_name
-                  ? `${item.action_to_name || item.action_on_name} ${item?.action_to || item?.action_on ? `(${item.action_to || item.action_on})` : ""}`
-                  : item?.action_to || item?.action_on || "-"}
+                {item?.action_to_name ? `${item.action_to_name} ${item?.action_to ? `(${item.action_to})` : ""}`.trim() : item?.action_to || "-"}
               </td>
               <td>{item?.remarks}</td>
               <td className={`${clrLegend(item?.status)} bold`}>{item.status}</td>
