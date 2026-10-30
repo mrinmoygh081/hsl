@@ -8,7 +8,6 @@ function getEnvCorsConfig() {
 
 
   const CORS_ORIGINS = process.env.CORS_ORIGINS;
-  // console.log(33, CORS_ORIGINS);
 
   const config = {
     dev: {
