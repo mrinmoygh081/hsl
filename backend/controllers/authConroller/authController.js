@@ -47,7 +47,7 @@ const captchaHandler = async (req, res) => {
   req.session.captcha = cap.text.toLowerCase();
   const sessionId = Date.now().toString();
   captchaStore[sessionId] = cap.text.toLowerCase();
-
+  console.log(cap.text);
   return resSend(res, true, 200, "Captcha Generated", {
     sessionId,
     captchaSvg: cap.data,
