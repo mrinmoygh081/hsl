@@ -109,28 +109,32 @@ const IlmsSub = () => {
     return Object.keys(groupedIlms).map((groupKey, index) => {
       const items = groupedIlms[groupKey];
       const firstItem = items[0];
-      // ACCEPTED closes the reference. After REJECTED the vendor can upload again,
-      // while the officer waits for that new upload.
-      const isAccepted = items.some((it) => it.status === "ACCEPTED" || it.status === "APPROVED");
-      const lastStatus = items[items.length - 1]?.status;
-      const canAct = !isAccepted && (isVendor || (isIlmsOfficer && firstItem.status === "SUBMITTED" && lastStatus !== "REJECTED"));
+      const latestStatus = (items[items.length - 1]?.status || "").toUpperCase();
+      const isApprovedOrRejected =
+        latestStatus === "APPROVED" ||
+        latestStatus === "REJECTED" ||
+        items.some((it) => {
+          const s = (it?.status || "").toUpperCase();
+          return s === "APPROVED" || s === "REJECTED";
+        });
+      const canAct = !isApprovedOrRejected;
       return (
         <Fragment key={index}>
           <tr>
-            <td colSpan={showActionCol ? 6 : 5}>
+            <td colSpan={6}>
               <b>{groupKey}</b>
             </td>
             {showActionCol && (
               <td>
                 {canAct && (
-                <DynamicButton
-                  label="ACTION"
-                  onClick={() => {
-                    setIsPopup(true);
-                    setreferenceNo(firstItem.reference_no);
-                  }}
-                  className="btn fw-bold btn-primary mx-3"
-                />
+                  <DynamicButton
+                    label="ACTION"
+                    onClick={() => {
+                      setIsPopup(true);
+                      setreferenceNo(firstItem.reference_no);
+                    }}
+                    className="btn fw-bold btn-primary mx-3"
+                  />
                 )}
               </td>
             )}
@@ -145,16 +149,20 @@ const IlmsSub = () => {
                   </a>
                 )}
               </td>
-              <td className="tdrowadd">
-                {item?.action_by_name} {item?.action_by && `(${item.action_by})`}
+              {/* Action By */}
+              <td className="min-w-200px text-nowrap">
+                {item?.action_by_name
+                  ? `${item.action_by_name} ${item?.action_by || item?.created_by_id ? `(${item.action_by || item.created_by_id})` : ""}`.trim()
+                  : item?.action_by || item?.created_by_id || "-"}
               </td>
 
-              <td className="tdrowadd">
-                {item?.action_on_name} {item?.action_on && `(${item.action_on})`}
+              {/* Action To */}
+              <td className="min-w-200px text-nowrap">
+                {item?.action_to_name ? `${item.action_to_name} ${item?.action_to ? `(${item.action_to})` : ""}`.trim() : item?.action_to || "-"}
               </td>
               <td>{item?.remarks}</td>
               <td className={`${clrLegend(item?.status)} bold`}>{item.status}</td>
-              <td></td>
+              {showActionCol && <td></td>}
             </tr>
           ))}
         </Fragment>
@@ -195,8 +203,8 @@ const IlmsSub = () => {
                               <tr className="border-0">
                                 <th>DateTime</th>
                                 <th>ILMS File</th>
-                                <th>Action By</th>
-                                <th>Action To</th>
+                                <th className="min-w-200px">Action By</th>
+                                <th className="min-w-200px">Action To</th>
                                 <th className="min-w-150px">Remarks</th>
                                 <th>Status</th>
                                 {showActionCol && <th>Action</th>}
@@ -205,8 +213,8 @@ const IlmsSub = () => {
                             <tbody style={{ maxHeight: "100%" }}>
                               {isLoading ? (
                                 <tr>
-                                  <td colSpan={showActionCol ? 6 : 5}>
-                                    <SkeletonLoader col={showActionCol ? 6 : 5} row={6} />
+                                  <td colSpan={showActionCol ? 7 : 6}>
+                                    <SkeletonLoader col={showActionCol ? 7 : 6} row={6} />
                                   </td>
                                 </tr>
                               ) : (

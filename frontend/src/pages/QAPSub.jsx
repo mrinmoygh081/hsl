@@ -883,17 +883,11 @@ const QAPSub = () => {
                         <div>
                           <DynamicButton label="SAVE" onClick={saveQAP} className="btn fw-bold btn-primary me-2" />
                           <DynamicButton
-                            label="SUBMIT"
-                            onClick={() => updateQAP("SUBMITTED")}
-                            className="btn fw-bold btn-warning me-2"
-                            confirmMessage="Confirm sending info to Vendor?"
-                          />
-                          {/* <DynamicButton
                             label="ACCEPT"
                             onClick={() => updateQAP("ACCEPTED")}
-                            className="btn fw-bold btn-success me-2"
+                            className="btn fw-bold btn-warning me-2"
                             confirmMessage="Confirm accepting the QAP? (Not approving)"
-                          /> */}
+                          />
                           <DynamicButton label="REJECT" onClick={() => updateQAP("REJECTED")} className="btn fw-bold btn-danger" confirmMessage="Confirm rejecting the QAP?" />
                         </div>
                         <DynamicButton label="APPROVE" onClick={() => updateQAP("APPROVED")} className="btn fw-bold btn-success" confirmMessage="Confirm approving the QAP?" />
