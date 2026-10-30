@@ -238,7 +238,8 @@ const DrawingSub = () => {
                                 <tr className="border-0">
                                   <th>DateTime </th>
                                   <th>Drawing File</th>
-                                  <th>Action By</th>
+                                  <th className="min-w-200px">Action By</th>
+                                  <th className="min-w-200px">Action To</th>
                                   <th className="min-w-150px">Remarks</th>
                                   <th>Status</th>
                                   {showActionCol && <th>Action</th>}
@@ -250,7 +251,7 @@ const DrawingSub = () => {
                                     <tr></tr>
                                     <tr>
                                       <td colSpan={10}>
-                                        <SkeletonLoader col={5} row={6} />
+                                        <SkeletonLoader col={showActionCol ? 7 : 6} row={6} />
                                       </td>
                                     </tr>
                                   </>
@@ -261,14 +262,14 @@ const DrawingSub = () => {
                                       const isAssignGroup = it === "DRAWING ASSIGNED";
                                       // APPROVED / ACKNOWLEDGED closes the reference. After REJECTED the vendor can upload again,
                                       // while the design officer waits for that new upload.
-                                      const isFinal = items.some((x) => x.status === "APPROVED" || x.status === "ACKNOWLEDGED");
+                                      const isFinal = items.some((x) => x.status === "APPROVED" || x.status === "ACKNOWLEDGED" || x.status === "ACCEPTED");
                                       const latest = items.reduce((a, b) => (Number(b.created_at) >= Number(a.created_at) ? b : a), items[0]);
                                       const canVendorAct = isVendor && isMaterialPo && !isAssignGroup && !isFinal;
                                       const canOfficerAct = user?.department_id === DEPT_DESIGN && poType !== "service" && !isAssignGroup && !isFinal && latest?.status === "SUBMITTED" && user?.vendor_code === latest?.assign_to;
                                       return (
                                         <Fragment key={index}>
                                           <tr>
-                                            <td colSpan={showActionCol ? 5 : 6}>
+                                            <td colSpan={6}>
                                               <b>{it}</b>
                                             </td>
                                             {showActionCol && (
@@ -294,7 +295,16 @@ const DrawingSub = () => {
                                                     "-"
                                                   )}
                                                 </td>
-                                                <td className="table_center">{item.created_by_id}</td>
+                                                <td className="min-w-200px text-nowrap">
+                                                  {item.action_by_name
+                                                    ? `${item.action_by_name} ${item.action_by || item.created_by_id ? `(${item.action_by || item.created_by_id})` : ""}`.trim()
+                                                    : item.action_by || item.created_by_id || "-"}
+                                                </td>
+                                                <td className="min-w-200px text-nowrap">
+                                                  {item.action_to_name
+                                                    ? `${item.action_to_name} ${item.action_to || item.assign_to ? `(${item.action_to || item.assign_to})` : ""}`.trim()
+                                                    : item.action_to || item.assign_to || "-"}
+                                                </td>
                                                 <td className="align-middle">{item.remarks}</td>
                                                 <td className={`${clrLegend(item?.status)} bold`}>{item.status}</td>
                                                 {showActionCol && <td></td>}
@@ -445,16 +455,26 @@ const DrawingSub = () => {
 
                     <div className="d-flex gap-3">
                       {userType === 2 && user?.department_id === 2 && (
-                        <DynamicButton
-                          label="ACKNOWLEDGED"
-                          onClick={() => updateDrawing("ACKNOWLEDGED")}
-                          className="btn fw-bold btn-success"
-                          confirmMessage="Please confirm your approving the drawing."
-                        />
-                      )}
-
-                      {userType === 2 && user?.department_id === 2 && (
-                        <DynamicButton label="REJECT" onClick={() => updateDrawing("REJECTED")} className="btn fw-bold btn-danger" confirmMessage="Drawing file rejected!!" />
+                        <>
+                          <DynamicButton
+                            label="ACCEPT"
+                            onClick={() => updateDrawing("ACCEPTED")}
+                            className="btn fw-bold btn-primary"
+                            confirmMessage="Please confirm accepting the drawing."
+                          />
+                          <DynamicButton
+                            label="APPROVE"
+                            onClick={() => updateDrawing("APPROVED")}
+                            className="btn fw-bold btn-success"
+                            confirmMessage="Please confirm your approving the drawing."
+                          />
+                          <DynamicButton
+                            label="REJECT"
+                            onClick={() => updateDrawing("REJECTED")}
+                            className="btn fw-bold btn-danger"
+                            confirmMessage="Drawing file rejected!!"
+                          />
+                        </>
                       )}
                     </div>
                   </div>

@@ -111,7 +111,7 @@ const IlmsSub = () => {
       const firstItem = items[0];
       // ACCEPTED closes the reference. After REJECTED the vendor can upload again,
       // while the officer waits for that new upload.
-      const isAccepted = items.some((it) => it.status === "ACCEPTED");
+      const isAccepted = items.some((it) => it.status === "ACCEPTED" || it.status === "APPROVED");
       const lastStatus = items[items.length - 1]?.status;
       const canAct = !isAccepted && (isVendor || (isIlmsOfficer && firstItem.status === "SUBMITTED" && lastStatus !== "REJECTED"));
       return (
@@ -284,12 +284,16 @@ const IlmsSub = () => {
                 </div>
                 <div className="col-12">
                   <div className="mb-3 d-flex justify-content-between">
-                    <DynamicButton label="SUBMIT" onClick={() => submitHandler("SUBMITTED")} className="btn fw-bold btn-primary" />
+                    {userType === 1 ? (
+                      <DynamicButton label="SUBMIT" onClick={() => submitHandler("SUBMITTED")} className="btn fw-bold btn-primary" />
+                    ) : (
+                      <DynamicButton label="ACCEPT" onClick={() => submitHandler("ACCEPTED")} className="btn fw-bold btn-primary" />
+                    )}
                     {userType !== 1 && user.department_id === 17 && (
                       <div className="d-flex gap-3">
                         <DynamicButton
-                          label="ACCEPTED"
-                          onClick={() => reConfirm({ file: true }, () => submitHandler("ACCEPTED"), "You're approving the ILMS. Please confirm!")}
+                          label="APPROVE"
+                          onClick={() => reConfirm({ file: true }, () => submitHandler("APPROVED"), "You're approving the ILMS. Please confirm!")}
                           className="btn fw-bold btn-success"
                         />
                         <DynamicButton
