@@ -5,7 +5,7 @@ const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
 const { INSERT, ASSIGNER, USER_TYPE_VENDOR, USER_TYPE_HSL_DRAWING, STAFF, MID_DRAWING } = require("../../lib/constant");
 const { DRAWING } = require("../../lib/tableName");
-const { SUBMITTED, ACKNOWLEDGED, APPROVED, REJECTED, ASSIGNED } = require("../../lib/status");
+const { SUBMITTED, ACKNOWLEDGED, APPROVED, REJECTED, ASSIGNED,ACCEPTED } = require("../../lib/status");
 const Message = require("../../utils/messages");
 
 const { DRAWING_UPLOAD_TO_CDO, DRAWING_ACKNOWLEDGE_RECEIPT, DRAWING_ASSIGN, DRAWING_REJECT } = require("../../lib/event");
@@ -519,7 +519,21 @@ const updateDrawingFn = async (req, res) => {
     handelMail(tokenData, payload);
     resSend(res, true, 200, `Drawing is ${payload.status}`, response, null);
   } catch (error) {
-    console.error("Drawing submission api", error);
+      console.error("Drawing update ERROR:", error.message);
+  console.error("STACK:", error.stack);
+
+  if (client) {
+    await client.query("ROLLBACK");
+  }
+
+  return resSend(
+    res,
+    false,
+    500,
+    error.message,
+    null,
+    null
+  );
     if (client) await client.query("ROLLBACK");
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
   } finally {

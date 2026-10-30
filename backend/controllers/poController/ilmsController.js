@@ -172,24 +172,41 @@ const list = async (req, res) => {
       return resSend(res, true, 200, "Please send PO Number.", [], null);
     }
 
-    const getIlmsQuerey = `
-    SELECT    ilms.*,
-          COALESCE(NULLIF(action_by_user.cname, ''), v_action_by.name1) AS action_by_name,
-          COALESCE(NULLIF(action_on_user.cname, ''), v_action_on.name1) AS action_on_name
-      FROM      ilms                                                          AS ilms
-      LEFT JOIN pa0002                                                        AS action_by_user
-      ON        (
-                          action_by_user.pernr::character VARYING = ilms.action_by)
-      LEFT JOIN pa0002 AS action_on_user
-      ON        (
-                          action_on_user.pernr::character VARYING = ilms.action_on)
-      LEFT JOIN lfa1 AS v_action_by
-      ON        (
-                          v_action_by.lifnr::character VARYING = ilms.action_by)
-      LEFT JOIN lfa1 AS v_action_on
-      ON        (
-                          v_action_on.lifnr::character VARYING = ilms.action_on)
-      WHERE ilms.purchasing_doc_no = $1 ORDER BY id ASC`;
+   const getIlmsQuerey = `
+  SELECT
+    ilms.*,
+
+    COALESCE(
+      NULLIF(TRIM(action_by_user.cname), ''),
+      NULLIF(TRIM(v_action_by.name1), '')
+    ) AS action_by_name,
+
+    COALESCE(
+      NULLIF(TRIM(action_to_user.cname), ''),
+      NULLIF(TRIM(v_action_to.name1), '')
+    ) AS action_to_name
+
+  FROM ${ILMS} AS ilms
+
+  LEFT JOIN pa0002 AS action_by_user
+    ON TRIM(action_by_user.pernr::text) =
+       TRIM(ilms.action_by::text)
+
+  LEFT JOIN lfa1 AS v_action_by
+    ON TRIM(v_action_by.lifnr::text) =
+       TRIM(ilms.action_by::text)
+
+  LEFT JOIN pa0002 AS action_to_user
+    ON TRIM(action_to_user.pernr::text) =
+       TRIM(ilms.action_to::text)
+
+  LEFT JOIN lfa1 AS v_action_to
+    ON TRIM(v_action_to.lifnr::text) =
+       TRIM(ilms.action_to::text)
+
+  WHERE ilms.purchasing_doc_no = $1
+  ORDER BY ilms.id ASC
+`;
     const result = await getQuery({ query: getIlmsQuerey, values: [poNo] });
     resSend(res, true, 200, "data fetch successfully.", result, null);
   } catch (error) {
