@@ -46,6 +46,11 @@ const submitILMS = async (req, res) => {
       };
     }
 
+    // Handle supporting documents (same as QAP)
+    const supporting_doc = body.supporting_doc
+      ? JSON.stringify(body.supporting_doc)
+      : "";
+
     // Get PO details
     const poResult = await getPoDetails(client, { ebeln: purchasing_doc_no }, "ebeln as purchasing_doc_no, ernam as po_creator, lifnr as vendor_code");
     const poDetails = poResult;
@@ -64,6 +69,7 @@ const submitILMS = async (req, res) => {
     const payload = {
       ...body,
       ...fileData,
+      supporting_doc,
       created_at: actionTime,
       created_by_id: tokenData.vendor_code,
       vendor_code: poDetails.vendor_code,

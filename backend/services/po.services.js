@@ -76,6 +76,7 @@ const drawingPayload = (payload, status) => {
     action_by: payload.action_by,
     action_on: payload.action_on,
     action_to: payload.action_to,
+    supporting_doc: payload.supporting_doc || "",
   };
 
   return payloadObj;
