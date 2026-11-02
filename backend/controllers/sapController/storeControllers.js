@@ -12,6 +12,7 @@ const { getUserDetailsQuery } = require("../../utils/mailFunc");
 const insertGateEntryData = async (req, res) => {
   let insertPayload = {};
   let payload = {};
+  let insertedData = [];
 
   try {
     const client = await poolClient();
@@ -21,17 +22,28 @@ const insertGateEntryData = async (req, res) => {
     await client.query("BEGIN");
 
     async function insertRecurcionFn(payload, index) {
-      if (index == payload.length) return;
+      if (index === payload.length) return;
 
+      // console.log(payload[0]);
       const { ITEM_TAB, ...obj } = payload[index];
 
-      if (!obj || typeof obj !== "object" || !Object.keys(obj).length || !obj.ENTRY_NO || !obj.W_YEAR) {
+      if (
+        !obj ||
+        typeof obj !== "object" ||
+        !Object.keys(obj).length ||
+        !obj.ENTRY_NO ||
+        !obj.W_YEAR
+      ) {
         return responseSend(res, "F", 400, Message.INVALID_PAYLOAD, null, null);
       }
-
+      // insert data in header table zmm_gate_entry_h
       try {
         insertPayload = await gateEntryHeaderPayload(obj);
-        const gate_entry_h_Insert = await generateInsertUpdateQuery(insertPayload, GATE_ENTRY_HEADER, ["ENTRY_NO", "W_YEAR"]);
+        const gate_entry_h_Insert = await generateInsertUpdateQuery(
+          insertPayload,
+          GATE_ENTRY_HEADER,
+          ["ENTRY_NO", "W_YEAR"],
+        );
         await poolQuery({
           client,
           query: gate_entry_h_Insert.q,
@@ -41,10 +53,20 @@ const insertGateEntryData = async (req, res) => {
         throw new Error(`${Message.DATA_INSERT_FAILED} ${error.toString()}`);
       }
 
+      // Insert line-item data
+      let insertedItems = [];
+
+      // insert data in header table zmm_gate_entry_h
+
       if (ITEM_TAB && ITEM_TAB?.length) {
         try {
           const zmilestonePayload = await gateEntryDataPayload(ITEM_TAB);
-          const zmm_ge_line_item_q = await generateQueryForMultipleData(zmilestonePayload, GATE_ENTRY_DATA, ["ENTRY_NO", "EBELN", "EBELP", "W_YEAR"]);
+          insertedItems = zmilestonePayload;
+          const zmm_ge_line_item_q = await generateQueryForMultipleData(
+            zmilestonePayload,
+            GATE_ENTRY_DATA,
+            ["ENTRY_NO", "EBELN", "EBELP", "W_YEAR"],
+          );
           await poolQuery({
             client,
             query: zmm_ge_line_item_q.q,
@@ -55,6 +77,13 @@ const insertGateEntryData = async (req, res) => {
         }
       }
 
+      // Store header and item data
+      insertedData.push({
+        header: insertPayload,
+        items: insertedItems,
+      });
+
+      // send email
       await handelMail(ITEM_TAB[0], obj);
       await insertRecurcionFn(payload, index + 1);
     }
@@ -70,7 +99,14 @@ const insertGateEntryData = async (req, res) => {
         await client.query("ROLLBACK");
       }
       if (transactionSuccessful === TRUE) {
-        responseSend(res, "S", 200, "data insert succeed with", [], null);
+        responseSend(
+          res,
+          "S",
+          200,
+          "data insert succeed with",
+          insertedData,
+          null,
+        );
       }
       client.release();
     }

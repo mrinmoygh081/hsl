@@ -95,10 +95,59 @@ const submitQAP = async (req, res) => {
     };
 
     payload.updated_by =
-      tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
-    payload.action_by_id = tokenData.vendor_code;
-    const activity_type = payload.status;
-    const purchasing_doc_no = payload.purchasing_doc_no;
+  tokenData.user_type === USER_TYPE_VENDOR ? "VENDOR" : "HSL";
+
+const activity_type = payload.status;
+const purchasing_doc_no = payload.purchasing_doc_no;
+
+payload.action_on = getEpochTime();
+
+console.log("ACTION FIELDS:", {
+  status: activity_type,
+  action_by: payload.action_by,
+  action_to: payload.action_to,
+});
+
+
+  if ([SUBMITTED, RE_SUBMITTED].includes(activity_type)) {
+    // Vendor → Officer
+    payload.action_by = tokenData.vendor_code;
+    payload.action_to = payload.assign_to;
+
+  } else if ([REJECTED, APPROVED].includes(activity_type)) {
+    // Officer rejects or approves
+    payload.action_by = tokenData.vendor_code;
+    payload.action_to = null;
+
+  } else if (activity_type === ACCEPTED) {
+    // Officer → Original Vendor
+    payload.action_by = tokenData.vendor_code;
+
+    const vendorResult = await poolQuery({
+      client,
+      query: `
+        SELECT action_by
+        FROM qap_submission
+        WHERE purchasing_doc_no = $1
+          AND reference_no = $2
+          AND status = $3
+        ORDER BY id ASC
+        LIMIT 1
+      `,
+      values: [
+        purchasing_doc_no,
+        payload.reference_no,
+        SUBMITTED,
+      ],
+    });
+
+    payload.action_to = vendorResult[0]?.action_by || null;
+
+  } else {
+    // Other actions
+    payload.action_by = tokenData.vendor_code;
+    payload.action_to = null;
+  }
     const verifyStatusForStaff = new Set([
       REJECTED,
       ACCEPTED,
@@ -249,6 +298,7 @@ const submitQAP = async (req, res) => {
       default:
         console.log("other1");
     }
+
     //////// SET STATUS AND CREATE QAP PAYLOAD /////////
     if (
       tokenData.user_type === USER_TYPE_VENDOR &&
@@ -297,6 +347,7 @@ const submitQAP = async (req, res) => {
         }
       }
       handelMail(tokenData, payload, QAP_UPLOAD_BY_VENDOR);
+      
       resSend(res, true, 200, "Inserted successfully", response, null);
     } else {
       resSend(res, false, 400, "No data inserted", [], null);
@@ -326,16 +377,56 @@ const checkIsApprovedOrRejected = async (client, purchasing_doc_no, reference_no
 
 const list = async (req, res) => {
   try {
-    const pre = `SELECT * FROM ${QAP_SUBMISSION} WHERE purchasing_doc_no = $1 ORDER BY id ASC`;
+    const query = `
+      SELECT
+        qs.*,
+        COALESCE(emp_by.cname, ven_by.name1) AS action_by_name,
+        COALESCE(emp_to.cname, ven_to.name1) AS action_to_name
+      FROM ${QAP_SUBMISSION} qs
 
-    const result = await getQuery({ query: pre, values: [req.query.poNo] });
+      LEFT JOIN pa0002 emp_by
+        ON TRIM(emp_by.pernr::text) = TRIM(qs.action_by::text)
+
+      LEFT JOIN lfa1 ven_by
+        ON TRIM(ven_by.lifnr::text) = TRIM(qs.action_by::text)
+
+      LEFT JOIN pa0002 emp_to
+        ON TRIM(emp_to.pernr::text) = TRIM(qs.action_to::text)
+
+      LEFT JOIN lfa1 ven_to
+        ON TRIM(ven_to.lifnr::text) = TRIM(qs.action_to::text)
+
+      WHERE qs.purchasing_doc_no = $1
+      ORDER BY qs.id ASC
+    `;
+
+    const result = await getQuery({
+      query,
+      values: [req.query.poNo],
+    });
+
     if (!result.length) {
       return resSend(res, true, 200, "No QAP found.", null, null);
     }
-    return resSend(res, true, 200, "data fetched successfully.", result, null);
+
+    return resSend(
+      res,
+      true,
+      200,
+      "data fetched successfully.",
+      result,
+      null
+    );
   } catch (err) {
     console.error("data not fetched", err);
-    resSend(res, false, 500, Messages.SOMTHING_WENT_WRONG, null, null);
+    return resSend(
+      res,
+      false,
+      500,
+      Messages.SOMTHING_WENT_WRONG,
+      null,
+      null
+    );
   }
 };
 
