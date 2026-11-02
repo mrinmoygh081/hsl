@@ -352,6 +352,7 @@ const addParam = (values, value) => {
 
 const poList = async (req, res) => {
   let client;
+  
   try {
     const tokenData = req.tokenData;
 
@@ -369,10 +370,12 @@ const poList = async (req, res) => {
 
     if (tokenData.user_type === USER_TYPE_VENDOR) {
       // Pass specific arrays to each function
+  
       Query = poListByEkko(tokenData, search, po, vendor_type, pageNo, pageSize, queryValues);
       CountQuery = poListCountByEkko(tokenData, search, vendor_type, countValues);
     } else {
       // Pass both arrays to the main query builder to handle complex logic
+      
       const q = poListQuery(tokenData, search, po, vendor_type, pageNo, pageSize, queryValues, countValues);
 
       Query = q.Query;
@@ -643,6 +646,7 @@ const poListQuery = (tokenData, searchValue, po, vendor_type, pageNo, pageSize, 
   let tempValues = [];
 
   const addTemp = (val) => addParam(tempValues, val);
+  console.log(tokenData.department_id);
 
   switch (tokenData.department_id) {
     case USER_TYPE_HSL_QAP:
