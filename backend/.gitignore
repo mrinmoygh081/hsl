@@ -7,4 +7,3 @@ qa.env
 /sync
 error.log
 /config/configEmail/token.json
-backend/config/configEmail/token.json
