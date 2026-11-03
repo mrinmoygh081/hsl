@@ -51,7 +51,7 @@ const mara = async (req, res) => {
         res,
         "S",
         200,
-        Message.DATA_SEND_SUCCESSFULL,
+        Message.COMPLIANCE_INSERT_MSG,
         insertedData,
         null,
       );
