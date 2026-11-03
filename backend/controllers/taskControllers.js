@@ -166,37 +166,50 @@ const getQAPTaskData = async (client, tokenData) => {
 }
 const getIlmsTaskData = async (client, tokenData) => {
   try {
-    let values = [];
-    let paramIndex = 1;
-    const statusList = [SUBMITTED];
-    let conditionQuery = ' WHERE 1 = 1 '
+    const values = [SUBMITTED, tokenData.vendor_code];
 
-    let baseQuery = `
+    const query = `
       WITH LastRows AS (
-        SELECT DISTINCT ON (reference_no)
+        SELECT DISTINCT ON (purchasing_doc_no, reference_no)
+          id,
           reference_no,
           reference_no AS doc_no,
           status,
           created_at,
           action_on,
           action_by,
+          action_to,
           purchasing_doc_no,
+          vendor_code,
           'ilms' AS doc_type
         FROM ilms
-        ORDER BY reference_no, created_at DESC
+        ORDER BY
+          purchasing_doc_no,
+          reference_no,
+          created_at DESC,
+          id DESC
       )
-      SELECT * FROM LastRows as LastRows`;
 
-    conditionQuery += ` AND status IN (${statusList.map(() => `$${paramIndex++}`).join(", ")})`;
-    values = [...values, ...statusList];
-    conditionQuery += ` AND action_on = $${paramIndex++}`;
-    values.push(tokenData.vendor_code);
+      SELECT *
+      FROM LastRows
+      WHERE status = $1
+        AND TRIM(action_to::text) = TRIM($2::text)
+      ORDER BY created_at DESC
+    `;
 
-    baseQuery += conditionQuery;
+    const result = await poolQuery({
+      client,
+      query,
+      values,
+    });
 
-    const result = await poolQuery({ client, query: baseQuery, values });
+    console.log("ILMS MY TASK:", result.length);
+    console.log("DO CODE:", tokenData.vendor_code);
+
     return result;
+
   } catch (error) {
+    console.error("getIlmsTaskData ERROR:", error);
     throw error;
   }
 };
