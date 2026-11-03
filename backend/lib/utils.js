@@ -284,6 +284,7 @@ async function generateQueryForMultipleData(array, tableName, multiplePKs) {
     }
   });
   queryText += updateKeys;
+  queryText += ` RETURNING *`;
 
   return { q: queryText, val: allValues };
 }

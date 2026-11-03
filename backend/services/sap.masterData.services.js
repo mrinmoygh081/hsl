@@ -1,4 +1,3 @@
-
 /*
  * Modify lifnrPayload payload object to insert data
  * @param {Object} payload
@@ -41,4 +40,18 @@ const addUserPayload = async (obj) => {
   return pl;
 };
 
-module.exports = { lfa1Payload, addUserPayload };
+const addMaterialMasterPayload = async (obj) => {
+  if (!obj || !Array.isArray(obj) || !obj.length) {
+    throw new Error("Please send valid payload");
+  }
+  const pl = obj.map((obj) => ({
+    MATNR: obj.MATNR,
+    MTART: obj.MTART || null,
+    MAKTX: obj.MAKTX || null,
+    BSTME: obj.BSTME || null,
+    MEINS: obj.MEINS || null,
+  }));
+  return pl;
+};
+
+module.exports = { lfa1Payload, addUserPayload, addMaterialMasterPayload };
