@@ -38,6 +38,8 @@ const DrawingSub = () => {
   const { poType } = useSelector((state) => state.selectedPO);
   const [isAssignPopup, setIsAssignPopup] = useState(false);
   const [referenceNo, setreferenceNo] = useState("");
+  const [hasContractualDate, setHasContractualDate] = useState(false);
+  const [isContractualChecking, setIsContractualChecking] = useState(true);
 
   const handleSupportingFileSelect = (e) => {
     const files = Array.from(e.target.files);
@@ -156,9 +158,49 @@ const DrawingSub = () => {
     }
   };
 
+  const checkDrawingContractualDate = async () => {
+    setIsContractualChecking(true);
+    try {
+      // 1. Check via po/poList?search=${id} (exactly matches http://localhost:3000/po table logic)
+      const res = await apiCallBack("GET", `po/poList?search=${id}`, null, token);
+      if (res?.status && Array.isArray(res?.data) && res.data.length > 0) {
+        const matchedPo = res.data.find((p) => String(p.poNumber).trim() === String(id).trim()) || res.data[0];
+        const date = matchedPo?.drawing?.contractualSubmissionDate;
+        if (date && date !== "--" && date !== "0" && date !== 0) {
+          setHasContractualDate(true);
+          return;
+        }
+      }
+
+      // 2. Fallback check via po/details?id=${id}
+      const detailsRes = await apiCallBack("GET", `po/details?id=${id}`, null, token);
+      if (detailsRes?.status) {
+        const poData = Array.isArray(detailsRes.data) ? detailsRes.data[0] : detailsRes.data;
+        const timeline = poData?.timeline || [];
+        const drawingMilestone = timeline.find(
+          (t) => String(t.mid) === "02" || String(t.mid) === "2" || String(t.flag) === "02" || t?.mtext?.toLowerCase()?.includes("drawing")
+        );
+        if (drawingMilestone?.plan_date && drawingMilestone.plan_date !== "--" && drawingMilestone.plan_date !== "0" && drawingMilestone.plan_date !== 0) {
+          setHasContractualDate(true);
+          return;
+        }
+      }
+
+      setHasContractualDate(false);
+    } catch (error) {
+      console.error("Error checking drawing contractual date:", error);
+      setHasContractualDate(false);
+    } finally {
+      setIsContractualChecking(false);
+    }
+  };
+
   useEffect(() => {
     getEmpList();
     getData();
+    if (id && token) {
+      checkDrawingContractualDate();
+    }
   }, [id, token]);
 
   const assignDrawing = async (flag) => {
@@ -245,8 +287,7 @@ const DrawingSub = () => {
   };
 
   const isVendor = userType === USER_VENDOR;
-  const isMaterialPo = poType === "material" || poType === "hybrid";
-  const showActionCol = (isVendor && isMaterialPo) || (user?.department_id === DEPT_DESIGN && poType !== "service");
+  const showActionCol = (isVendor && (hasContractualDate || isContractualChecking)) || user?.department_id === DEPT_DESIGN;
 
   // open the action popup for one reference (vendor re-uploads under the same reference)
   const openActionFor = (refNo, items) => {
@@ -280,23 +321,42 @@ const DrawingSub = () => {
                   <div className="row g-5 g-xl-8">
                     <div className="col-12">
                       <div className="screen_header">
-                        {userType === 1 && (poType === "material" || poType === "hybrid") ? (
-                          <button
-                            onClick={() => {
-                              setreferenceNo("");
-                              setFormData(initialData);
-                              setPendingSupportingFiles([]);
-                              if (inputFileRef.current) inputFileRef.current.value = null;
-                              if (supportingDocRef.current) supportingDocRef.current.value = null;
-                              setIsPopup(true);
-                            }}
-                            className="btn fw-bold btn-primary mx-3"
-                          >
-                            ACTION
-                          </button>
-                        ) : null}
+                        {userType === 1 && (
+                          isContractualChecking ? (
+                            <button
+                              className="btn fw-bold btn-primary mx-3 d-inline-flex align-items-center"
+                              disabled
+                              style={{
+                                opacity: 0.85,
+                                cursor: "wait",
+                              }}
+                              title="Checking Action..."
+                            >
+                              <span
+                                className="spinner-border spinner-border-sm me-2"
+                                role="status"
+                                aria-hidden="true"
+                              ></span>
+                              ACTION
+                            </button>
+                          ) : hasContractualDate ? (
+                            <button
+                              onClick={() => {
+                                setreferenceNo("");
+                                setFormData(initialData);
+                                setPendingSupportingFiles([]);
+                                if (inputFileRef.current) inputFileRef.current.value = null;
+                                if (supportingDocRef.current) supportingDocRef.current.value = null;
+                                setIsPopup(true);
+                              }}
+                              className="btn fw-bold btn-primary mx-3"
+                            >
+                              ACTION
+                            </button>
+                          ) : null
+                        )}
 
-                        {user?.user_type !== 1 && poType !== "service" && (
+                        {user?.user_type !== 1 && (
                           <>
                             {/* Finance Head (deptid = 15 and internal_role_Id 1) */}
                             {user?.department_id === 2 && user?.internal_role_id === 1 && (
@@ -352,8 +412,8 @@ const DrawingSub = () => {
                                       const isAllowedStatus = !hasApproved && (latestStatus === "SUBMITTED" || latestStatus === "ACCEPTED");
                                       const assignedOfficer = items.find((x) => x.assign_to)?.assign_to || currentAssign?.assign_to || latest?.assign_to;
                                       const isAssignedOfficer = !assignedOfficer || String(user?.vendor_code).trim() === String(assignedOfficer).trim();
-                                      const canVendorAct = isVendor && isMaterialPo && !isAssignGroup && isAllowedStatus;
-                                      const canOfficerAct = user?.department_id === DEPT_DESIGN && poType !== "service" && !isAssignGroup && isAllowedStatus && isAssignedOfficer;
+                                      const canVendorAct = isVendor && hasContractualDate && !isAssignGroup && isAllowedStatus;
+                                      const canOfficerAct = user?.department_id === DEPT_DESIGN && !isAssignGroup && isAllowedStatus && isAssignedOfficer;
                                       return (
                                         <Fragment key={index}>
                                           <tr>
