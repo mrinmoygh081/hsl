@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState, useMemo } from "react";
+import React, { Fragment, useEffect, useState, useMemo, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
@@ -13,12 +13,18 @@ import Footer from "../components/Footer";
 import DynamicButton from "../Helpers/DynamicButton";
 import SkeletonLoader from "../loader/SkeletonLoader";
 import FileUploadInfoIcon from "../Helpers/FileUploadInfoIcon";
+import { uploadFileStream } from "../utils/uploadFile";
 
 const IlmsSub = () => {
   const [isPopup, setIsPopup] = useState(false);
   const [allData, setAllData] = useState([]);
   const [referenceNo, setreferenceNo] = useState("");
-  const [formData, setFormData] = useState({ drawingFile: null, remarks: "" });
+  const ilmsFileRef = useRef(null);
+  const supportingDocRef = useRef(null);
+  const [isSupportingUploading, setIsSupportingUploading] = useState(false);
+  const [pendingSupportingFiles, setPendingSupportingFiles] = useState([]);
+  const initialData = { drawingFile: null, remarks: "", supporting_doc: [] };
+  const [formData, setFormData] = useState(initialData);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedActionTypeName, setSelectedActionTypeName] = useState("");
   const { id } = useParams();
@@ -58,9 +64,77 @@ const IlmsSub = () => {
     const file = e.target.files[0];
     if (file && file.type !== "application/pdf") {
       toast.warn("Please upload a valid PDF file!");
+      if (ilmsFileRef.current) ilmsFileRef.current.value = null;
       return;
     }
-    setFormData({ ...formData, drawingFile: file });
+    setFormData((prev) => ({ ...prev, drawingFile: file }));
+  };
+
+  const handleSupportingFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    if (formData.supporting_doc.length + files.length > 5) {
+      toast.warning("Maximum 5 supporting documents allowed!");
+      if (supportingDocRef.current) supportingDocRef.current.value = null;
+      return;
+    }
+    setPendingSupportingFiles(files);
+  };
+
+  const handleSupportingFileUpload = async () => {
+    if (pendingSupportingFiles.length === 0) {
+      toast.warning("Please select files to upload!");
+      return;
+    }
+
+    setIsSupportingUploading(true);
+    const uploadedFiles = [];
+
+    for (const file of pendingSupportingFiles) {
+      if (file.type !== "application/pdf") {
+        toast.warning(`${file.name} is not a PDF file!`);
+        continue;
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        toast.warning(`${file.name} exceeds 5MB size limit!`);
+        continue;
+      }
+
+      if (formData.supporting_doc.some((d) => d.file_name === file.name)) {
+        toast.warning(`${file.name} already uploaded!`);
+        continue;
+      }
+
+      const result = await uploadFileStream({
+        file,
+        token,
+        vendorCode: user?.vendor_code,
+      });
+
+      if (result?.filePath) {
+        uploadedFiles.push({
+          file_name: file.name,
+          file_path: result.filePath,
+        });
+      }
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      supporting_doc: [...prev.supporting_doc, ...uploadedFiles],
+    }));
+
+    setPendingSupportingFiles([]);
+    setIsSupportingUploading(false);
+    if (supportingDocRef.current) supportingDocRef.current.value = null;
+  };
+
+  const removeSupportingFile = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      supporting_doc: prev.supporting_doc.filter((_, i) => i !== index),
+    }));
   };
 
   // Handle form submission with mandatory field validation
@@ -87,14 +161,18 @@ const IlmsSub = () => {
       formDataToSend.append("status", flag);
       formDataToSend.append("type", selectedActionTypeName);
       formDataToSend.append("reference_no", referenceNo);
+      formDataToSend.append("supporting_doc", JSON.stringify(formData.supporting_doc || []));
 
       const response = await apiCallBack("POST", "po/ilms/submitILMS", formDataToSend, token);
       if (response?.status) {
         toast.success(response.message);
         setIsPopup(false);
-        setFormData({ drawingFile: null, remarks: "" });
+        setFormData(initialData);
         setSelectedActionTypeName("");
         setreferenceNo("");
+        setPendingSupportingFiles([]);
+        if (ilmsFileRef.current) ilmsFileRef.current.value = null;
+        if (supportingDocRef.current) supportingDocRef.current.value = null;
         getData();
       } else {
         toast.error(response.message);
@@ -121,7 +199,7 @@ const IlmsSub = () => {
       return (
         <Fragment key={index}>
           <tr>
-            <td colSpan={6}>
+            <td colSpan={7}>
               <b>{groupKey}</b>
             </td>
             {showActionCol && (
@@ -132,6 +210,11 @@ const IlmsSub = () => {
                     onClick={() => {
                       setIsPopup(true);
                       setreferenceNo(firstItem.reference_no);
+                      setFormData(initialData);
+                      setSelectedActionTypeName("");
+                      setPendingSupportingFiles([]);
+                      if (ilmsFileRef.current) ilmsFileRef.current.value = null;
+                      if (supportingDocRef.current) supportingDocRef.current.value = null;
                     }}
                     className="btn fw-bold btn-primary mx-3"
                   />
@@ -143,11 +226,36 @@ const IlmsSub = () => {
             <tr key={i}>
               <td style={{ border: "none", background: "none" }}>{formatDate(item?.created_at)}</td>
               <td>
-                {item.file_name && (
+                {item.file_name ? (
                   <a href={formatFilePath(item.file_path)} target="_blank" rel="noreferrer">
                     View File
                   </a>
+                ) : (
+                  "-"
                 )}
+              </td>
+              <td>
+                {(() => {
+                  try {
+                    let docs = item.supporting_doc;
+                    if (typeof docs === "string" && docs.trim()) {
+                      docs = JSON.parse(docs);
+                      if (typeof docs === "string") docs = JSON.parse(docs);
+                    }
+                    if (Array.isArray(docs) && docs.length > 0) {
+                      return docs.map((doc, docIdx) => (
+                        <div key={docIdx}>
+                          <a href={formatFilePath(doc.file_path)} target="_blank" rel="noreferrer">
+                            View File
+                          </a>
+                        </div>
+                      ));
+                    }
+                  } catch (e) {
+                    console.error(e);
+                  }
+                  return "-";
+                })()}
               </td>
               {/* Action By */}
               <td className="min-w-200px text-nowrap">
@@ -187,6 +295,11 @@ const IlmsSub = () => {
                           label="ACTION"
                           onClick={() => {
                             setreferenceNo("");
+                            setFormData(initialData);
+                            setSelectedActionTypeName("");
+                            setPendingSupportingFiles([]);
+                            if (ilmsFileRef.current) ilmsFileRef.current.value = null;
+                            if (supportingDocRef.current) supportingDocRef.current.value = null;
                             setIsPopup(true);
                           }}
                           className="btn fw-bold btn-primary mx-3"
@@ -203,6 +316,7 @@ const IlmsSub = () => {
                               <tr className="border-0">
                                 <th>DateTime</th>
                                 <th>ILMS File</th>
+                                <th>Supporting Documents</th>
                                 <th className="min-w-200px">Action By</th>
                                 <th className="min-w-200px">Action To</th>
                                 <th className="min-w-150px">Remarks</th>
@@ -213,8 +327,8 @@ const IlmsSub = () => {
                             <tbody style={{ maxHeight: "100%" }}>
                               {isLoading ? (
                                 <tr>
-                                  <td colSpan={showActionCol ? 7 : 6}>
-                                    <SkeletonLoader col={showActionCol ? 7 : 6} row={6} />
+                                  <td colSpan={showActionCol ? 8 : 7}>
+                                    <SkeletonLoader col={showActionCol ? 8 : 7} row={6} />
                                   </td>
                                 </tr>
                               ) : (
@@ -235,7 +349,7 @@ const IlmsSub = () => {
       </div>
 
       {(userType === 1 || user.department_id === 17) && (
-        <div className={isPopup ? "popup active" : "popup"}>
+        <div className={isPopup ? "popup active" : "popup"} style={{ maxWidth: "850px", width: "min(850px, 92%)" }}>
           <div className="card card-xxl-stretch mb-5 mb-xxl-8">
             <div className="card-header border-0 pt-5">
               <h3 className="card-title align-items-start flex-column">
@@ -245,9 +359,12 @@ const IlmsSub = () => {
                 label="Close"
                 onClick={() => {
                   setIsPopup(false);
-                  setFormData({ drawingFile: null, remarks: "" });
+                  setFormData(initialData);
                   setSelectedActionTypeName("");
                   setreferenceNo("");
+                  setPendingSupportingFiles([]);
+                  if (ilmsFileRef.current) ilmsFileRef.current.value = null;
+                  if (supportingDocRef.current) supportingDocRef.current.value = null;
                 }}
                 className="btn fw-bold btn-danger"
               />
@@ -273,7 +390,65 @@ const IlmsSub = () => {
                       ILMS File {userType === 1 && <span className="mandatorystart">*</span>}
                       <FileUploadInfoIcon />
                     </label>
-                    <input type="file" className="form-control" onChange={handleFileChange} accept=".pdf" aria-label="Upload ILMS PDF file" />
+                    <input type="file" ref={ilmsFileRef} className="form-control" onChange={handleFileChange} accept=".pdf" aria-label="Upload ILMS PDF file" />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="ilms_supporting_doc" className="form-label d-flex align-items-center gap-2">
+                      Supporting Documents
+                      <FileUploadInfoIcon />
+                    </label>
+                    <div className="d-flex align-items-center">
+                      <input
+                        id="ilms_supporting_doc"
+                        type="file"
+                        className="form-control me-2"
+                        multiple
+                        ref={supportingDocRef}
+                        onChange={handleSupportingFileSelect}
+                        accept=".pdf"
+                        disabled={isSupportingUploading}
+                        aria-describedby="ilms_supporting_doc_help"
+                      />
+                      <DynamicButton
+                        label="Upload"
+                        onClick={handleSupportingFileUpload}
+                        className="btn btn-primary btn-sm"
+                        disabled={isSupportingUploading}
+                      />
+                    </div>
+                    <small id="ilms_supporting_doc_help" className="form-text text-muted">
+                      Upload up to 5 PDF files, each up to 5MB.
+                    </small>
+                    {isSupportingUploading && <p className="text-muted mt-2">Uploading files...</p>}
+                    {pendingSupportingFiles.length > 0 && (
+                      <div className="mt-2">
+                        <p className="fw-bold">Selected Files:</p>
+                        {pendingSupportingFiles.map((file, idx) => (
+                          <div key={idx} className="d-flex justify-content-between align-items-center mt-1">
+                            <span>{file.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {formData.supporting_doc?.length > 0 && (
+                      <div className="mt-2">
+                        <p className="fw-bold">Uploaded Files:</p>
+                        {formData.supporting_doc.map((doc, idx) => (
+                          <div key={idx} className="d-flex justify-content-between align-items-center mt-1">
+                            <span>{doc.file_name}</span>
+                            <button
+                              type="button"
+                              className="btn btn-danger btn-sm"
+                              onClick={() => removeSupportingFile(idx)}
+                              disabled={isSupportingUploading}
+                              aria-label={`Remove ${doc.file_name}`}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="col-12">

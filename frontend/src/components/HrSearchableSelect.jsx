@@ -116,7 +116,7 @@ const HrSearchableSelect = ({ options = [], value, onChange, placeholder = "Sele
           {selectedOption ? selectedOption.label : value ? `Officer (${value})` : placeholder}
         </span>
         <span style={{ position: "absolute", right: "10px" }}>
-          {isClearable && selectedOption && (
+          {isClearable && !isDisabled && selectedOption && (
             <span onClick={handleClear} style={{ marginRight: "8px", cursor: "pointer", color: "#999" }}>
               ✕
             </span>
