@@ -17,4 +17,6 @@ router.post(
   controller.addUser
 );
 
+router.post("/mara", controller.mara);
+
 module.exports = router;
