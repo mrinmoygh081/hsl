@@ -1189,7 +1189,6 @@ const nonPoBillAction = async (req, res) => {
         // Copy previous bill details
         const newBillData = {
             ...bill,
-
             status: newStatus,
             action_type: newAction,
             remarks: remarks.trim(),
@@ -1197,8 +1196,6 @@ const nonPoBillAction = async (req, res) => {
             action_by: userCode,
             action_on: actionOn,
             action_to: actionTo,
-
-            // Clear previous assignment
             assigned_from: null,
             assigned_to: null,
             is_assign: false
@@ -1206,6 +1203,7 @@ const nonPoBillAction = async (req, res) => {
 
         // Remove old primary key
         delete newBillData.id;
+        delete newBillData.supporting_doc;
 
         const columns = Object.keys(newBillData);
         const values = Object.values(newBillData);
