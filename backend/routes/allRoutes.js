@@ -10,6 +10,7 @@ const sdbgRoutes = require("./sdbgRoutes");
 const drawingRoutes = require("./drawingRoutes");
 const wdcRoutes = require("./WdcRoutes");
 const ilmsRoutes = require("./ilmsRoutes");
+const nonPoRoutes = require("./nonPoBillRoutes");
 const demandeManagementRoutes = require("./demandeManagementRoutes");
 
 const dashboardRoutes = require("./dashboardRoutes");
@@ -54,6 +55,12 @@ router.use(poPrefix + "/sdbg", sdbgRoutes);
 router.use(poPrefix + "/drawing", drawingRoutes);
 router.use(poPrefix + "/wdc", wdcRoutes);
 router.use(poPrefix + "/ilms", ilmsRoutes);
+
+router.use("/nonPo", (req, res, next) => {
+    //console.log("NON PO REQUEST:", req.method, req.originalUrl);
+    next();
+}, nonPoRoutes);
+
 
 router.use(poPrefix + "/dashboard", dashboardRoutes);
 router.use(poPrefix + "/download", downloadRoutes);
