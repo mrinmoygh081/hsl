@@ -114,7 +114,7 @@ const POs = () => {
 
   const generateExcel = () => {
     const data = [
-      ["POs", "SDBG", "Drawings", "QAP", "ILMS", "Current Stage"],
+      ["POs", "SDBG", "Drawings", "QAP", "ILMS" /* , "Current Stage" */],
       ...filteredPolist.map((po) => [
         `${po.poNumber} | ${po.poType} | ${po.project_code || ""} | ${po.vendor_code} (${po.vendor_name})`,
         `${po?.sdbg?.contractualSubmissionDate ? formatDate(po.sdbg.contractualSubmissionDate) : "--"} | ${
@@ -129,7 +129,7 @@ const POs = () => {
         `${po?.ilms?.contractualSubmissionDate ? formatDate(po.ilms.contractualSubmissionDate) : "--"} | ${
           po?.ilms?.actualSubmissionDate ? formatDate(po.ilms.actualSubmissionDate) : "--"
         } | ${po?.ilms?.lastStatus || "--"}`,
-        po?.currentStage?.current || "--",
+        /* po?.currentStage?.current || "--", */
       ]),
     ];
 
@@ -192,7 +192,7 @@ const POs = () => {
                     </select>
                   </div>
                 </div>
-                <div>
+                {/* <div>
                   <div className="search_top">
                     <label htmlFor="statusSelect">Select Current Status</label>
                   </div>
@@ -210,7 +210,7 @@ const POs = () => {
                       <option value="BTN">BTN</option>
                     </select>
                   </div>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
@@ -234,13 +234,13 @@ const POs = () => {
                   <th>Drawings</th>
                   <th>QAP</th>
                   <th>ILMS</th>
-                  <th>Current Stage</th>
+                  {/* <th>Current Stage</th> */}
                 </tr>
               </thead>
               <tbody>
                 {isLoading ? (
                   <tr>
-                    <td colSpan="6">
+                    <td colSpan="5">
                       <div className="py-5">
                         <UniqueLoader />
                       </div>
@@ -248,7 +248,7 @@ const POs = () => {
                   </tr>
                 ) : filteredPolist.length === 0 ? (
                   <tr>
-                    <td colSpan="6">No data found</td>
+                    <td colSpan="5">No data found</td>
                   </tr>
                 ) : (
                   filteredPolist.map((po, index) => (
@@ -304,7 +304,7 @@ const POs = () => {
                         {po?.ilms?.contractualSubmissionDate ? formatDate(po?.ilms?.contractualSubmissionDate) : "--"} |{" "}
                         {po?.ilms?.actualSubmissionDate ? formatDate(po?.ilms?.actualSubmissionDate) : "--"} | {po?.ilms?.lastStatus || "--"}
                       </td>
-                      <td>{po?.currentStage?.current}</td>
+                      {/* <td>{po?.currentStage?.current}</td> */}
                     </tr>
                   ))
                 )}

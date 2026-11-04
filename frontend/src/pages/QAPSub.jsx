@@ -865,7 +865,8 @@ const QAPSub = () => {
                       }))
                     }
                     placeholder="Select officer"
-                    isClearable={true}
+                    isClearable={!formData.reference_no}
+                    isDisabled={Boolean(formData.reference_no)}
                   />
                 </div>
 

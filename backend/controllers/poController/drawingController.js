@@ -368,7 +368,26 @@ const submitDrawingFn = async (req, res) => {
       };
     }
 
-    const payload = { ...req.body, ...fileData, created_at: getEpochTime() };
+    let supportingDoc = [];
+
+    if (req.body.supporting_doc) {
+      try {
+        supportingDoc =
+          typeof req.body.supporting_doc === "string"
+            ? JSON.parse(req.body.supporting_doc)
+            : req.body.supporting_doc;
+      } catch (error) {
+        return resSend(res, false, 400, "Invalid supporting document format", null, null);
+      }
+    }
+
+    let payload = {
+      ...req.body,
+      ...fileData,
+      supporting_doc: JSON.stringify(supportingDoc),
+      created_at: getEpochTime(),
+    };
+
 
     if (!payload.purchasing_doc_no) {
       return resSend(res, false, 400, Message.MANDATORY_INPUTS_REQUIRED, null, null);
