@@ -72,6 +72,7 @@ const TaskList = lazy(() => import("./pages/dashboard/TaskList"));
 const SyncComponent = lazy(() => import("./pages/SyncComponent"));
 const Authorisation = lazy(() => import("./pages/settings/Authorisation"));
 const ForgatePassword = lazy(() => import("./pages/ForgatePassword"));
+const NonPoBills = lazy(() => import("./pages/NonPoBills"));
 
 // Checklist
 const ClaimAgainstPBGSubmissionView = lazy(() => import("./pages/checklists/ClaimAgainstPBGSubmissionView"));
@@ -130,6 +131,7 @@ function Layout() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard/task-list" replace />} />
           <Route path="/po" element={<POs />} />
+          <Route path="/non-po" element={<NonPoBills />} />
           <Route path="/wdc" element={<WBS />} />
           <Route path="/po/:id" element={<PODetails />} />
           <Route path="/poarchive/:id" element={<POArchived />} />
