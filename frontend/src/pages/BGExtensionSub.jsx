@@ -15,6 +15,7 @@ const BGExtensionSub = () => {
   const [remarkstext, setRemarkstext] = useState("");
   const [selectedAction, setSelectedAction] = useState("");
   const [loading, setLoading] = useState(false);
+  const [rowDetails, setRowDetails] = useState(null);
   const { token, user } = useSelector((state) => state.auth);
 
   const isFinance = user?.department_id === DEPT_FI;
@@ -35,11 +36,21 @@ const BGExtensionSub = () => {
     fetchTableData();
   }, []);
 
-  const handleAction = (index) => {
+  const handleAction = async (index) => {
     setSelectedRow(index);
     setRemarkstext("");
     setSelectedAction("");
+    setRowDetails(null);
     setIsPopup(true);
+    // Warranty period / PO closure from SAP, for cross-verification before recommending a release
+    const res = await apiCallBack("GET", `bg-extension/${tableData[index]?.reference_no}`, null, token);
+    if (res?.status) setRowDetails(res?.data?.[0] || null);
+  };
+
+  const formatEpochSec = (value) => {
+    if (!value || value === "0") return "";
+    const date = new Date(Number(value) * 1000);
+    return isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-GB");
   };
 
   const handlePopupSave = async () => {
@@ -62,7 +73,7 @@ const BGExtensionSub = () => {
       response = await apiCallBack(
         "POST",
         "bg-extension/do",
-        { reference_no: row.reference_no, status: selectedAction, remarks: remarkstext },
+        { reference_no: row.reference_no, purchasing_doc_no: row.purchasing_doc_no, status: selectedAction, remarks: remarkstext },
         token
       );
     }
@@ -168,6 +179,25 @@ const BGExtensionSub = () => {
             </div>
             <form>
               <div className="row">
+                {tableData[selectedRow]?.action_type === "RELEASE" && (
+                  <div className="col-12">
+                    <div className="mb-3 p-2 border rounded">
+                      <b>Release cross-verification (from SAP)</b>
+                      <div>Warranty Expiry Date: {formatEpochSec(rowDetails?.warranty_expiry_date) || "Not available"}</div>
+                      <div>
+                        PO Closed in SAP:{" "}
+                        {rowDetails?.po_closed === true
+                          ? `Yes${rowDetails?.po_closed_date ? ` (${formatEpochSec(rowDetails.po_closed_date)})` : ""}`
+                          : rowDetails?.po_closed === false
+                          ? "No"
+                          : "Not available"}
+                      </div>
+                      {rowDetails?.warranty_expiry_date && Number(rowDetails.warranty_expiry_date) * 1000 > Date.now() && (
+                        <small className="text-warning d-block">⚠ Warranty period has not ended yet.</small>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="col-12">
                   <div className="mb-3">
                     <label className="form-label">

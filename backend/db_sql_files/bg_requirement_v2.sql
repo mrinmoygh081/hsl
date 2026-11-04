@@ -30,7 +30,7 @@ INSERT INTO email_send_info (event_name, u_type, u_email, email_body_name)
 SELECT * FROM (VALUES
   ('BG_EXPIRY_REMINDER', 'do', '{{do}}', 'BG_EXPIRY_REMINDER'),
   ('BG_EXPIRY_REMINDER', 'vendor', '{{vendor}}', 'BG_EXPIRY_REMINDER'),
-  ('BG_EXPIRY_REMINDER', 'finance_officer', 'fin-bg@grse.co.in,Sen.Tamal@grse.co.in', 'BG_EXPIRY_REMINDER')
+  ('BG_EXPIRY_REMINDER', 'finance_officer', '{{finance_officer}}', 'BG_EXPIRY_REMINDER')
 ) AS v(event_name, u_type, u_email, email_body_name)
 WHERE NOT EXISTS (
   SELECT 1 FROM email_send_info WHERE event_name = v.event_name AND u_type = v.u_type
@@ -64,6 +64,6 @@ WHERE NOT EXISTS (
 
 INSERT INTO email_body (email_body_name, email_body, email_subject)
 SELECT 'BG_EXTENSION_SUBMITTED',
-  'Ref. PO No. <b>{{purchasing_doc_no}}</b>, Ref. BG No. <b>{{sdbg_reference_no}}</b>. A new {{action_type}} request has been submitted by the vendor for the referred Bank Guarantee. Please login to OBPS portal to review and forward it to Finance.',
+  'Ref. PO No. <b>{{purchasing_doc_no}}</b>, Ref. BG No. <b>{{sdbg_reference_no}}</b>. A new {{action_type}} request has been submitted by the vendor for the referred Bank Guarantee. Please login to OVMS portal to review and forward it to Finance.',
   'INFO: New BG {{action_type}} request submitted for Ref. BG No. {{sdbg_reference_no}}'
 WHERE NOT EXISTS (SELECT 1 FROM email_body WHERE email_body_name = 'BG_EXTENSION_SUBMITTED');

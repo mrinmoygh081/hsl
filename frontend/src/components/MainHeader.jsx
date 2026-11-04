@@ -25,6 +25,7 @@ import {
   FaSignOutAlt,
   FaChevronDown,
   FaHeadset,
+  FaCalendarAlt,
 } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { checkPasswordStrength, validatePassword } from "../utils/registrationUtils";
@@ -323,6 +324,10 @@ const MainHeader = ({ title }) => {
                     <span>Authorization</span>
                   </Link>
                 )}
+                <Link to="/holiday-calendar" className="mh-dropdown-item">
+                  <FaCalendarAlt size={13} />
+                  <span>Holiday Calendar</span>
+                </Link>
                 <button className="mh-dropdown-item" onClick={() => setIschangepasswordPopup(true)}>
                   <FaKey size={13} />
                   <span>Change Password</span>

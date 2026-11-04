@@ -109,7 +109,7 @@ async function submitBgExtensionByFinance(req, res) {
       return resSend(res, false, resp.statusCode, resp.message, resp.error);
     }
 
-    await notifyVendorOfOutcome(req.body.reference_no, req.body.fi_status, resp.data);
+    await notifyVendorOfOutcome(req.body.reference_no, req.body.fi_status, resp.data, tokenData.vendor_code);
 
     resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, resp.data, "", resp.data);
   } catch (error) {
@@ -120,7 +120,7 @@ async function submitBgExtensionByFinance(req, res) {
   }
 }
 
-async function notifyVendorOfOutcome(reference_no, status, ext) {
+async function notifyVendorOfOutcome(reference_no, status, ext, fiOfficer) {
   try {
     let client;
     try {
@@ -134,10 +134,20 @@ async function notifyVendorOfOutcome(reference_no, status, ext) {
       if (status === APPROVED) {
         const original = await bgExtensionServices.getOriginalSdbgEntry(client, extRow.sdbg_reference_no);
         if (original?.bank_email) {
+          // Bank confirmation, copying Vendor, Dealing Officer and the Finance Officer who approved
+          const doDetails = await getQuery({ query: getUserDetailsQuery("do", "$1"), values: [extRow.purchasing_doc_no] });
+          const fiDetails = await getQuery({ query: getUserDetailsQuery("bg_assignee", "$1"), values: [fiOfficer] });
           await sendMail(
             BG_EXTENSION_RELEASE_BANK,
             { ...extRow, status },
-            { users: [{ u_id: original.bg_no, u_name: original.bank_name, u_email: original.bank_email, u_type: "bank" }] },
+            {
+              users: [
+                { u_id: original.bg_no, u_name: original.bank_name, u_email: original.bank_email, u_type: "bank" },
+                ...vendorDetails,
+                ...doDetails,
+                ...fiDetails.map((u) => ({ ...u, u_type: "finance_officer" })),
+              ],
+            },
             BG_EXTENSION_RELEASE_BANK,
           );
         }

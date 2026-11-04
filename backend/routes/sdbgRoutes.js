@@ -39,21 +39,27 @@ router.get(
 );
 
 router.get(
+  "/poBgTerms",
+  verifyAccessToken,
+  sdbgController.getPoBgTermsDetails
+);
+
+router.get(
   "/assigneeList",
   verifyAccessToken,
   sdbgController.assigneeList
-);
-
-router.post(
-  "/getspecificbg",
-  verifyAccessToken,
-  sdbgController.GetspecificBG
 );
 
 router.get(
   "/getCurrentAssignee",
   verifyAccessToken,
   sdbgController.getCurrentAssignee
+);
+
+router.post(
+  "/getspecificbg",
+  verifyAccessToken,
+  sdbgController.GetspecificBG
 );
 
 router.post(

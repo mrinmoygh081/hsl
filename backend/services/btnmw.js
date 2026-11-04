@@ -61,3 +61,12 @@ exports.btnJccUploadFile = () => {
     { name: "earned_leave_filename", maxCount: 1 }
   ]);
 };
+
+exports.btnBgRetentionUploadFile = () => {
+  return uploadBTNs.fields([
+    { name: "warranty_cert_filename", maxCount: 1 },
+    { name: "wcc_filename", maxCount: 1 },
+    { name: "no_due_cert_filename", maxCount: 1 },
+    { name: "other_doc_filename", maxCount: 1 },
+  ]);
+};
