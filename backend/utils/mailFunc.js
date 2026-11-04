@@ -1,4 +1,4 @@
-const { USER_TYPE_HSL_DRAWING, ASSIGNER, USER_TYPE_HSL_QAP } = require("../lib/constant");
+const { USER_TYPE_HSL_DRAWING, ASSIGNER, USER_TYPE_HSL_QAP, USER_TYPE_HSL_FINANCE } = require("../lib/constant");
 
 const getUserDetailsQuery = (type, valueParameter) => {
   let getDeatilsQuery = "";
@@ -44,6 +44,19 @@ const getUserDetailsQuery = (type, valueParameter) => {
                           user_t.email       AS u_email,
                           '${type || ""}'    AS u_type
                 FROM     pa0002  as user_t where  user_t.pernr = ${valueParameter}
+            )`;
+      break;
+    case "finance_nodal":
+      // Finance nodal point: Finance department ASSIGNER
+      getDeatilsQuery = `(
+                SELECT    auth.vendor_code   AS u_id,
+                          user_t.cname       AS u_name,
+                          user_t.email       AS u_email,
+                          '${type}'          AS u_type
+                FROM      auth               AS auth
+                LEFT JOIN pa0002             AS user_t
+                ON        ( user_t.pernr :: CHARACTER varying = auth.vendor_code)
+                WHERE     auth.department_id = ${USER_TYPE_HSL_FINANCE} AND auth.internal_role_id = ${ASSIGNER}
             )`;
       break;
     case "finance_staff":

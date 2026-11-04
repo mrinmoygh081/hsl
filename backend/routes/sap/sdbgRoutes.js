@@ -12,6 +12,11 @@ router.post("/paymentAdvice/ZFI_BGM_1", (req, res) => {
   sdbgController.sdbgPaymentAdvice(req, res);
 });
 
+// SAP PO replication: per-PO BG terms / warranty / closure
+router.post("/poBgTerms", (req, res) => {
+  sdbgController.poBgTerms(req, res);
+});
+
 router.post("/bgList", verifyAccessToken, (req, res) => {
   sdbgController.bgList(req, res);
 });

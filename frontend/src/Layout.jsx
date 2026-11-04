@@ -20,6 +20,8 @@ const BRNSub = lazy(() => import("./pages/BRNSub"));
 const PaymentAdvisesSub = lazy(() => import("./pages/PaymentAdvisesSub"));
 const PBGuploadSub = lazy(() => import("./pages/PBGuploadSub"));
 const BGExtensionSub = lazy(() => import("./pages/BGExtensionSub"));
+const HolidayCalendar = lazy(() => import("./pages/HolidayCalendar"));
+const BgRetentionRelease = lazy(() => import("./pages/checklists/BgRetentionRelease"));
 const Pofetch = lazy(() => import("./pages/Pofetch"));
 const Contractcell = lazy(() => import("./hractivity/Contractcell"));
 const ClaimLatterSub = lazy(() => import("./pages/ClaimLatterSub"));
@@ -170,6 +172,11 @@ function Layout() {
           <Route path="/checklist/claim-against-jcc/view/:id" element={<ClaimAgainstJCCubmissionView />} />
           <Route path="/checklist/claim-against-jcc/edit/:id" element={<ClaimAgainstJCCubmissionEdit />} />
 
+          {/* BG Retention Release Checklist */}
+          <Route path="/checklist/bg-retention-release/:id" element={<BgRetentionRelease />} />
+          <Route path="/checklist/bg-retention-release/view/:id" element={<BgRetentionRelease />} />
+          <Route path="/checklist/bg-retention-release/edit/:id" element={<BgRetentionRelease />} />
+
           {/* Any Other Claim Checklist  */}
           <Route path="/checklist/any-other/:id" element={<AnyOtherClaim />} />
           <Route path="/checklist/any-other/view/:id" element={<AnyOtherClaimview />} />
@@ -188,6 +195,7 @@ function Layout() {
           <Route path="/payment-advise/:id" element={<PaymentAdvisesSub />} />
           <Route path="/pbg-upload/:id" element={<PBGuploadSub />} />
           <Route path="/bg-extension" element={<BGExtensionSub />} />
+          <Route path="/holiday-calendar" element={<HolidayCalendar />} />
           <Route path="/po-pull" element={<Pofetch />} />
           <Route path="/support" element={<SupportTeam />} />
           <Route path="/contract-cell" element={<HrContractvendor />} />

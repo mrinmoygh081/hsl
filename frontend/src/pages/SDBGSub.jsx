@@ -12,7 +12,7 @@ import { inputOnWheelPrevent } from "../utils/inputOnWheelPrevent";
 import { clrLegend } from "../utils/clrLegend";
 import { BGEntry, BGEntrySave, bgFi, bgInputs } from "../Helpers/BG";
 import { IoClose } from "react-icons/io5";
-import { ACTION_ABG, ACTION_DD, ACTION_IB, ACTION_O, ACTION_PBG, ACTION_SDBG, ACTION_RM, ACTION_MBG } from "../constants/BGconstants";
+import { ACTION_ABG, ACTION_DD, ACTION_IB, ACTION_O, ACTION_PBG, ACTION_SDBG, ACTION_RM, ACTION_MBG, BG_TYPES, BG_MODES, BG_CURRENCIES } from "../constants/BGconstants";
 import { logOutFun } from "../utils/logOutFun";
 import { logoutHandler } from "../redux/slices/loginSlice";
 import { poRemoveHandler } from "../redux/slices/poSlice";
@@ -76,9 +76,10 @@ const SDBGSub = () => {
   const { user, token, userType } = useSelector((state) => state.auth);
   const { isDO } = useSelector((state) => state.selectedPO);
   const [empOption, setEmpOption] = useState([]);
-  const [currentAssign, setCurrentAssign] = useState([]);
+  const [poBgTerms, setPoBgTerms] = useState({});
   const [assign, setAssign] = useState({
     purchasing_doc_no: id,
+    reference_no: "",
     assigned_from: user?.vendor_code,
     assigned_to: null,
     remarks: "Assigned to Fi Employee",
@@ -114,13 +115,29 @@ const SDBGSub = () => {
     }
   };
 
-  const getAssign = async () => {
-    const data = await apiCallBack("GET", `po/sdbg/getCurrentAssignee?poNo=${id}`, null, token);
+  // BG terms replicated from SAP for this PO (expected BG amount etc.)
+  const getPoBgTerms = async () => {
+    const data = await apiCallBack("GET", `po/sdbg/poBgTerms?poNo=${id}`, null, token);
     if (data?.status) {
-      setCurrentAssign(data?.data);
-    } else if (data?.response?.data?.message === "INVALID_EXPIRED_TOKEN") {
-      logOutFun(dispatch, logoutHandler, poRemoveHandler);
+      setPoBgTerms(data?.data || {});
     }
+  };
+
+  // Warn (never block) when the BG amount is not in line with PO terms
+  const bgAmountWarning = (amount) => {
+    const expected = Number(poBgTerms?.expected_bg_amount);
+    if (!expected || !amount || isNaN(Number(amount))) return "";
+    const diff = Number(amount) - expected;
+    if (Math.abs(diff) <= 1) return "";
+    return `BG Amount is ${diff < 0 ? "less" : "more"} than the amount as per PO terms (${expected.toFixed(2)}${
+      poBgTerms?.bg_percentage ? `, ${poBgTerms.bg_percentage}% of PO value` : ""
+    }).`;
+  };
+
+  // Latest Finance Officer the nodal point assigned to a BG reference
+  const assignedOfficer = (rows) => {
+    const assigned = (rows || []).filter((r) => r.status === "ASSIGNED").sort((a, b) => Number(b.created_at) - Number(a.created_at));
+    return assigned[0]?.assigned_to || null;
   };
 
   const getEmpList = async () => {
@@ -160,7 +177,7 @@ const SDBGSub = () => {
   }, []);
 
   useEffect(() => {
-    getAssign();
+    getPoBgTerms();
     getSDBG();
     getSDBGcheckuser();
   }, []);
@@ -197,9 +214,14 @@ const SDBGSub = () => {
       !formDatainput?.bg_ammount ||
       !formDatainput?.validity_date ||
       !formDatainput?.claim_priod ||
-      !formDatainput?.bg_type
+      !formDatainput?.bg_type ||
+      !formDatainput?.bg_mode ||
+      !formDatainput?.currency
     ) {
       return toast.warn("Please provide all required fields");
+    }
+    if (!formDatainput?.isConfirmedBG) {
+      return toast.warn("Please confirm that the BG is in the prescribed format.");
     }
 
     try {
@@ -228,6 +250,8 @@ const SDBGSub = () => {
         validity_date: formDatainput.validity_date,
         claim_priod: formDatainput.claim_priod,
         bg_type: formDatainput.bg_type,
+        bg_mode: formDatainput.bg_mode,
+        currency: formDatainput.currency,
         isConfirmedBG: formDatainput.isConfirmedBG ? "true" : "false",
       };
 
@@ -236,6 +260,7 @@ const SDBGSub = () => {
       if (response.status) {
         setIsPopup(false);
         toast.success("Form submitted successfully");
+        if (response?.data?.warning) toast.warn(response.data.warning, { autoClose: 8000 });
 
         // Reset all forms
         setFormData({
@@ -367,7 +392,6 @@ const SDBGSub = () => {
       if (res?.status) {
         setIsAssignPopup(false);
         toast.success(`Successfully assigned to ${assign?.assigned_to}`);
-        getAssign();
         getSDBG();
       } else {
         toast.warn(res?.message);
@@ -630,20 +654,6 @@ const SDBGSub = () => {
                   <div className="row g-5 g-xl-8">
                     <div className="col-12">
                       <div className="screen_header">
-                        {user?.user_type !== ASSIGNER && (
-                          <>
-                            {/* Finance Head (deptid = 15 and internal_role_Id 1) */}
-                            {user?.department_id === DEPT_FI && user?.internal_role_id === ASSIGNER && !checkuser && (
-                              <>
-                                <p className="m-0 p-2">{!currentAssign?.assigned_to ? "(Not Assigned!)" : `Assigned to ${currentAssign.assigned_to}`}</p>
-                                <button onClick={() => setIsAssignPopup(true)} className="btn fw-bold btn-primary me-3">
-                                  ASSIGN
-                                </button>
-                              </>
-                            )}
-                          </>
-                        )}
-
                         {/* Vendor  */}
                         {user?.user_type === ASSIGNER && (
                           <>
@@ -701,6 +711,9 @@ const SDBGSub = () => {
                                                   <tr>
                                                     <td colSpan={7}>
                                                       <b>{item}</b>
+                                                      {user?.department_id === DEPT_FI && ite.some((data) => data.status === "FORWARD_TO_FINANCE") && (
+                                                        <span className="ms-3">({assignedOfficer(ite) ? `Assigned to ${assignedOfficer(ite)}` : "Not Assigned!"})</span>
+                                                      )}
                                                     </td>
                                                     <td>
                                                       {isDO && ite.some((data) => data.status !== "ASSIGNED") && (
@@ -724,6 +737,21 @@ const SDBGSub = () => {
                                                       )}
                                                       {console.log("ite", ite)}
                                                       {console.log("user", user)}
+                                                      {/* Finance nodal point: assign the forwarded BG to a Finance Officer */}
+                                                      {user?.department_id === DEPT_FI &&
+                                                        user?.internal_role_id === ASSIGNER &&
+                                                        ite.some((data) => data.status === "FORWARD_TO_FINANCE") &&
+                                                        !ite.some((data) => data.status === "APPROVED" || data.status === "REJECTED") && (
+                                                          <button
+                                                            onClick={() => {
+                                                              setAssign({ ...assign, reference_no: item, assigned_to: assignedOfficer(ite) });
+                                                              setIsAssignPopup(true);
+                                                            }}
+                                                            className="btn btn-sm fw-bold btn-primary me-3"
+                                                          >
+                                                            ASSIGN
+                                                          </button>
+                                                        )}
                                                       {((ite && ite.some((data) => user?.department_id === DEPT_FI && data.status !== "ASSIGNED")) ||
                                                         user.user_type === USER_VENDOR) &&
                                                         !checkuser && (
@@ -1019,6 +1047,37 @@ const SDBGSub = () => {
                     onWheel={(e) => inputOnWheelPrevent(e)}
                     step="any"
                   />
+                  {bgAmountWarning(formDatainput?.bg_ammount) && <small className="text-warning d-block">⚠ {bgAmountWarning(formDatainput?.bg_ammount)}</small>}
+                </div>
+              </div>
+
+              <div className="col-md-6 col-12">
+                <div className="mb-3">
+                  <label className="form-label">Currency</label>&nbsp;&nbsp;
+                  <span className="mandatorystart">*</span>
+                  <select className="form-select" value={formDatainput?.currency || ""} onChange={(e) => setFormDatainput({ ...formDatainput, currency: e.target.value })}>
+                    <option value="">Choose Currency</option>
+                    {BG_CURRENCIES.map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-md-6 col-12">
+                <div className="mb-3">
+                  <label className="form-label">Mode of BG</label>&nbsp;&nbsp;
+                  <span className="mandatorystart">*</span>
+                  <select className="form-select" value={formDatainput?.bg_mode || ""} onChange={(e) => setFormDatainput({ ...formDatainput, bg_mode: e.target.value })}>
+                    <option value="">Choose Mode</option>
+                    {BG_MODES.map((m) => (
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -1089,10 +1148,11 @@ const SDBGSub = () => {
                     }
                   >
                     <option value="">Choose BG</option>
-                    <option value="SDBG">SDBG</option>
-                    <option value="PBG">PBG</option>
-                    <option value="ADVANCED BG">ADVANCED BG</option>
-                    <option value="MATERIAL BG">MATERIAL BG</option>
+                    {BG_TYPES.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -1329,6 +1389,37 @@ const SDBGSub = () => {
                       onWheel={(e) => inputOnWheelPrevent(e)}
                       step="any"
                     />
+                    {bgAmountWarning(formDatainput?.bg_ammount) && <small className="text-warning d-block">⚠ {bgAmountWarning(formDatainput?.bg_ammount)}</small>}
+                  </div>
+                </div>
+
+                <div className="col-md-6 col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Currency</label>&nbsp;&nbsp;
+                    <span className="mandatorystart">*</span>
+                    <select className="form-select" value={formDatainput?.currency || ""} onChange={(e) => setFormDatainput({ ...formDatainput, currency: e.target.value })}>
+                      <option value="">Choose Currency</option>
+                      {BG_CURRENCIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="col-md-6 col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Mode of BG</label>&nbsp;&nbsp;
+                    <span className="mandatorystart">*</span>
+                    <select className="form-select" value={formDatainput?.bg_mode || ""} onChange={(e) => setFormDatainput({ ...formDatainput, bg_mode: e.target.value })}>
+                      <option value="">Choose Mode</option>
+                      {BG_MODES.map((m) => (
+                        <option key={m.value} value={m.value}>
+                          {m.label}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
                 <div className="col-md-6 col-12">
@@ -1405,10 +1496,11 @@ const SDBGSub = () => {
                       }
                     >
                       <option value="">Choose BG</option>
-                      <option value="SDBG">SDBG</option>
-                      <option value="PBG">PBG</option>
-                      <option value="ADVANCED BG">ADVANCED BG</option>
-                      <option value="MATERIAL BG">MATERIAL BG</option>
+                      {BG_TYPES.map((t) => (
+                        <option key={t} value={t}>
+                          {t}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -1592,7 +1684,16 @@ const SDBGSub = () => {
                 <div className="col-md-6 col-12">
                   <div className="mb-3">
                     <label className="form-label">BG Amount</label>
-                    <p>{formDatainput?.bg_ammount}</p>
+                    <p>
+                      {formDatainput?.bg_ammount} {formDatainput?.currency}
+                    </p>
+                    {bgAmountWarning(formDatainput?.bg_ammount) && <small className="text-warning d-block">⚠ {bgAmountWarning(formDatainput?.bg_ammount)}</small>}
+                  </div>
+                </div>
+                <div className="col-md-6 col-12">
+                  <div className="mb-3">
+                    <label className="form-label">Mode of BG</label>
+                    <p>{formDatainput?.bg_mode}</p>
                   </div>
                 </div>
                 <div className="col-md-6 col-12">
@@ -1805,7 +1906,8 @@ const SDBGSub = () => {
           <div className="card card-xxl-stretch mb-5 mb-xxl-8">
             <div className="card-header border-0 pt-5">
               <h3 className="card-title align-items-start flex-column">
-                <span className="card-label fw-bold fs-3 mb-1">ASSIGN</span>
+                <span className="card-label fw-bold fs-3 mb-1">ASSIGN FINANCE OFFICER</span>
+                <span className="text-muted fs-7">Ref No: {assign?.reference_no}</span>
               </h3>
               <button className="btn fw-bold btn-danger" onClick={() => setIsAssignPopup(false)}>
                 Close
@@ -1815,7 +1917,7 @@ const SDBGSub = () => {
               <div className="row" style={{ overflow: "unset" }}>
                 <div className="col-12">
                   <div className="mb-3">
-                    <label htmlFor="empName">Employee Name</label>
+                    <label htmlFor="empName">Finance Officer</label>
                     <HrSearchableSelect
                       options={empOption}
                       value={assign.assigned_to}

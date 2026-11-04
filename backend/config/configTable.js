@@ -70,7 +70,12 @@ const lan_to_aws = [
   "btn_pbg",
   "btn_adv_bill_against_bg",
   "btn_adv_bill_against_bg_do",
-  "btn_service_linkedwdc"
+  "btn_service_linkedwdc",
+  "sdbg_extension",
+  "po_bg_terms",
+  "holiday_calendar",
+  "btn_bg_retention",
+  "btn_bg_retention_line",
 ];
 const aws_to_lan = [
   "actualsubmissiondate",
@@ -120,6 +125,9 @@ const aws_to_lan = [
   "btn_adv_bill_against_bg_do",
   "btn_service_linkedwdc",
   "zmm_gate_entry_d",
+  "sdbg_extension",
+  "btn_bg_retention",
+  "btn_bg_retention_line",
 ];
 const syncTableNames = process.env.SERVER_ENV == NIC_SERVER ? aws_to_lan : lan_to_aws;
 

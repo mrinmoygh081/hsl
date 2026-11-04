@@ -1,8 +1,9 @@
 /* eslint-disable no-undef */
 const { getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
-const { INSERT, LAN_SERVER, MID_DRAWING, YES, TRUE } = require("../../lib/constant");
+const { INSERT, LAN_SERVER, MID_DRAWING, YES, TRUE, BG_EXPIRY_ALERT_WORKING_DAYS } = require("../../lib/constant");
 const { SEVEN_DAYS_PRIOR_CON_MILESTONE_DATE, BG_EXPIRY_REMINDER } = require("../../lib/event");
-const { SUBMITTED, ACKNOWLEDGED, REJECTED } = require("../../lib/status");
+const { SUBMITTED, ACKNOWLEDGED, REJECTED, APPROVED } = require("../../lib/status");
+const { getHolidaySet, isWorkingDay, countWorkingDays } = require("../../services/holiday.services");
 const { generateQuery, getEpochTime } = require("../../lib/utils");
 const { sendMail } = require("../../services/mail.services");
 const cron = require("node-cron");
@@ -107,88 +108,87 @@ async function getTimeLineData() {
   return result;
 }
 
-// Per To-Be doc 6.2.3: staged alerts at 45/30/15 days before BG expiry,
-// sent to Dealing Officer, Finance Officer and Vendor.
-const BG_REMINDER_DAYS = [45, 30, 15];
-
+// Per To-Be doc 6.2.4: staged alerts at 45/30/15 working days before BG expiry,
+// sent to Dealing Officer, Finance Officer and Vendor. Source: OVMS sdbg_entry.
 const sendBGReminderMail = async () => {
-  for (const days of BG_REMINDER_DAYS) {
-    const bgData = await getBGExpireData(days);
-    const bgTimelineData = getMaxExpireDate(bgData);
+  let client;
+  try {
+    client = await poolClient();
+    const today = new Date();
+    const maxAlert = Math.max(...BG_EXPIRY_ALERT_WORKING_DAYS);
+    const windowEnd = new Date(today);
+    windowEnd.setDate(windowEnd.getDate() + maxAlert * 2 + 60);
+    const holidays = await getHolidaySet(client, today, windowEnd);
 
-    for (const data of bgTimelineData) {
+    // Run on working days only, so each BG crosses each threshold exactly once
+    if (!isWorkingDay(today, holidays)) return;
+
+    const bgData = await getActiveBgExpiryData(client, today, windowEnd);
+    for (const data of bgData) {
+      const expireDate = new Date(Number(data.expire_epoch) * 1000);
+      const workingDaysLeft = countWorkingDays(today, expireDate, holidays);
+      if (!BG_EXPIRY_ALERT_WORKING_DAYS.includes(workingDaysLeft)) continue;
+
       const users = [];
       if (data?.do_email) users.push({ u_email: data.do_email, u_id: data.do_id, u_type: "do" });
       if (data?.vendor_email) users.push({ u_email: data.vendor_email, u_id: data.vendor_id, u_type: "vendor" });
+      if (data?.fi_email) users.push({ u_email: data.fi_email, u_id: data.fi_id, u_type: "finance_officer" });
       if (!users.length) continue;
 
-      await sendMail(BG_EXPIRY_REMINDER, { ...data, days_left: days }, { users }, BG_EXPIRY_REMINDER);
+      await sendMail(
+        BG_EXPIRY_REMINDER,
+        { ...data, expire_date: toDdMmYyyy(expireDate), days_left: `${workingDaysLeft} working` },
+        { users },
+        BG_EXPIRY_REMINDER,
+      );
     }
+  } catch (error) {
+    console.error("sendBGReminderMail error", error.message, error);
+  } finally {
+    if (client) client.release();
   }
 };
 
-async function getBGExpireData(days) {
-  const REMINDE_BEFORE_DAYS = days * 24 * 60 * 60 * 1000;
-  const currentDate = new Date();
-  const dueDateObj = new Date(currentDate.getTime() + REMINDE_BEFORE_DAYS);
-  const dueDate = dueDateObj.toISOString().split("T")[0];
+const toDdMmYyyy = (d) => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 
-  let q = `SELECT    sap_bg.file_no,
-        sap_bg.ref_no,
-        sap_bg.po_number AS purchasing_doc_no,
-        sap_bg.validity_date,
-        sap_bg.extention_date1,
-        sap_bg.extention_date2,
-        sap_bg.extention_date3,
-        sap_bg.extention_date4,
-        sap_bg.extention_date5,
-        sap_bg.extention_date6,
-        do_user.cname AS do_name,
-        do_user.email AS do_email,
-        po.ernam      AS do_id,
-        po.lifnr      AS vendor_id,
-        vendor.name1  AS vendor_name,
-        vendor.email  AS vendor_email
-FROM      zfi_bgm_1   AS sap_bg
-LEFT JOIN ekko        AS po
-ON       (
-                  sap_bg.po_number = po.ebeln)
-LEFT JOIN pa0002 AS do_user
-ON       (
-                  do_user.pernr:: character VARYING = po.ernam)
-LEFT JOIN lfa1 AS vendor
-ON       (
-                  vendor.lifnr = po.lifnr)
-WHERE     (
-                  sap_bg.validity_date = $1
-        OR        sap_bg.extention_date1 = $1
-        OR        sap_bg.extention_date2 = $1
-        OR        sap_bg.extention_date3 = $1
-        OR        sap_bg.extention_date4 = $1
-        OR        sap_bg.extention_date5 = $1
-        OR        sap_bg.extention_date6 = $1 )`;
+/**
+ * Accepted, unreleased BGs whose current expiry (validity or latest extension; epoch seconds) is in the window.
+ */
+async function getActiveBgExpiryData(client, fromDate, toDate) {
+  const q = `SELECT * FROM (
+      SELECT  bg.reference_no AS ref_no,
+              bg.bg_file_no   AS file_no,
+              bg.bg_no,
+              bg.purchasing_doc_no,
+              GREATEST(bg.validity_date,
+                       COALESCE(bg.extension_date1, 0), COALESCE(bg.extension_date2, 0), COALESCE(bg.extension_date3, 0),
+                       COALESCE(bg.extension_date4, 0), COALESCE(bg.extension_date5, 0), COALESCE(bg.extension_date6, 0)) AS expire_epoch,
+              po.ernam       AS do_id,
+              do_user.email  AS do_email,
+              po.lifnr       AS vendor_id,
+              vendor.name1   AS vendor_name,
+              vendor.email   AS vendor_email,
+              fi.created_by_id AS fi_id,
+              fi_user.email  AS fi_email
+      FROM      sdbg_entry  AS bg
+      LEFT JOIN ekko        AS po       ON (bg.purchasing_doc_no = po.ebeln)
+      LEFT JOIN pa0002      AS do_user  ON (do_user.pernr::character varying = po.ernam)
+      LEFT JOIN lfa1        AS vendor   ON (vendor.lifnr = po.lifnr)
+      -- Finance Officer who accepted the BG
+      LEFT JOIN LATERAL (SELECT created_by_id FROM sdbg
+                         WHERE sdbg.reference_no = bg.reference_no AND sdbg.status = 'APPROVED'
+                         ORDER BY created_at DESC LIMIT 1) AS fi ON true
+      LEFT JOIN pa0002      AS fi_user  ON (fi_user.pernr::character varying = fi.created_by_id)
+      WHERE bg.status = ANY($1) AND COALESCE(bg.release_date, 0) = 0
+    ) AS t
+    WHERE t.expire_epoch BETWEEN $2 AND $3`;
 
-  const result = await getQuery({ query: q, values: [dueDate] });
-  return result;
-}
-
-function getMaxExpireDate(data) {
-  data.forEach((item) => {
-    const dates = [
-      item.validity_date,
-      item.extention_date1,
-      item.extention_date2,
-      item.extention_date3,
-      item.extention_date4,
-      item.extention_date5,
-      item.extention_date6,
-    ].filter((date) => date !== null);
-
-    const maxDate = new Date(Math.max(...dates.map((date) => date.getTime())));
-
-    item.expire_date = maxDate;
+  return poolQuery({
+    client,
+    query: q,
+    // EXTENTION: status written when SAP pushes an extension (update_in_all_obps_sdbgs_table)
+    values: [[APPROVED, "EXTENTION"], Math.floor(fromDate.getTime() / 1000), Math.floor(toDate.getTime() / 1000)],
   });
-  return data;
 }
 
 const vendorReminderMail = async () => {

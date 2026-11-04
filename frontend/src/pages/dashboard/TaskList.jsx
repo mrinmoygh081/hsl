@@ -101,7 +101,7 @@ const TaskList = () => {
 
     const isMaterialBillAction =
       isDOValue &&
-      ["hybrid-bill-material", "advance-bill", "claim-against-pbg", "bill-incorrect-deductions", "ld-penalty-refund", "other-retentions", "claim-against-jcc"].includes(
+      ["hybrid-bill-material", "advance-bill", "claim-against-pbg", "bill-incorrect-deductions", "ld-penalty-refund", "other-retentions", "claim-against-jcc", "bg-retention-release"].includes(
         btnData.btn_type,
       );
 
@@ -166,6 +166,7 @@ const TaskList = () => {
           else if (btnData.btn_type === "bill-incorrect-deductions") type = "any-other";
           else if (btnData.btn_type === "other-retentions") type = "any-other";
           else if (btnData.btn_type === "claim-against-jcc") type = "claim-against-jcc";
+          else if (btnData.btn_type === "bg-retention-release") type = "bg-retention-release";
           else if (btnData.btn_type === "ld-penalty-refund") type = "ld-penalty-refund";
 
           navigationPath = `/checklist/${type}/view/${row.purchasing_doc_no}`;
