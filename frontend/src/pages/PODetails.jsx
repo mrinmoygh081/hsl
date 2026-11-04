@@ -234,7 +234,7 @@ const PODetails = () => {
                                       </div>
                                     </div>
                                   </div>
-                                  {po?.timeline === "" ? (
+                                  {/* {po?.timeline === "" ? (
                                     ""
                                   ) : (
                                     <div className="col-8">
@@ -288,7 +288,7 @@ const PODetails = () => {
                                         </div>
                                       </div>
                                     </div>
-                                  )}
+                                  )} */}
                                 </div>
 
                                 <div className="card card-xxl-stretch mb-5 mb-xxl-8 customer_feedback">{/* Add customer feedback information here */}</div>
