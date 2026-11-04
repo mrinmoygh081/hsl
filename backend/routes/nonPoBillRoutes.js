@@ -8,7 +8,8 @@ const {
     getNonPoBillTaskList,
     assignNonPoBill,
     getCommercialOfficerList,
-    nonPoBillAction
+    nonPoBillAction,
+    getNonPoBillDetailsByReference,
 } = require("../controllers/nonPoBillController");
 
 const { verifyAccessToken } = require("../services/jwt.services");
@@ -50,6 +51,13 @@ router.post(
     "/bill/action",
     verifyAccessToken,
     nonPoBillAction
+);
+
+// Non-PO Bill Details
+router.get(
+    "/bill/details/:reference_no",
+    verifyAccessToken,
+    getNonPoBillDetailsByReference
 );
 
 

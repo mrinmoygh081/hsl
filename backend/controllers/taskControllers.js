@@ -1,6 +1,10 @@
 /* eslint-disable no-useless-catch */
 const { poolClient, poolQuery } = require("../config/pgDbConfig");
-const { STAFF } = require("../lib/constant");
+const {
+  STAFF,
+  USER_TYPE_HSL_PURCHASE,
+  USER_TYPE_HSL_FINANCE
+} = require("../lib/constant");
 const { resSend } = require("../lib/resSend");
 const { SUBMITTED, ASSIGNED, RETURN_TO_DO, FORWARD_TO_FINANCE, ACCEPTED, STATUS_DELEGATED, NOT_RECOMMEND, STATUS_RECOMMEND, REJECTED, BTN_STATUS_BANK, STATUS_RECEIVED, BTN_STATUS_DRETURN, BTN_STATUS_PROCESS, SUBMITTED_BY_DO, SUBMITTED_BY_CAUTHORITY, SUBMITTED_BY_VENDOR, STATUS_CANCEL_REQUESTED, STATUS_CANCELED } = require("../lib/status");
 const Message = require("../utils/messages");
@@ -20,6 +24,7 @@ const taskController = async (req, res) => {
     const sdbgTaskList = await getSdbgTaskData(client, tokenData);
     const wdcTaskList = await getWdcTaskData(client, tokenData);
     const qapTaskList = await getQAPTaskData(client, tokenData);
+    const nonPoBillTaskList = await getNonPoBillTaskData(client, tokenData);
 
     result = result.concat(btnTaskList);
     result = result.concat(drawingTaskList);
@@ -27,6 +32,7 @@ const taskController = async (req, res) => {
     result = result.concat(sdbgTaskList);
     result = result.concat(wdcTaskList);
     result = result.concat(qapTaskList);
+    result = result.concat(nonPoBillTaskList);
 
     resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, null);
   } catch (error) {
@@ -322,5 +328,103 @@ const getBtnTaskData = async (client, tokenData) => {
   }
 
 }
+
+const getNonPoBillTaskData = async (client, tokenData) => {
+  try {
+    const userCode = tokenData.vendor_code;
+    const departmentId = Number(tokenData.department_id);
+    const internalRoleId = Number(tokenData.internal_role_id);
+
+    let condition = "";
+    let values = [userCode];
+
+    // Commercial Officer
+    if (departmentId === Number(USER_TYPE_HSL_PURCHASE)) {
+
+      condition = `
+        AND status = 'SUBMITTED'
+        AND action_to = $1
+      `;
+
+    }
+    // Finance Officer
+    else if (departmentId === Number(USER_TYPE_HSL_FINANCE)) {
+
+      // Finance Main Officer
+      if (internalRoleId === 1) {
+
+        condition = `
+          AND (
+            (
+              status = 'FORWARDED_TO_FINANCE'
+              AND action_to = $1
+            )
+            OR
+            (
+              status = 'ASSIGNED_TO_FINANCE'
+              AND assigned_from = $1
+            )
+          )
+        `;
+
+      }
+      // Lower Finance Officer
+      else {
+
+        condition = `
+          AND status = 'ASSIGNED_TO_FINANCE'
+          AND assigned_to = $1
+        `;
+
+      }
+
+    } else {
+      return [];
+    }
+
+    const query = `
+      WITH LastRows AS (
+        SELECT DISTINCT ON (reference_no)
+          id,
+          reference_no,
+          reference_no AS doc_no,
+          vendor_code,
+          file_name,
+          file_path,
+          status,
+          action_type,
+          action_by,
+          action_to,
+          action_on,
+          assigned_from,
+          assigned_to,
+          is_assign,
+          remarks,
+          created_at,
+          'nonpo' AS doc_type
+        FROM non_po_bills
+        ORDER BY reference_no, id DESC
+      )
+
+      SELECT *
+      FROM LastRows
+      WHERE 1 = 1
+      ${condition}
+      ORDER BY id DESC
+    `;
+
+    const result = await poolQuery({
+      client,
+      query,
+      values
+    });
+
+    return result;
+
+  } catch (error) {
+    console.error("getNonPoBillTaskData ERROR:", error);
+    throw error;
+  }
+};
 
 module.exports = { taskController }

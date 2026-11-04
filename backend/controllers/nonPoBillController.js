@@ -1277,6 +1277,121 @@ const nonPoBillAction = async (req, res) => {
     }
 };
 
+const getNonPoBillDetailsByReference = async (req, res) => {
+    let client;
+
+    try {
+        const tokenData = req.tokenData;
+        const userCode = getUserCode(tokenData);
+        const referenceNo = req.params.reference_no;
+
+        if (!userCode) {
+            return sendError(res, "User code not found.", 401);
+        }
+
+        if (!referenceNo) {
+            return sendError(res, "Reference number is required.");
+        }
+
+        client = await poolClient();
+
+        // Get latest bill record
+        const latestResult = await client.query(
+            `SELECT *
+             FROM ${TABLE}
+             WHERE reference_no = $1
+             ORDER BY id DESC
+             LIMIT 1`,
+            [referenceNo]
+        );
+
+        if (!latestResult.rows.length) {
+            return sendError(res, "Non-PO Bill not found.", 404);
+        }
+
+        const bill = latestResult.rows[0];
+
+        // Vendor access
+        if (isVendor(tokenData)) {
+            if (bill.vendor_code !== userCode) {
+                return sendError(res, "Unauthorized access.", 403);
+            }
+        } else {
+
+            const officer = await getOfficer(client, userCode);
+
+            if (!officer) {
+                return sendError(res, "Unauthorized officer.", 403);
+            }
+
+            const isCommercialAccess =
+                isCommercialOfficer(officer) &&
+                bill.status === STATUS.SUBMITTED &&
+                bill.action_to === userCode;
+
+            const isFinanceMainAccess =
+                isFinanceOfficer(officer) &&
+                isMainOfficer(officer) &&
+                (
+                    (
+                        bill.status === STATUS.FORWARDED_TO_FINANCE &&
+                        bill.action_to === userCode
+                    ) ||
+                    (
+                        bill.status === STATUS.ASSIGNED_TO_FINANCE &&
+                        bill.assigned_from === userCode
+                    )
+                );
+
+            const isLowerFinanceAccess =
+                isFinanceOfficer(officer) &&
+                !isMainOfficer(officer) &&
+                bill.status === STATUS.ASSIGNED_TO_FINANCE &&
+                bill.assigned_to === userCode;
+
+            
+        }
+
+        // Get complete action history
+        const historyResult = await client.query(
+            `SELECT *
+             FROM ${TABLE}
+             WHERE reference_no = $1
+             ORDER BY id ASC`,
+            [referenceNo]
+        );
+
+        return resSend(
+            res,
+            true,
+            200,
+            "Non-PO Bill details fetched successfully.",
+            {
+                bill_details: bill,
+                action_history: historyResult.rows
+            },
+            null
+        );
+
+    } catch (error) {
+        console.error("getNonPoBillDetailsByReference:", error);
+
+        return resSend(
+            res,
+            false,
+            500,
+            Message.SERVER_ERROR,
+            null,
+            null
+        );
+
+    } finally {
+        if (client) {
+            client.release();
+        }
+    }
+};
+
 
 
 // --------------------------------------------------
@@ -1293,5 +1408,6 @@ module.exports = {
     approveNonPoBill,
     rejectNonPoBill,
     getCommercialOfficerList,
-    nonPoBillAction
+    nonPoBillAction,
+    getNonPoBillDetailsByReference
 };
