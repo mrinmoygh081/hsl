@@ -49,6 +49,44 @@ const fileStore = multer.diskStorage({
   },
 });
 
+// Non-PO Bill Upload Storage
+const nonPoBillStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const todayYYYYMMDD = formatDateYYDDMM(new Date());
+
+        const uploadPath = path.join(
+            "uploads",
+            "non-po",
+            todayYYYYMMDD
+        );
+
+        if (!existsSync(uploadPath)) {
+            mkdirSync(uploadPath, { recursive: true });
+        }
+
+        cb(null, uploadPath);
+    },
+
+    filename: (req, file, cb) => {
+        const uniqueSuffix =
+            BigInt(Date.now()) * 1000n +
+            BigInt(Math.floor(performance.now() * 1000));
+
+        const vendorCode = req.tokenData?.vendor_code || "VENDOR";
+        const extension = path.extname(file.originalname).toLowerCase();
+
+        const fileName = `${uniqueSuffix}-NONPO-${vendorCode}${extension}`;
+
+        cb(null, fileName);
+    },
+});
+
+const uploadNonPoBill = multer({
+    storage: nonPoBillStorage,
+    fileFilter: pdfFileFilter,
+    limits: { fileSize: 100 * 1000 * 1000 },
+});
+
 const invoiceStorage = multer.diskStorage({
   destination: (req, file, cb) => {
     let uploadPath = `uploads/${req.path.split("/").pop()}`;
@@ -298,5 +336,6 @@ module.exports = {
   uploadSinglePdf,
   fileStore,
   uploadExcelData,
-  uploadPdfZipFile
+  uploadPdfZipFile,
+  uploadNonPoBill
 };
