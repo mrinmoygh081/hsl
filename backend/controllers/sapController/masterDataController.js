@@ -28,8 +28,6 @@ const mara = async (req, res) => {
 
   try {
     try {
-      console.log(11, payload);
-
       const payloadObj = await addMaterialMasterPayload(payload);
       const multipleDataInsertQ = await generateQueryForMultipleData(
         payloadObj,
@@ -51,7 +49,7 @@ const mara = async (req, res) => {
         res,
         "S",
         200,
-        Message.DATA_SEND_SUCCESSFULL,
+        Message.COMPLIANCE_INSERT_MSG,
         insertedData,
         null,
       );
