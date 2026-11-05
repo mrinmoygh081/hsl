@@ -80,7 +80,7 @@ const sendOtp = async (req, res) => {
     req.session.captcha = null;
 
     if (obj.user_type === USER_TYPE_VENDOR_TEXT && process.env.SERVER_ENV == LAN_SERVER) {
-      return resSend(res, false, 200, Message.VENDOR_REGISTER_SERVER_ERR_MSG, "https://obps.grse.in", null);
+      return resSend(res, false, 200, Message.VENDOR_REGISTER_SERVER_ERR_MSG, "", null);
     }
 
     /**
@@ -235,7 +235,6 @@ const forgotPasswordOtp = async (req, res) => {
       html: EMAIL_TEMPLAE(`Your One Time Password(OTP) to Reset Password in OBPS is : ${otp}. Valid for ${validateOtpInSec} seconds, Do not share it with anyone.`),
     };
     try {
-
       if (process.env.SERVER_ENV == LAN_SERVER) {
         await SENDMAIL(mailOptions);
       } else if (process.env.SERVER_ENV == NIC_SERVER) {
@@ -641,13 +640,7 @@ const login = async (req, res) => {
     if (!email) return resSend(res, false, 200, "Email not found.");
 
     // 2. Use Common Function (Generate, Save, Send)
-    const otp = await processAndSendOtp(
-      client,
-      vendor_code,
-      user.user_type,
-      email,
-      "LOGIN",
-    );
+    const otp = await processAndSendOtp(client, vendor_code, user.user_type, email, "LOGIN");
 
     // ✅ UPDATE 2: Store User in Temporary Session
     // This allows verify-otp to know WHO is logging in without trusting the client
@@ -658,17 +651,11 @@ const login = async (req, res) => {
     };
 
     // 3. Response
-    resSend(
-      res,
-      true,
-      200,
-      `OTP Sent successfully : Email ID ${email}, OTP: ${otp}`,
-      {
-        vendor_code,
-        user_type: user.user_type,
-        next_step: "otp_verification",
-      },
-    );
+    resSend(res, true, 200, `OTP Sent successfully : Email ID ${email}, OTP: ${otp}`, {
+      vendor_code,
+      user_type: user.user_type,
+      next_step: "otp_verification",
+    });
   } catch (err) {
     console.error("Login error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);

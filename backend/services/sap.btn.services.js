@@ -124,15 +124,11 @@ async function btnSubmitToSAPF01(btnPayload, tokenData) {
       };
     }
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -140,7 +136,6 @@ async function btnSubmitToSAPF01(btnPayload, tokenData) {
     console.error("Error making the request:", error.message);
     throw error;
   } finally {
-     
     return status;
   }
 }
@@ -250,15 +245,11 @@ async function btnSubmitToSAPF02(btnPayload, tokenData) {
       FPERNAM: btnDetails[0]?.finance_auth_name || "", // ASSINGEE NAME
     };
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -266,7 +257,6 @@ async function btnSubmitToSAPF02(btnPayload, tokenData) {
     console.error("Error making the request:", error.message);
     throw error;
   } finally {
-     
     return status;
   }
 }
@@ -334,9 +324,7 @@ async function abhBtnSubmitToSAPF01(btnPayload, tokenData) {
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
       ZVBNO: btnDetails[0]?.invoice_no, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE: getYyyyMmDd(
-        new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()
-      ), // GATE ENTRY INVOICE DATE
+      VEN_BILL_DATE: getYyyyMmDd(new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), // getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
@@ -381,15 +369,11 @@ async function abhBtnSubmitToSAPF01(btnPayload, tokenData) {
       };
     }
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -505,15 +489,11 @@ async function abhBtnSubmitToSAPF02(btnPayload, tokenData) {
       FPERNAM: btnDetails[0]?.finance_auth_name || "", // ASSINGEE NAME
     };
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -569,10 +549,12 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
         WHERE 
             btn.btn_num = $2`;
 
-    if (btnPayload.btn_type === BTN_LD_PENALTY_REFUND ||
+    if (
+      btnPayload.btn_type === BTN_LD_PENALTY_REFUND ||
       btnPayload.btn_type === BTN_OTHER_RETENTIONS ||
       btnPayload.btn_type === BTN_BILL_INCORRECT_DEDUCTIONS ||
-      btnPayload.btn_type === BTN_ADVANCE_BILL) {
+      btnPayload.btn_type === BTN_ADVANCE_BILL
+    ) {
       vendorQuery = `WITH ranked_assignments AS (
                 SELECT
                     btn_assign.*,
@@ -606,7 +588,7 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
             LEFT JOIN pa0002 as assign_users
                     ON(assign_users.pernr::character varying = ranked_assignments.assign_by)
             WHERE 
-                btn.btn_num = $2`
+                btn.btn_num = $2`;
     }
     if (btnPayload.btn_type === BTN_CLAIM_AGAINST_PBG) {
       vendorQuery = `WITH ranked_assignments AS (
@@ -642,7 +624,7 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
             LEFT JOIN pa0002 as assign_users
                     ON(assign_users.pernr::character varying = ranked_assignments.assign_by)
             WHERE 
-                btn.btn_num = $2`
+                btn.btn_num = $2`;
     }
 
     let btnDetails = await getQuery({
@@ -658,14 +640,12 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
       ZVBNO: btnDetails[0]?.invoice_no, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE: getYyyyMmDd(
-        new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()
-      ), // GATE ENTRY INVOICE DATE
+      VEN_BILL_DATE: getYyyyMmDd(new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), //getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
       ERZET: timeInHHMMSS(), // VENDOR BILL SUBMIT TIME
-      RERDAT: btnPayload.btn_num.substring(0, 8),//getYyyyMmDd(getEpochTime()), //REGISTRATION NUMBER --- VENDOR BILL SUBMIT DATE
+      RERDAT: btnPayload.btn_num.substring(0, 8), //getYyyyMmDd(getEpochTime()), //REGISTRATION NUMBER --- VENDOR BILL SUBMIT DATE
       RERZET: timeInHHMMSS(), //REGISTRATION NUMBER --- VENDOR BILL SUBMIT TIME
       DPERNR1: tokenData.vendor_code, // DO NUMBER
       DRERDAT1: getYyyyMmDd(getEpochTime()), // DEPARTMETN RECECE DATE --> WHEN SUBMIT DO
@@ -705,15 +685,11 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
       };
     }
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -825,15 +801,11 @@ async function jccBtnSubmitToSAPF02(btnPayload, tokenData) {
       FPERNAM: btnDetails[0]?.finance_auth_name || "", // ASSINGEE NAME
     };
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -936,11 +908,7 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
       ON(assign_users.pernr:: character varying = ranked_assignments.assign_by)
       WHERE 
               btn.btn_num = $2`;
-    } else if (
-      btnPayload.btn_type === BTN_BILL_INCORRECT_DEDUCTIONS ||
-      btnPayload.btn_type === BTN_LD_PENALTY_REFUND ||
-      btnPayload.btn_type === BTN_OTHER_RETENTIONS
-    ) {
+    } else if (btnPayload.btn_type === BTN_BILL_INCORRECT_DEDUCTIONS || btnPayload.btn_type === BTN_LD_PENALTY_REFUND || btnPayload.btn_type === BTN_OTHER_RETENTIONS) {
       vendorQuery = `WITH ranked_assignments AS(
         SELECT
                   btn_assign.*,
@@ -1032,9 +1000,7 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
         ON(jcc.reference_no = btn.jcc_ref_number)
     WHERE 
         btn.btn_num = $2`;
-    }
-
-    else if (btnPayload.btn_type === BTN_ADVANCE_BILL) {
+    } else if (btnPayload.btn_type === BTN_ADVANCE_BILL) {
       vendorQuery = `WITH ranked_assignments AS (
         SELECT
             btn_assign.*,
@@ -1075,8 +1041,7 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
 
     WHERE 
         btn.btn_num = $2`;
-    }
-    else {
+    } else {
       vendorQuery = null;
     }
     return vendorQuery;

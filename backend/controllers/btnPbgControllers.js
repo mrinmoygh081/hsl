@@ -8,7 +8,7 @@ const { REJECTED, SUBMITTED_BY_DO, SUBMITTED_BY_VENDOR } = require("../lib/statu
 const { BTN_PBG, BTN_LIST, BTN_ASSIGN, BTN_ANY_OTHER_CLAIM } = require("../lib/tableName");
 const { getEpochTime, getYyyyMmDd, generateQuery, generateInsertUpdateQuery } = require("../lib/utils");
 const { create_btn_no } = require("../services/po.services");
-const { checkBTNRegistered, fetchBTNListByPOAndBTNNum, } = require("../utils/btnUtils");
+const { checkBTNRegistered, fetchBTNListByPOAndBTNNum } = require("../utils/btnUtils");
 const { convertToEpoch } = require("../utils/dateTime");
 const { getUserDetailsQuery } = require("../utils/mailFunc");
 const { checkTypeArr } = require("../utils/smallFun");
@@ -25,7 +25,7 @@ const submitPbgBTN = async (req, res) => {
   try {
     /**
      * REQ PAYLOAD AND FILES
-    */
+     */
     let payloadFiles = req.files;
     const tokenData = req.tokenData;
     // INITIAL PAYLOAD
@@ -64,7 +64,7 @@ const submitPbgBTN = async (req, res) => {
 
     /**
      * FINAL PAYLOAD
-    */
+     */
     pbgBtnPayload = {
       ...pbgBtnPayload,
       ...files,
@@ -75,54 +75,48 @@ const submitPbgBTN = async (req, res) => {
     const doDetails = await poolQuery({
       client,
       query: getUserDetailsQuery("do", "$1"),
-      values: [pbgBtnPayload.purchasing_doc_no]
+      values: [pbgBtnPayload.purchasing_doc_no],
     });
 
     // BTN NUM GENERATE
     const btn_num = await create_btn_no(client);
-    let resBtnList = await addToBTNList({
-      ...pbgBtnPayload,
-      btn_num,
-      net_payable_amount: pbgBtnPayload.net_claim_amount,
-      assign_to: doDetails[0]?.u_id || null,
-    },
-      SUBMITTED_BY_VENDOR, client);
+    let resBtnList = await addToBTNList(
+      {
+        ...pbgBtnPayload,
+        btn_num,
+        net_payable_amount: pbgBtnPayload.net_claim_amount,
+        assign_to: doDetails[0]?.u_id || null,
+      },
+      SUBMITTED_BY_VENDOR,
+      client,
+    );
     if (!resBtnList?.status) {
       return resSend(res, false, 200, Message.SERVER_ERROR, null, null);
     }
 
     /**
      * SAVE TO BTN TABLE
-    */
+     */
 
     let { q, val } = generateQuery(INSERT, BTN_PBG, { ...pbgBtnPayload, btn_num });
     await poolQuery({ client, query: q, values: val });
     await client.query("COMMIT");
     resSend(res, true, 200, `BTN number ${btn_num} is generated and saved succesfully!`, { btn_num }, null);
-
   } catch (error) {
     console.error("[ERROR] submitPbgBTN", error.message, error);
     if (client) await client.query("ROLLBACK");
     resSend(res, false, 500, Message.SERVER_ERROR, null, null);
-  }
-  finally {
+  } finally {
     if (client) client.release();
   }
-
-}
+};
 
 const btnPbgSubmitByDO = async (req, res) => {
   let client;
   try {
     client = await poolClient();
     await client.query("BEGIN");
-    let {
-      btn_num,
-      purchasing_doc_no,
-      net_payable_amount,
-      assign_to,
-      status,
-    } = req.body;
+    let { btn_num, purchasing_doc_no, net_payable_amount, assign_to, status } = req.body;
     const tokenData = { ...req.tokenData };
 
     if (!btn_num) {
@@ -140,8 +134,7 @@ const btnPbgSubmitByDO = async (req, res) => {
 
     if (status === REJECTED) {
       if (!req.body.remarks) {
-        return resSend(res, false, 200, `please send remarks when ${REJECTED} !!`, null, null
-        );
+        return resSend(res, false, 200, `please send remarks when ${REJECTED} !!`, null, null);
       }
       const response1 = await btnReject(req.body, tokenData, client);
       if (response1 == false) {
@@ -198,7 +191,7 @@ const btnPbgSubmitByDO = async (req, res) => {
       last_assign_fi: false,
     };
 
-     /** btn_assign table inserted */
+    /** btn_assign table inserted */
     const btnAssignPayload = materialBtnAssignPayload(assign_payload);
     const assignQuery = await generateInsertUpdateQuery(btnAssignPayload, BTN_ASSIGN, ["btn_num", "purchasing_doc_no"]);
     await poolQuery({ client, query: assignQuery.q, values: assignQuery.val });
@@ -212,17 +205,10 @@ const btnPbgSubmitByDO = async (req, res) => {
         assign_to: payload.assigned_to,
       },
       SUBMITTED_BY_DO,
-      isInserted
+      isInserted,
     );
     if (!resBtnList?.status) {
-      return resSend(
-        res,
-        false,
-        200,
-        `Something went wrong in BTN List!`,
-        null,
-        null
-      );
+      return resSend(res, false, 200, `Something went wrong in BTN List!`, null, null);
     }
 
     delete payload.assign_to;
@@ -236,10 +222,7 @@ const btnPbgSubmitByDO = async (req, res) => {
 
     assign_to = assign_payload.assign_to;
     try {
-      const sendSap = await btnSubmitByDo(
-        { btn_num, btn_type: payload.btn_type, purchasing_doc_no, assign_to },
-        tokenData
-      );
+      const sendSap = await btnSubmitByDo({ btn_num, btn_type: payload.btn_type, purchasing_doc_no, assign_to }, tokenData);
 
       if (sendSap == false) {
         await client.query("ROLLBACK");
@@ -343,14 +326,8 @@ async function btnSubmitByDo(btnPayload, tokenData) {
       LIFNR: btnDetails[0]?.vendor_code, // VENDOR CODE
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
-      ZVBNO:
-        btnPayload.btn_type === "claim-against-pbg"
-          ? btnDetails[0]?.invno
-          : btnDetails[0]?.letter_reference_no, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE:
-        btnPayload.btn_type === "claim-against-pbg"
-          ? getYyyyMmDd(new Date(btnDetails[0]?.invoice_date).getTime())
-          : getYyyyMmDd(btnDetails[0]?.letter_date), // GATE ENTRY INVOICE DATE
+      ZVBNO: btnPayload.btn_type === "claim-against-pbg" ? btnDetails[0]?.invno : btnDetails[0]?.letter_reference_no, // GATE ENTRY INVOCE NUMBER
+      VEN_BILL_DATE: btnPayload.btn_type === "claim-against-pbg" ? getYyyyMmDd(new Date(btnDetails[0]?.invoice_date).getTime()) : getYyyyMmDd(btnDetails[0]?.letter_date), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), // getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
@@ -395,14 +372,10 @@ async function btnSubmitByDo(btnPayload, tokenData) {
       };
     }
 
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (
-      postResponse.statusCode &&
-      postResponse.statusCode >= 200 &&
-      postResponse.statusCode <= 226
-    ) {
+    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
       status = true;
     }
     console.warn("POST Response from the server:", postResponse);
@@ -460,26 +433,24 @@ const getPBGData = async (req, res) => {
     let success = false;
     let statusCode;
     switch (type) {
-      case 'init': {
-        const result = await initPBGData(client, req.query);
-        ({ data, message, success, statusCode } = result);
-      }
-        break;
-      default:
+      case "init":
         {
-          const result = await getPBGBTNDetails(client, req.query);
+          const result = await initPBGData(client, req.query);
           ({ data, message, success, statusCode } = result);
         }
+        break;
+      default: {
+        const result = await getPBGBTNDetails(client, req.query);
+        ({ data, message, success, statusCode } = result);
+      }
     }
     resSend(res, success, statusCode, message, data);
-
   } catch (error) {
     console.error("[error]", error);
     resSend(res, false, 500, Message.SERVER_ERROR, null, null);
   } finally {
     if (client) client.release();
   }
-
-}
+};
 
 module.exports = { submitPbgBTN, btnPbgSubmitByDO, getPBGData };

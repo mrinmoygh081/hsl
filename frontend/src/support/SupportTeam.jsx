@@ -39,16 +39,9 @@ const TEAM_CARDS = [
     variant: "escalation",
     members: [
       {
-        name: "Sujit Kumar Naskar",
-        designation: "Additional General Manager, NCM",
+        name: "Mrinmoy Ghosh",
+        designation: "Additional General Manager",
         mobile: null,
-        email: "Naskar.SujitKumar@grse.co.in",
-      },
-      {
-        name: "Subhas Maji",
-        designation: "Additional General Manager, IT",
-        mobile: null,
-        email: "Maji.Subhas@grse.co.in",
       },
     ],
   },

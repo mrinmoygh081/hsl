@@ -1,40 +1,7 @@
 {
-  "registrationApprovedAuthority": [
-    {
-      "manNo": "600233",
-      "email": "naskar.sujitkumar@grse.co.in"
-    },
-    {
-      "manNo": "601824",
-      "email": "Chatterjee.Krishnakanta@grse.co.in"
-    },
-    {
-      "manNo": "602717",
-      "email": "maji.subhas@grse.co.in"
-    }
-  ],
-  "allBranches": [
-    "MAIN",
-    "RBD",
-    "FOJ",
-    "61PARK",
-    "TU",
-    "DEP"
-  ],
-  "qapDashBoardSpecialAccessUsers": [
-    {
-      "manNo": "600233",
-      "email": "naskar.sujitkumar@grse.co.in"
-    },
-    {
-      "manNo": "602717",
-      "email": "maji.subhas@grse.co.in"
-    },
-    {
-      "manNo": "601824",
-      "email": "Chatterjee.Krishnakanta@grse.co.in"
-    }
-  ],
+  "registrationApprovedAuthority": [],
+  "allBranches": ["MAIN", "RBD", "FOJ", "61PARK", "TU", "DEP"],
+  "qapDashBoardSpecialAccessUsers": [],
   "MONTH_LIST_OBJECT": {
     "1": "January",
     "2": "February",
