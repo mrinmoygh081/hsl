@@ -93,6 +93,7 @@ const lfa1 = async (req, res) => {
         payloadObj,
         // VENDOR_MASTER_LFA1,
         "lfa1v2",
+
         ["LIFNR"],
       );
       const response = await query({

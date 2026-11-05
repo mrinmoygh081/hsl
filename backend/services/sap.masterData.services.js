@@ -8,6 +8,7 @@ const lfa1Payload = async (payload) => {
   if (!payload || !Array.isArray(payload) || !payload.length) {
     throw new Error("Please send valid payload");
   }
+
   const pl = payload.map((obj) => ({
     LIFNR: obj.LIFNR,
     NAME1: obj.NAME1 || null,
