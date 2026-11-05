@@ -26,6 +26,7 @@ import {
   FaChevronDown,
   FaHeadset,
   FaCalendarAlt,
+  FaFileInvoice,
 } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { checkPasswordStrength, validatePassword } from "../utils/registrationUtils";
@@ -334,6 +335,12 @@ const MainHeader = ({ title }) => {
                 </button>
               </div>
             </div>
+
+            {/* NON PO */}
+            <Link to="/non-po" className="mh-nav-item mh-nav-item--nonpo">
+              <FaFileInvoice className="mh-nav-icon" />
+              <span>NON PO</span>
+            </Link>
           </div>
 
           {/* USER INFO */}
