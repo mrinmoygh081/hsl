@@ -142,7 +142,6 @@ exports.submitByVendor = async (req, res) => {
         ...item,
       };
       subLineItemPayloadArr.push(subLineItemPayload);
-
     }
     // WDC LINE ITEM TABLE SAVE
     const wdcLineTableQuery = await generateQueryForMultipleData(subLineItemPayloadArr, "wdc_line", ["id"]);
@@ -523,7 +522,7 @@ const getPoRateFromEsll = async (client, packNo, sublineitem) => {
 async function submitToSapServer(data) {
   let status = false;
   try {
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zoBPS_WDC`;
 
     const postResponse = await makeHttpRequest(postUrl, "POST", data);

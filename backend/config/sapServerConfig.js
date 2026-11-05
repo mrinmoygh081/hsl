@@ -73,13 +73,12 @@ function makeHttpRequest(url, method = "GET", postData = null) {
 }
 
 const connectToSapServer = async (endpoint, payload, method = "POST") => {
-
   let responseData = { statusCode: 0, status: false, message: "", data: "" };
-  if (!endpoint || typeof endpoint != 'string' || !payload) {
+  if (!endpoint || typeof endpoint != "string" || !payload) {
     return { statusCode: 0, status: false, message: "Missing endpoint or payload", data: "" };
   }
 
-  let postUrl = process.env.SAP_HOST_URL || `http://10.181.1.31:8010`;
+  let postUrl = process.env.SAP_HOST_URL;
   postUrl = postUrl.concat(endpoint);
   try {
     const postResponse = await makeHttpRequest(postUrl, method, payload);
@@ -144,4 +143,3 @@ module.exports = { makeHttpRequest, connectToSapServer };
 
 //       FPRNR1: "600400", // FINACE AUTHIRITY ID ( )
 //       FPRNAM1: "DEMO NAME", // FINANCE
-

@@ -646,7 +646,7 @@ async function sendBgToSap(payload, id) {
   let status = false;
 
   try {
-    const host = `${process.env.SAP_HOST_URL}` || "http://10.181.1.31:8010";
+    const host = `${process.env.SAP_HOST_URL}` || " ";
     const postUrl = `${host}/sap/bc/zobps_sdbg_ent`;
     let modified = await zfi_bgm_1_Payload(payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", modified);

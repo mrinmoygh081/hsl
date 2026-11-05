@@ -1,7 +1,6 @@
 /* eslint-disable no-undef */
 const { Pool, types } = require("pg");
 
-
 // 🔥 FIX: Prevent pg from converting DATE/TIMESTAMP into JS Date (which causes timezone shift)
 
 // DATE → return as string "YYYY-MM-DD"
@@ -20,8 +19,8 @@ types.setTypeParser(1184, (val) => val);
 const pgDbConfig = {
   user: process.env.PG_DB_USER || "postgres",
   host: process.env.PG_DB_HOST || "localhost",
-  database: process.env.PG_DB_DATABASE_NAME || "grse_btn",
-  password: process.env.PG_DB_PASSWORD || "postgres",
+  database: process.env.PG_DB_DATABASE_NAME || "",
+  password: process.env.PG_DB_PASSWORD,
   port: process.env.PG_DB_PORT || 5432,
   max: process.env.PG_DB_MAX_CONNECTIONS || 20,
   idleTimeoutMillis: process.env.PG_DB_IDLE_TIMEOUT || 30000,

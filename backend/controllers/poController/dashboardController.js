@@ -7,14 +7,7 @@ const dashboard = async (req, res) => {
     const filterBy = { ...req.body };
 
     if (!filterBy.depertment) {
-      return resSend(
-        res,
-        false,
-        400,
-        "Please send -> depertment to get result",
-        null,
-        null
-      );
+      return resSend(res, false, 400, "Please send -> depertment to get result", null, null);
     }
 
     const tables = {
@@ -24,19 +17,12 @@ const dashboard = async (req, res) => {
     };
 
     if (!tables[filterBy.depertment]) {
-      return resSend(
-        res,
-        false,
-        400,
-        "Please check -> depertment or Invalid department",
-        null,
-        null
-      );
+      return resSend(res, false, 400, "Please check -> depertment or Invalid department", null, null);
     }
 
     const values = [];
     let filterQuery = `SELECT log.user_id             AS id,
-                grse_user_details.cname AS grse_user_name,
+                grse_user_details.cname AS officer_user_name,
                 vendor_details.name1    AS vendor_name,
                 log.id                  AS log_id,
                 log.action              AS status,
@@ -60,7 +46,7 @@ const dashboard = async (req, res) => {
     // USE FOR OTHER THAN DATE QUERIES
 
     // USE FOR DATE QUERIES
-    let { startDate, endDate, page, limit} = filterBy;
+    let { startDate, endDate, page, limit } = filterBy;
     delete filterBy.startDate;
     delete filterBy.endDate;
     delete filterBy.page;
@@ -109,24 +95,13 @@ const dashboard = async (req, res) => {
     const logCount = await poReportCount(req, res, condQuery, values);
 
     const modfResult = result.map((el) => {
-      el["name"] = el.grse_user_name
-        ? el.grse_user_name
-        : el.vendor_name
-        ? el.vendor_name
-        : null;
-      delete el["grse_user_name"];
+      el["name"] = el.officer_user_name ? el.officer_user_name : el.vendor_name ? el.vendor_name : null;
+      delete el["officer_user_name"];
       delete el["vendor_name"];
       return el;
     });
 
-    resSend(
-      res,
-      true,
-      200,
-      "data fetch scussfully.",
-      { result: modfResult, logCount },
-      null
-    );
+    resSend(res, true, 200, "data fetch scussfully.", { result: modfResult, logCount }, null);
   } catch (error) {
     return resSend(res, false, 500, error, [], null);
   }
@@ -157,19 +132,8 @@ async function poReportCount(req, res, condQuery, values) {
 const subDeptEmp = async (req, res) => {
   const filterBy = { ...req.body };
 
-  if (
-    !filterBy.department_id &&
-    filterBy.department_id == 3 &&
-    filterBy.sub_dept_id
-  ) {
-    return resSend(
-      res,
-      false,
-      400,
-      "send valid department_id && sub dept id",
-      null,
-      null
-    );
+  if (!filterBy.department_id && filterBy.department_id == 3 && filterBy.sub_dept_id) {
+    return resSend(res, false, 400, "send valid department_id && sub dept id", null, null);
   }
 
   let subDeptListQuery = "";

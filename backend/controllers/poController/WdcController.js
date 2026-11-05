@@ -300,7 +300,7 @@ exports.grseEmpList = async (req, res) => {
 async function submitToSapServer(data) {
   let status = false;
   try {
-    const sapBaseUrl = process.env.SAP_HOST_URL || "http://10.181.1.31:8010";
+    const sapBaseUrl = process.env.SAP_HOST_URL || " ";
     const postUrl = `${sapBaseUrl}/sap/bc/zoBPS_WDC`;
 
     let payload = { ...data };
@@ -329,4 +329,3 @@ async function submitToSapServer(data) {
     return status;
   }
 }
-
