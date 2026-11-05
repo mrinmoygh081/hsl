@@ -33,6 +33,11 @@ ALTER TABLE sdbg_save  ADD COLUMN IF NOT EXISTS bg_mode    varchar(20);
 ALTER TABLE sdbg_save  ALTER COLUMN bg_ammount TYPE numeric(15,3) USING bg_ammount::numeric;
 ALTER TABLE sdbg_entry ALTER COLUMN bg_ammount TYPE numeric(15,3);
 
+-- Banker Email Id is validated up to 255 chars. Some servers already had bank_email as
+-- varchar(150), which ADD COLUMN IF NOT EXISTS leaves untouched, so force the size here.
+ALTER TABLE sdbg_entry ALTER COLUMN bank_email TYPE varchar(255);
+ALTER TABLE sdbg_save  ALTER COLUMN bank_email TYPE varchar(255);
+
 -- sdbg.bg_no gets the vendor BG No. (validated up to 100 chars; sdbg_entry.bg_no is 255). Was varchar(20).
 ALTER TABLE sdbg ALTER COLUMN bg_no TYPE varchar(255);
 
@@ -239,5 +244,28 @@ SELECT * FROM (VALUES
   ('BG_EXTENSION_RELEASE_BANK', 'finance_officer', '{{finance_officer}}', 'BG_EXTENSION_RELEASE_BANK')
 ) AS v(event_name, u_type, u_email, email_body_name)
 WHERE NOT EXISTS (SELECT 1 FROM email_send_info WHERE event_name = v.event_name AND u_type = v.u_type);
+
+-- -------------------------------------------------------------------------------------
+-- 9. Email data fixes found on hsl-ovms (05/11/2026)
+-- -------------------------------------------------------------------------------------
+
+-- BG recipient rows that were inserted with u_email = 'NULL' (text) / NULL / '' send to no one:
+-- mail.services resolves u_email as a {{u_type}} placeholder. Point them at their placeholder.
+-- Rows holding a real address (e.g. a test mailbox for the bank) are left as they are.
+UPDATE email_send_info
+SET    u_email = '{{' || u_type || '}}'
+WHERE  event_name LIKE 'BG%'
+  AND  u_type IS NOT NULL AND u_type <> ''
+  AND  (u_email IS NULL OR TRIM(u_email) IN ('', 'NULL', 'null'));
+
+-- Identical duplicate BG email bodies: the mail lookup LEFT JOINs email_body by name,
+-- so each duplicate sends the same email again. Keep the lowest id.
+DELETE FROM email_body b
+USING  email_body keep
+WHERE  b.email_body_name LIKE 'BG%'
+  AND  keep.email_body_name = b.email_body_name
+  AND  keep.email_body = b.email_body
+  AND  COALESCE(keep.email_subject, '') = COALESCE(b.email_subject, '')
+  AND  keep.id < b.id;
 
 COMMIT;
