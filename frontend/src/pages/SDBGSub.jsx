@@ -1971,11 +1971,7 @@ const SDBGSub = () => {
                     <label className="form-label">
                       Request Type <span className="mandatorystart">*</span>
                     </label>
-                    <select
-                      className="form-select"
-                      value={extForm.action_type}
-                      onChange={(e) => setExtForm((prev) => ({ ...prev, action_type: e.target.value }))}
-                    >
+                    <select className="form-select" value={extForm.action_type} onChange={(e) => setExtForm((prev) => ({ ...prev, action_type: e.target.value }))}>
                       <option value="">Select</option>
                       <option value="EXTENSION">Extension</option>
                       <option value="RELEASE">Release</option>
@@ -2001,34 +1997,19 @@ const SDBGSub = () => {
                     <div className="col-md-6 col-12">
                       <div className="mb-3">
                         <label className="form-label">Revised BG Date (if changed)</label>
-                        <input
-                          type="date"
-                          className="form-control"
-                          value={extForm.bg_date}
-                          onChange={(e) => setExtForm((prev) => ({ ...prev, bg_date: e.target.value }))}
-                        />
+                        <input type="date" className="form-control" value={extForm.bg_date} onChange={(e) => setExtForm((prev) => ({ ...prev, bg_date: e.target.value }))} />
                       </div>
                     </div>
                     <div className="col-md-6 col-12">
                       <div className="mb-3">
                         <label className="form-label">Revised BG Amount (if changed)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={extForm.bg_amount}
-                          onChange={(e) => setExtForm((prev) => ({ ...prev, bg_amount: e.target.value }))}
-                        />
+                        <input type="text" className="form-control" value={extForm.bg_amount} onChange={(e) => setExtForm((prev) => ({ ...prev, bg_amount: e.target.value }))} />
                       </div>
                     </div>
                     <div className="col-md-6 col-12">
                       <div className="mb-3">
                         <label className="form-label">Revised BG Number (if changed)</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={extForm.bank_gu_no}
-                          onChange={(e) => setExtForm((prev) => ({ ...prev, bank_gu_no: e.target.value }))}
-                        />
+                        <input type="text" className="form-control" value={extForm.bank_gu_no} onChange={(e) => setExtForm((prev) => ({ ...prev, bank_gu_no: e.target.value }))} />
                       </div>
                     </div>
                     <div className="col-12">
@@ -2048,12 +2029,7 @@ const SDBGSub = () => {
                     <label className="form-label">
                       Reason / Remarks <span className="mandatorystart">*</span>
                     </label>
-                    <textarea
-                      className="form-control"
-                      rows="3"
-                      value={extForm.reason}
-                      onChange={(e) => setExtForm((prev) => ({ ...prev, reason: e.target.value }))}
-                    />
+                    <textarea className="form-control" rows="3" value={extForm.reason} onChange={(e) => setExtForm((prev) => ({ ...prev, reason: e.target.value }))} />
                   </div>
                 </div>
 

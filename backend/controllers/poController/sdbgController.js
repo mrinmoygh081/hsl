@@ -295,7 +295,6 @@ const sdbgSubmitByDealingOfficer = async (req, res) => {
 const sdbgUpdateByFinance = async (req, res) => {
   const tokenData = { ...req.tokenData };
   const { ...obj } = req.body;
-  let sdgbRollBackId;
   let client;
   try {
     client = await poolClient();
@@ -451,8 +450,6 @@ const sdbgUpdateByFinance = async (req, res) => {
       values: insertsdbg_q["val"],
     });
 
-    sdgbRollBackId = sdbgQuery[0].id;
-
     // bg_file_no/bank_email/bank_name are email-only fields, not sdbg table columns
     handelEmail(
       {
@@ -506,14 +503,7 @@ const sdbgUpdateByFinance = async (req, res) => {
           get_sdbg_entry_data[0].confirmation = `No`;
         }
 
-        const sendSap = await sendBgToSap({ ...get_sdbg_entry_data[0], bg_file_no: uFile }, sdgbRollBackId);
-        if (sendSap == false) {
-          await client.query("ROLLBACK");
-
-          return resSend(res, false, 200, `SAP not connected.`, sdbgQuery, null);
-        } else if (sendSap == true) {
-          await client.query("COMMIT");
-        }
+        await client.query("COMMIT");
       } catch (error) {
         console.error(error.message);
       }
@@ -925,4 +915,3 @@ module.exports = {
   update_in_all_obps_sdbgs_table,
   checkIsDEO,
 };
-
