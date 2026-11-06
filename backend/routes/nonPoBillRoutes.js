@@ -5,11 +5,11 @@ const router = express.Router();
 const {
     submitNonPoBill,
     getNonPoBillList,
-    getNonPoBillTaskList,
-    assignNonPoBill,
     getCommercialOfficerList,
     nonPoBillAction,
     getNonPoBillDetailsByReference,
+    getFinanceOfficerList,
+    assignNonPoBill
 } = require("../controllers/nonPoBillController");
 
 const { verifyAccessToken } = require("../services/jwt.services");
@@ -40,13 +40,6 @@ router.get(
 
 
 
-// Officer Task List
-router.get(
-    "/bill/task-list",
-    verifyAccessToken,
-    getNonPoBillTaskList
-);
-
 router.post(
     "/bill/action",
     verifyAccessToken,
@@ -60,13 +53,18 @@ router.get(
     getNonPoBillDetailsByReference
 );
 
+router.get(
+    "/finance-officer-list",
+    [verifyAccessToken],
+    getFinanceOfficerList
+);
 
-// Finance Main Assign to Lower Officer
 router.post(
-    "/bill/:id/assign",
-    verifyAccessToken,
+    "/bill/assign",
+    [verifyAccessToken],
     assignNonPoBill
 );
+
 
 
 
