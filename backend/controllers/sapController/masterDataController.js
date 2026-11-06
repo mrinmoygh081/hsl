@@ -91,7 +91,8 @@ const lfa1 = async (req, res) => {
       const payloadObj = await lfa1Payload(payload);
       const multipleUserInsertQ = await generateQueryForMultipleData(
         payloadObj,
-        VENDOR_MASTER_LFA1,
+        // VENDOR_MASTER_LFA1,
+        "lfa1v2",
         ["LIFNR"],
       );
       const response = await query({
@@ -103,7 +104,7 @@ const lfa1 = async (req, res) => {
         "S",
         200,
         Message.DATA_SEND_SUCCESSFULL,
-        response,
+        response.rows,
         null,
       );
     } catch (error) {
