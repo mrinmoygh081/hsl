@@ -40,6 +40,8 @@ const lfa1Payload = async (payload) => {
     KOINH: obj.KOINH || null,
     ACCNAME: obj.ACCNAME || null,
     XDELE: obj.XDELE || null,
+    ZTREDS_TY: obj.ZTREDS_TY || null,
+    ZTREDS_ID: obj.ZTREDS_ID || null,
   }));
   return pl;
 };

@@ -93,7 +93,6 @@ const lfa1 = async (req, res) => {
         payloadObj,
         // VENDOR_MASTER_LFA1,
         "lfa1v2",
-
         ["LIFNR"],
       );
       const response = await query({
@@ -105,7 +104,7 @@ const lfa1 = async (req, res) => {
         "S",
         200,
         Message.DATA_SEND_SUCCESSFULL,
-        response,
+        response.rows,
         null,
       );
     } catch (error) {
