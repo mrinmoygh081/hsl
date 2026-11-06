@@ -267,6 +267,8 @@ const list = async (req, res) => {
 };
 
 const assigneeList = async (req, res) => {
+
+  console.log("assigned list api called");
   try {
     const dept_id = USER_TYPE_HSL_DRAWING;
     const internal_role_id = 2;

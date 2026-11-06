@@ -3,7 +3,7 @@ const rateLimit = require('express-rate-limit');
 const Message = require("../utils/messages");
 const { resSend } = require("../lib/resSend");
 const LIMIT_TIME_IN_MS = 1 * 60 * 1000;
-const MAX_REQUEST = parseInt(process.env.MAX_REQUEST, 10) || 100;
+const MAX_REQUEST = parseInt(process.env.MAX_REQUEST, 10) || 10000;
 
 const globalRateLimiter = rateLimit({
   windowMs: LIMIT_TIME_IN_MS,
