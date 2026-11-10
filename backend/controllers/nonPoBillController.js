@@ -290,6 +290,7 @@ const submitNonPoBill = async (req, res) => {
 // GET /bill/my-list
 // --------------------------------------------------
 
+
 const getNonPoBillList = async (req, res) => {
     let client;
 
@@ -314,19 +315,16 @@ const getNonPoBillList = async (req, res) => {
             SELECT
                 b.*,
 
-                -- Action By Name
                 COALESCE(
                     NULLIF(TRIM(action_by_user.cname), ''),
                     NULLIF(TRIM(v_action_by.name1), '')
                 ) AS action_by_name,
 
-                -- Action To Name
                 COALESCE(
                     NULLIF(TRIM(action_to_user.cname), ''),
                     NULLIF(TRIM(v_action_to.name1), '')
                 ) AS action_to_name,
 
-                -- Submitted By Name (HSL Officer)
                 NULLIF(
                     TRIM(submitted_by_user.cname),
                     ''
@@ -334,37 +332,37 @@ const getNonPoBillList = async (req, res) => {
 
             FROM non_po_bills b
 
-            -- Action By: HSL Officer
             LEFT JOIN pa0002 action_by_user
                 ON TRIM(action_by_user.pernr::text) =
                    TRIM(b.action_by::text)
 
-            -- Action By: Vendor
             LEFT JOIN lfa1 v_action_by
                 ON TRIM(v_action_by.lifnr::text) =
                    TRIM(b.action_by::text)
 
-            -- Action To: HSL Officer
             LEFT JOIN pa0002 action_to_user
                 ON TRIM(action_to_user.pernr::text) =
                    TRIM(b.action_to::text)
 
-            -- Action To: Vendor
             LEFT JOIN lfa1 v_action_to
                 ON TRIM(v_action_to.lifnr::text) =
                    TRIM(b.action_to::text)
 
-            -- Submitted By: HSL Officer
             LEFT JOIN pa0002 submitted_by_user
                 ON TRIM(submitted_by_user.pernr::text) =
                    TRIM(b.submitted_by::text)
 
-            WHERE
-                b.vendor_code = $1
-                OR b.action_by = $1
-                OR b.action_to = $1
-                OR b.assigned_from = $1
-                OR b.assigned_to = $1
+            WHERE b.reference_no IN (
+                SELECT DISTINCT reference_no
+                FROM non_po_bills
+                WHERE
+                    vendor_code = $1
+                    OR action_by = $1
+                    OR action_to = $1
+                    OR assigned_from = $1
+                    OR assigned_to = $1
+                    OR submitted_by = $1
+            )
 
             ORDER BY b.id DESC
         `;
@@ -398,6 +396,7 @@ const getNonPoBillList = async (req, res) => {
         }
     }
 };
+
 
 
 
