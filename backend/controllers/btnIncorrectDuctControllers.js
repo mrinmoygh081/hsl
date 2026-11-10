@@ -174,7 +174,7 @@ const getGstnByPo = async (req, res) => {
       return resSend(res, false, 200, "poNo number is missing!", "No poNo", null);
     }
 
-    const qry = `SELECT t2.lifnr,t2.name1,t2.stcd3 FROM ekko as t1
+    const qry = `SELECT t2.lifnr,t2.name,t2.gstin_no FROM ekko as t1
                         LEFT JOIN lfa1  as t2 ON t1.lifnr = t2.lifnr
                     WHERE t1.ebeln = $1`;
 

@@ -220,8 +220,8 @@ const list = async (req, res) => {
     const query = `
       SELECT
         d.*,
-        COALESCE(emp_by.cname, ven_by.name1) AS action_by_name,
-        COALESCE(emp_to.cname, ven_to.name1) AS action_to_name
+        COALESCE(emp_by.cname, ven_by.name) AS action_by_name,
+        COALESCE(emp_to.cname, ven_to.name) AS action_to_name
       FROM ${DRAWING} d
 
       LEFT JOIN pa0002 emp_by

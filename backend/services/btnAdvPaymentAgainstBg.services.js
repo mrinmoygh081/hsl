@@ -128,7 +128,7 @@ async function getAdvBillHybridBTNDetails(client, { btn_num }) {
     adbh_do.basic_amount,
     adbh_do.drg_penalty_pct,
     adbh_do.other_deduction,
-    lfa1.name1 as vendor_name
+    lfa1.name as vendor_name
   FROM ${BTN_ADV_BILL_HYBRID} as adbh
     left join btn_adv_bill_against_bg_do as adbh_do on (adbh.btn_num = adbh_do.btn_num )
     left join lfa1 as lfa1 on (adbh.vendor_code = lfa1.lifnr )

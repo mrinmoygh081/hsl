@@ -32,7 +32,7 @@ async function getTimeLineData() {
             SELECT v_name.email  AS u_email,
                    v_name.lifnr AS vendor_code,
                    t.EBELN      AS purchasing_doc_no,
-                   v_name.NAME1 AS vendor_name,
+                   v_name.name AS vendor_name,
                    t.PLAN_DATE  AS plan_date,
                    t.MID        AS mile_stone_id,
                    p.table_name AS item,
@@ -64,7 +64,7 @@ async function getTimeLineData() {
         SELECT v_name.email  AS u_email,
                    v_name.lifnr AS vendor_code,
                    t.EBELN      AS purchasing_doc_no,
-                   v_name.NAME1 AS vendor_name,
+                   v_name.name AS vendor_name,
                    t.PLAN_DATE  AS plan_date,
                    t.MID        AS mile_stone_id,
                    p.table_name AS item,
@@ -130,14 +130,29 @@ const sendBGReminderMail = async () => {
       if (!BG_EXPIRY_ALERT_WORKING_DAYS.includes(workingDaysLeft)) continue;
 
       const users = [];
-      if (data?.do_email) users.push({ u_email: data.do_email, u_id: data.do_id, u_type: "do" });
-      if (data?.vendor_email) users.push({ u_email: data.vendor_email, u_id: data.vendor_id, u_type: "vendor" });
-      if (data?.fi_email) users.push({ u_email: data.fi_email, u_id: data.fi_id, u_type: "finance_officer" });
+      if (data?.do_email)
+        users.push({ u_email: data.do_email, u_id: data.do_id, u_type: "do" });
+      if (data?.vendor_email)
+        users.push({
+          u_email: data.vendor_email,
+          u_id: data.vendor_id,
+          u_type: "vendor",
+        });
+      if (data?.fi_email)
+        users.push({
+          u_email: data.fi_email,
+          u_id: data.fi_id,
+          u_type: "finance_officer",
+        });
       if (!users.length) continue;
 
       await sendMail(
         BG_EXPIRY_REMINDER,
-        { ...data, expire_date: toDdMmYyyy(expireDate), days_left: `${workingDaysLeft} working` },
+        {
+          ...data,
+          expire_date: toDdMmYyyy(expireDate),
+          days_left: `${workingDaysLeft} working`,
+        },
         { users },
         BG_EXPIRY_REMINDER,
       );
@@ -149,7 +164,8 @@ const sendBGReminderMail = async () => {
   }
 };
 
-const toDdMmYyyy = (d) => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+const toDdMmYyyy = (d) =>
+  `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
 
 /**
  * Accepted, unreleased BGs whose current expiry (validity or latest extension; epoch seconds) is in the window.
@@ -166,7 +182,7 @@ async function getActiveBgExpiryData(client, fromDate, toDate) {
               po.ernam       AS do_id,
               do_user.email  AS do_email,
               po.lifnr       AS vendor_id,
-              vendor.name1   AS vendor_name,
+              vendor.name   AS vendor_name,
               vendor.email   AS vendor_email,
               fi.created_by_id AS fi_id,
               fi_user.email  AS fi_email
@@ -187,7 +203,11 @@ async function getActiveBgExpiryData(client, fromDate, toDate) {
     client,
     query: q,
     // EXTENTION: status written when SAP pushes an extension (update_in_all_obps_sdbgs_table)
-    values: [[APPROVED, "EXTENTION"], Math.floor(fromDate.getTime() / 1000), Math.floor(toDate.getTime() / 1000)],
+    values: [
+      [APPROVED, "EXTENTION"],
+      Math.floor(fromDate.getTime() / 1000),
+      Math.floor(toDate.getTime() / 1000),
+    ],
   });
 }
 

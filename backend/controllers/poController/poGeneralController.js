@@ -41,9 +41,9 @@ const details = async (req, res) => {
     t1.lifnr as "LIFNR", 
     t1.ernam as "ERNAM", 
     t3.EMAIL AS "USRID_LONG",
-    t4.NAME1 as "NAME1",
+    t4.name as "name",
     t4.vendor_type as "vendor_type",
-    t4.ORT01 as "ORT01"
+    t4.city as "city"
       FROM 
       ekko AS t1 
         LEFT JOIN 
@@ -65,7 +65,8 @@ const details = async (req, res) => {
       values: [queryParams.id],
     });
 
-    if (!result?.length) return resSend(res, false, 404, "No PO number found !!", [], null);
+    if (!result?.length)
+      return resSend(res, false, 404, "No PO number found !!", [], null);
 
     const timeLineQuery = `
         (SELECT a.*, sub.actualSubmissionDate, sub.milestoneText, sub.milestoneId FROM   zpo_milestone AS a 
@@ -128,17 +129,32 @@ const details = async (req, res) => {
       poolQuery({
         client,
         query: timeLineQuery,
-        values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
+        values: [
+          queryParams.id,
+          queryParams.id,
+          queryParams.id,
+          queryParams.id,
+        ],
       }),
       poolQuery({
         client,
         query: getLatest,
-        values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
+        values: [
+          queryParams.id,
+          queryParams.id,
+          queryParams.id,
+          queryParams.id,
+        ],
       }),
       poolQuery({
         client,
         query: getAcknowledgementntQry,
-        values: [queryParams.id, queryParams.id, queryParams.id, queryParams.id],
+        values: [
+          queryParams.id,
+          queryParams.id,
+          queryParams.id,
+          queryParams.id,
+        ],
       }),
     ]);
 
@@ -147,7 +163,9 @@ const details = async (req, res) => {
       let timeLineDatArr = mergeData(timeline, curret_data);
       timeLineDatArr = joinArrays(timeLineDatArr, acknowledgementnt_date);
 
-      timelineData = timeLineDatArr.filter((v, i, a) => a.findIndex((el) => el?.mid === v?.mid) === i);
+      timelineData = timeLineDatArr.filter(
+        (v, i, a) => a.findIndex((el) => el?.mid === v?.mid) === i,
+      );
 
       // Sort the array by milestoneid
       timelineData.sort((a, b) => parseInt(a.mid) - parseInt(b.mid));
@@ -155,7 +173,9 @@ const details = async (req, res) => {
 
     if (timelineData.length) {
       timelineData = timelineData.map((el2) => {
-        const DOObj = acknowledgementnt_date.find((elms) => elms.flag == el2.mid);
+        const DOObj = acknowledgementnt_date.find(
+          (elms) => elms.flag == el2.mid,
+        );
         if (DOObj) {
           el2.acknowledgement_text = `ACKNOWLEDGEMENT DATE`;
           el2.acknowledgement_date = DOObj.acknowledgementnt_date;
@@ -200,7 +220,9 @@ const details = async (req, res) => {
 
     // FILTER DELETED PO LINE ITEM
     if (materialResult && materialResult?.length) {
-      materialResult = materialResult.filter((elem) => elem.isdeleted != PO_LINE_ITEM_DELETE_FLAG);
+      materialResult = materialResult.filter(
+        (elem) => elem.isdeleted != PO_LINE_ITEM_DELETE_FLAG,
+      );
     }
 
     const isMaterialTypePO = poTypeCheck(materialResult, materialType);
@@ -235,7 +257,6 @@ function isDO(po, user_id) {
 
 // eslint-disable-next-line no-unused-vars
 function poTypeCheck(materialData, materialType) {
-
   let isService = false;
   let isMaterial = false;
 
@@ -265,13 +286,19 @@ function poTypeCheck(materialData, materialType) {
 }
 
 const download = async (req, res) => {
-
   const typeArr = ["drawing", "sdbg", "qap"];
 
   const { id, type } = req.query;
 
   if (!typeArr.includes(type)) {
-    return resSend(res, false, 400, "Please send valid type ! i.e. drawing, sdbg", null, null);
+    return resSend(
+      res,
+      false,
+      400,
+      "Please send valid type ! i.e. drawing, sdbg",
+      null,
+      null,
+    );
   }
   let fileFoundQuery = "";
 
@@ -295,7 +322,14 @@ const download = async (req, res) => {
   const response = await getQuery({ query: fileFoundQuery, values: [id] });
 
   if (!response?.length || !response[0]?.file_name) {
-    return resSend(res, true, 200, `file not uploaded with this id ${id}`, null, null);
+    return resSend(
+      res,
+      true,
+      200,
+      `file not uploaded with this id ${id}`,
+      null,
+      null,
+    );
   }
 
   const selectedPath = `${downaoadPath}${response[0].file_name}`;
@@ -321,7 +355,10 @@ const doDetails = async (client, poNo) => {
 
 function joinArrays(arr1, arr2) {
   return arr1.map((item1) => {
-    const matchingItem = arr2.find((item2) => item1.eblel == item2.purchasing_doc_no && item1.mid == item2.flag);
+    const matchingItem = arr2.find(
+      (item2) =>
+        item1.eblel == item2.purchasing_doc_no && item1.mid == item2.flag,
+    );
 
     if (matchingItem) {
       return { ...item1, ...matchingItem };
@@ -333,9 +370,15 @@ function joinArrays(arr1, arr2) {
 
 function mergeData(timelineData, currentData) {
   return timelineData.map((timelineItem) => {
-    const currentItem = currentData.find((currentItem) => currentItem.purchasing_doc_no === timelineItem.ebeln && currentItem.flag === timelineItem.mid);
+    const currentItem = currentData.find(
+      (currentItem) =>
+        currentItem.purchasing_doc_no === timelineItem.ebeln &&
+        currentItem.flag === timelineItem.mid,
+    );
 
-    return currentItem ? { ...timelineItem, current_status: currentItem.current_status } : timelineItem;
+    return currentItem
+      ? { ...timelineItem, current_status: currentItem.current_status }
+      : timelineItem;
   });
 }
 
@@ -352,7 +395,7 @@ const addParam = (values, value) => {
 
 const poList = async (req, res) => {
   let client;
-  
+
   try {
     const tokenData = req.tokenData;
 
@@ -370,19 +413,48 @@ const poList = async (req, res) => {
 
     if (tokenData.user_type === USER_TYPE_VENDOR) {
       // Pass specific arrays to each function
-  
-      Query = poListByEkko(tokenData, search, po, vendor_type, pageNo, pageSize, queryValues);
-      CountQuery = poListCountByEkko(tokenData, search, vendor_type, countValues);
+
+      Query = poListByEkko(
+        tokenData,
+        search,
+        po,
+        vendor_type,
+        pageNo,
+        pageSize,
+        queryValues,
+      );
+      CountQuery = poListCountByEkko(
+        tokenData,
+        search,
+        vendor_type,
+        countValues,
+      );
     } else {
       // Pass both arrays to the main query builder to handle complex logic
-      
-      const q = poListQuery(tokenData, search, po, vendor_type, pageNo, pageSize, queryValues, countValues);
+
+      const q = poListQuery(
+        tokenData,
+        search,
+        po,
+        vendor_type,
+        pageNo,
+        pageSize,
+        queryValues,
+        countValues,
+      );
 
       Query = q.Query;
       CountQuery = q.CountQuery;
     }
     if (!Query) {
-      return resSend(res, false, 400, "You don't have permission or no data found", null, null);
+      return resSend(
+        res,
+        false,
+        400,
+        "You don't have permission or no data found",
+        null,
+        null,
+      );
     }
 
     // Execute Main Query with parameterized values
@@ -398,13 +470,18 @@ const poList = async (req, res) => {
       return resSend(res, true, 200, "No data found", poDetails, null, 0, 1);
     }
 
-    let poArr = poDetails.map((el) => el?.EBELN || el?.ebeln || el?.purchasing_doc_no || el?.poNb);
+    let poArr = poDetails.map(
+      (el) => el?.EBELN || el?.ebeln || el?.purchasing_doc_no || el?.poNb,
+    );
     poArr = [...new Set(poArr)];
 
     const materialTypeQuery = "SELECT * FROM material_type";
 
     const contractualDates = await getActualAndCurrentDetails(client, poArr);
-    const currentActivity = await currentStageHandleForAllActivity(client, poArr);
+    const currentActivity = await currentStageHandleForAllActivity(
+      client,
+      poArr,
+    );
     const materialType = await poolQuery({
       client,
       query: materialTypeQuery,
@@ -441,7 +518,16 @@ const poList = async (req, res) => {
       });
     }
 
-    resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, "", poCount, pageNo);
+    resSend(
+      res,
+      true,
+      200,
+      Message.DATA_FETCH_SUCCESSFULL,
+      result,
+      "",
+      poCount,
+      pageNo,
+    );
   } catch (error) {
     console.error("[ERROR] PO LIST API", error.message, error.stack);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
@@ -450,7 +536,15 @@ const poList = async (req, res) => {
   }
 };
 
-function poListByEkko(tokenData, search, po, vendor_type, pageNo, limit, values) {
+function poListByEkko(
+  tokenData,
+  search,
+  po,
+  vendor_type,
+  pageNo,
+  limit,
+  values,
+) {
   let baseQuery = "WITH EKKO AS ( ";
 
   let selectedItem = `SELECT
@@ -511,7 +605,7 @@ function poListByEkko(tokenData, search, po, vendor_type, pageNo, limit, values)
 
   const selectQueryAfterFilter = ` SELECT 
           EKKO.*,
-          LFA1.NAME1 AS "vendor_name",
+          LFA1.name AS "vendor_name",
           LFA1.vendor_type AS "vendor_type",
           EKPO.MATNR AS "m_number",
           MARA.MTART AS "MTART",
@@ -571,14 +665,21 @@ function poListCountByEkko(tokenData, search, vendor_type, values) {
 }
 
 // Helper to append conditions for other users
-function poListForOtherUser(dependedQuery, search, po, pageNo, pageSize, values) {
+function poListForOtherUser(
+  dependedQuery,
+  search,
+  po,
+  pageNo,
+  pageSize,
+  values,
+) {
   let baseQuery = "WITH COMBINED_DATA AS ";
   baseQuery += " ( " + dependedQuery + " )";
 
   const selectedItem = ` SELECT COMBINED_DATA.*,
     EKKO.LIFNR AS "vendor_code",
     EKKO.AEDAT AS "createdAt",
-    LFA1.NAME1 AS "vendor_name",
+    LFA1.name AS "vendor_name",
     LFA1.vendor_type AS "vendor_type",
     EKKO.EBELN AS "poNb",
     EKKO.BSART AS "poType",

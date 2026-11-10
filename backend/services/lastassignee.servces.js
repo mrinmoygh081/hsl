@@ -147,10 +147,10 @@ const insertSdbgEntrySave = async (tableName, obj, tokenData) => {
       if (dbResult && dbResult.length > 0) {
         let obj = dbResult[0];
 
-        other_details.vendor_name = obj.name1 ? obj.name1 : null;
-        other_details.vendor_city = obj.ort01 ? obj.ort01 : null;
+        other_details.vendor_name = obj.name ? obj.name : null;
+        other_details.vendor_city = obj.city ? obj.city : null;
         other_details.vendor_pin_code = obj.pstlz ? obj.pstlz : "";
-        other_details.vendor_address1 = obj.stras ? obj.stras : "";
+        other_details.vendor_address1 = obj.street ? obj.street : "";
       }
 
       // GET PO Date

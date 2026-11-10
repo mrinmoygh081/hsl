@@ -184,12 +184,12 @@ const list = async (req, res) => {
 
     COALESCE(
       NULLIF(TRIM(action_by_user.cname), ''),
-      NULLIF(TRIM(v_action_by.name1), '')
+      NULLIF(TRIM(v_action_by.name), '')
     ) AS action_by_name,
 
     COALESCE(
       NULLIF(TRIM(action_to_user.cname), ''),
-      NULLIF(TRIM(v_action_to.name1), '')
+      NULLIF(TRIM(v_action_to.name), '')
     ) AS action_to_name
 
   FROM ${ILMS} AS ilms

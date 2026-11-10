@@ -816,7 +816,7 @@ const gateEntryReport = async (req, res) => {
                 zmm_gate_entry_d.MATNR as "material_code",
                 material.MAKTX as "material_desc",
                 ekko.LIFNR as "vendor_code",
-                lfa1.NAME1 as "vendor_name",
+                lfa1.name as "vendor_name",
                 ekpo.MENGE as "quantity"
                 FROM zmm_gate_entry_h AS zmm_gate_entry_h 
             LEFT JOIN zmm_gate_entry_d as zmm_gate_entry_d

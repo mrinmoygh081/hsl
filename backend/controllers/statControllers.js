@@ -35,14 +35,22 @@ exports.stats = async (req, res) => {
     const TABLE = type;
     const ENTITY = type === QAP_SUBMISSION ? "QAP" : "DRAWING";
     const STATUS = type === QAP_SUBMISSION ? ACCEPTED : APPROVED;
-    const USER_DEPT_ID = type === QAP_SUBMISSION ? USER_TYPE_HSL_QAP : USER_TYPE_HSL_DRAWING;
-    const ASSIGNED_FROM = type === QAP_SUBMISSION ? "assigned_from" : "assign_from";
+    const USER_DEPT_ID =
+      type === QAP_SUBMISSION ? USER_TYPE_HSL_QAP : USER_TYPE_HSL_DRAWING;
+    const ASSIGNED_FROM =
+      type === QAP_SUBMISSION ? "assigned_from" : "assign_from";
     const ASSIGNED_TO = type === QAP_SUBMISSION ? "assigned_to" : "assign_to";
-    const ASSIGN_STATUS = type === QAP_SUBMISSION ? "is_assign" : "last_assigned";
+    const ASSIGN_STATUS =
+      type === QAP_SUBMISSION ? "is_assign" : "last_assigned";
 
-    let accessUserList = localData.qapDashBoardSpecialAccessUsers.map((el) => el.manNo) || [];
+    let accessUserList =
+      localData.qapDashBoardSpecialAccessUsers.map((el) => el.manNo) || [];
 
-    if (tokenData.department_id === USER_DEPT_ID || tokenData.department_id === USER_TYPE_IT || accessUserList.includes(tokenData.vendor_code)) {
+    if (
+      tokenData.department_id === USER_DEPT_ID ||
+      tokenData.department_id === USER_TYPE_IT ||
+      accessUserList.includes(tokenData.vendor_code)
+    ) {
       let str = "";
       let q;
       let result;
@@ -55,7 +63,7 @@ exports.stats = async (req, res) => {
             t1.purchasing_doc_no,
             t1.vendor_code,
             t1.status,
-            t3.name1 as vendor_name
+            t3.name as vendor_name
             FROM ${TABLE} AS t1
                           LEFT JOIN
                               ekko AS t2
@@ -103,7 +111,11 @@ exports.stats = async (req, res) => {
         str = str.slice(0, -1);
         if (refNumArr.length) {
           refNumArr.forEach((item) => {
-            refNum = refNum.concat("'").concat(`${item}`).concat("'").concat(",");
+            refNum = refNum
+              .concat("'")
+              .concat(`${item}`)
+              .concat("'")
+              .concat(",");
           });
         }
         refNum = refNum.slice(0, -1);
@@ -125,7 +137,11 @@ exports.stats = async (req, res) => {
             const no = item.purchasing_doc_no;
             str = str.concat("'").concat(`${no}`).concat("'").concat(",");
             const refNo = item.reference_no;
-            refNum = refNum.concat("'").concat(`${refNo}`).concat("'").concat(",");
+            refNum = refNum
+              .concat("'")
+              .concat(`${refNo}`)
+              .concat("'")
+              .concat(",");
           });
         }
         str = str.slice(0, -1);
@@ -137,7 +153,7 @@ exports.stats = async (req, res) => {
             t1.purchasing_doc_no,
             t1.vendor_code,
             t1.status,
-            t3.name1 as vendor_name
+            t3.name as vendor_name
             FROM ${TABLE} AS t1
                           LEFT JOIN
                               ekko AS t2
@@ -197,10 +213,16 @@ exports.stats = async (req, res) => {
       let results = [];
       if (result && Array.isArray(result)) {
         results = result.map((el2) => {
-          let staAcc = getStatusAccepctedData.find((ele) => ele.reference_no == el2.reference_no);
-          staAcc ? (el2.accepted_on = staAcc.created_at) : (el2.accepted_on = "N/A");
+          let staAcc = getStatusAccepctedData.find(
+            (ele) => ele.reference_no == el2.reference_no,
+          );
+          staAcc
+            ? (el2.accepted_on = staAcc.created_at)
+            : (el2.accepted_on = "N/A");
 
-          let DOObj = getAsfromAstoData.find((elms) => elms.purchasing_doc_no == el2.purchasing_doc_no);
+          let DOObj = getAsfromAstoData.find(
+            (elms) => elms.purchasing_doc_no == el2.purchasing_doc_no,
+          );
           if (DOObj) {
             DOObj = { ...DOObj, ...el2 };
           } else {
@@ -212,11 +234,15 @@ exports.stats = async (req, res) => {
             };
           }
 
-          let timeTaken = created_at_difference_data.find((elms) => elms.reference_no == el2.reference_no);
+          let timeTaken = created_at_difference_data.find(
+            (elms) => elms.reference_no == el2.reference_no,
+          );
 
           if (timeTaken) {
             const millisecondsInOneDay = 1000 * 60 * 60 * 24;
-            const time_taken = Math.floor(parseInt(timeTaken.created_at_difference) / millisecondsInOneDay);
+            const time_taken = Math.floor(
+              parseInt(timeTaken.created_at_difference) / millisecondsInOneDay,
+            );
 
             return {
               ...DOObj,
@@ -234,7 +260,14 @@ exports.stats = async (req, res) => {
 
       resSend(res, true, 200, "Data fetched successfully.", results, null);
     } else {
-      resSend(res, false, 200, "You are not authorized to view the information", null, null);
+      resSend(
+        res,
+        false,
+        200,
+        "You are not authorized to view the information",
+        null,
+        null,
+      );
     }
   } catch (error) {
     console.error("Error fetching data:", error);
@@ -251,7 +284,14 @@ exports.statsForBTN = async (req, res) => {
     const queryParams = req.query;
 
     if (tokenData.user_type === USER_TYPE_VENDOR) {
-      return resSend(res, false, 401, Message.YOU_ARE_UN_AUTHORIZED, null, null);
+      return resSend(
+        res,
+        false,
+        401,
+        Message.YOU_ARE_UN_AUTHORIZED,
+        null,
+        null,
+      );
     }
 
     client = await poolClient();
@@ -291,7 +331,7 @@ exports.statsForBTN = async (req, res) => {
         ) AS invoice_file_path,
 
         vendor_details.lifnr AS vendor_code,
-        vendor_details.name1 AS vendor_name,
+        vendor_details.name AS vendor_name,
         vendor_details.vendor_type AS vendor_type
 
       FROM btn_list LIST
@@ -372,9 +412,21 @@ exports.statsForBTN = async (req, res) => {
 
     // Execute Queries
 
-    const [result, dataCount] = await Promise.all([poolQuery({ client, query: Q, values: val }), poolQuery({ client, query: countQuery, values: val })]);
+    const [result, dataCount] = await Promise.all([
+      poolQuery({ client, query: Q, values: val }),
+      poolQuery({ client, query: countQuery, values: val }),
+    ]);
 
-    resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, result, null, parseInt(dataCount[0]?.count), pageNo);
+    resSend(
+      res,
+      true,
+      200,
+      Message.DATA_FETCH_SUCCESSFULL,
+      result,
+      null,
+      parseInt(dataCount[0]?.count),
+      pageNo,
+    );
   } catch (error) {
     console.error("Error btn dashboard api", error);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null);
@@ -417,7 +469,13 @@ exports.statsForWDC = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = ["reference_no", "purchasing_doc_no", "action_type", "vendor_code", "status"];
+      const filterableColumns = [
+        "reference_no",
+        "purchasing_doc_no",
+        "action_type",
+        "vendor_code",
+        "status",
+      ];
 
       if (queryParams.poNo) {
         queryParams.purchasing_doc_no = queryParams.poNo;
@@ -504,7 +562,16 @@ exports.statsForWDC = async (req, res) => {
 
         pageSize,
 
-        selectColumns: ["lr.reference_no", "lr.purchasing_doc_no", "lr.action_type", "lr.vendor_code", "lr.unit", "lr.status", "lr.work_title", "lfa1.vendor_type"],
+        selectColumns: [
+          "lr.reference_no",
+          "lr.purchasing_doc_no",
+          "lr.action_type",
+          "lr.vendor_code",
+          "lr.unit",
+          "lr.status",
+          "lr.work_title",
+          "lfa1.vendor_type",
+        ],
 
         joins: [
           {
@@ -528,7 +595,16 @@ exports.statsForWDC = async (req, res) => {
 
       const finalQapResult = rows;
 
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("statsForQA Error:", error);
@@ -553,7 +629,13 @@ exports.statsForQA = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = ["status", "purchasing_doc_no", "vendor_code", "assigned_to", "vendor_type"];
+      const filterableColumns = [
+        "status",
+        "purchasing_doc_no",
+        "vendor_code",
+        "assigned_to",
+        "vendor_type",
+      ];
 
       if (queryParams["poNo"]) {
         queryParams["purchasing_doc_no"] = queryParams["poNo"];
@@ -657,7 +739,7 @@ exports.statsForQA = async (req, res) => {
 
           "lr.created_at AS accepted_on",
 
-          "vendor.name1 AS vendor_name",
+          "vendor.name AS vendor_name",
           "vendor.vendor_type AS vendor_type",
 
           // "emp_assigned_to.cname AS assigned_to_name",
@@ -677,7 +759,6 @@ exports.statsForQA = async (req, res) => {
             table: "lfa1 vendor",
             on: "vendor.lifnr = ekko.lifnr",
           },
-
         ],
 
         filters,
@@ -697,9 +778,19 @@ exports.statsForQA = async (req, res) => {
 
       if (AllPoNoArr.length) {
         const qb = new QueryBuilder(`${QAP_SUBMISSION} as qap`)
-          .select(["qap.*, assignedToUser.cname as assigned_to_name, assignedFromUser.cname as assigned_from_name "])
-          .joinTable("LEFT", "pa0002 as assignedToUser", "assignedToUser.pernr ::CHARACTER varying = qap.assigned_to")
-          .joinTable("LEFT", "pa0002 as assignedFromUser", "assignedFromUser.pernr ::CHARACTER varying = qap.assigned_from")
+          .select([
+            "qap.*, assignedToUser.cname as assigned_to_name, assignedFromUser.cname as assigned_from_name ",
+          ])
+          .joinTable(
+            "LEFT",
+            "pa0002 as assignedToUser",
+            "assignedToUser.pernr ::CHARACTER varying = qap.assigned_to",
+          )
+          .joinTable(
+            "LEFT",
+            "pa0002 as assignedFromUser",
+            "assignedFromUser.pernr ::CHARACTER varying = qap.assigned_from",
+          )
           .whereIn("purchasing_doc_no", AllPoNoArr)
           .where("is_assign", "=", 1)
           .where("reference_no", "=", "QAP ASSIGNED");
@@ -716,7 +807,10 @@ exports.statsForQA = async (req, res) => {
 
       if (rows && rows.length) {
         rows.forEach((qaEle) => {
-          const foundData = qapAssigndStatusData.find((qaAssignedEle) => qaAssignedEle.purchasing_doc_no == qaEle.purchasing_doc_no);
+          const foundData = qapAssigndStatusData.find(
+            (qaAssignedEle) =>
+              qaAssignedEle.purchasing_doc_no == qaEle.purchasing_doc_no,
+          );
 
           finalQapResult.push({
             ...qaEle,
@@ -727,7 +821,16 @@ exports.statsForQA = async (req, res) => {
           });
         });
       }
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("statsForQA Error:", error);
@@ -751,7 +854,12 @@ exports.statsForDrawing = async (req, res) => {
       const filters = [];
 
       // Current Status Filters
-      const filterableColumns = ["status", "purchasing_doc_no", "vendor_code", "assigned_to"];
+      const filterableColumns = [
+        "status",
+        "purchasing_doc_no",
+        "vendor_code",
+        "assigned_to",
+      ];
 
       filterableColumns.forEach((column) => {
         if (!queryParams[column]) return;
@@ -854,7 +962,7 @@ exports.statsForDrawing = async (req, res) => {
 
           "lr.created_at AS accepted_on",
 
-          "vendor.name1 AS vendor_name",
+          "vendor.name AS vendor_name",
           "vendor.vendor_type AS vendor_type",
 
           "emp_action_by.cname AS action_by_name",
@@ -902,7 +1010,16 @@ exports.statsForDrawing = async (req, res) => {
 
       const finalQapResult = rows;
 
-      return resSend(res, true, 200, Message.DATA_FETCH_SUCCESSFULL, finalQapResult, null, Number(countRows?.[0]?.total || 0), pageNo);
+      return resSend(
+        res,
+        true,
+        200,
+        Message.DATA_FETCH_SUCCESSFULL,
+        finalQapResult,
+        null,
+        Number(countRows?.[0]?.total || 0),
+        pageNo,
+      );
     });
   } catch (error) {
     console.error("statsForQA Error:", error);

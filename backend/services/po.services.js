@@ -617,10 +617,9 @@ const getPoWithLineItems = async (client, values, limit, offSet, whereCondQuery)
   try {
 
     const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
-    let getPoQuey =
-      `SELECT ekko.lifnr AS "vendor_code",
+    let getPoQuey = `SELECT ekko.lifnr AS "vendor_code",
               ekko.aedat AS "createdAt",
-              lfa1.name1 AS "vendor_name",
+              lfa1.name AS "vendor_name",
               ekko.ebeln AS "poNb",
               ekko.bsart AS "poType",
               ekpo.matnr AS "m_number",
@@ -648,7 +647,7 @@ const getPoWithLineItems = async (client, values, limit, offSet, whereCondQuery)
 SELECT 
     ekko_limited_result.lifnr AS "vendor_code",
     ekko_limited_result.aedat AS "createdAt",
-    lfa1.name1 AS "vendor_name",
+    lfa1.name AS "vendor_name",
     ekko_limited_result.ebeln AS "poNb",
     ekko_limited_result.bsart AS "poType",
     ekpo.matnr AS "m_number",
