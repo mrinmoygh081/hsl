@@ -360,10 +360,20 @@ const setPassword = async (req, res) => {
     if (otpVefifyQueryRes && otpVefifyQueryRes.length == 0) {
       return resSend(res, false, 200, `OTP is incorrect!`, null, null);
     }
-    const tableName = otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT ? VENDOR_MASTER_LFA1 : EMPLAYEE_MASTER_PA0002;
-    const fieldName = otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT ? "lifnr" : "pernr";
+    const tableName =
+      otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT
+        ? VENDOR_MASTER_LFA1
+        : EMPLAYEE_MASTER_PA0002;
+    const fieldName =
+      otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT
+        ? "lifnr"
+        : "pernr";
     const checkValidUserQuery = `SELECT * FROM ${tableName} where ${fieldName} = $1`;
-    const validUser = await poolQuery({ client, query: checkValidUserQuery, values: [obj.user_code] });
+    const validUser = await poolQuery({
+      client,
+      query: checkValidUserQuery,
+      values: [obj.user_code],
+    });
 
     if (validUser.length == 0) {
       return resSend(res, false, 200, Message.USER_NOT_APPROVED, null, null);
@@ -372,7 +382,7 @@ const setPassword = async (req, res) => {
     let name;
     let username;
     if (otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT) {
-      name = validUser[0].name1;
+      name = validUser[0].name;
       username = validUser[0].lifnr;
     } else {
       name = validUser[0].cname;
@@ -383,7 +393,10 @@ const setPassword = async (req, res) => {
     let decreptedPasseword = decryptData(obj.password);
     const encrytedPassword = bcrypt.hashSync(decreptedPasseword, salt);
     const regData = {
-      user_type: otpVefifyQueryRes[0].user_type == USER_TYPE_VENDOR_TEXT ? USER_TYPE_VENDOR : 2,
+      user_type:
+        otpVefifyQueryRes[0].user_type == USER_TYPE_VENDOR_TEXT
+          ? USER_TYPE_VENDOR
+          : 2,
       department_id: otpVefifyQueryRes[0].functional_area,
       internal_role_id: otpVefifyQueryRes[0].role,
       username: username,
@@ -394,7 +407,11 @@ const setPassword = async (req, res) => {
     };
 
     let resMsg;
-    if (otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT || otpVefifyQueryRes[0].role == 2 || obj.status === "UPDATE") {
+    if (
+      otpVefifyQueryRes[0].user_type === USER_TYPE_VENDOR_TEXT ||
+      otpVefifyQueryRes[0].role == 2 ||
+      obj.status === "UPDATE"
+    ) {
       regData.is_active = 1;
       resMsg = "You are authorised! Please login to get access.";
     } else {
@@ -408,10 +425,15 @@ const setPassword = async (req, res) => {
     const { q, val } = generateQuery(INSERT, AUTH, regData);
     await poolQuery({ client, query: q, values: val });
 
-    if (otpVefifyQueryRes[0].user_type == USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === ASSIGNER) {
+    if (
+      otpVefifyQueryRes[0].user_type == USER_TYPE_HSL_TEXT &&
+      otpVefifyQueryRes[0].role === ASSIGNER
+    ) {
       // SEND MAIL TO NODAL OFFICERS //
 
-      let emails = localData.registrationApprovedAuthority.map((user) => user.email).join(",");
+      let emails = localData.registrationApprovedAuthority
+        .map((user) => user.email)
+        .join(",");
 
       if (emails != "") {
         let mailOptions = {
@@ -426,7 +448,12 @@ const setPassword = async (req, res) => {
         if (process.env.SERVER_ENV == LAN_SERVER) {
           await SENDMAIL(mailOptions);
         } else if (process.env.SERVER_ENV == NIC_SERVER) {
-          const mail_response = await SENDMAILFROMNIC(process.env.MAIL_SEND_MAIL_ID, mailOptions.to, mailOptions.subject, mailOptions.html);
+          const mail_response = await SENDMAILFROMNIC(
+            process.env.MAIL_SEND_MAIL_ID,
+            mailOptions.to,
+            mailOptions.subject,
+            mailOptions.html,
+          );
           console.log("mail_response", mailOptions.to, mail_response);
         }
       } else {
@@ -434,11 +461,16 @@ const setPassword = async (req, res) => {
       }
     }
 
-    if (otpVefifyQueryRes[0].user_type === USER_TYPE_HSL_TEXT && otpVefifyQueryRes[0].role === STAFF) {
+    if (
+      otpVefifyQueryRes[0].user_type === USER_TYPE_HSL_TEXT &&
+      otpVefifyQueryRes[0].role === STAFF
+    ) {
       const empDLQ = {
         dept_id: otpVefifyQueryRes[0].functional_area,
         internal_role_id: otpVefifyQueryRes[0].role,
-        sub_dept_id: otpVefifyQueryRes[0].sub_dept_id ? otpVefifyQueryRes[0].sub_dept_id : 0,
+        sub_dept_id: otpVefifyQueryRes[0].sub_dept_id
+          ? otpVefifyQueryRes[0].sub_dept_id
+          : 0,
         emp_id: obj.user_code,
       };
       // delete existing record on same user code
@@ -484,7 +516,14 @@ const getListPendingEmp = async (req, res) => {
       query: vefifyQuery,
       values: [0],
     });
-    resSend(res, true, 200, `user data fetch Succesfully.`, otpVefifyQueryRes, null);
+    resSend(
+      res,
+      true,
+      200,
+      `user data fetch Succesfully.`,
+      otpVefifyQueryRes,
+      null,
+    );
   } catch (error) {
     console.error("[error] list of pending employee", error);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, null, null);
@@ -500,15 +539,34 @@ const acceptedPendingEmp = async (req, res) => {
       return resSend(res, false, 200, Message.INVALID_PAYLOAD, null, null);
     }
 
-    if (!localData.registrationApprovedAuthority.map((user) => user.manNo).includes(tokenData.vendor_code)) {
-      return resSend(res, false, 200, Message.YOU_ARE_UN_AUTHORIZED, null, null);
+    if (
+      !localData.registrationApprovedAuthority
+        .map((user) => user.manNo)
+        .includes(tokenData.vendor_code)
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        Message.YOU_ARE_UN_AUTHORIZED,
+        null,
+        null,
+      );
     }
 
     const checkDeptQ = `SELECT department_id FROM ${AUTH} WHERE vendor_code = $1`;
-    await poolQuery({ client, query: checkDeptQ, values: [req.body.user_code] });
+    await poolQuery({
+      client,
+      query: checkDeptQ,
+      values: [req.body.user_code],
+    });
 
     const updateQuery = `Update ${AUTH} set is_active = $1 WHERE vendor_code = $2`;
-    await poolQuery({ client, query: updateQuery, values: [req.body.status, req.body.user_code] });
+    await poolQuery({
+      client,
+      query: updateQuery,
+      values: [req.body.status, req.body.user_code],
+    });
 
     resSend(res, true, 200, `user approved.`, null, null);
   } catch (error) {
@@ -560,8 +618,17 @@ const updatePassword = async (req, res) => {
       password: encrytedPassword,
     };
 
-    const updateVerified = generateQuery(UPDATE, AUTH, updatePayload, whereCondition);
-    await poolQuery({ client, query: updateVerified["q"], values: updateVerified["val"] });
+    const updateVerified = generateQuery(
+      UPDATE,
+      AUTH,
+      updatePayload,
+      whereCondition,
+    );
+    await poolQuery({
+      client,
+      query: updateVerified["q"],
+      values: updateVerified["val"],
+    });
 
     resSend(res, true, 200, "Password update successfully!");
   } catch (error) {
@@ -601,7 +668,10 @@ const login = async (req, res) => {
     // ✅ UPDATE 1: Captcha Verification (Session based)
     // Check if session has captcha (it might have expired) and if it matches
 
-    if (!req.session.captcha || req.session.captcha !== captchaValue?.toLowerCase()) {
+    if (
+      !req.session.captcha ||
+      req.session.captcha !== captchaValue?.toLowerCase()
+    ) {
       return resSend(res, false, 200, Message.INVALID_CAPTCHA);
     }
 
@@ -612,16 +682,23 @@ const login = async (req, res) => {
 
     // Check Lock Status
     const isAccLocked = await isAccountLocked(client, vendor_code);
-    if (isAccLocked) return resSend(res, false, 200, Message.TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED);
+    if (isAccLocked)
+      return resSend(res, false, 200, Message.TOO_MANY_ATTEMPTS_ACCOUNT_LOCKED);
 
     // Verify User Credentials
     const login_Q = `SELECT vendor_code, user_type, password, is_active FROM auth WHERE vendor_code = $1`;
-    const users = await poolQuery({ client, query: login_Q, values: [vendor_code] });
+    const users = await poolQuery({
+      client,
+      query: login_Q,
+      values: [vendor_code],
+    });
 
-    if (!users.length) return resSend(res, false, 200, Message.REGISTRATION_MSG);
+    if (!users.length)
+      return resSend(res, false, 200, Message.REGISTRATION_MSG);
     let user = users[0];
 
-    if (user.is_active !== 1) return resSend(res, false, 200, Message.USER_NOT_APPROVED);
+    if (user.is_active !== 1)
+      return resSend(res, false, 200, Message.USER_NOT_APPROVED);
 
     // Password Check
     let decreptedPasseword = decryptData(password);
@@ -629,7 +706,10 @@ const login = async (req, res) => {
     console.log("Decrypted Password:", decreptedPasseword);
     console.log("Password Hash:", user.password.substring(0, 7));
 
-    const match = await bcrypt.compare(decreptedPasseword.toString(), user.password);
+    const match = await bcrypt.compare(
+      decreptedPasseword.toString(),
+      user.password,
+    );
 
     if (!match) {
       // faild count record save . . . . .
@@ -689,8 +769,16 @@ const verifyLoginOtp = async (req, res) => {
 
     // ✅ CHANGE 2: Check Session Security
     // Ensure the user actually passed Step 1 (Password Check)
-    if (!req.session.login_otp || req.session.login_otp.stage !== SESSION_STAGE_AWAITING_OTP) {
-      return resSend(res, false, 401, "Session expired or invalid flow. Please login again.");
+    if (
+      !req.session.login_otp ||
+      req.session.login_otp.stage !== SESSION_STAGE_AWAITING_OTP
+    ) {
+      return resSend(
+        res,
+        false,
+        401,
+        "Session expired or invalid flow. Please login again.",
+      );
     }
 
     // ✅ CHANGE 3: Get Vendor Code from Server Memory (Safe)
@@ -741,14 +829,25 @@ const verifyLoginOtp = async (req, res) => {
 
     // --- 5. Rotation Logic (Save Refresh Token) ---
     const sessionQ = `INSERT INTO user_sessions (vendor_code, refresh_token) VALUES ($1, $2)`;
-    await poolQuery({ client, query: sessionQ, values: [user.vendor_code, refreshToken] });
+    await poolQuery({
+      client,
+      query: sessionQ,
+      values: [user.vendor_code, refreshToken],
+    });
 
     // ✅ CHANGE 5: Destroy the Temp Session
     // We are done with the handshake. We don't want old sessions cluttering memory.
     req.session.destroy();
 
     // --- 6. Final Response ---
-    resSend(res, true, 200, Message.USER_AUTHENTICATION_SUCCESS, { user }, { accessToken, refreshToken });
+    resSend(
+      res,
+      true,
+      200,
+      Message.USER_AUTHENTICATION_SUCCESS,
+      { user },
+      { accessToken, refreshToken },
+    );
   } catch (err) {
     console.error("Verify OTP error:", err);
     resSend(res, false, 500, Message.SOMTHING_WENT_WRONG);
@@ -768,7 +867,7 @@ async function loggedInUserDetails(client, vendor_code) {
 		t2.name AS department_name, 
 		t3.name AS role,
 		t4.cname as officer_name,
-		t5.name1 as vendor_name
+		t5.name as vendor_name
 FROM auth AS t1 
   LEFT JOIN depertment_master AS t2 ON (t1.department_id = t2.id)
   LEFT JOIN internal_role_master AS t3 ON (t1.internal_role_id = t3.id)
@@ -776,7 +875,11 @@ FROM auth AS t1
   LEFT JOIN lfa1 AS t5 ON (t1.vendor_code = t5.lifnr)
  WHERE t1.vendor_code = $1`;
 
-  const userDeatilsData = await poolQuery({ client, query: userDeatilsQuery, values: [vendor_code] });
+  const userDeatilsData = await poolQuery({
+    client,
+    query: userDeatilsQuery,
+    values: [vendor_code],
+  });
 
   return userDeatilsData[0] || null;
 }

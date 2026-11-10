@@ -261,10 +261,10 @@ async function btnSubmitByDo(btnPayload, tokenData) {
           ${BTN_PBG}.*,
         	ged.invno, 
         	ged.inv_date as invoice_date,
-        	vendor.stcd3,
+        	vendor.gstin_no,
         	users.pernr as finance_auth_id,
         	users.cname as finance_auth_name,
-        	vendor.name1 as vendor_name,
+        	vendor.name as vendor_name,
         	assign_users.cname as assign_name,
         	ranked_assignments.assign_by as assign_id
 
@@ -294,10 +294,10 @@ async function btnSubmitByDo(btnPayload, tokenData) {
         )
         SELECT 
           ${BTN_ANY_OTHER_CLAIM}.*,
-        	vendor.stcd3,
+        	vendor.gstin_no,
         	users.pernr as finance_auth_id,
         	users.cname as finance_auth_name,
-        	vendor.name1 as vendor_name,
+        	vendor.name as vendor_name,
         	assign_users.cname as assign_name,
         	ranked_assignments.assign_by as assign_id
         FROM 

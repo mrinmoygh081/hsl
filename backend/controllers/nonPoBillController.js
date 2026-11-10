@@ -103,103 +103,87 @@ const rollback = async (client) => {
 // --------------------------------------------------
 
 const submitNonPoBill = async (req, res) => {
-    let client;
-    let transactionStarted = false;
+  let client;
+  let transactionStarted = false;
 
-    try {
-        const tokenData = req.tokenData;
-        const body = req.body || {};
+  try {
+    const tokenData = req.tokenData;
+    const body = req.body || {};
 
-        const vendorSubmit = isVendor(tokenData);
+    const vendorSubmit = isVendor(tokenData);
 
-        const officerSubmit =
-            Number(tokenData.user_type) === Number(USER_TYPE_HSL);
+    const officerSubmit = Number(tokenData.user_type) === Number(USER_TYPE_HSL);
 
-        // Only Vendor or HSL Officer can submit
-        if (!vendorSubmit && !officerSubmit) {
-            return sendError(
-                res,
-                "Only Vendor or HSL Officer can submit Non-PO bills.",
-                403
-            );
-        }
+    // Only Vendor or HSL Officer can submit
+    if (!vendorSubmit && !officerSubmit) {
+      return sendError(
+        res,
+        "Only Vendor or HSL Officer can submit Non-PO bills.",
+        403,
+      );
+    }
 
-        if (body.status !== STATUS.SUBMITTED) {
-            return sendError(res, "Invalid status. Only SUBMITTED is allowed.");
-        }
+    if (body.status !== STATUS.SUBMITTED) {
+      return sendError(res, "Invalid status. Only SUBMITTED is allowed.");
+    }
 
-        if (!req.file) {
-            return sendError(res, "Bill file is required.");
-        }
+    if (!req.file) {
+      return sendError(res, "Bill file is required.");
+    }
 
-        // Vendor code
-        const vendorCode = vendorSubmit
-            ? tokenData.vendor_code
-            : body.vendor_code;
+    // Vendor code
+    const vendorCode = vendorSubmit ? tokenData.vendor_code : body.vendor_code;
 
-        if (!vendorCode) {
-            return sendError(res, "Vendor Code is required.");
-        }
+    if (!vendorCode) {
+      return sendError(res, "Vendor Code is required.");
+    }
 
-        const assignTo = body.assign_to;
-        const remarks = body.remarks || "";
+    const assignTo = body.assign_to;
+    const remarks = body.remarks || "";
 
-        if (!assignTo || !remarks.trim()) {
-            return sendError(
-                res,
-                "Commercial Officer and remarks are required."
-            );
-        }
+    if (!assignTo || !remarks.trim()) {
+      return sendError(res, "Commercial Officer and remarks are required.");
+    }
 
-        client = await poolClient();
+    client = await poolClient();
 
-        // Validate Vendor
-        const vendorResult = await client.query(
-            `SELECT lifnr, name1
+    // Validate Vendor
+    const vendorResult = await client.query(
+      `SELECT lifnr, name
              FROM lfa1
              WHERE TRIM(lifnr::text) = TRIM($1::text)`,
-            [vendorCode]
-        );
+      [vendorCode],
+    );
 
-        if (!vendorResult.rows.length) {
-            return sendError(res, "Invalid Vendor Code.");
-        }
+    if (!vendorResult.rows.length) {
+      return sendError(res, "Invalid Vendor Code.");
+    }
 
-        // Validate Commercial Officer
-        const officer = await getOfficer(client, assignTo);
+    // Validate Commercial Officer
+    const officer = await getOfficer(client, assignTo);
 
-        if (!officer || !isCommercialOfficer(officer)) {
-            return sendError(
-                res,
-                "Please select a valid Commercial Officer."
-            );
-        }
+    if (!officer || !isCommercialOfficer(officer)) {
+      return sendError(res, "Please select a valid Commercial Officer.");
+    }
 
-        const actionOn = getEpochTime();
+    const actionOn = getEpochTime();
 
-        const referenceNo = create_reference_no(
-            "NONPO",
-            vendorCode
-        );
+    const referenceNo = create_reference_no("NONPO", vendorCode);
 
-        const supportingDoc = body.supporting_doc
-            ? (
-                typeof body.supporting_doc === "string"
-                    ? body.supporting_doc
-                    : JSON.stringify(body.supporting_doc)
-            )
-            : null;
+    const supportingDoc = body.supporting_doc
+      ? typeof body.supporting_doc === "string"
+        ? body.supporting_doc
+        : JSON.stringify(body.supporting_doc)
+      : null;
 
-        // HSL Officer code only when officer submits
-        const submittedBy = officerSubmit
-            ? getUserCode(tokenData)
-            : null;
+    // HSL Officer code only when officer submits
+    const submittedBy = officerSubmit ? getUserCode(tokenData) : null;
 
-        await client.query("BEGIN");
-        transactionStarted = true;
+    await client.query("BEGIN");
+    transactionStarted = true;
 
-        const insertResult = await client.query(
-            `INSERT INTO non_po_bills
+    const insertResult = await client.query(
+      `INSERT INTO non_po_bills
             (
                 reference_no,
                 file_name,
@@ -228,61 +212,52 @@ const submitNonPoBill = async (req, res) => {
                 $11,$12,$13,$14,$15,$16,$17,$18,$19,$20
             )
             RETURNING *`,
-            [
-                referenceNo,
-                req.file.filename || "",
-                vendorCode,
-                null,
-                null,
-                0,
-                req.file.path || "",
-                ACTION.SUBMITTED,
-                remarks,
-                STATUS.SUBMITTED,
-                vendorSubmit ? "VENDOR" : "HSL",
-                actionOn,
-                tokenData.name || "",
-                tokenData.id || null,
-                supportingDoc,
-                0,
-                vendorCode,
-                actionOn,
-                assignTo,
-                submittedBy
-            ]
-        );
+      [
+        referenceNo,
+        req.file.filename || "",
+        vendorCode,
+        null,
+        null,
+        0,
+        req.file.path || "",
+        ACTION.SUBMITTED,
+        remarks,
+        STATUS.SUBMITTED,
+        vendorSubmit ? "VENDOR" : "HSL",
+        actionOn,
+        tokenData.name || "",
+        tokenData.id || null,
+        supportingDoc,
+        0,
+        vendorCode,
+        actionOn,
+        assignTo,
+        submittedBy,
+      ],
+    );
 
-        await client.query("COMMIT");
-        transactionStarted = false;
+    await client.query("COMMIT");
+    transactionStarted = false;
 
-        return resSend(
-            res,
-            true,
-            200,
-            "Non-PO bill submitted successfully.",
-            insertResult.rows[0],
-            null
-        );
-
-    } catch (error) {
-        if (client && transactionStarted) {
-            await rollback(client);
-        }
-
-        console.error("submitNonPoBill:", error);
-
-        return resSend(
-            res,
-            false,
-            500,
-            Message.SERVER_ERROR,
-            null,
-            null
-        );
-
-    } finally {
-        if (client) client.release();
+    return resSend(
+      res,
+      true,
+      200,
+      "Non-PO bill submitted successfully.",
+      insertResult.rows[0],
+      null,
+    );
+  } catch (error) {
+    if (client && transactionStarted) {
+      await rollback(client);
     }
+
+    console.error("submitNonPoBill:", error);
+
+    return resSend(res, false, 500, Message.SERVER_ERROR, null, null);
+  } finally {
+    if (client) client.release();
+  }
 };
 
 // --------------------------------------------------
@@ -290,39 +265,31 @@ const submitNonPoBill = async (req, res) => {
 // GET /bill/my-list
 // --------------------------------------------------
 
-
 const getNonPoBillList = async (req, res) => {
-    let client;
+  let client;
 
-    try {
-        const tokenData = req.tokenData;
-        const userCode = getUserCode(tokenData);
+  try {
+    const tokenData = req.tokenData;
+    const userCode = getUserCode(tokenData);
 
-        if (!userCode) {
-            return resSend(
-                res,
-                false,
-                401,
-                "User code not found.",
-                null,
-                null
-            );
-        }
+    if (!userCode) {
+      return resSend(res, false, 401, "User code not found.", null, null);
+    }
 
-        client = await poolClient();
+    client = await poolClient();
 
-        const query = `
+    const query = `
             SELECT
                 b.*,
 
                 COALESCE(
                     NULLIF(TRIM(action_by_user.cname), ''),
-                    NULLIF(TRIM(v_action_by.name1), '')
+                    NULLIF(TRIM(v_action_by.name), '')
                 ) AS action_by_name,
 
                 COALESCE(
                     NULLIF(TRIM(action_to_user.cname), ''),
-                    NULLIF(TRIM(v_action_to.name1), '')
+                    NULLIF(TRIM(v_action_to.name), '')
                 ) AS action_to_name,
 
                 NULLIF(
@@ -367,34 +334,25 @@ const getNonPoBillList = async (req, res) => {
             ORDER BY b.id DESC
         `;
 
-        const result = await client.query(query, [userCode]);
+    const result = await client.query(query, [userCode]);
 
-        return resSend(
-            res,
-            true,
-            200,
-            "Non-PO Bill list fetched successfully.",
-            result.rows,
-            null
-        );
+    return resSend(
+      res,
+      true,
+      200,
+      "Non-PO Bill list fetched successfully.",
+      result.rows,
+      null,
+    );
+  } catch (error) {
+    console.error("getNonPoBillList:", error);
 
-    } catch (error) {
-        console.error("getNonPoBillList:", error);
-
-        return resSend(
-            res,
-            false,
-            500,
-            Message.SERVER_ERROR,
-            null,
-            null
-        );
-
-    } finally {
-        if (client) {
-            client.release();
-        }
+    return resSend(res, false, 500, Message.SERVER_ERROR, null, null);
+  } finally {
+    if (client) {
+      client.release();
     }
+  }
 };
 
 

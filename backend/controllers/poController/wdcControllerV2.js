@@ -848,7 +848,7 @@ const getWdcData = async (client, refNo, poNo) => {
       wdc.remarks3,
       a_user.cname as assigned_to_name,
       delegate_to_user.cname as delegate_to_name,
-      vendor_details.name1 as vendor_name,
+      vendor_details.name as vendor_name,
       
       json_agg(json_build_object(
         'lineitem', wdc_line.lineitem,
@@ -917,7 +917,7 @@ GROUP BY
       wdc.jcc_job_start,
       wdc.jcc_job_end,
       a_user.cname,
-      vendor_details.name1,
+      vendor_details.name,
       delegate_to_user.cname
       `;
 
@@ -936,13 +936,19 @@ const mergeArrayObjects = async (arrayObject1, arrayObject2) => {
     arrayObject2 = JSON.parse(arrayObject2);
     const mergedArray = arrayObject1.map((item1) => {
       // Find matching item from arrayObject2 based on lineitem and sublineitem
-      const matchingItem = arrayObject2.find((item2) => item2.lineitem === item1.lineitem && item2.sublineitem === item1.sublineitem);
+      const matchingItem = arrayObject2.find(
+        (item2) =>
+          item2.lineitem === item1.lineitem &&
+          item2.sublineitem === item1.sublineitem,
+      );
       delete item1.wdc_id;
       // Merge the objects
       return {
         ...item1,
-        contractual_start: matchingItem?.contractual_start || item1.contractual_start,
-        contractual_completion: matchingItem?.contractual_completion || item1.contractual_completion,
+        contractual_start:
+          matchingItem?.contractual_start || item1.contractual_start,
+        contractual_completion:
+          matchingItem?.contractual_completion || item1.contractual_completion,
         delay: matchingItem?.delay || null, // Add delay from arrayObject2 if it exists
       };
     });
@@ -997,8 +1003,16 @@ exports.list = async (req, res) => {
       data.map(async (item) => {
         return {
           ...item,
-          action_by_name: await getUserName(client, item.action_by || 0, item.updated_by === "VENDOR" ? "VENDOR" : "HSL"),
-          action_on_name: await getUserName(client, item.action_on || 0, item.updated_by === "VENDOR" ? "HSL" : "VENDOR"),
+          action_by_name: await getUserName(
+            client,
+            item.action_by || 0,
+            item.updated_by === "VENDOR" ? "VENDOR" : "HSL",
+          ),
+          action_on_name: await getUserName(
+            client,
+            item.action_on || 0,
+            item.updated_by === "VENDOR" ? "HSL" : "VENDOR",
+          ),
         };
       }),
     );
@@ -1019,7 +1033,7 @@ const getUserName = async (client, userCode, userType) => {
   if (userType === "VENDOR") {
     tableName = VENDOR_MASTER_LFA1;
     whereFieldName = "lifnr";
-    name = "name1";
+    name = "name";
   } else {
     tableName = EMPLAYEE_MASTER_PA0002;
     whereFieldName = "pernr";

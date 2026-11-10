@@ -43,10 +43,10 @@ async function btnSubmitToSAPF01(btnPayload, tokenData) {
               btn.invoice_no,
               btn.vendor_code,
 			  btn.invoice_date,
-              vendor.stcd3,
+              vendor.gstin_no,
               users.pernr as finance_auth_id,
               users.cname as finance_auth_name,
-              vendor.name1 as vendor_name,
+              vendor.name as vendor_name,
               assign_users.cname as assign_name,
               ranked_assignments.assign_by as assign_id
           FROM 
@@ -79,7 +79,9 @@ async function btnSubmitToSAPF01(btnPayload, tokenData) {
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
       ZVBNO: btnDetails[0]?.invoice_no, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE: getYyyyMmDd(new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()), // GATE ENTRY INVOICE DATE
+      VEN_BILL_DATE: getYyyyMmDd(
+        new Date(parseInt(btnDetails[0]?.invoice_date)).getTime(),
+      ), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), // getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
@@ -128,7 +130,11 @@ async function btnSubmitToSAPF01(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -169,10 +175,10 @@ async function btnSubmitToSAPF02(btnPayload, tokenData) {
           btn.invoice_no,
           btn.vendor_code,
           btn.net_with_gst,
-          vendor.stcd3,
+          vendor.gstin_no,
           users.pernr as finance_auth_id,
           users.cname as finance_auth_name,
-          vendor.name1 as vendor_name,
+          vendor.name as vendor_name,
           assign_users.cname as assign_name,
           ranked_assignments.assign_to as assign_to
   
@@ -249,7 +255,11 @@ async function btnSubmitToSAPF02(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -288,10 +298,10 @@ async function abhBtnSubmitToSAPF01(btnPayload, tokenData) {
             btn.invoice_no,
             btn.invoice_date,
             btn.vendor_code,
-            vendor.stcd3,
+            vendor.gstin_no,
             users.pernr as finance_auth_id,
             users.cname as finance_auth_name,
-            vendor.name1 as vendor_name,
+            vendor.name as vendor_name,
             assign_users.cname as assign_name,
             ranked_assignments.assign_by as assign_id
         FROM 
@@ -324,7 +334,9 @@ async function abhBtnSubmitToSAPF01(btnPayload, tokenData) {
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
       ZVBNO: btnDetails[0]?.invoice_no, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE: getYyyyMmDd(new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()), // GATE ENTRY INVOICE DATE
+      VEN_BILL_DATE: getYyyyMmDd(
+        new Date(parseInt(btnDetails[0]?.invoice_date)).getTime(),
+      ), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), // getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
@@ -373,7 +385,11 @@ async function abhBtnSubmitToSAPF01(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -414,10 +430,10 @@ async function abhBtnSubmitToSAPF02(btnPayload, tokenData) {
         btn.invoice_no,
         btn.vendor_code,
         btn.net_with_gst,
-        vendor.stcd3,
+        vendor.gstin_no,
         users.pernr as finance_auth_id,
         users.cname as finance_auth_name,
-        vendor.name1 as vendor_name,
+        vendor.name as vendor_name,
         assign_users.cname as assign_name,
         ranked_assignments.assign_to as assign_to
 
@@ -493,7 +509,11 @@ async function abhBtnSubmitToSAPF02(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -528,10 +548,10 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
             btn.invoice_no,
             btn.vendor_code,
             btn.invoice_date,
-            vendor.stcd3,
+            vendor.gstin_no,
             users.pernr as finance_auth_id,
             users.cname as finance_auth_name,
-            vendor.name1 as vendor_name,
+            vendor.name as vendor_name,
             assign_users.cname as assign_name,
             ranked_assignments.assign_by as assign_id
         FROM 
@@ -569,10 +589,10 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
                 btn.letter_reference_no as invoice_no,
                 btn.vendor_code,
                 btn.letter_date as invoice_date,
-                vendor.stcd3,
+                vendor.gstin_no,
                 users.pernr as finance_auth_id,
                 users.cname as finance_auth_name,
-                vendor.name1 as vendor_name,
+                vendor.name as vendor_name,
                 assign_users.cname as assign_name,
                 ranked_assignments.assign_by as assign_id
             FROM 
@@ -605,10 +625,10 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
                 btn.invoice_no,
                 btn.vendor_code,
                 btn.invoice_date,
-                vendor.stcd3,
+                vendor.gstin_no,
                 users.pernr as finance_auth_id,
                 users.cname as finance_auth_name,
-                vendor.name1 as vendor_name,
+                vendor.name as vendor_name,
                 assign_users.cname as assign_name,
                 ranked_assignments.assign_by as assign_id
             FROM 
@@ -640,7 +660,9 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
       RERNAM: btnDetails[0]?.vendor_name, // REG CREATOR NAME --> VENDOR NUMBER
       STCD3: btnDetails[0]?.stcd3, // VENDOR GSTIN NUMBER
       ZVBNO: btnDetails[0]?.invoice_no, // GATE ENTRY INVOCE NUMBER
-      VEN_BILL_DATE: getYyyyMmDd(new Date(parseInt(btnDetails[0]?.invoice_date)).getTime()), // GATE ENTRY INVOICE DATE
+      VEN_BILL_DATE: getYyyyMmDd(
+        new Date(parseInt(btnDetails[0]?.invoice_date)).getTime(),
+      ), // GATE ENTRY INVOICE DATE
       PERNR: tokenData.vendor_code, // DO ID
       ZBTNO: btnPayload.btn_num, //  BTN NUMBER
       ERDAT: btnPayload.btn_num.substring(0, 8), //getYyyyMmDd(getEpochTime()), // VENDOR BILL SUBMIT DATE
@@ -689,7 +711,11 @@ async function jccBtnSubmitToSAPF01(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_do_out`;
     console.log("btnPayload--", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -725,10 +751,10 @@ async function jccBtnSubmitToSAPF02(btnPayload, tokenData) {
           btn.net_claim_amount,
           btn.invoice_no,
           btn.vendor_code,
-          vendor.stcd3,
+          vendor.gstin_no,
           users.pernr as finance_auth_id,
           users.cname as finance_auth_name,
-          vendor.name1 as vendor_name,
+          vendor.name as vendor_name,
           assign_users.cname as assign_name,
           ranked_assignments.assign_to as assign_to
 
@@ -805,7 +831,11 @@ async function jccBtnSubmitToSAPF02(btnPayload, tokenData) {
     const postUrl = `${sapBaseUrl}/sap/bc/zobps_out_api`;
     console.log("btnPayload", postUrl, btn_payload);
     const postResponse = await makeHttpRequest(postUrl, "POST", btn_payload);
-    if (postResponse.statusCode && postResponse.statusCode >= 200 && postResponse.statusCode <= 226) {
+    if (
+      postResponse.statusCode &&
+      postResponse.statusCode >= 200 &&
+      postResponse.statusCode <= 226
+    ) {
       status = true;
     }
     console.log("POST Response from the server:", postResponse);
@@ -843,10 +873,10 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
         btn_do.net_payable_amount,
         ged.invno,
         ged.inv_date as invoice_date,
-        vendor.stcd3,
+        vendor.gstin_no,
         users.pernr as finance_auth_id,
         users.cname as finance_auth_name,
-        vendor.name1 as vendor_name,
+        vendor.name as vendor_name,
         assign_users.cname as assign_name,
         ranked_assignments.assign_to as assign_to
 
@@ -884,10 +914,10 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
         btn.net_claim_amount as net_with_gst,
         ged.invno,
         ged.inv_date as invoice_date,
-        vendor.stcd3,
+        vendor.gstin_no,
         users.pernr as finance_auth_id,
         users.cname as finance_auth_name,
-        vendor.name1 as vendor_name,
+        vendor.name as vendor_name,
         assign_users.cname as assign_name,
         ranked_assignments.assign_by as assign_id,
         ranked_assignments.assign_to
@@ -908,7 +938,11 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
       ON(assign_users.pernr:: character varying = ranked_assignments.assign_by)
       WHERE 
               btn.btn_num = $2`;
-    } else if (btnPayload.btn_type === BTN_BILL_INCORRECT_DEDUCTIONS || btnPayload.btn_type === BTN_LD_PENALTY_REFUND || btnPayload.btn_type === BTN_OTHER_RETENTIONS) {
+    } else if (
+      btnPayload.btn_type === BTN_BILL_INCORRECT_DEDUCTIONS ||
+      btnPayload.btn_type === BTN_LD_PENALTY_REFUND ||
+      btnPayload.btn_type === BTN_OTHER_RETENTIONS
+    ) {
       vendorQuery = `WITH ranked_assignments AS(
         SELECT
                   btn_assign.*,
@@ -924,10 +958,10 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
         btn.net_claim_amount,
         btn.net_claim_amount as net_with_gst,
         btn.purchasing_doc_no,
-        vendor.stcd3,
+        vendor.gstin_no,
         users.pernr as finance_auth_id,
         users.cname as finance_auth_name,
-        vendor.name1 as vendor_name,
+        vendor.name as vendor_name,
         assign_users.cname as assign_name,
         ranked_assignments.assign_by as assign_id,
         ranked_assignments.assign_to
@@ -977,10 +1011,10 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
       btn.net_claim_amount as net_with_gst,  
       btn.invoice_no,
       btn.vendor_code,
-      vendor.stcd3,
+      vendor.gstin_no,
       users.pernr as finance_auth_id,
       users.cname as finance_auth_name,
-      vendor.name1 as vendor_name,
+      vendor.name as vendor_name,
       assign_users.cname as assign_name,
       ranked_assignments.assign_to as assign_to
 
@@ -1019,10 +1053,10 @@ const getQueryForbtnSaveToSap = async (btnPayload) => {
       btn.invoice_no,
       btn.vendor_code,
       btn.net_with_gst,
-      vendor.stcd3,
+      vendor.gstin_no,
       users.pernr as finance_auth_id,
       users.cname as finance_auth_name,
-      vendor.name1 as vendor_name,
+      vendor.name as vendor_name,
       assign_users.cname as assign_name,
       ranked_assignments.assign_to as assign_to
 

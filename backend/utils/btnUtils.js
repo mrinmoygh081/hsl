@@ -100,9 +100,9 @@ exports.fetchBTNListByPOAndBTNNum = async (btn, po) => {
 exports.getVendorDetails = async (client, ebeln) => {
 
     let q = `SELECT po.lifnr       AS vendor_code,
-                     vendor_t.name1 AS vendor_name,
+                     vendor_t.name AS vendor_name,
                      vendor_t.email AS vendor_email,
-                     vendor_t.stcd3 AS vendor_gstno
+                     vendor_t.gstin_no AS vendor_gstno
               FROM   ekko AS po
                      left join lfa1 AS vendor_t
                             ON ( po.lifnr = vendor_t.lifnr )

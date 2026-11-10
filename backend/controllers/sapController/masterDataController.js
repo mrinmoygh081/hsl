@@ -91,8 +91,7 @@ const lfa1 = async (req, res) => {
       const payloadObj = await lfa1Payload(payload);
       const multipleUserInsertQ = await generateQueryForMultipleData(
         payloadObj,
-        // VENDOR_MASTER_LFA1,
-        "lfa1v2",
+        VENDOR_MASTER_LFA1,
         ["LIFNR"],
       );
       const response = await query({

@@ -20,7 +20,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
       getDeatilsQuery = `(
                     SELECT    
                         vendor_t.lifnr                AS u_id,
-                        vendor_t.name1                AS u_name,
+                        vendor_t.name                AS u_name,
                         vendor_t.email                AS u_email,
                         '${type}'                     AS u_type
                     FROM      lfa1   AS vendor_t
@@ -84,7 +84,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
                 UNION
             (
                SELECT    po.lifnr            AS u_id,
-               vendor_t.name1                AS u_name,
+               vendor_t.name                AS u_name,
                vendor_t.email                AS u_email,
                          'vendor'                      AS u_type
                FROM      ekko                          AS po
@@ -129,7 +129,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
       getDeatilsQuery = `
             (
                 SELECT    po.lifnr            AS u_id,
-                vendor_t.name1                AS u_name,
+                vendor_t.name                AS u_name,
                 vendor_t.email                AS u_email,
                           'vendor'                      AS u_type
                 FROM      ekko                          AS po
@@ -152,7 +152,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
 
             SELECT 
 	            btn.vendor_code as u_id,
-	            vendor.name1 as u_name,
+	            vendor.name as u_name,
 	            vendor.email as u_email,
 	            'vendor' as u_type
             FROM btn as btn 
@@ -167,7 +167,7 @@ const getUserDetailsQuery = (type, valueParameter) => {
 
             SELECT 
 	            btn.vendor_code as u_id,
-	            vendor.name1 as u_name,
+	            vendor.name as u_name,
 	            vendor.email as u_email,
 	            'vendor' as u_type
             FROM btn_service_hybrid as btn 

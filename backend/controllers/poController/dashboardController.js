@@ -23,7 +23,7 @@ const dashboard = async (req, res) => {
     const values = [];
     let filterQuery = `SELECT log.user_id             AS id,
                 grse_user_details.cname AS officer_user_name,
-                vendor_details.name1    AS vendor_name,
+                vendor_details.name    AS vendor_name,
                 log.id                  AS log_id,
                 log.action              AS status,
                 log.remarks             AS remarks,

@@ -13,11 +13,11 @@ const serviceEntryReport = async (req, res) => {
                 essr.comp_date as "completionDate",
                 essr.lwert as "unitPriceINR",
                 essr.netwr as "netValueINR",
-                vendorDetails.NAME1 as "vendorName",
+                vendorDetails.name as "vendorName",
                 ekko.LIFNR as "vendor_code",
-                vendorDetails.ORT01 as "vendorCity",
-                vendorDetails.ORT02 as "vendorDistrict",
-                vendorDetails.PFACH as "vendorPinCode"
+                vendorDetails.city as "vendorCity",
+                vendorDetails.district as "vendorDistrict",
+                vendorDetails.post_code as "vendorPinCode"
             FROM essr as essr
             	LEFT JOIN ekko as ekko
                 	ON( ekko.EBELN = essr.ebeln)
@@ -31,9 +31,9 @@ const serviceEntryReport = async (req, res) => {
 	      ESSR.PACKNO as "packno",
         EKKO.LIFNR as "vendor_code",
         essr.comp_date as "completionDate",
-        vendorDetails.ORT01 as "vendorCity",
-        vendorDetails.ORT02 as "vendorDistrict",
-        vendorDetails.PFACH as "vendorPinCode",
+        vendorDetails.city as "vendorCity",
+        vendorDetails.district as "vendorDistrict",
+        vendorDetails.post_code as "vendorPinCode",
 	      json_agg(json_build_object(
 			    'claim_qty', ESLL_SUBLINE.MENGE,
 			    'lineitem', ESSR.EBELP,
@@ -62,11 +62,11 @@ const serviceEntryReport = async (req, res) => {
     }
 
     // DELETE SERVICE ENTRY CONDITION
-    whereClause += " AND (ESSR.LOEKZ != 'X' OR ESSR.LOEKZ IS NULL)"
+    whereClause += " AND (ESSR.LOEKZ != 'X' OR ESSR.LOEKZ IS NULL)";
 
     const GROUP_BY = ` GROUP BY ESSR.EBELN, ESSR.EBELP, ESSR.LBLNI, 
-    ESSR.PACKNO, EKKO.LIFNR, vendorDetails.ORT01,
-    vendorDetails.ORT02, vendorDetails.PFACH`
+    ESSR.PACKNO, EKKO.LIFNR, vendorDetails.city,
+    vendorDetails.district, vendorDetails.post_code`;
 
     const finalQuery = serviceEntryReportQ + whereClause + GROUP_BY;
 
@@ -87,7 +87,7 @@ const grnReport = async (req, res) => {
                 mseg.EBELN as "purchasing_doc_no",
                 mseg.EBELP as "poItemNumber",
                 mseg.LIFNR as "vendor_code",
-                vendor_details.NAME1 as "vendor_name",
+                vendor_details.name as "vendor_name",
                 mkpf.XBLNR as "refferecnce",
                 mkpf.BKTXT as "headerText",
                 mkpf.FRBNR as "billOfLoading",
@@ -116,7 +116,7 @@ const grnReport = async (req, res) => {
                         mseg.ERFMG as "quantity",
                         mseg.ERFME as "unit",
                         mseg.MAT_PSPNR as "accountingAssegnment",
-                        vendor_details.NAME1 as "vendor_name",
+                        vendor_details.name as "vendor_name",
                         mkpf.XBLNR as "refferecnce",
                         mkpf.BKTXT as "headerText",
                         mkpf.FRBNR as "billOfLoading",
@@ -170,7 +170,10 @@ const grnReport = async (req, res) => {
         purchasing_doc_no: result[0].purchasing_doc_no,
         headerText: result[0].headerText,
         chalanNo: result[0].chalanNo,
-        lineItem: result.map((el) => ({ ...el, materialNumber: removeZeroFn(el.materialNumber) })),
+        lineItem: result.map((el) => ({
+          ...el,
+          materialNumber: removeZeroFn(el.materialNumber),
+        })),
       };
 
       resSend(res, true, 200, "Data fetched successfully", responseObj, null);
@@ -246,7 +249,7 @@ const materialIssue = async (req, res) => {
     }
   } catch (error) {
     console.error("[error]", error);
-     resSend(res, false, 500, Message.SERVER_ERROR, null, null);
+    resSend(res, false, 500, Message.SERVER_ERROR, null, null);
   }
 };
 
@@ -266,11 +269,11 @@ const icgrnReport = async (req, res) => {
                 qals.MBLNR as "docNo",
                 qals.BUDAT as "docdate",
                 qals.LIFNR as "suppplier",
-                vendor_table.LAND1 as "vendorCountry",
-                vendor_table.NAME1 as "vendorName",
-                vendor_table.ORT01 as "vendorCity",
-                vendor_table.ORT02 as "vendorDistrict",
-                vendor_table.PFACH as "vendorPinCode",
+                vendor_table.country as "vendorCountry",
+                vendor_table.name as "vendorName",
+                vendor_table.city as "vendorCity",
+                vendor_table.district as "vendorDistrict",
+                vendor_table.post_code as "vendorPinCode",
                 qals.MATNR AS "materialNumber",
                 makt.MAKTX as "materialDesc",
                 qals.MATNR as "material",
@@ -345,25 +348,29 @@ const icgrnReport = async (req, res) => {
         gateEntryNo: resp.gateEntryNo,
         gateEntryDate: resp.gateEntryDate,
         lineItems: response.map((icgrnItems) => {
-          if (!isNaN(icgrnItems?.acceptedQty) && parseFloat(icgrnItems?.acceptedQty)) {
+          if (
+            !isNaN(icgrnItems?.acceptedQty) &&
+            parseFloat(icgrnItems?.acceptedQty)
+          ) {
             return {
               ...icgrnItems,
               acceptedQty: icgrnItems?.acceptedQty,
-              rejectedQty: icgrnItems?.rejectedQty || "0.00"
-            }
-
-          } else if (!isNaN(icgrnItems?.rejectedQty) && parseFloat(icgrnItems?.rejectedQty)) {
+              rejectedQty: icgrnItems?.rejectedQty || "0.00",
+            };
+          } else if (
+            !isNaN(icgrnItems?.rejectedQty) &&
+            parseFloat(icgrnItems?.rejectedQty)
+          ) {
             return {
               ...icgrnItems,
-              acceptedQty: icgrnItems?.acceptedQty
-            }
-          }
-          else {
+              acceptedQty: icgrnItems?.acceptedQty,
+            };
+          } else {
             return {
               ...icgrnItems,
               acceptedQty: icgrnItems?.inspectedQty,
-              rejectedQty: icgrnItems?.rejectedQty || "0.00"
-            }
+              rejectedQty: icgrnItems?.rejectedQty || "0.00",
+            };
           }
         }),
       };
@@ -393,7 +400,7 @@ const gateEntryReport = async (req, res) => {
                 zmm_gate_entry_d.MATNR as "material_code",
                 material.MAKTX as "material_desc",
                 ekko.LIFNR as "vendor_code",
-                lfa1.NAME1 as "vendor_name",
+                lfa1.name as "vendor_name",
                 ekpo.MENGE as "quantity"
                 FROM zmm_gate_entry_h AS zmm_gate_entry_h 
             LEFT JOIN zmm_gate_entry_d as zmm_gate_entry_d
@@ -420,9 +427,7 @@ const gateEntryReport = async (req, res) => {
 
     if (result && result.length) {
       let obj = {};
-      result.sort((a, b) =>
-        a.po_line_item_no > b.po_line_item_no ? 1 : -1
-      );
+      result.sort((a, b) => (a.po_line_item_no > b.po_line_item_no ? 1 : -1));
       obj.gate_entry_no = result[0].gate_entry_no;
       obj.entry_date = result[0].entry_date;
       obj.vendor = result[0].vendor;
