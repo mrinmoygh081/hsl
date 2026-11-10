@@ -25,12 +25,11 @@ const NonPoBills = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState("All");
 
-  // DO (Dealing Officer / Commercial Officer) check - DO should not see Submit Bill button
-  const isDO =
+  // Finance Dept check - Submit Bill button is visible to everyone (including DO) except Finance Dept
+  const isFinanceDept =
     !isVendor &&
-    (commercialOfficers.some((off) => String(off.vendor_code).trim() === String(user?.vendor_code).trim()) ||
-      user?.department_id === 17 ||
-      (Number(user?.user_type) === 2 && Number(user?.department_id) !== 15));
+    (Number(user?.department_id) === 15 ||
+      financeOfficers.some((off) => String(off.vendor_code).trim() === String(user?.vendor_code).trim()));
 
   // Vendor / Officer Submit Modal state
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
@@ -177,7 +176,7 @@ const NonPoBills = () => {
       const res = await uploadFileStream({
         file: f,
         token,
-        vendorCode: isVendor ? user?.vendor_code : (submitForm.vendor_code?.trim() || user?.vendor_code || "OFFICER"),
+        vendorCode: isVendor ? user?.vendor_code : submitForm.vendor_code?.trim() || user?.vendor_code || "OFFICER",
         type: "NONPO",
         onSuccess: (data) => {
           uploaded.push(data);
@@ -425,8 +424,8 @@ const NonPoBills = () => {
               </div>
             </div>
 
-            {/* Submit Bill Button (Vendor & HSL Officer, hidden for DO) */}
-            {!isDO && (
+            {/* Submit Bill Button (Visible to everyone including DO, hidden only for Finance Dept) */}
+            {!isFinanceDept && (
               <div className="card_headline d-flex align-items-end">
                 <button
                   onClick={() => {
@@ -866,12 +865,7 @@ const NonPoBills = () => {
                   <label className="form-label fw-bold">
                     Action Status <span className="text-danger">*</span>
                   </label>
-                  <select
-                    className="form-select"
-                    value={actionForm.status}
-                    onChange={(e) => setActionForm({ ...actionForm, status: e.target.value, assign_to: "" })}
-                    required
-                  >
+                  <select className="form-select" value={actionForm.status} onChange={(e) => setActionForm({ ...actionForm, status: e.target.value, assign_to: "" })} required>
                     <option value="">Choose Action</option>
                     {actionForm.current_status === "SUBMITTED" && (
                       <>
@@ -886,16 +880,14 @@ const NonPoBills = () => {
                         <option value="REJECT">REJECT (Reject Bill)</option>
                       </>
                     )}
-                    {actionForm.current_status !== "SUBMITTED" &&
-                      actionForm.current_status !== "FORWARDED_TO_FINANCE" &&
-                      actionForm.current_status !== "ASSIGNED_TO_FINANCE" && (
-                        <>
-                          <option value="FORWARD">FORWARD (Forward to Finance Officer)</option>
-                          <option value="ASSIGN">ASSIGN (Assign / Reassign to Finance Officer)</option>
-                          <option value="APPROVE">APPROVE (Approve Bill)</option>
-                          <option value="REJECT">REJECT (Reject Bill)</option>
-                        </>
-                      )}
+                    {actionForm.current_status !== "SUBMITTED" && actionForm.current_status !== "FORWARDED_TO_FINANCE" && actionForm.current_status !== "ASSIGNED_TO_FINANCE" && (
+                      <>
+                        <option value="FORWARD">FORWARD (Forward to Finance Officer)</option>
+                        <option value="ASSIGN">ASSIGN (Assign / Reassign to Finance Officer)</option>
+                        <option value="APPROVE">APPROVE (Approve Bill)</option>
+                        <option value="REJECT">REJECT (Reject Bill)</option>
+                      </>
+                    )}
                   </select>
                 </div>
 
@@ -905,12 +897,7 @@ const NonPoBills = () => {
                     <label className="form-label fw-bold">
                       Finance Officer <span className="text-danger">*</span>
                     </label>
-                    <select
-                      className="form-select"
-                      value={actionForm.assign_to}
-                      onChange={(e) => setActionForm({ ...actionForm, assign_to: e.target.value })}
-                      required
-                    >
+                    <select className="form-select" value={actionForm.assign_to} onChange={(e) => setActionForm({ ...actionForm, assign_to: e.target.value })} required>
                       <option value="">Choose Finance Officer</option>
                       {financeOfficers
                         .filter((off) => String(off.vendor_code) !== String(user?.vendor_code))
