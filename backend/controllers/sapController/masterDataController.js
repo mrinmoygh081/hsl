@@ -156,7 +156,7 @@ const addUser = async (req, res) => {
         "S",
         200,
         Message.DATA_SEND_SUCCESSFULL,
-        response,
+        response.rows,
         null,
       );
     } catch (error) {
