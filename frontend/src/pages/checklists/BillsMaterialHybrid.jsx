@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import Swal from "sweetalert2";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaCaretLeft, FaMinus } from "react-icons/fa";
+import { FaCaretLeft, FaMinus, FaCheckCircle } from "react-icons/fa";
 import SideBar from "../../components/SideBar";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -141,6 +142,43 @@ const BillsMaterialHybrid = () => {
           toast.success(response.message || "Invoice details extracted successfully!");
         } else {
           toast.warn(grnData?.message || "Invalid GRN data returned");
+        }
+      } else if (response && (response.requiresConfirmation || response.status === "GST_NOT_FOUND" || response.penaltyPercentage)) {
+        const msg = response.message || "GST number does not exist in GST records";
+        const invoiceNum = response.invoiceNo || response.invoiceDetails?.invoice_no || "";
+
+        const result = await Swal.fire({
+          title: "GST Not Found in Records",
+          html: `
+            <div style="text-align: left; font-size: 14px; line-height: 1.6;">
+              <p style="margin-bottom: 8px;"><strong>Status:</strong> ${msg}</p>
+              ${invoiceNum ? `<p style="margin-bottom: 8px;"><strong>Invoice No:</strong> ${invoiceNum}</p>` : ""}
+              <hr style="margin: 12px 0;" />
+              <p style="margin-bottom: 0; font-size: 15px; font-weight: 600;">
+                GST number does not exist in records. Do you want to proceed with this bill with penalty?
+              </p>
+            </div>
+          `,
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#2a2d93",
+          cancelButtonColor: "#6c757d",
+          confirmButtonText: "Yes, Proceed",
+          cancelButtonText: "Cancel",
+          allowOutsideClick: false,
+        });
+
+        if (result.isConfirmed) {
+          toast.info("Proceeding with penalty confirmed.");
+          if (invoiceNum) {
+            setForm((prev) => ({
+              ...prev,
+              invoice_no: invoiceNum,
+              invoice_filename: uploadedFileMetadata,
+            }));
+          }
+        } else {
+          window.location.reload();
         }
       } else if (response && response.message) {
         toast.warn(response.message);
@@ -374,9 +412,9 @@ const BillsMaterialHybrid = () => {
                                       <tr>
                                         <td>Digitally Signed Invoice:</td>
                                         <td>
-                                          <div className="d-flex align-items-center">
-                                            <div className="me-4" style={{ width: "250px" }}>
-                                              <label className="form-label fw-bold">Invoice File</label>
+                                          <div className="d-flex align-items-end flex-wrap gap-3 py-1">
+                                            <div style={{ width: "260px" }}>
+                                              <label className="form-label fw-bold mb-1" style={{ fontSize: "13px" }}>Invoice File</label>
                                               <input
                                                 type="file"
                                                 className="form-control"
@@ -384,8 +422,8 @@ const BillsMaterialHybrid = () => {
                                                 onChange={(e) => setInvoiceFile(e.target.files[0] || null)}
                                               />
                                             </div>
-                                            <div className="me-4" style={{ width: "200px" }}>
-                                              <label className="form-label fw-bold">Invoice Date</label>
+                                            <div style={{ width: "180px" }}>
+                                              <label className="form-label fw-bold mb-1" style={{ fontSize: "13px" }}>Invoice Date</label>
                                               <DatePicker
                                                 selected={form?.invoice_date && form?.invoice_date !== "--" ? (typeof form.invoice_date === "number" ? new Date(form.invoice_date * 1000) : new Date(form.invoice_date)) : null}
                                                 onChange={(date) => {
@@ -400,11 +438,18 @@ const BillsMaterialHybrid = () => {
                                                 maxDate={new Date()}
                                               />
                                             </div>
-                                            <div className="align-self-end d-flex align-items-center">
-                                              <DynamicButton label="CHECK" onClick={handleExtractInvoice} className="btn btn-primary btn-sm m-4" />
+                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                              <DynamicButton label="CHECK" onClick={handleExtractInvoice} className="btn-primary px-4 fw-bold" />
                                               {form?.invoice_filename && (
-                                                <span className="text-success ms-2 fw-bold" style={{ fontSize: "12px" }}>
-                                                  Uploaded: {form.invoice_filename.file_name || form.invoice_filename.fileName}
+                                                <span
+                                                  className="badge badge-light-success d-inline-flex align-items-center gap-1 py-2 px-3 border border-success border-opacity-25"
+                                                  style={{ fontSize: "12px", whiteSpace: "nowrap", maxWidth: "320px" }}
+                                                  title={form.invoice_filename.file_name || form.invoice_filename.fileName}
+                                                >
+                                                  <FaCheckCircle className="text-success me-1 flex-shrink-0" />
+                                                  <span className="text-truncate">
+                                                    Uploaded: <strong>{form.invoice_filename.file_name || form.invoice_filename.fileName}</strong>
+                                                  </span>
                                                 </span>
                                               )}
                                             </div>
@@ -416,9 +461,9 @@ const BillsMaterialHybrid = () => {
                                       <tr>
                                         <td>E-Invoice No :</td>
                                         <td>
-                                          <div className="d-flex align-items-center">
-                                            <div className="me-4" style={{ width: "250px" }}>
-                                              <label className="form-label fw-bold">Invoice File</label>
+                                          <div className="d-flex align-items-end flex-wrap gap-3 py-1">
+                                            <div style={{ width: "260px" }}>
+                                              <label className="form-label fw-bold mb-1" style={{ fontSize: "13px" }}>Invoice File</label>
                                               <input
                                                 type="file"
                                                 className="form-control"
@@ -426,8 +471,8 @@ const BillsMaterialHybrid = () => {
                                                 onChange={(e) => setInvoiceFile(e.target.files[0] || null)}
                                               />
                                             </div>
-                                            <div className="me-4" style={{ width: "200px" }}>
-                                              <label className="form-label fw-bold">Invoice Date</label>
+                                            <div style={{ width: "180px" }}>
+                                              <label className="form-label fw-bold mb-1" style={{ fontSize: "13px" }}>Invoice Date</label>
                                               <DatePicker
                                                 selected={form?.invoice_date && form?.invoice_date !== "--" ? (typeof form.invoice_date === "number" ? new Date(form.invoice_date * 1000) : new Date(form.invoice_date)) : null}
                                                 onChange={(date) => {
@@ -442,11 +487,18 @@ const BillsMaterialHybrid = () => {
                                                 maxDate={new Date()}
                                               />
                                             </div>
-                                            <div className="align-self-end d-flex align-items-center">
-                                              <DynamicButton label="CHECK" onClick={handleExtractInvoice} className="btn btn-primary btn-sm m-4" />
+                                            <div className="d-flex align-items-center gap-2 flex-wrap">
+                                              <DynamicButton label="CHECK" onClick={handleExtractInvoice} className="btn-primary px-4 fw-bold" />
                                               {form?.invoice_filename && (
-                                                <span className="text-success ms-2 fw-bold" style={{ fontSize: "12px" }}>
-                                                  Uploaded: {form.invoice_filename.file_name || form.invoice_filename.fileName}
+                                                <span
+                                                  className="badge badge-light-success d-inline-flex align-items-center gap-1 py-2 px-3 border border-success border-opacity-25"
+                                                  style={{ fontSize: "12px", whiteSpace: "nowrap", maxWidth: "320px" }}
+                                                  title={form.invoice_filename.file_name || form.invoice_filename.fileName}
+                                                >
+                                                  <FaCheckCircle className="text-success me-1 flex-shrink-0" />
+                                                  <span className="text-truncate">
+                                                    Uploaded: <strong>{form.invoice_filename.file_name || form.invoice_filename.fileName}</strong>
+                                                  </span>
                                                 </span>
                                               )}
                                             </div>

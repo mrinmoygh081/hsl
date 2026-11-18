@@ -359,12 +359,12 @@ const Checklist = () => {
                             <select id="checklistDropdown" className="form-select w-100" onChange={(e) => setSlug(e.target.value)}>
                               <option value="">Select</option>
                               <option value="hybrid-bill-material">Checklist for Material Bill</option>
-                              <option value="contract-bill-service">Checklist for Service Bill</option>
+                              {/* <option value="contract-bill-service">Checklist for Service Bill</option>
                               <option value="claim-against-pbg">Checklist for Claim Against PBG</option>
                               <option value="claim-against-jcc">Checklist for Claim Against JCC</option>
                               <option value="bg-retention-release">Checklist for BG Retention Release</option>
                               <option value="any-other">Checklist for Any Other Claims</option>
-                              <option value="advance-bill">Checklist for Advance Bill Payment(Adv BG)</option>
+                              <option value="advance-bill">Checklist for Advance Bill Payment(Adv BG)</option> */}
                             </select>
                           </div>
                           <button className="btn btn-sm btn-primary mx-3 mb-3" onClick={NewBillHandler}>
