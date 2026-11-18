@@ -990,35 +990,45 @@ const BillsMaterialHybrid = () => {
                                             Enter Basic value to compare
                                           </span>
                                         ) : isGrnMatched ? (
-                                          <span
-                                            className="badge fw-bold d-inline-flex align-items-center gap-1"
-                                            style={{
-                                              backgroundColor: "#d1e7dd",
-                                              color: "#0f5132",
-                                              border: "1px solid #badbcc",
-                                              padding: "5px 12px",
-                                              fontSize: "12px",
-                                              borderRadius: "4px",
-                                            }}
-                                          >
-                                            <FaCheckCircle className="me-1" style={{ color: "#0f5132" }} />
-                                            Matched
-                                          </span>
+                                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                                            <span
+                                              className="badge fw-bold d-inline-flex align-items-center gap-1"
+                                              style={{
+                                                backgroundColor: "#d1e7dd",
+                                                color: "#0f5132",
+                                                border: "1px solid #badbcc",
+                                                padding: "5px 12px",
+                                                fontSize: "12px",
+                                                borderRadius: "4px",
+                                              }}
+                                            >
+                                              <FaCheckCircle className="me-1" style={{ color: "#0f5132" }} />
+                                              Matched
+                                            </span>
+                                            <span className="ms-2 fw-semibold text-dark" style={{ fontSize: "13px" }}>
+                                              (Invoice Basic Value: <b>{form?.invoice_value}</b> | Total GRN Value: <b>{form?.total_price || grnTotal}</b>)
+                                            </span>
+                                          </div>
                                         ) : (
-                                          <span
-                                            className="badge fw-bold d-inline-flex align-items-center gap-1"
-                                            style={{
-                                              backgroundColor: "#f8d7da",
-                                              color: "#842029",
-                                              border: "1px solid #f5c2c7",
-                                              padding: "5px 12px",
-                                              fontSize: "12px",
-                                              borderRadius: "4px",
-                                            }}
-                                          >
-                                            <FaExclamationTriangle className="me-1" style={{ color: "#842029" }} />
-                                            Mismatch (difference: {grnDiff > 0 ? "+" : ""}{grnDiff})
-                                          </span>
+                                          <div className="d-flex align-items-center gap-2 flex-wrap">
+                                            <span
+                                              className="badge fw-bold d-inline-flex align-items-center gap-1"
+                                              style={{
+                                                backgroundColor: "#f8d7da",
+                                                color: "#842029",
+                                                border: "1px solid #f5c2c7",
+                                                padding: "5px 12px",
+                                                fontSize: "12px",
+                                                borderRadius: "4px",
+                                              }}
+                                            >
+                                              <FaExclamationTriangle className="me-1" style={{ color: "#842029" }} />
+                                              Mismatch (difference: {grnDiff > 0 ? "+" : ""}{grnDiff})
+                                            </span>
+                                            <span className="ms-2 fw-semibold text-dark" style={{ fontSize: "13px" }}>
+                                              (Invoice Basic Value: <b>{form?.invoice_value}</b> | Total GRN Value: <b>{form?.total_price || grnTotal}</b>)
+                                            </span>
+                                          </div>
                                         )}
                                       </td>
                                     </tr>
