@@ -61,11 +61,21 @@ const { extractInvoiceData } = require("../services/invoice/invoiceExtraction.se
 const { verifyGSTRecord } = require("../services/invoice/gstVerification.service");
 const { processExtractedInvoice } = require("../services/invoice/invoiceProcessing.service");
 const { renameInvoiceFile } = require("../services/invoice/invoiceFile.service");
+const {
+  calculateInvoice,
+} = require("../services/invoice/invoiceCalculation.service");
 
 const fetchBTNByNum = async (req, res) => {
   const { id, btn_num } = req.query;
   if (!id || !btn_num) {
-    return resSend(res, false, 200, "PO number or BTN number is missing, please refresh and retry!", null, null);
+    return resSend(
+      res,
+      false,
+      200,
+      "PO number or BTN number is missing, please refresh and retry!",
+      null,
+      null,
+    );
   }
 
   let btnQ = `SELECT btn.*, ge_d.inv_date as invoice_date FROM btn as btn 
@@ -95,7 +105,14 @@ const fetchBTNByNum = async (req, res) => {
 const fetchBTNByNumForDO = async (req, res) => {
   const { btn_num } = req.query;
   if (!btn_num) {
-    return resSend(res, false, 200, "BTN number is missing, please refresh and retry!", null, null);
+    return resSend(
+      res,
+      false,
+      200,
+      "BTN number is missing, please refresh and retry!",
+      null,
+      null,
+    );
   }
 
   let btnDOQ = `SELECT * FROM ${BTN_MATERIAL_DO} WHERE btn_num = $1`;
@@ -193,7 +210,14 @@ const getBTNData = async (req, res) => {
     resSend(res, true, 200, "Succesfully fetched all data!", obj, null);
   } catch (error) {
     console.error(error);
-    resSend(res, false, 200, "Something went wrong when fetching the dates!", null, null);
+    resSend(
+      res,
+      false,
+      200,
+      "Something went wrong when fetching the dates!",
+      null,
+      null,
+    );
   }
 };
 
@@ -990,6 +1014,7 @@ async function btnSubmitByDo(btnPayload, tokenData) {
 
 // ===============================
 const getExtractedData = async (req, res) => {
+  // console.log(req);
   let client;
 
   try {
@@ -1080,27 +1105,33 @@ const getExtractedData = async (req, res) => {
       fileInfo.filePath,
     ];
 
-    await client.query(insertQuery, insertValues);
-
+    const tempResult = await client.query(insertQuery, insertValues);
+    const temp_inv_id = tempResult.rows[0].temp_inv_id;
+    console.log(77, temp_inv_id);
     // STEP 6: Check GST record
     const gstResult = await verifyGSTRecord(client, gst_no, invoice_date);
 
     // STEP 7: GST missing - ask for confirmation
-    // if (!gstResult.found) {
-    //   return res.status(200).json({
-    //     success: false,
-    //     requiresConfirmation: true,
-    //     status: gstResult.reason,
+    if (!gstResult.found) {
+      const penaltyDetails = calculateInvoice(invoiceData.sub_total, true);
+      // console.log(666, penaltyDetails);
 
-    //     message: gstResult.message,
+      return res.status(200).json({
+        success: false,
+        requiresConfirmation: true,
+        status: gstResult.reason,
 
-    //     invoiceNo: invoice_no,
+        message: gstResult.message,
 
-    //     penaltyPercentage: 2,
+        invoiceNo: invoice_no,
 
-    //     invoiceDetails: invoiceData,
-    //   });
-    // }
+        penaltyPercentage: 2,
+
+        invoiceDetails: invoiceData,
+        penalty_details: penaltyDetails,
+        temp_inv_id,
+      });
+    }
 
     // STEP 8: GST found - proceed with GRN verification
     const result = await processExtractedInvoice(
@@ -1132,11 +1163,20 @@ const getExtractedData = async (req, res) => {
 
 // confirmation api function
 
-const continueInvoiceProcessing = async (req, res) => {
+const processInvoiceWithPenalty = async (req, res) => {
+  console.log(950, "ekhane esegeche");
   let client;
 
   try {
-    const { draftId } = req.params;
+    const { temp_inv_id } = req.body;
+    console.log(951, temp_inv_id);
+
+    if (!temp_inv_id) {
+      return res.status(400).json({
+        success: false,
+        message: "Temporary invoice ID is required.",
+      });
+    }
 
     const { continueWithPenalty } = req.body;
     console.log(123, draftId, continueWithPenalty);
@@ -1248,7 +1288,6 @@ const continueInvoiceProcessing = async (req, res) => {
     }
   }
 };
-
 
 // ============================
 // const getExtractedData = async (req, res) => {
@@ -1450,13 +1489,13 @@ const continueInvoiceProcessing = async (req, res) => {
 //       return resSend(res, false, 400, "GST number does not exist in GST records", { gst_no: gstNo });
 //     }
 //     if (gstResult.length > 0) {
-//       /* 
-      // one gst can have multiple row with different date range
-      // check if ok then find extracted gst_date >start_date and <end_date of table row record
-      //   if satisfied then -->Go forward
-      //   else return with message GST Return is out of date range
-  
-      // */
+//       /*
+// one gst can have multiple row with different date range
+// check if ok then find extracted gst_date >start_date and <end_date of table row record
+//   if satisfied then -->Go forward
+//   else return with message GST Return is out of date range
+
+// */
 //       const gstPeriodQuery = `
 //       SELECT
 //           gstrec_id,
@@ -1555,25 +1594,51 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     let total_quantity = 0;
     let totalUnitPrice = 0;
     if (!purchasing_doc_no || !invoice_no) {
-      return resSend(res, true, 200, "Please send a valid payload!", null, null);
+      return resSend(
+        res,
+        true,
+        200,
+        "Please send a valid payload!",
+        null,
+        null,
+      );
     }
-    let gate_entry_v = await getGateEntryDetails(client, [purchasing_doc_no, invoice_no]);
+    let gate_entry_v = await getGateEntryDetails(client, [
+      purchasing_doc_no,
+      invoice_no,
+    ]);
 
     if (!gate_entry_v.length) {
-      return resSend(res, false, 200, "No record found under the invoice number!", { purchasing_doc_no, invoice_no }, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "No record found under the invoice number!",
+        { purchasing_doc_no, invoice_no },
+        null,
+      );
     }
     const grn_values = gate_entry_v.map((el) => el.grn_no);
 
     // CHECK IF VALUE NEED ONLY FROM GRN
     const grn_value = (await getGrnDetails(client, grn_values)) || [];
     if (!grn_value.length) {
-      return resSend(res, false, 200, "Kindly complete the GRN for further processing of the BTN.", grn_value, gate_entry_v);
+      return resSend(
+        res,
+        false,
+        200,
+        "Kindly complete the GRN for further processing of the BTN.",
+        grn_value,
+        gate_entry_v,
+      );
     }
 
     // FOR GET VALID GE IF SAME GE OF MULTIPLE INV NO
     let geDetails;
     for (const grn of grn_value) {
-      const ge = gate_entry_v.find((gateentry) => gateentry.grn_no == grn.grn_no);
+      const ge = gate_entry_v.find(
+        (gateentry) => gateentry.grn_no == grn.grn_no,
+      );
       if (ge) {
         geDetails = ge;
         break;
@@ -1588,7 +1653,9 @@ const getGrnIcgrnByInvoice = async (req, res) => {
 
     /// get total grn value///
 
-    const onlyGrnItems = grn_value.filter((el) => el.grn_reqired == null || el.grn_reqired == "");
+    const onlyGrnItems = grn_value.filter(
+      (el) => el.grn_reqired == null || el.grn_reqired == "",
+    );
     const icgrnItems = grn_value.filter((el) => el.grn_reqired == "X");
     const icgrnNosArr = icgrnItems.map((igNo) => igNo.grn_no);
     const grnNosArr = grn_value.map((igNo) => igNo.grn_no);
@@ -1597,7 +1664,13 @@ const getGrnIcgrnByInvoice = async (req, res) => {
       EBELN: purchasing_doc_no,
     });
     if (icgrnItems.length && !icgrn_no.length) {
-      return resSend(res, false, 200, "Kindly complete the ICGRN for further processing of the BTN.", { grn_value, icgrn_no });
+      return resSend(
+        res,
+        false,
+        200,
+        "Kindly complete the ICGRN for further processing of the BTN.",
+        { grn_value, icgrn_no },
+      );
     }
 
     if (icgrn_no.length !== icgrnItems.length) {
@@ -1607,7 +1680,10 @@ const getGrnIcgrnByInvoice = async (req, res) => {
       });
     }
 
-    const associatePoList = await getAssociatePoList(client, [purchasing_doc_no, invoice_no]);
+    const associatePoList = await getAssociatePoList(client, [
+      purchasing_doc_no,
+      invoice_no,
+    ]);
 
     if (icgrn_no.length) {
       const totals = calculateTotals(icgrn_no);
@@ -1617,7 +1693,8 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     let CAPEX_IND = false;
     if (onlyGrnItems.length) {
       const totals = calculateTotalGrnValue(onlyGrnItems);
-      CAPEX_IND = totals.totalPrice.toFixed(2) !== totals.totalUnitPrice.toFixed(2);
+      CAPEX_IND =
+        totals.totalPrice.toFixed(2) !== totals.totalUnitPrice.toFixed(2);
       totalUnitPrice = totals.totalUnitPrice.toFixed(2);
       total_price += totals.totalPrice || 0;
       total_quantity += totals.totalQuantity;
@@ -1628,7 +1705,8 @@ const getGrnIcgrnByInvoice = async (req, res) => {
     if (returnedGrns.length) {
       const calcReturnGrnDetails = calculateTotalGrnValue(returnedGrns);
       total_price = total_price - calcReturnGrnDetails.totalReturnPrice;
-      total_quantity = total_quantity - calcReturnGrnDetails.totalReturnQuantity;
+      total_quantity =
+        total_quantity - calcReturnGrnDetails.totalReturnQuantity;
     }
 
     gate_entry_v.total_price = parseFloat(total_price.toFixed(2));
@@ -1666,7 +1744,10 @@ const getGRNICGRNsValue = async (client, data) => {
   if (!purchasing_doc_no || !invoice_no) {
     return null;
   }
-  let gate_entry_v = await getGateEntryDetails(client, [purchasing_doc_no, invoice_no]);
+  let gate_entry_v = await getGateEntryDetails(client, [
+    purchasing_doc_no,
+    invoice_no,
+  ]);
 
   if (!gate_entry_v.length) {
     return null;
@@ -1682,7 +1763,9 @@ const getGRNICGRNsValue = async (client, data) => {
 
   /// get total grn value///
 
-  const onlyGrnItems = grn_value.filter((el) => el.grn_reqired == null || el.grn_reqired == "");
+  const onlyGrnItems = grn_value.filter(
+    (el) => el.grn_reqired == null || el.grn_reqired == "",
+  );
   const icgrnItems = grn_value.filter((el) => el.grn_reqired == "X");
 
   const icgrnNosArr = icgrnItems.map((igNo) => igNo.grn_no);
@@ -1697,7 +1780,10 @@ const getGRNICGRNsValue = async (client, data) => {
     return null;
   }
 
-  const associatePoList = await getAssociatePoList(client, [purchasing_doc_no, invoice_no]);
+  const associatePoList = await getAssociatePoList(client, [
+    purchasing_doc_no,
+    invoice_no,
+  ]);
 
   if (icgrn_no.length) {
     const totals = calculateTotals(icgrn_no);
@@ -1742,31 +1828,55 @@ async function handelMail(tokenData, payload, event) {
     let emailUserDetails;
     let dataObj = payload;
 
-    if (tokenData.user_type == USER_TYPE_VENDOR && payload.status == SUBMITTED) {
+    if (
+      tokenData.user_type == USER_TYPE_VENDOR &&
+      payload.status == SUBMITTED
+    ) {
       emailUserDetailsQuery = getUserDetailsQuery("vendor_and_do", "$1");
 
       emailUserDetails = await getQuery({
         query: emailUserDetailsQuery,
         values: [payload.purchasing_doc_no],
       });
-      await sendMail(BTN_UPLOAD_CHECKLIST, dataObj, { users: emailUserDetails }, BTN_UPLOAD_CHECKLIST);
+      await sendMail(
+        BTN_UPLOAD_CHECKLIST,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_UPLOAD_CHECKLIST,
+      );
     }
 
-    if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == FORWARD_TO_FINANCE) {
+    if (
+      tokenData.user_type != USER_TYPE_VENDOR &&
+      payload.status == FORWARD_TO_FINANCE
+    ) {
       emailUserDetailsQuery = getUserDetailsQuery("venode_by_po");
       emailUserDetails = await getQuery({
         query: emailUserDetailsQuery,
         values: [payload.purchasing_doc_no],
       });
-      await sendMail(BTN_FORWORD_FINANCE, dataObj, { users: emailUserDetails }, BTN_FORWORD_FINANCE);
+      await sendMail(
+        BTN_FORWORD_FINANCE,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_FORWORD_FINANCE,
+      );
     }
-    if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == STATUS_RECEIVED) {
+    if (
+      tokenData.user_type != USER_TYPE_VENDOR &&
+      payload.status == STATUS_RECEIVED
+    ) {
       emailUserDetailsQuery = getUserDetailsQuery("finance_staff", "$1");
       emailUserDetails = await getQuery({
         query: emailUserDetailsQuery,
         values: [payload.assign_to_fi],
       });
-      await sendMail(BTN_ASSIGN_TO_STAFF, dataObj, { users: emailUserDetails }, BTN_ASSIGN_TO_STAFF);
+      await sendMail(
+        BTN_ASSIGN_TO_STAFF,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_ASSIGN_TO_STAFF,
+      );
     }
 
     let buildQuery = "";
@@ -1779,7 +1889,12 @@ async function handelMail(tokenData, payload, event) {
         values: [payload.btn_num],
       });
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-      await sendMail(BTN_REJECT, dataObj, { users: emailUserDetails }, BTN_REJECT);
+      await sendMail(
+        BTN_REJECT,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_REJECT,
+      );
     }
     if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == ASSIGNED) {
       emailUserDetailsQuery = "SELECT * FROM (";
@@ -1793,9 +1908,17 @@ async function handelMail(tokenData, payload, event) {
         values: [payload.purchasing_doc_no],
       });
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-      await sendMail(BTN_RETURN_DO, dataObj, { users: emailUserDetails }, BTN_RETURN_DO);
+      await sendMail(
+        BTN_RETURN_DO,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_RETURN_DO,
+      );
     }
-    if (tokenData.user_type != USER_TYPE_VENDOR && payload.status == SUBMIT_BY_DO) {
+    if (
+      tokenData.user_type != USER_TYPE_VENDOR &&
+      payload.status == SUBMIT_BY_DO
+    ) {
       emailUserDetailsQuery = "SELECT * FROM (";
       buildQuery += emailUserDetailsQuery;
       buildQuery += getUserDetailsQuery("vendor_by_po", "$1");
@@ -1808,7 +1931,12 @@ async function handelMail(tokenData, payload, event) {
         values: [payload.purchasing_doc_no, parseInt(payload.assign_to)],
       });
       dataObj = { ...dataObj, vendor_name: emailUserDetails[0]?.u_name };
-      await sendMail(BTN_FORWORD_FINANCE, dataObj, { users: emailUserDetails }, BTN_FORWORD_FINANCE);
+      await sendMail(
+        BTN_FORWORD_FINANCE,
+        dataObj,
+        { users: emailUserDetails },
+        BTN_FORWORD_FINANCE,
+      );
     }
   } catch (error) {
     console.error("handelMail btn", error.toString(), error.stack);
@@ -1829,11 +1957,32 @@ const assignToFiStaffHandler = async (req, res) => {
     });
 
     if (btnCurrnetStatus.isInvalid) {
-      return resSend(res, false, 200, `BTN ${btn_num} ${btnCurrnetStatus.message}`, btn_num, null);
+      return resSend(
+        res,
+        false,
+        200,
+        `BTN ${btn_num} ${btnCurrnetStatus.message}`,
+        btn_num,
+        null,
+      );
     }
 
-    if (!btn_num || btn_num === "" || !purchasing_doc_no || purchasing_doc_no === "" || !assign_to_fi || assign_to_fi === "") {
-      return resSend(res, false, 200, "Assign To is the mandatory!", null, null);
+    if (
+      !btn_num ||
+      btn_num === "" ||
+      !purchasing_doc_no ||
+      purchasing_doc_no === "" ||
+      !assign_to_fi ||
+      assign_to_fi === ""
+    ) {
+      return resSend(
+        res,
+        false,
+        200,
+        "Assign To is the mandatory!",
+        null,
+        null,
+      );
     }
 
     const assign_q = `SELECT * FROM ${BTN_ASSIGN} WHERE btn_num = $1 and last_assign = $2`;
@@ -1843,7 +1992,14 @@ const assignToFiStaffHandler = async (req, res) => {
       values: [btn_num, true],
     });
     if (!checkTypeArr(assign_fi_staff_v)) {
-      return resSend(res, false, 200, "You're not authorized to perform the action!", null, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "You're not authorized to perform the action!",
+        null,
+        null,
+      );
     }
 
     const whereCon = {
@@ -1865,11 +2021,23 @@ const assignToFiStaffHandler = async (req, res) => {
     let btn_list = await poolQuery({
       client,
       query: btn_list_q,
-      values: [btn_num, purchasing_doc_no, SUBMITTED_BY_DO, SUBMITTED_BY_CAUTHORITY],
+      values: [
+        btn_num,
+        purchasing_doc_no,
+        SUBMITTED_BY_DO,
+        SUBMITTED_BY_CAUTHORITY,
+      ],
     });
 
     if (btn_list.length < 0) {
-      return resSend(res, false, 200, "Vendor have to submit BTN first.", btn_list, null);
+      return resSend(
+        res,
+        false,
+        200,
+        "Vendor have to submit BTN first.",
+        btn_list,
+        null,
+      );
     }
 
     let data = {
@@ -1894,7 +2062,10 @@ const assignToFiStaffHandler = async (req, res) => {
         status: STATUS_RECEIVED,
       });
       try {
-        const sendSap = await btnSaveToSap({ ...req.body, ...payload }, tokenData);
+        const sendSap = await btnSaveToSap(
+          { ...req.body, ...payload },
+          tokenData,
+        );
         if (sendSap == false) {
           await client.query("ROLLBACK");
 
@@ -1927,7 +2098,11 @@ const assignToFiStaffHandler = async (req, res) => {
  */
 
 function checkActualDates(c_dates, a_dates) {
-  const arr = new Set([parseInt(MID_DRAWING), parseInt(MID_QAP), parseInt(MID_ILMS)]);
+  const arr = new Set([
+    parseInt(MID_DRAWING),
+    parseInt(MID_QAP),
+    parseInt(MID_ILMS),
+  ]);
   const c_dates_filter = c_dates.filter((el) => arr.has(parseInt(el.MID)));
   const a_dates_filter = a_dates.filter((el) => arr.has(parseInt(el.MID)));
   const mtextObj = {
@@ -1937,7 +2112,9 @@ function checkActualDates(c_dates, a_dates) {
     [MID_ILMS]: "ILMS",
   };
   for (const item of c_dates_filter) {
-    const i = a_dates_filter.findIndex((el) => parseInt(el.MID) == parseInt(item.MID));
+    const i = a_dates_filter.findIndex(
+      (el) => parseInt(el.MID) == parseInt(item.MID),
+    );
     if (i < 0) {
       return {
         success: false,
@@ -2013,7 +2190,15 @@ async function btnCurrentDetailsCheck(client, data) {
     valueArr.push(data.btn_num);
   }
 
-  const checkStatus = new Set([STATUS_RECEIVED, REJECTED, BTN_STATUS_BANK, BTN_STATUS_HOLD_TEXT, BTN_STATUS_PROCESS, SUBMIT_BY_DO, BTN_STATUS_PAYMENT_DONE_TEXT]);
+  const checkStatus = new Set([
+    STATUS_RECEIVED,
+    REJECTED,
+    BTN_STATUS_BANK,
+    BTN_STATUS_HOLD_TEXT,
+    BTN_STATUS_PROCESS,
+    SUBMIT_BY_DO,
+    BTN_STATUS_PAYMENT_DONE_TEXT,
+  ]);
 
   if (data.status === STATUS_RECEIVED) {
     checkStatus.add(BTN_STATUS_DRETURN);
@@ -2153,7 +2338,7 @@ module.exports = {
   fetchBTNByNum,
   fetchBTNByNumForDO,
   getExtractedData,
-  continueInvoiceProcessing,
+  processInvoiceWithPenalty,
   getGrnIcgrnByInvoice,
   btnSaveToSap,
   timeInHHMMSS,
