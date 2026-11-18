@@ -13,7 +13,7 @@ const {
   getFinanceEmpList,
   checkInvoceFile,
   getExtractedData,
-  continueInvoiceProcessing,
+  processInvoiceWithPenalty,
 } = require("../controllers/btnControllers");
 
 const {
@@ -85,9 +85,9 @@ router.post(
   getExtractedData,
 );
 router.post(
-  "/continue-processing/:draftId",
-  verifyAccessToken,
-  continueInvoiceProcessing,
+  "/process-with-penalty",
+  // verifyAccessToken,
+  processInvoiceWithPenalty,
 );
 
 
