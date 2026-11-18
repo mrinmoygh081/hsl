@@ -408,17 +408,31 @@ const BillsMaterialHybrid = () => {
         });
 
         if (result.isConfirmed) {
-          if (response.draftId) {
-            try {
-              toast.info("Continuing invoice processing with penalty...");
-              const continueRes = await apiCallBack("POST", `po/btn/continue-processing/${response.draftId}`, { continueWithPenalty: true }, token);
-              if (continueRes && (continueRes.status === "VERIFIED" || continueRes.success)) {
-                applyVerifiedData(continueRes);
-                return;
-              }
-            } catch (err) {
-              console.error("Error continuing invoice processing:", err);
+          const tempInvId = response?.temp_inv_id || response?.draftId || response?.draft_id || response?.id || response?.temp_invoice_id;
+
+          try {
+            toast.info("Processing invoice with penalty...");
+            const penaltyRes = await apiCallBack(
+              "POST",
+              "po/btn/process-with-penalty",
+              {
+                temp_inv_id: tempInvId,
+                continueWithPenalty: true,
+              },
+              token
+            );
+
+            if (penaltyRes && (penaltyRes.status === "VERIFIED" || penaltyRes.success)) {
+              applyVerifiedData(penaltyRes);
+              setPenaltyAccepted(true);
+              setGstVerified(false);
+              return;
+            } else if (penaltyRes && penaltyRes.message) {
+              toast.warn(penaltyRes.message);
             }
+          } catch (err) {
+            console.error("Error processing invoice with penalty:", err);
+            toast.error("Failed to process invoice with penalty");
           }
 
           toast.info("Proceeding with penalty confirmed.");
@@ -430,7 +444,7 @@ const BillsMaterialHybrid = () => {
             invoice_filename: uploadedFileMetadata,
           }));
         } else {
-          handleResetInvoice();
+          window.location.reload();
         }
       } else if (response && response.message) {
         toast.warn(response.message);
