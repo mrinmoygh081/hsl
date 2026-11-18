@@ -1,6 +1,7 @@
 const { verifyGSTRecord } = require("./gstVerification.service");
 
 const { verifyGRNAmount } = require("./grnVerification.service");
+const { getGateEntryDetails } = require("../btn.services");
 
 // const { calculateInvoice } = require("./invoiceCalculation.service");
 
@@ -15,15 +16,37 @@ const processExtractedInvoice = async (
 
   // STEP 1: If GST is missing, request confirmation
 
-  if (!gstResult.found && !continueWithPenalty) {
+  // if (!gstResult.found && !continueWithPenalty) {
+  //   return {
+  //     success: false,
+  //     requiresConfirmation: true,
+  //     status: gstResult.reason,
+
+  //     message: gstResult.message,
+
+  //     penaltyPercentage: 2,
+  //   };
+  // }
+  // Gate entry verification
+  //   const gateEntryResult = await verifyGateEntry(
+  //   client,
+  //   invoiceData.po_no,
+  //   invoiceData.invoice_no,
+  // );
+  const gateEntryResult = await getGateEntryDetails(client, [
+    invoiceData.po_no,
+    invoiceData.invoice_no,
+  ]);
+
+  console.log(88, gateEntryResult);
+
+  if (!gateEntryResult) {
     return {
       success: false,
-      requiresConfirmation: true,
-      status: gstResult.reason,
-
-      message: gstResult.message,
-
-      penaltyPercentage: 2,
+      requiresConfirmation: false,
+      status: "GATE_ENTRY_MISMATCH",
+      message: gateEntryResult.message,
+      gateEntryDetails: gateEntryResult,
     };
   }
 
@@ -62,6 +85,8 @@ const processExtractedInvoice = async (
     message: "Invoice successfully verified",
 
     gstVerification: gstResult,
+
+    gateEntryVerification: gateEntryResult,
 
     grnVerification: grnResult,
 
