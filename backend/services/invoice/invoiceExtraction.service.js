@@ -58,7 +58,7 @@ const extractInvoiceData = async (file) => {
       invoiceData: {
         company_name: data.company_name,
         invoice_no: data.invoice_no,
-        invoice_date: data.invoice_date,
+        // invoice_date: data.invoice_date,
         po_no: data.po_no,
         gst_no: data.gst_no,
         sub_total: Number(data.subtotal),
