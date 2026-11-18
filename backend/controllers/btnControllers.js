@@ -56,6 +56,11 @@ const {
   materialBtnInitialPayload,
   updateMaterialBtn,
 } = require("../services/btnMaterial.services");
+// testing...
+const { extractInvoiceData } = require("../services/invoice/invoiceExtraction.service");
+const { verifyGSTRecord } = require("../services/invoice/gstVerification.service");
+const { processExtractedInvoice } = require("../services/invoice/invoiceProcessing.service");
+const { renameInvoiceFile } = require("../services/invoice/invoiceFile.service");
 
 const fetchBTNByNum = async (req, res) => {
   const { id, btn_num } = req.query;
@@ -983,13 +988,12 @@ async function btnSubmitByDo(btnPayload, tokenData) {
  * @returns
  */
 
+// ===============================
 const getExtractedData = async (req, res) => {
   let client;
-
+  
   try {
-    // --------------------------------------------------
-    // 1. Validate uploaded file
-    // --------------------------------------------------
+    // STEP 1: Validate uploaded file
 
     if (!req.file) {
       return res.status(400).json({
@@ -998,285 +1002,575 @@ const getExtractedData = async (req, res) => {
       });
     }
 
+
+      client = await poolClient();
+
+    // STEP 2: Extract invoice data
+      const {
+      rawData,
+      invoiceData,
+    } = await extractInvoiceData(req.file);
+
+    // STEP 3: Validate extracted fields
+
+    const {
+      invoice_no,
+      // invoice_date,
+      po_no,
+      gst_no,
+      sub_total,
+    } = invoiceData;
+   
+    if (!po_no || !invoice_no || !gst_no ) {
+      return res.status(422).json({
+        success: false,
+        message: "Required invoice details are missing",
+        extractedData: rawData,
+      });
+    }
+    
+    if (
+      !Number.isFinite(sub_total) ||
+      sub_total < 0
+    ) {
+      return res.status(422).json({
+        success: false,
+        message: "Invalid invoice subtotal",
+      });
+    }
+
+    // STEP 4: Rename invoice file
+
+    const fileInfo = await renameInvoiceFile(
+      req.file.path,
+      req.file.originalname,
+      invoice_no
+    );
+
+      // STEP 5: Save extracted invoice data
     const { invoice_date } = req.body;
+    
 
-    console.log("File:", req.file.originalname);
-    console.log("Invoice Date:", invoice_date);
+   
+    const insertQuery = `
+      INSERT INTO temp_invoices (
+        company_name,
+        invoice_no,
+        invoice_date,
+        po_no,
+        gst_no,
+        sub_total,
+        file_name,
+        file_path
+      )
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
 
-    console.log("File received:", req.file.originalname);
-    console.log("Mimetype:", req.file.mimetype);
-    console.log("Size:", req.file.size);
-    console.log("Path:", req.file.path);
+      ON CONFLICT (invoice_no)
+      DO UPDATE SET
+        company_name = EXCLUDED.company_name,
+        invoice_date = EXCLUDED.invoice_date,
+        po_no = EXCLUDED.po_no,
+        gst_no = EXCLUDED.gst_no,
+        sub_total = EXCLUDED.sub_total,
+        file_name = EXCLUDED.file_name,
+        file_path = EXCLUDED.file_path
 
-    client = await poolClient();
-    // #################### Save uploaded file in database starts ####################
-
-    /*
-    Save with existing function
-    */
-    // #################### Save uploaded file in database Ends ######################
-
-    // --------------------------------------------------
-    // 2. Read uploaded file
-    // --------------------------------------------------
-
-    const fileBuffer = await fs.readFile(req.file.path);
-
-    // --------------------------------------------------
-    // 3. Call extraction API
-    // --------------------------------------------------
-    const formData = new FormData();
-
-    // Converting Buffer -> Blob
-    const fileBlob = new Blob([fileBuffer], {
-      type: req.file.mimetype || "application/pdf",
-    });
-
-    formData.append("File", fileBlob, req.file.originalname);
-
-    const response = await fetch("http://localhost:8000/extract", {
-      method: "POST",
-      body: formData,
-    });
-
-    const result = await response.json();
-
-    if (!result) {
-      console.error("Extraction API error:", error);
-      return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, "");
-    }
-
-    // --------------------------------------------------
-    // 4. Get po & invoice number
-    // --------------------------------------------------
-    if (result.success === false) {
-      console.log(`Error:${result.error}`);
-      return resSend(res, result.success, result.code, result.message, result.data);
-    }
-
-    const poNumber = result.data.po_no;
-    const invoiceNo = result.data.invoice_no;
-
-    if (!poNumber) {
-      return res.status(400).json({
-        success: false,
-        message: "PO Number not found in extracted data",
-      });
-    }
-    if (!invoiceNo) {
-      return res.status(400).json({
-        success: false,
-        message: "Invoice number not found in extracted data",
-      });
-    }
-
-    // --------------------------------------------------
-    // 5. Rename uploaded file
-    // --------------------------------------------------
-
-    const oldPath = req.file.path;
-    const extension = path.extname(req.file.originalname).toLowerCase();
-
-    const normalizedInvoiceNo = String(invoiceNo).replace(/[^a-zA-Z0-9_-]/g, "_");
-
-    // Check if any file already exists with the same invoice_no prefix
-    const files = await fs.readdir(path.dirname(oldPath));
-
-    const existingFiles = files.filter((file) => {
-      return file.startsWith(`${normalizedInvoiceNo}-`);
-    });
-
-    if (existingFiles.length > 0) {
-      await Promise.all(existingFiles.map((file) => fs.unlink(path.join(path.dirname(oldPath), file))));
-    }
-
-    const uniqueId = `${Date.now()}-${Math.floor(performance.now() * 1000)}`;
-    const newFileName = `${normalizedInvoiceNo}-${uniqueId}${extension}`;
-
-    const newPath = path.join(path.dirname(oldPath), newFileName);
-
-    await fs.rename(oldPath, newPath);
-
-    console.log("New FileName:", newFileName);
-    console.log("Old file:", oldPath);
-    console.log("New file:", newPath);
-
-    // ###############  Save extracted Data in temp file Starts ##################
-    const query = `
-          INSERT INTO temp_invoices (
-            company_name,
-            invoice_no,
-            invoice_date,
-            po_no,
-            gst_no,
-            sub_total,
-            file_name,
-            file_path
-          )
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-
-          ON CONFLICT (invoice_no)
-          DO UPDATE SET
-            company_name = EXCLUDED.company_name,
-            invoice_date = EXCLUDED.invoice_date,
-            po_no = EXCLUDED.po_no,
-            gst_no = EXCLUDED.gst_no,
-            sub_total = EXCLUDED.sub_total,
-            file_name = EXCLUDED.file_name,
-            file_path = EXCLUDED.file_path
-
-          RETURNING *;
-        `;
-
-    const values = [
-      result.data.company_name || null,
-      result.data.invoice_no || null,
-      result.data.invoice_date || "2026-08-20",
-      result.data.po_no || null,
-      result.data.gst_no || null,
-      result.data.subtotal || null,
-      newFileName,
-      newPath,
+      RETURNING *;
+    `;
+    
+    const insertValues = [
+      invoiceData.company_name,
+      invoice_no,
+      invoice_date,
+      po_no,
+      gst_no,
+      sub_total,
+      fileInfo.fileName,
+      fileInfo.filePath,
     ];
 
-    await client.query(query, values);
+    await client.query(insertQuery, insertValues);
 
-    // ###############  Save extracted Data in temp file Ends ##################
+    // STEP 6: Check GST record
+    const gstResult = await verifyGSTRecord(
+      client,
+      gst_no,
+      invoice_date
+    );
 
-    // #################### validation checking with database table starts ####################
+    // STEP 7: GST missing - ask for confirmation
+    if (!gstResult.found) {
+      return res.status(200).json({
+        success: false,
+        requiresConfirmation: true,
+        status: gstResult.reason,
 
-    const gstNo = result.data.gst_no;
-    const invoiceDate = invoice_date;
+        message: gstResult.message,
 
-    if (!gstNo) {
+        invoiceNo: invoice_no,
+
+        penaltyPercentage: 30,
+
+        invoiceDetails: invoiceData,
+      });
+    }
+
+    // STEP 8: GST found - proceed with GRN verification
+     const result = await processExtractedInvoice(
+      client,
+       invoiceData,
+       invoice_date,
+      gstResult,
+      false
+    );
+
+     return res.status(200).json({
+      ...result,
+      invoiceNo: invoice_no,
+      gstRecord: gstResult.record,
+    });
+
+
+  } catch (error) {
+    console.error(
+      "getExtractedData error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+    });
+
+  }finally {
+    if (client) {
+      client.release();
+    }
+  }
+
+}
+
+// confirmation api function
+
+const continueInvoiceProcessing = async (req, res) => {
+  let client;
+  console.log(123);
+  try {
+    const { draftId } = req.params;
+
+    const { continueWithPenalty } = req.body;
+
+    if (typeof continueWithPenalty !== "boolean") {
       return res.status(400).json({
         success: false,
-        message: "GST number not found in extracted data",
+        message: "Please provide a valid confirmation",
       });
     }
 
-    if (!invoiceDate) {
-      return res.status(400).json({
+    client = await poolClient();
+
+    await client.query("BEGIN");
+
+    const draftResult = await client.query(
+      `
+      SELECT *
+      FROM temp_invoices
+      WHERE draft_id = $1
+      FOR UPDATE
+      `,
+      [draftId]
+    );
+
+    if (draftResult.rowCount === 0) {
+      await client.query("ROLLBACK");
+
+      return res.status(404).json({
         success: false,
-        message: "Invoice date not found in extracted data",
+        message: "Invoice draft not found",
       });
     }
 
-    //check extracted gstNo is in gst_records table
+    const draft = draftResult.rows[0];
 
-    const gstQuery = `
-        SELECT
-          gstrec_id,
-          gst_no,
-          vendor_code,
-          vendor_name,
-          gstr_start_date,
-          gstr_end_date
-        FROM gst_records
-        WHERE gst_no = $1;
-      `;
+    if (draft.processing_status !== "GST_CONFIRMATION_REQUIRED") {
+      await client.query("ROLLBACK");
 
-    const gstResult = await getQuery({ query: gstQuery, values: [gstNo] });
-
-    if (gstResult.length === 0) {
-      return resSend(res, false, 400, "GST number does not exist in GST records", { gst_no: gstNo });
-    }
-    if (gstResult.length > 0) {
-      /* 
-      one gst can have multiple row with different date range
-      check if ok then find extracted gst_date >start_date and <end_date of table row record
-        if satisfied then -->Go forward
-        else return with message GST Return is out of date range
-  
-      */
-      const gstPeriodQuery = `
-      SELECT
-          gstrec_id,
-          gst_no,
-          vendor_code,
-          vendor_name,
-          gstr_start_date,
-          gstr_end_date
-        FROM gst_records
-        WHERE gst_no = $1
-          AND $2::date >= gstr_start_date
-          AND $2::date <= gstr_end_date
-        ORDER BY gstr_end_date DESC
-        LIMIT 1
-      `;
-
-      const gstPeriodResult = await getQuery({
-        query: gstPeriodQuery,
-        values: [gstNo, invoiceDate],
+      return res.status(409).json({
+        success: false,
+        message: "Invoice is not awaiting GST confirmation",
       });
+    }
 
-      if (gstPeriodResult.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message: "GST return is out of date range for invoice date",
-          gst_no: gstNo,
-          invoice_date: invoiceDate,
-          gst_records: gstPeriodResult,
-        });
-      }
-
-      const gstRecord = gstPeriodResult[0];
-
-      if (!gstRecord) {
-        return res.status(400).json({
-          success: false,
-          message: "GST record not found for invoice date",
-          gst_no: gstNo,
-          invoice_date: invoiceDate,
-        });
-      }
-
-      const grnData = await getGrnIcgrnByInvoiceService(
-        client,
-        // poNumber,
-        // invoiceNo,
-        "4700026721",
-        "302",
+    if (!continueWithPenalty) {
+      await client.query(
+        `
+        UPDATE temp_invoices
+        SET processing_status = 'CANCELLED'
+        WHERE draft_id = $1
+        `,
+        [draftId]
       );
 
-      if (grnData.success === false) return resSend(res, false, 400, grnData.message);
+      await client.query("COMMIT");
 
-      const fechedGrnData = grnData?.data?.icgrn_nos;
-
-      let totalAmount = 0;
-
-      fechedGrnData.forEach((e) => {
-        totalAmount += Number(e.accepted_quantity) * Number(e.price);
+      return res.status(200).json({
+        success: true,
+        status: "CANCELLED",
+        message: "Invoice processing cancelled",
       });
-
-      if (totalAmount != 20000) {
-        return resSend(res, true, 200, "Total claimed amount is not matched with ICGRN report");
-      }
-      return resSend(res, true, 200, grnData.message, {
-        extractedData: result,
-        grnData,
-      });
-
-      /*
-       if gst records validation satisfied then check for amount matching
-      if amount does not match then return with error else go for btn submission
-      */
     }
 
-    // #################### validation checking with database table Ends ######################
-  } catch (error) {
-    console.error("Error making the request:", error.message, error.stack);
+    const invoiceData = {
+      company_name: draft.company_name,
+      invoice_no: draft.invoice_no,
+      invoice_date: draft.invoice_date,
+      po_no: draft.po_no,
+      gst_no: draft.gst_no,
+      sub_total: Number(draft.sub_total),
+    };
 
-    return res.status(400).json({
+    // Recheck GST and process GRN.
+    // A penalty applies only if GST is still unavailable.
+
+    const result = await processExtractedInvoice(
+      client,
+      invoiceData,
+      true
+    );
+
+    await client.query(
+      `
+      UPDATE temp_invoices
+      SET processing_status = $2,
+          penalty_confirmed = $3
+      WHERE draft_id = $1
+      `,
+      [
+        draftId,
+        result.status,
+        result.success && result.amountDetails.penaltyPercentage === 30,
+      ]
+    );
+
+    await client.query("COMMIT");
+
+    return res.status(200).json(result);
+
+  } catch (error) {
+    if (client) {
+      await client.query("ROLLBACK").catch(() => {});
+    }
+
+    console.error("continueInvoiceProcessing:", error);
+
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
+
   } finally {
     if (client) {
       client.release();
     }
   }
 };
+
+
+// ============================
+// const getExtractedData = async (req, res) => {
+//   let client;
+
+//   try {
+//     // --------------------------------------------------
+//     // 1. Validate uploaded file
+//     // --------------------------------------------------
+
+//     if (!req.file) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "No PDF file uploaded",
+//       });
+//     }
+
+//     const { invoice_date } = req.body;
+
+//     console.log("File:", req.file.originalname);
+//     console.log("Invoice Date:", invoice_date);
+
+//     console.log("File received:", req.file.originalname);
+//     console.log("Mimetype:", req.file.mimetype);
+//     console.log("Size:", req.file.size);
+//     console.log("Path:", req.file.path);
+
+//     client = await poolClient();
+//     // #################### Save uploaded file in database starts ####################
+
+//     /*
+//     Save with existing function
+//     */
+//     // #################### Save uploaded file in database Ends ######################
+
+//     // --------------------------------------------------
+//     // 2. Read uploaded file
+//     // --------------------------------------------------
+
+//     const fileBuffer = await fs.readFile(req.file.path);
+
+//     // --------------------------------------------------
+//     // 3. Call extraction API
+//     // --------------------------------------------------
+//     const formData = new FormData();
+
+//     // Converting Buffer -> Blob
+//     const fileBlob = new Blob([fileBuffer], {
+//       type: req.file.mimetype || "application/pdf",
+//     });
+
+//     formData.append("File", fileBlob, req.file.originalname);
+
+//     const response = await fetch("http://localhost:8000/extract", {
+//       method: "POST",
+//       body: formData,
+//     });
+
+//     const result = await response.json();
+
+//     if (!result) {
+//       console.error("Extraction API error:", error);
+//       return resSend(res, false, 500, Message.SOMTHING_WENT_WRONG, "");
+//     }
+
+//     // --------------------------------------------------
+//     // 4. Get po & invoice number
+//     // --------------------------------------------------
+//     if (result.success === false) {
+//       console.log(`Error:${result.error}`);
+//       return resSend(res, result.success, result.code, result.message, result.data);
+//     }
+
+//     const poNumber = result.data.po_no;
+//     const invoiceNo = result.data.invoice_no;
+
+//     if (!poNumber) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "PO Number not found in extracted data",
+//       });
+//     }
+//     if (!invoiceNo) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invoice number not found in extracted data",
+//       });
+//     }
+
+//     // --------------------------------------------------
+//     // 5. Rename uploaded file
+//     // --------------------------------------------------
+
+//     const oldPath = req.file.path;
+//     const extension = path.extname(req.file.originalname).toLowerCase();
+
+//     const normalizedInvoiceNo = String(invoiceNo).replace(/[^a-zA-Z0-9_-]/g, "_");
+
+//     // Check if any file already exists with the same invoice_no prefix
+//     const files = await fs.readdir(path.dirname(oldPath));
+
+//     const existingFiles = files.filter((file) => {
+//       return file.startsWith(`${normalizedInvoiceNo}-`);
+//     });
+
+//     if (existingFiles.length > 0) {
+//       await Promise.all(existingFiles.map((file) => fs.unlink(path.join(path.dirname(oldPath), file))));
+//     }
+
+//     const uniqueId = `${Date.now()}-${Math.floor(performance.now() * 1000)}`;
+//     const newFileName = `${normalizedInvoiceNo}-${uniqueId}${extension}`;
+
+//     const newPath = path.join(path.dirname(oldPath), newFileName);
+
+//     await fs.rename(oldPath, newPath);
+
+//     console.log("New FileName:", newFileName);
+//     console.log("Old file:", oldPath);
+//     console.log("New file:", newPath);
+
+//     // ###############  Save extracted Data in temp file Starts ##################
+//     const query = `
+//           INSERT INTO temp_invoices (
+//             company_name,
+//             invoice_no,
+//             invoice_date,
+//             po_no,
+//             gst_no,
+//             sub_total,
+//             file_name,
+//             file_path
+//           )
+//           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+
+//           ON CONFLICT (invoice_no)
+//           DO UPDATE SET
+//             company_name = EXCLUDED.company_name,
+//             invoice_date = EXCLUDED.invoice_date,
+//             po_no = EXCLUDED.po_no,
+//             gst_no = EXCLUDED.gst_no,
+//             sub_total = EXCLUDED.sub_total,
+//             file_name = EXCLUDED.file_name,
+//             file_path = EXCLUDED.file_path
+
+//           RETURNING *;
+//         `;
+
+//     const values = [
+//       result.data.company_name || null,
+//       result.data.invoice_no || null,
+//       result.data.invoice_date || "2026-08-20",
+//       result.data.po_no || null,
+//       result.data.gst_no || null,
+//       result.data.subtotal || null,
+//       newFileName,
+//       newPath,
+//     ];
+
+//     await client.query(query, values);
+
+//     // ###############  Save extracted Data in temp file Ends ##################
+
+//     // #################### validation checking with database table starts ####################
+
+//     const gstNo = result.data.gst_no;
+//     const invoiceDate = invoice_date;
+
+//     if (!gstNo) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "GST number not found in extracted data",
+//       });
+//     }
+
+//     if (!invoiceDate) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Invoice date not found in extracted data",
+//       });
+//     }
+
+//     //check extracted gstNo is in gst_records table
+
+//     const gstQuery = `
+//         SELECT
+//           gstrec_id,
+//           gst_no,
+//           vendor_code,
+//           vendor_name,
+//           gstr_start_date,
+//           gstr_end_date
+//         FROM gst_records
+//         WHERE gst_no = $1;
+//       `;
+
+//     const gstResult = await getQuery({ query: gstQuery, values: [gstNo] });
+
+//     if (gstResult.length === 0) {
+//       return resSend(res, false, 400, "GST number does not exist in GST records", { gst_no: gstNo });
+//     }
+//     if (gstResult.length > 0) {
+//       /* 
+      // one gst can have multiple row with different date range
+      // check if ok then find extracted gst_date >start_date and <end_date of table row record
+      //   if satisfied then -->Go forward
+      //   else return with message GST Return is out of date range
+  
+      // */
+//       const gstPeriodQuery = `
+//       SELECT
+//           gstrec_id,
+//           gst_no,
+//           vendor_code,
+//           vendor_name,
+//           gstr_start_date,
+//           gstr_end_date
+//         FROM gst_records
+//         WHERE gst_no = $1
+//           AND $2::date >= gstr_start_date
+//           AND $2::date <= gstr_end_date
+//         ORDER BY gstr_end_date DESC
+//         LIMIT 1
+//       `;
+
+//       const gstPeriodResult = await getQuery({
+//         query: gstPeriodQuery,
+//         values: [gstNo, invoiceDate],
+//       });
+
+//       if (gstPeriodResult.length === 0) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "GST return is out of date range for invoice date",
+//           gst_no: gstNo,
+//           invoice_date: invoiceDate,
+//           gst_records: gstPeriodResult,
+//         });
+//       }
+
+//       const gstRecord = gstPeriodResult[0];
+
+//       if (!gstRecord) {
+//         return res.status(400).json({
+//           success: false,
+//           message: "GST record not found for invoice date",
+//           gst_no: gstNo,
+//           invoice_date: invoiceDate,
+//         });
+//       }
+
+//       const grnData = await getGrnIcgrnByInvoiceService(
+//         client,
+//         // poNumber,
+//         // invoiceNo,
+//         "4700026721",
+//         "302",
+//       );
+
+//       if (grnData.success === false) return resSend(res, false, 400, grnData.message);
+
+//       const fechedGrnData = grnData?.data?.icgrn_nos;
+
+//       let totalAmount = 0;
+
+//       fechedGrnData.forEach((e) => {
+//         totalAmount += Number(e.accepted_quantity) * Number(e.price);
+//       });
+
+//       if (totalAmount != 20000) {
+//         return resSend(res, true, 200, "Total claimed amount is not matched with ICGRN report");
+//       }
+//       return resSend(res, true, 200, grnData.message, {
+//         extractedData: result,
+//         grnData,
+//       });
+
+//       /*
+//        if gst records validation satisfied then check for amount matching
+//       if amount does not match then return with error else go for btn submission
+//       */
+//     }
+
+//     // #################### validation checking with database table Ends ######################
+//   } catch (error) {
+//     console.error("Error making the request:", error.message, error.stack);
+
+//     return res.status(400).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   } finally {
+//     if (client) {
+//       client.release();
+//     }
+//   }
+// };
 const getGrnIcgrnByInvoice = async (req, res) => {
   console.log(5, req);
   let client;
@@ -1885,6 +2179,7 @@ module.exports = {
   fetchBTNByNum,
   fetchBTNByNumForDO,
   getExtractedData,
+  continueInvoiceProcessing,
   getGrnIcgrnByInvoice,
   btnSaveToSap,
   timeInHHMMSS,

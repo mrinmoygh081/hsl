@@ -13,6 +13,7 @@ const {
   getFinanceEmpList,
   checkInvoceFile,
   getExtractedData,
+  continueInvoiceProcessing,
 } = require("../controllers/btnControllers");
 
 const {
@@ -82,6 +83,11 @@ router.post(
   verifyAccessToken,
   uploadSinglePdf.single("file"),
   getExtractedData,
+);
+router.post(
+  "/continue-processing/:draftId",
+  verifyAccessToken,
+  continueInvoiceProcessing,
 );
 
 
