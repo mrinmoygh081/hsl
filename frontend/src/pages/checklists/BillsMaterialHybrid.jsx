@@ -126,6 +126,11 @@ const BillsMaterialHybrid = () => {
   const [isExtracting, setIsExtracting] = useState(false);
   const [penaltyAccepted, setPenaltyAccepted] = useState(false);
   const [gstVerified, setGstVerified] = useState(false);
+  const [penaltyDetails, setPenaltyDetails] = useState({
+    penaltyPercentage: 0,
+    penaltyAmount: 0,
+    payableAmount: 0,
+  });
 
   // Same file dobara CHECK karne par re-upload na ho
   const uploadedRef = useRef(null);
@@ -204,6 +209,11 @@ const BillsMaterialHybrid = () => {
     setAssociated([]);
     setPenaltyAccepted(false);
     setGstVerified(false);
+    setPenaltyDetails({
+      penaltyPercentage: 0,
+      penaltyAmount: 0,
+      payableAmount: 0,
+    });
   };
 
   const handleResetInvoice = () => {
@@ -319,6 +329,21 @@ const BillsMaterialHybrid = () => {
         const isGstFound = res.gstVerification ? Boolean(res.gstVerification.found) : true;
         const isPenalty = res.gstVerification ? !res.gstVerification.found : false;
 
+        const pd = res.penalty_details || res.amountDetails || response?.penalty_details || response?.amountDetails;
+        if (isGstFound) {
+          setPenaltyDetails({
+            penaltyPercentage: 0,
+            penaltyAmount: 0,
+            payableAmount: 0,
+          });
+        } else if (pd) {
+          setPenaltyDetails({
+            penaltyPercentage: pd.penaltyPercentage ?? pd.penalty_percentage ?? 0,
+            penaltyAmount: pd.penaltyAmount ?? pd.penalty_amount ?? 0,
+            payableAmount: pd.payableAmount ?? pd.payable_amount ?? 0,
+          });
+        }
+
         setForm((prev) => ({
           ...prev,
           invoice_no: invNo,
@@ -375,6 +400,11 @@ const BillsMaterialHybrid = () => {
             setAssociated(options);
             setPenaltyAccepted(false);
             setGstVerified(true);
+            setPenaltyDetails({
+              penaltyPercentage: 0,
+              penaltyAmount: 0,
+              payableAmount: 0,
+            });
             toast.success(response.message || "Invoice details extracted successfully!");
           } else {
             toast.warn(grnData?.message || "Invalid GRN data returned");
@@ -383,6 +413,14 @@ const BillsMaterialHybrid = () => {
           applyVerifiedData(response);
         }
       } else if (response && (response.requiresConfirmation || response.status === "GST_NOT_FOUND" || response.penaltyPercentage)) {
+        const pd = response.penalty_details || response.amountDetails;
+        if (pd) {
+          setPenaltyDetails({
+            penaltyPercentage: pd.penaltyPercentage ?? pd.penalty_percentage ?? 0,
+            penaltyAmount: pd.penaltyAmount ?? pd.penalty_amount ?? 0,
+            payableAmount: pd.payableAmount ?? pd.payable_amount ?? 0,
+          });
+        }
         const msg = response.message || "GST number does not exist in GST records";
         const invoiceNum = response.invoiceNo || response.invoiceDetails?.invoice_no || "";
 
@@ -1044,6 +1082,24 @@ const BillsMaterialHybrid = () => {
                                             </span>
                                           </div>
                                         )}
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td>Penalty Percentage</td>
+                                      <td className="btn_value">
+                                        <b>{num(penaltyDetails?.penaltyPercentage) > 0 ? `${penaltyDetails.penaltyPercentage}%` : "0"}</b>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td>Penalty Amount</td>
+                                      <td className="btn_value">
+                                        <b>{penaltyDetails?.penaltyAmount ? penaltyDetails.penaltyAmount : "0"}</b>
+                                      </td>
+                                    </tr>
+                                    <tr>
+                                      <td>Payable Amount</td>
+                                      <td className="btn_value">
+                                        <b>{penaltyDetails?.payableAmount ? penaltyDetails.payableAmount : "0"}</b>
                                       </td>
                                     </tr>
                                     <tr>
