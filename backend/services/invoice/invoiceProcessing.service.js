@@ -5,6 +5,7 @@ const { getGateEntryDetails } = require("../btn.services");
 
 const { calculateInvoice } = require("./invoiceCalculation.service");
 
+
 const processExtractedInvoice = async (
   client,
   invoiceData,
@@ -12,91 +13,90 @@ const processExtractedInvoice = async (
   gstResult,
   continueWithPenalty = false,
 ) => {
-  console.log(10027, invoiceData.gst_no, invoiceDate, gstResult);
+  try {
+    console.log("GST Verification:", gstResult);
+    console.log("Continue With Penalty:", continueWithPenalty);
 
-  // STEP 1: If GST is missing, request confirmation
+    // STEP 1: GST verification
+    if (!gstResult?.found && !continueWithPenalty) {
+      return {
+        success: false,
+        requiresConfirmation: true,
+        status: gstResult?.reason || "GST_NOT_FOUND",
+        message: gstResult?.message || "GST record not found",
 
-  console.log(102, gstResult.found, continueWithPenalty);
-  if (!gstResult.found && !continueWithPenalty) {
+        penaltyPercentage: 10,
+      };
+    }
+
+    // STEP 2: Gate Entry verification
+    const gateEntryResult = await getGateEntryDetails(client, [
+      invoiceData.po_no,
+      invoiceData.invoice_no,
+    ]);
+
+    console.log("Gate Entry Result:", gateEntryResult);
+
+    if (!gateEntryResult || gateEntryResult.success === false) {
+      return {
+        success: false,
+        requiresConfirmation: false,
+        status: "GATE_ENTRY_MISMATCH",
+        message: gateEntryResult?.message || "Gate entry details not found",
+        gateEntryDetails: gateEntryResult,
+      };
+    }
+
+    // STEP 3: GRN verification
+    const grnResult = await verifyGRNAmount(
+      client,
+      invoiceData.po_no,
+      invoiceData.invoice_no,
+      invoiceData.sub_total,
+    );
+
+    console.log("GRN Result:", grnResult);
+
+    if (!grnResult?.matched) {
+      return {
+        success: false,
+        requiresConfirmation: false,
+        status: "GRN_MISMATCH",
+        message: grnResult?.message || "GRN amount mismatch",
+        grnDetails: grnResult,
+      };
+    }
+
+    // STEP 4: Calculate invoice amount
+    const penaltyApplicable = !gstResult?.found && continueWithPenalty === true;
+
+    const amountDetails = calculateInvoice(
+      invoiceData.sub_total,
+      penaltyApplicable,
+    );
+
+    // STEP 5: Final response
     return {
-      success: false,
-      requiresConfirmation: true,
-      status: gstResult.reason,
-
-      message: gstResult.message,
-
-      penaltyPercentage: 2,
-    };
-  }
-  // Gate entry verification
-  //   const gateEntryResult = await verifyGateEntry(
-  //   client,
-  //   invoiceData.po_no,
-  //   invoiceData.invoice_no,
-  // );
-  const gateEntryResult = await getGateEntryDetails(client, [
-    invoiceData.po_no,
-    invoiceData.invoice_no,
-  ]);
-
-  console.log(88, gateEntryResult);
-
-  if (!gateEntryResult) {
-    return {
-      success: false,
+      success: true,
       requiresConfirmation: false,
-      status: "GATE_ENTRY_MISMATCH",
-      message: gateEntryResult.message,
-      gateEntryDetails: gateEntryResult,
+      status: "VERIFIED",
+      message: "Invoice successfully verified",
+
+      gstVerification: gstResult,
+
+      gateEntryVerification: gateEntryResult,
+
+      grnVerification: grnResult,
+
+      invoiceDetails: invoiceData,
+
+      amountDetails,
     };
+  } catch (error) {
+    console.error("processExtractedInvoice error:", error);
+    throw error;
   }
-
-  // STEP 2: GRN verification
-
-  const grnResult = await verifyGRNAmount(
-    client,
-    invoiceData.po_no,
-    invoiceData.invoice_no,
-    invoiceData.sub_total,
-  );
-
-  if (!grnResult.matched) {
-    return {
-      success: false,
-      requiresConfirmation: false,
-      status: "GRN_MISMATCH",
-      message: grnResult.message,
-      grnDetails: grnResult,
-    };
-  }
-
-  // STEP 3: Calculate penalty
-
-  const amountDetails = calculateInvoice(
-    invoiceData.sub_total,
-    !gstResult.found && continueWithPenalty,
-  );
-
-  // STEP 4: Final result
-
-  return {
-    success: true,
-    requiresConfirmation: false,
-    status: "VERIFIED",
-    message: "Invoice successfully verified",
-
-    gstVerification: gstResult,
-
-    gateEntryVerification: gateEntryResult,
-
-    grnVerification: grnResult,
-
-    invoiceDetails: invoiceData,
-
-    amountDetails,
-  };
 };
-
 module.exports = {
   processExtractedInvoice,
 };
