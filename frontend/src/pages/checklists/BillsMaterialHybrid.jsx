@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaCaretLeft, FaCheckCircle } from "react-icons/fa";
+import { FaCaretLeft, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
 import SideBar from "../../components/SideBar";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -125,6 +125,7 @@ const BillsMaterialHybrid = () => {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [isExtracting, setIsExtracting] = useState(false);
   const [penaltyAccepted, setPenaltyAccepted] = useState(false);
+  const [gstVerified, setGstVerified] = useState(false);
 
   // Same file dobara CHECK karne par re-upload na ho
   const uploadedRef = useRef(null);
@@ -190,6 +191,8 @@ const BillsMaterialHybrid = () => {
       ...prev,
       invoice_no: "",
       invoice_filename: "",
+      company_name: "",
+      gst_no: "",
       gate_entry_no: "",
       gate_entry_date: "",
       grn_nos: "",
@@ -200,6 +203,7 @@ const BillsMaterialHybrid = () => {
     }));
     setAssociated([]);
     setPenaltyAccepted(false);
+    setGstVerified(false);
   };
 
   const handleResetInvoice = () => {
@@ -283,37 +287,100 @@ const BillsMaterialHybrid = () => {
       toast.info("Extracting invoice data...");
       const response = await apiCallBack("POST", "po/btn/extractInvoice", formData, token);
 
-      if (response && response.status && response.data) {
-        const { extractedData, grnData } = response.data;
-        const invoice_no = extractedData?.data?.invoice_no || "";
+      const applyVerifiedData = (res) => {
+        const invNo = res.invoiceNo || res.invoiceDetails?.invoice_no || res.data?.extractedData?.data?.invoice_no || "";
 
-        if (!invoice_no) {
+        if (!invNo) {
           toast.warn("Invoice number could not be read from the file. Please upload a clearer PDF.");
-          return;
+          return false;
         }
 
-        if (grnData && grnData.status && grnData.data) {
-          const { gate_entry_no, grn_nos, icgrn_nos, gate_entry_date, total_price, invoice_date, CAPEX_IND, associatePoList } = grnData.data;
+        const geList = checkTypeArr(res.gateEntryVerification) ? res.gateEntryVerification : [];
+        const primaryGe = geList[0] || {};
+        const gate_entry_no = geList.map((g) => g.gate_entry_no).filter(Boolean).join(", ") || primaryGe.gate_entry_no || res.data?.grnData?.data?.gate_entry_no || "";
+        const gate_entry_date = primaryGe.gate_entry_date ? formatDate(primaryGe.gate_entry_date) : res.data?.grnData?.data?.gate_entry_date ? formatDate(res.data.grnData.data.gate_entry_date) : "";
 
-          setForm((prev) => ({
-            ...prev,
-            invoice_no,
-            invoice_filename: uploadedFileMetadata,
-            gate_entry_no,
-            gate_entry_date: formatDate(gate_entry_date),
-            grn_nos,
-            icgrn_nos,
-            total_price,
-            invoice_date: formatDate(invoice_date),
-            CAPEX_IND,
-          }));
+        const grnRecords = checkTypeArr(res.grnVerification?.grnRecords)
+          ? res.grnVerification.grnRecords
+          : geList.length > 0
+          ? geList.map((g) => ({ grn_no: g.grn_no, price: g.price }))
+          : res.data?.grnData?.data?.grn_nos || [];
 
-          const options = checkTypeArr(associatePoList) ? associatePoList.map((item) => ({ value: item.purchasing_doc_no, label: item.purchasing_doc_no })) : [];
-          setAssociated(options);
-          setPenaltyAccepted(false);
-          toast.success(response.message || "Invoice details extracted successfully!");
+        const totalPrice =
+          res.grnVerification?.grnAmount ??
+          res.grnVerification?.invoiceAmount ??
+          res.invoiceDetails?.sub_total ??
+          res.data?.grnData?.data?.total_price ??
+          "";
+
+        const basicValue = res.invoiceDetails?.sub_total ?? res.grnVerification?.invoiceAmount ?? "";
+        const geInvoiceDate = primaryGe.invoice_date || res.data?.grnData?.data?.invoice_date;
+
+        const isGstFound = res.gstVerification ? Boolean(res.gstVerification.found) : true;
+        const isPenalty = res.gstVerification ? !res.gstVerification.found : false;
+
+        setForm((prev) => ({
+          ...prev,
+          invoice_no: invNo,
+          invoice_filename: uploadedFileMetadata,
+          company_name: res.invoiceDetails?.company_name || prev.company_name || "",
+          gst_no: res.invoiceDetails?.gst_no || prev.gst_no || "",
+          gate_entry_no: gate_entry_no || prev.gate_entry_no,
+          gate_entry_date: gate_entry_date || prev.gate_entry_date,
+          grn_nos: grnRecords && grnRecords.length > 0 ? grnRecords : prev.grn_nos,
+          total_price: totalPrice !== "" ? totalPrice : prev.total_price,
+          invoice_value: basicValue !== "" ? basicValue : prev.invoice_value,
+          invoice_date: geInvoiceDate && toDateObj(geInvoiceDate) ? convertToEpoch(toDateObj(geInvoiceDate)) : prev.invoice_date,
+          CAPEX_IND: res.data?.grnData?.data?.CAPEX_IND ?? prev.CAPEX_IND ?? false,
+        }));
+
+        setPenaltyAccepted(isPenalty);
+        setGstVerified(isGstFound);
+
+        const associateList = res.associatePoList || res.data?.grnData?.data?.associatePoList;
+        const options = checkTypeArr(associateList) ? associateList.map((item) => ({ value: item.purchasing_doc_no, label: item.purchasing_doc_no })) : [];
+        if (options.length > 0) setAssociated(options);
+
+        toast.success(res.message || "Invoice details extracted successfully!");
+        return true;
+      };
+
+      if (response && (response.status === "VERIFIED" || response.success || (response.status && response.data))) {
+        if (response.data && (response.data.extractedData || response.data.grnData)) {
+          const { extractedData, grnData } = response.data;
+          const invoice_no = extractedData?.data?.invoice_no || "";
+
+          if (!invoice_no) {
+            toast.warn("Invoice number could not be read from the file. Please upload a clearer PDF.");
+            return;
+          }
+
+          if (grnData && grnData.status && grnData.data) {
+            const { gate_entry_no, grn_nos, icgrn_nos, gate_entry_date, total_price, invoice_date, CAPEX_IND, associatePoList } = grnData.data;
+
+            setForm((prev) => ({
+              ...prev,
+              invoice_no,
+              invoice_filename: uploadedFileMetadata,
+              gate_entry_no,
+              gate_entry_date: formatDate(gate_entry_date),
+              grn_nos,
+              icgrn_nos,
+              total_price,
+              invoice_date: formatDate(invoice_date),
+              CAPEX_IND,
+            }));
+
+            const options = checkTypeArr(associatePoList) ? associatePoList.map((item) => ({ value: item.purchasing_doc_no, label: item.purchasing_doc_no })) : [];
+            setAssociated(options);
+            setPenaltyAccepted(false);
+            setGstVerified(true);
+            toast.success(response.message || "Invoice details extracted successfully!");
+          } else {
+            toast.warn(grnData?.message || "Invalid GRN data returned");
+          }
         } else {
-          toast.warn(grnData?.message || "Invalid GRN data returned");
+          applyVerifiedData(response);
         }
       } else if (response && (response.requiresConfirmation || response.status === "GST_NOT_FOUND" || response.penaltyPercentage)) {
         const msg = response.message || "GST number does not exist in GST records";
@@ -341,15 +408,28 @@ const BillsMaterialHybrid = () => {
         });
 
         if (result.isConfirmed) {
+          if (response.draftId) {
+            try {
+              toast.info("Continuing invoice processing with penalty...");
+              const continueRes = await apiCallBack("POST", `po/btn/continue-processing/${response.draftId}`, { continueWithPenalty: true }, token);
+              if (continueRes && (continueRes.status === "VERIFIED" || continueRes.success)) {
+                applyVerifiedData(continueRes);
+                return;
+              }
+            } catch (err) {
+              console.error("Error continuing invoice processing:", err);
+            }
+          }
+
           toast.info("Proceeding with penalty confirmed.");
           setPenaltyAccepted(true);
+          setGstVerified(false);
           setForm((prev) => ({
             ...prev,
             invoice_no: invoiceNum || prev.invoice_no,
             invoice_filename: uploadedFileMetadata,
           }));
         } else {
-          // pehle yahan window.location.reload() tha; ab sirf invoice section reset hota hai
           handleResetInvoice();
         }
       } else if (response && response.message) {
@@ -402,7 +482,7 @@ const BillsMaterialHybrid = () => {
       return;
     }
 
-    if (!form?.CAPEX_IND && num(form?.cgst) === 0 && num(form?.sgst) === 0 && num(form?.igst) === 0) {
+    if (!penaltyAccepted && !form?.CAPEX_IND && num(form?.cgst) === 0 && num(form?.sgst) === 0 && num(form?.igst) === 0) {
       const ok = await confirmDialog("No GST entered", "CGST, SGST and IGST are all 0%. Do you want to continue?");
       if (!ok) return;
     }
@@ -530,12 +610,20 @@ const BillsMaterialHybrid = () => {
                                               )}
                                               {form?.invoice_filename && (
                                                 <span
-                                                  className="badge badge-light-success d-inline-flex align-items-center gap-1 py-2 px-3 border border-success border-opacity-25"
-                                                  style={{ fontSize: "12px", whiteSpace: "nowrap", maxWidth: "320px" }}
+                                                  className="badge d-inline-flex align-items-center gap-1 py-2 px-3 fw-bold"
+                                                  style={{
+                                                    backgroundColor: "#d1e7dd",
+                                                    color: "#0f5132",
+                                                    border: "1px solid #badbcc",
+                                                    fontSize: "12px",
+                                                    whiteSpace: "nowrap",
+                                                    maxWidth: "320px",
+                                                    borderRadius: "4px",
+                                                  }}
                                                   title={form.invoice_filename.file_name || form.invoice_filename.fileName}
                                                 >
-                                                  <FaCheckCircle className="text-success me-1 flex-shrink-0" />
-                                                  <span className="text-truncate">
+                                                  <FaCheckCircle className="me-1 flex-shrink-0" style={{ color: "#0f5132" }} />
+                                                  <span className="text-truncate" style={{ color: "#0f5132" }}>
                                                     Uploaded: <strong>{form.invoice_filename.file_name || form.invoice_filename.fileName}</strong>
                                                   </span>
                                                 </span>
@@ -550,9 +638,88 @@ const BillsMaterialHybrid = () => {
                                       <td>Invoice No:</td>
                                       <td className="btn_value">
                                         <b>{form?.invoice_no || "--"}</b>
-                                        {penaltyAccepted && <span className="badge badge-light-warning ms-3">GST not found - proceeding with penalty</span>}
+                                        {gstVerified && (
+                                          <span
+                                            className="badge ms-3 fw-bold d-inline-flex align-items-center"
+                                            style={{
+                                              backgroundColor: "#d1e7dd",
+                                              color: "#0f5132",
+                                              border: "1px solid #badbcc",
+                                              fontSize: "12px",
+                                              padding: "4px 10px",
+                                              borderRadius: "4px",
+                                            }}
+                                          >
+                                            <FaCheckCircle className="me-1 text-success" />
+                                            GST Verified
+                                          </span>
+                                        )}
+                                        {penaltyAccepted && (
+                                          <span
+                                            className="badge ms-3 fw-bold d-inline-flex align-items-center"
+                                            style={{
+                                              backgroundColor: "#fff3cd",
+                                              color: "#856404",
+                                              border: "1px solid #ffeeba",
+                                              fontSize: "12px",
+                                              padding: "4px 10px",
+                                              borderRadius: "4px",
+                                            }}
+                                          >
+                                            <FaExclamationTriangle className="me-1 text-warning" />
+                                            GST not found - proceeding with penalty
+                                          </span>
+                                        )}
                                       </td>
                                     </tr>
+                                    {form?.company_name && (
+                                      <tr>
+                                        <td>Company Name:</td>
+                                        <td className="btn_value">
+                                          <b>{form.company_name}</b>
+                                        </td>
+                                      </tr>
+                                    )}
+                                    {form?.gst_no && (
+                                      <tr>
+                                        <td>Vendor GST No:</td>
+                                        <td className="btn_value">
+                                          <b>{form.gst_no}</b>
+                                          {gstVerified && (
+                                            <span
+                                              className="badge ms-2 fw-bold d-inline-flex align-items-center"
+                                              style={{
+                                                backgroundColor: "#d1e7dd",
+                                                color: "#0f5132",
+                                                border: "1px solid #badbcc",
+                                                fontSize: "12px",
+                                                padding: "4px 10px",
+                                                borderRadius: "4px",
+                                              }}
+                                            >
+                                              <FaCheckCircle className="me-1 text-success" />
+                                              Verified in Records
+                                            </span>
+                                          )}
+                                          {penaltyAccepted && (
+                                            <span
+                                              className="badge ms-2 fw-bold d-inline-flex align-items-center"
+                                              style={{
+                                                backgroundColor: "#fff3cd",
+                                                color: "#856404",
+                                                border: "1px solid #ffeeba",
+                                                fontSize: "12px",
+                                                padding: "4px 10px",
+                                                borderRadius: "4px",
+                                              }}
+                                            >
+                                              <FaExclamationTriangle className="me-1 text-warning" />
+                                              Not in Records (Penalty Applicable)
+                                            </span>
+                                          )}
+                                        </td>
+                                      </tr>
+                                    )}
 
                                     {checkTypeArr(associated) && (
                                       <tr>
@@ -733,13 +900,40 @@ const BillsMaterialHybrid = () => {
                                     <tr>
                                       <td>GRN No </td>
                                       <td className="btn_value">
-                                        <p>
+                                        <p className="mb-0">
                                           {checkTypeArr(form?.grn_nos) &&
-                                            [...new Set(form.grn_nos.map((item) => item?.grn_no || "--"))].map((uniqueGrn, i) => (
-                                              <b key={i} className="mx-2">
+                                            [...new Set(form.grn_nos.map((item) => (typeof item === "object" ? item?.grn_no : item) || "--"))].map((uniqueGrn, i) => (
+                                              <span
+                                                key={i}
+                                                className="badge me-2 fw-bold"
+                                                style={{
+                                                  backgroundColor: "#cfe2ff",
+                                                  color: "#084298",
+                                                  border: "1px solid #b6d4fe",
+                                                  fontSize: "13px",
+                                                  padding: "5px 12px",
+                                                  borderRadius: "4px",
+                                                }}
+                                              >
                                                 {uniqueGrn}
-                                              </b>
+                                              </span>
                                             ))}
+                                          {typeof form?.grn_nos === "string" && form.grn_nos && (
+                                            <span
+                                              className="badge me-2 fw-bold"
+                                              style={{
+                                                backgroundColor: "#cfe2ff",
+                                                color: "#084298",
+                                                border: "1px solid #b6d4fe",
+                                                fontSize: "13px",
+                                                padding: "5px 12px",
+                                                borderRadius: "4px",
+                                              }}
+                                            >
+                                              {form.grn_nos}
+                                            </span>
+                                          )}
+                                          {!form?.grn_nos && "--"}
                                         </p>
                                       </td>
                                     </tr>
@@ -768,15 +962,62 @@ const BillsMaterialHybrid = () => {
                                       <td>Invoice vs GRN Value</td>
                                       <td className="btn_value">
                                         {!hasGrnValue ? (
-                                          <span className="badge badge-light-secondary">Verify the invoice (CHECK) to compare</span>
+                                          <span
+                                            className="badge fw-semibold"
+                                            style={{
+                                              backgroundColor: "#e2e3e5",
+                                              color: "#41464b",
+                                              border: "1px solid #d3d6d8",
+                                              padding: "5px 12px",
+                                              fontSize: "12px",
+                                              borderRadius: "4px",
+                                            }}
+                                          >
+                                            Verify the invoice (CHECK) to compare
+                                          </span>
                                         ) : !hasInvoiceValue ? (
-                                          <span className="badge badge-light-secondary">Enter Basic value to compare</span>
+                                          <span
+                                            className="badge fw-semibold"
+                                            style={{
+                                              backgroundColor: "#e2e3e5",
+                                              color: "#41464b",
+                                              border: "1px solid #d3d6d8",
+                                              padding: "5px 12px",
+                                              fontSize: "12px",
+                                              borderRadius: "4px",
+                                            }}
+                                          >
+                                            Enter Basic value to compare
+                                          </span>
                                         ) : isGrnMatched ? (
-                                          <span className="badge badge-light-success">Matched</span>
+                                          <span
+                                            className="badge fw-bold d-inline-flex align-items-center gap-1"
+                                            style={{
+                                              backgroundColor: "#d1e7dd",
+                                              color: "#0f5132",
+                                              border: "1px solid #badbcc",
+                                              padding: "5px 12px",
+                                              fontSize: "12px",
+                                              borderRadius: "4px",
+                                            }}
+                                          >
+                                            <FaCheckCircle className="me-1" style={{ color: "#0f5132" }} />
+                                            Matched
+                                          </span>
                                         ) : (
-                                          <span className="badge badge-light-danger">
-                                            Mismatch (difference: {grnDiff > 0 ? "+" : ""}
-                                            {grnDiff})
+                                          <span
+                                            className="badge fw-bold d-inline-flex align-items-center gap-1"
+                                            style={{
+                                              backgroundColor: "#f8d7da",
+                                              color: "#842029",
+                                              border: "1px solid #f5c2c7",
+                                              padding: "5px 12px",
+                                              fontSize: "12px",
+                                              borderRadius: "4px",
+                                            }}
+                                          >
+                                            <FaExclamationTriangle className="me-1" style={{ color: "#842029" }} />
+                                            Mismatch (difference: {grnDiff > 0 ? "+" : ""}{grnDiff})
                                           </span>
                                         )}
                                       </td>

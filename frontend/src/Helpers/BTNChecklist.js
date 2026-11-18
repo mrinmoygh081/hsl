@@ -80,7 +80,7 @@ export const actionHandlerBTN = async (flag, token, id, form, setForm, initialDa
       return;
     }
 
-    if (parseInt(total_price) !== parseInt(net_claim_amount)) {
+    if (total_price && !isNaN(parseInt(total_price)) && !isNaN(parseInt(net_claim_amount)) && parseInt(total_price) !== parseInt(net_claim_amount)) {
       toast.warning("Total price and net claim amount should be equal!");
       return;
     }
@@ -88,6 +88,9 @@ export const actionHandlerBTN = async (flag, token, id, form, setForm, initialDa
     // ===================== DATE CONVERTER - YYYY-MM-DD =====================
     const formatToYYYYMMDD = (dateVal) => {
       if (!dateVal) return "";
+      if (typeof dateVal === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateVal.trim())) {
+        return dateVal.trim();
+      }
       // DD/MM/YYYY string hai (data?.invoice_date se aaya)
       if (typeof dateVal === "string" && dateVal.includes("/")) {
         const [dd, mm, yyyy] = dateVal.split("/");
@@ -108,7 +111,7 @@ export const actionHandlerBTN = async (flag, token, id, form, setForm, initialDa
       purchasing_doc_no: id,
       invoice_no: invoice_no || "",
       invoice_type: invoice_type,
-      invoice_value: invoice_value || 0,
+      invoice_value: invoice_value ? String(invoice_value) : "0",
       invoice_date: formatToYYYYMMDD(invoice_date),
       debit_note: debit_note ? String(debit_note) : "0",
       credit_note: credit_note ? String(credit_note) : "0",
@@ -149,7 +152,7 @@ export const actionHandlerBTN = async (flag, token, id, form, setForm, initialDa
       if (typeof invoice_filename === "object" && invoice_filename.file_id) {
         payload.invoice_filename = invoice_filename.fileName || invoice_filename.file_name || "";
         payload.invoice_file_path = invoice_filename.filePath || invoice_filename.file_path || "";
-        payload.invoice_file_id = invoice_filename.file_id || "";
+        payload.invoice_file_id = String(invoice_filename.file_id || invoice_filename.id || "");
       } else if (typeof invoice_filename === "string") {
         payload.invoice_filename = invoice_filename;
       }
