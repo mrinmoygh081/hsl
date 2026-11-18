@@ -991,7 +991,7 @@ async function btnSubmitByDo(btnPayload, tokenData) {
 // ===============================
 const getExtractedData = async (req, res) => {
   let client;
-  
+
   try {
     // STEP 1: Validate uploaded file
 
@@ -1002,14 +1002,10 @@ const getExtractedData = async (req, res) => {
       });
     }
 
-
-      client = await poolClient();
+    client = await poolClient();
 
     // STEP 2: Extract invoice data
-      const {
-      rawData,
-      invoiceData,
-    } = await extractInvoiceData(req.file);
+    const { rawData, invoiceData } = await extractInvoiceData(req.file);
 
     // STEP 3: Validate extracted fields
 
@@ -1020,19 +1016,16 @@ const getExtractedData = async (req, res) => {
       gst_no,
       sub_total,
     } = invoiceData;
-   
-    if (!po_no || !invoice_no || !gst_no ) {
+
+    if (!po_no || !invoice_no || !gst_no) {
       return res.status(422).json({
         success: false,
         message: "Required invoice details are missing",
         extractedData: rawData,
       });
     }
-    
-    if (
-      !Number.isFinite(sub_total) ||
-      sub_total < 0
-    ) {
+
+    if (!Number.isFinite(sub_total) || sub_total < 0) {
       return res.status(422).json({
         success: false,
         message: "Invalid invoice subtotal",
@@ -1044,14 +1037,12 @@ const getExtractedData = async (req, res) => {
     const fileInfo = await renameInvoiceFile(
       req.file.path,
       req.file.originalname,
-      invoice_no
+      invoice_no,
     );
 
-      // STEP 5: Save extracted invoice data
+    // STEP 5: Save extracted invoice data
     const { invoice_date } = req.body;
-    
 
-   
     const insertQuery = `
       INSERT INTO temp_invoices (
         company_name,
@@ -1077,7 +1068,7 @@ const getExtractedData = async (req, res) => {
 
       RETURNING *;
     `;
-    
+
     const insertValues = [
       invoiceData.company_name,
       invoice_no,
@@ -1092,74 +1083,63 @@ const getExtractedData = async (req, res) => {
     await client.query(insertQuery, insertValues);
 
     // STEP 6: Check GST record
-    const gstResult = await verifyGSTRecord(
-      client,
-      gst_no,
-      invoice_date
-    );
+    const gstResult = await verifyGSTRecord(client, gst_no, invoice_date);
 
     // STEP 7: GST missing - ask for confirmation
-    if (!gstResult.found) {
-      return res.status(200).json({
-        success: false,
-        requiresConfirmation: true,
-        status: gstResult.reason,
+    // if (!gstResult.found) {
+    //   return res.status(200).json({
+    //     success: false,
+    //     requiresConfirmation: true,
+    //     status: gstResult.reason,
 
-        message: gstResult.message,
+    //     message: gstResult.message,
 
-        invoiceNo: invoice_no,
+    //     invoiceNo: invoice_no,
 
-        penaltyPercentage: 30,
+    //     penaltyPercentage: 2,
 
-        invoiceDetails: invoiceData,
-      });
-    }
+    //     invoiceDetails: invoiceData,
+    //   });
+    // }
 
     // STEP 8: GST found - proceed with GRN verification
-     const result = await processExtractedInvoice(
+    const result = await processExtractedInvoice(
       client,
-       invoiceData,
-       invoice_date,
+      invoiceData,
+      invoice_date,
       gstResult,
-      false
+      false,
     );
 
-     return res.status(200).json({
+    return res.status(200).json({
       ...result,
       invoiceNo: invoice_no,
       gstRecord: gstResult.record,
     });
-
-
   } catch (error) {
-    console.error(
-      "getExtractedData error:",
-      error
-    );
+    console.error("getExtractedData error:", error);
 
     return res.status(500).json({
       success: false,
       message: error.message || "Something went wrong",
     });
-
-  }finally {
+  } finally {
     if (client) {
       client.release();
     }
   }
-
-}
+};
 
 // confirmation api function
 
 const continueInvoiceProcessing = async (req, res) => {
   let client;
-  console.log(123);
+
   try {
     const { draftId } = req.params;
 
     const { continueWithPenalty } = req.body;
-
+    console.log(123, draftId, continueWithPenalty);
     if (typeof continueWithPenalty !== "boolean") {
       return res.status(400).json({
         success: false,
@@ -1178,7 +1158,7 @@ const continueInvoiceProcessing = async (req, res) => {
       WHERE draft_id = $1
       FOR UPDATE
       `,
-      [draftId]
+      [draftId],
     );
 
     if (draftResult.rowCount === 0) {
@@ -1208,7 +1188,7 @@ const continueInvoiceProcessing = async (req, res) => {
         SET processing_status = 'CANCELLED'
         WHERE draft_id = $1
         `,
-        [draftId]
+        [draftId],
       );
 
       await client.query("COMMIT");
@@ -1232,11 +1212,7 @@ const continueInvoiceProcessing = async (req, res) => {
     // Recheck GST and process GRN.
     // A penalty applies only if GST is still unavailable.
 
-    const result = await processExtractedInvoice(
-      client,
-      invoiceData,
-      true
-    );
+    const result = await processExtractedInvoice(client, invoiceData, true);
 
     await client.query(
       `
@@ -1249,13 +1225,12 @@ const continueInvoiceProcessing = async (req, res) => {
         draftId,
         result.status,
         result.success && result.amountDetails.penaltyPercentage === 30,
-      ]
+      ],
     );
 
     await client.query("COMMIT");
 
     return res.status(200).json(result);
-
   } catch (error) {
     if (client) {
       await client.query("ROLLBACK").catch(() => {});
@@ -1267,7 +1242,6 @@ const continueInvoiceProcessing = async (req, res) => {
       success: false,
       message: error.message,
     });
-
   } finally {
     if (client) {
       client.release();
