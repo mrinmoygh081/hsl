@@ -9,7 +9,7 @@ const calculateInvoice = (invoiceAmount, penaltyApplicable = false) => {
 
   const penaltyAmount = Number(((amount * penaltyPercentage) / 100).toFixed(2));
 
-  console.log(955, amount, penaltyPercentage, penaltyAmount);
+
   return {
     invoiceAmount: amount,
     penaltyPercentage,

@@ -1107,12 +1107,13 @@ const getExtractedData = async (req, res) => {
 
     const tempResult = await client.query(insertQuery, insertValues);
     const temp_inv_id = tempResult.rows[0].temp_inv_id;
-    console.log(77, temp_inv_id);
+    
     // STEP 6: Check GST record
     const gstResult = await verifyGSTRecord(client, gst_no, invoice_date);
 
     // STEP 7: GST missing - ask for confirmation
     if (!gstResult.found) {
+      
       const penaltyDetails = calculateInvoice(invoiceData.sub_total, true);
       // console.log(666, penaltyDetails);
 
@@ -1164,13 +1165,14 @@ const getExtractedData = async (req, res) => {
 // confirmation api function
 
 const processInvoiceWithPenalty = async (req, res) => {
-  console.log(950, "ekhane esegeche");
   let client;
 
   try {
-    const { temp_inv_id } = req.body;
-    console.log(951, temp_inv_id);
+    console.log("Processing invoice with penalty");
 
+    const { temp_inv_id, continueWithPenalty } = req.body;
+
+    // STEP 1: Validate request
     if (!temp_inv_id) {
       return res.status(400).json({
         success: false,
@@ -1178,27 +1180,27 @@ const processInvoiceWithPenalty = async (req, res) => {
       });
     }
 
-    const { continueWithPenalty } = req.body;
-    console.log(123, draftId, continueWithPenalty);
     if (typeof continueWithPenalty !== "boolean") {
       return res.status(400).json({
         success: false,
-        message: "Please provide a valid confirmation",
+        message: "Please provide a valid confirmation.",
       });
     }
 
+    // STEP 2: Get database connection
     client = await poolClient();
 
     await client.query("BEGIN");
 
+    // STEP 3: Fetch invoice draft
     const draftResult = await client.query(
       `
-      SELECT *
-      FROM temp_invoices
-      WHERE draft_id = $1
-      FOR UPDATE
+        SELECT *
+        FROM temp_invoices
+        WHERE temp_inv_id = $1
+        FOR UPDATE
       `,
-      [draftId],
+      [temp_inv_id]
     );
 
     if (draftResult.rowCount === 0) {
@@ -1212,34 +1214,39 @@ const processInvoiceWithPenalty = async (req, res) => {
 
     const draft = draftResult.rows[0];
 
-    if (draft.processing_status !== "GST_CONFIRMATION_REQUIRED") {
-      await client.query("ROLLBACK");
+    // STEP 4: Validate draft status
+    // if (draft.processing_status !== "GST_CONFIRMATION_REQUIRED") {
+    //   await client.query("ROLLBACK");
 
-      return res.status(409).json({
-        success: false,
-        message: "Invoice is not awaiting GST confirmation",
-      });
-    }
+    //   return res.status(409).json({
+    //     success: false,
+    //     message: "Invoice is not awaiting GST confirmation",
+    //   });
+    // }
 
+    // STEP 5: Vendor declined penalty
     if (!continueWithPenalty) {
       await client.query(
         `
-        UPDATE temp_invoices
-        SET processing_status = 'CANCELLED'
-        WHERE draft_id = $1
+          UPDATE temp_invoices
+          SET processing_status = 'CANCELLED',
+              penalty_confirmed = FALSE
+          WHERE temp_inv_id = $1
         `,
-        [draftId],
+        [temp_inv_id]
       );
 
       await client.query("COMMIT");
 
       return res.status(200).json({
         success: true,
+        requiresConfirmation: false,
         status: "CANCELLED",
         message: "Invoice processing cancelled",
       });
     }
 
+    // STEP 6: Prepare invoice data
     const invoiceData = {
       company_name: draft.company_name,
       invoice_no: draft.invoice_no,
@@ -1249,45 +1256,192 @@ const processInvoiceWithPenalty = async (req, res) => {
       sub_total: Number(draft.sub_total),
     };
 
-    // Recheck GST and process GRN.
-    // A penalty applies only if GST is still unavailable.
-
-    const result = await processExtractedInvoice(client, invoiceData, true);
-
-    await client.query(
-      `
-      UPDATE temp_invoices
-      SET processing_status = $2,
-          penalty_confirmed = $3
-      WHERE draft_id = $1
-      `,
-      [
-        draftId,
-        result.status,
-        result.success && result.amountDetails.penaltyPercentage === 30,
-      ],
+    // STEP 7: Recheck GST record
+    const gstResult = await verifyGSTRecord(
+      client,
+      invoiceData.gst_no,
+      invoiceData.invoice_date
     );
 
+    console.log("GST Reverification Result:", gstResult);
+
+    // STEP 8: Continue invoice verification with penalty
+    const result = await processExtractedInvoice(
+      client,
+      invoiceData,
+      invoiceData.invoice_date,
+      gstResult,
+      true
+    );
+
+    console.log("Final Invoice Processing Result:", result);
+
+    // STEP 9: Update temporary invoice
+    await client.query(
+      `
+        UPDATE temp_invoices
+        SET processing_status = $2,
+            penalty_confirmed = $3
+        WHERE temp_inv_id = $1
+      `,
+      [
+        temp_inv_id,
+        result.status,
+        result.success &&
+          result.amountDetails?.penaltyPercentage === 12,
+      ]
+    );
+
+    // STEP 10: Commit transaction
     await client.query("COMMIT");
 
+    // STEP 11: Return same response format
     return res.status(200).json(result);
+
   } catch (error) {
     if (client) {
       await client.query("ROLLBACK").catch(() => {});
     }
 
-    console.error("continueInvoiceProcessing:", error);
+    console.error("processInvoiceWithPenalty:", error);
 
     return res.status(500).json({
       success: false,
       message: error.message,
     });
+
   } finally {
     if (client) {
       client.release();
     }
   }
 };
+
+// const processInvoiceWithPenalty = async (req, res) => {
+//   console.log(950, "ekhane esegeche");
+//   let client;
+
+//   try {
+//     const { temp_inv_id } = req.body;
+//     console.log(951, temp_inv_id);
+
+//     if (!temp_inv_id) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Temporary invoice ID is required.",
+//       });
+//     }
+
+//     const { continueWithPenalty } = req.body;
+//     console.log(123, temp_inv_id, continueWithPenalty);
+//     if (typeof continueWithPenalty !== "boolean") {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Please provide a valid confirmation",
+//       });
+//     }
+
+//     client = await poolClient();
+
+//     await client.query("BEGIN");
+
+//     const draftResult = await client.query(
+//       `
+//       SELECT *
+//       FROM temp_invoices
+//       WHERE temp_inv_id = $1
+//       FOR UPDATE
+//       `,
+//       [temp_inv_id],
+//     );
+
+//     if (draftResult.rowCount === 0) {
+//       await client.query("ROLLBACK");
+
+//       return res.status(404).json({
+//         success: false,
+//         message: "Invoice draft not found",
+//       });
+//     }
+
+//     const draft = draftResult.rows[0];
+
+//     if (draft.processing_status !== "GST_CONFIRMATION_REQUIRED") {
+//       await client.query("ROLLBACK");
+
+//       return res.status(409).json({
+//         success: false,
+//         message: "Invoice is not awaiting GST confirmation",
+//       });
+//     }
+
+//     if (!continueWithPenalty) {
+//       await client.query(
+//         `
+//         UPDATE temp_invoices
+//         SET processing_status = 'CANCELLED'
+//         WHERE draft_id = $1
+//         `,
+//         [draftId],
+//       );
+
+//       await client.query("COMMIT");
+
+//       return res.status(200).json({
+//         success: true,
+//         status: "CANCELLED",
+//         message: "Invoice processing cancelled",
+//       });
+//     }
+
+//     const invoiceData = {
+//       company_name: draft.company_name,
+//       invoice_no: draft.invoice_no,
+//       invoice_date: draft.invoice_date,
+//       po_no: draft.po_no,
+//       gst_no: draft.gst_no,
+//       sub_total: Number(draft.sub_total),
+//     };
+
+//     // Recheck GST and process GRN.
+//     // A penalty applies only if GST is still unavailable.
+
+//     const result = await processExtractedInvoice(client, invoiceData, true);
+
+//     await client.query(
+//       `
+//       UPDATE temp_invoices
+//       SET processing_status = $2,
+//           penalty_confirmed = $3
+//       WHERE draft_id = $1
+//       `,
+//       [
+//         draftId,
+//         result.status,
+//         result.success && result.amountDetails.penaltyPercentage === 30,
+//       ],
+//     );
+
+//     await client.query("COMMIT");
+
+//     return res.status(200).json(result);
+//   } catch (error) {
+//     if (client) {
+//       await client.query("ROLLBACK").catch(() => {});
+//     }
+
+//     console.error("continueInvoiceProcessing:", error);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: error.message,
+//     });
+//   } finally {
+//     if (client) {
+//       client.release();
+//     }
+//   }
+// };
 
 // ============================
 // const getExtractedData = async (req, res) => {
