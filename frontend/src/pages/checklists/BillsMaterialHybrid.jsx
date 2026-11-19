@@ -307,21 +307,27 @@ const BillsMaterialHybrid = () => {
 
         const geList = checkTypeArr(res.gateEntryVerification) ? res.gateEntryVerification : [];
         const primaryGe = geList[0] || {};
-        const gate_entry_no = geList.map((g) => g.gate_entry_no).filter(Boolean).join(", ") || primaryGe.gate_entry_no || res.data?.grnData?.data?.gate_entry_no || "";
-        const gate_entry_date = primaryGe.gate_entry_date ? formatDate(primaryGe.gate_entry_date) : res.data?.grnData?.data?.gate_entry_date ? formatDate(res.data.grnData.data.gate_entry_date) : "";
+        const gate_entry_no =
+          geList
+            .map((g) => g.gate_entry_no)
+            .filter(Boolean)
+            .join(", ") ||
+          primaryGe.gate_entry_no ||
+          res.data?.grnData?.data?.gate_entry_no ||
+          "";
+        const gate_entry_date = primaryGe.gate_entry_date
+          ? formatDate(primaryGe.gate_entry_date)
+          : res.data?.grnData?.data?.gate_entry_date
+            ? formatDate(res.data.grnData.data.gate_entry_date)
+            : "";
 
         const grnRecords = checkTypeArr(res.grnVerification?.grnRecords)
           ? res.grnVerification.grnRecords
           : geList.length > 0
-          ? geList.map((g) => ({ grn_no: g.grn_no, price: g.price }))
-          : res.data?.grnData?.data?.grn_nos || [];
+            ? geList.map((g) => ({ grn_no: g.grn_no, price: g.price }))
+            : res.data?.grnData?.data?.grn_nos || [];
 
-        const totalPrice =
-          res.grnVerification?.grnAmount ??
-          res.grnVerification?.invoiceAmount ??
-          res.invoiceDetails?.sub_total ??
-          res.data?.grnData?.data?.total_price ??
-          "";
+        const totalPrice = res.grnVerification?.grnAmount ?? res.grnVerification?.invoiceAmount ?? res.invoiceDetails?.sub_total ?? res.data?.grnData?.data?.total_price ?? "";
 
         const basicValue = res.invoiceDetails?.sub_total ?? res.grnVerification?.invoiceAmount ?? "";
         const geInvoiceDate = primaryGe.invoice_date || res.data?.grnData?.data?.invoice_date;
@@ -457,7 +463,7 @@ const BillsMaterialHybrid = () => {
                 temp_inv_id: tempInvId,
                 continueWithPenalty: true,
               },
-              token
+              token,
             );
 
             if (penaltyRes && (penaltyRes.status === "VERIFIED" || penaltyRes.success)) {
@@ -1075,7 +1081,8 @@ const BillsMaterialHybrid = () => {
                                               }}
                                             >
                                               <FaExclamationTriangle className="me-1" style={{ color: "#842029" }} />
-                                              Mismatch (difference: {grnDiff > 0 ? "+" : ""}{grnDiff})
+                                              Mismatch (difference: {grnDiff > 0 ? "+" : ""}
+                                              {grnDiff})
                                             </span>
                                             <span className="ms-2 fw-semibold text-dark" style={{ fontSize: "13px" }}>
                                               (Invoice Basic Value: <b>{form?.invoice_value}</b> | Total GRN Value: <b>{form?.total_price || grnTotal}</b>)
@@ -1084,7 +1091,7 @@ const BillsMaterialHybrid = () => {
                                         )}
                                       </td>
                                     </tr>
-                                    <tr>
+                                    {/* <tr>
                                       <td>Penalty Percentage</td>
                                       <td className="btn_value">
                                         <b>{num(penaltyDetails?.penaltyPercentage) > 0 ? `${penaltyDetails.penaltyPercentage}%` : "0"}</b>
@@ -1094,6 +1101,14 @@ const BillsMaterialHybrid = () => {
                                       <td>Penalty Amount</td>
                                       <td className="btn_value">
                                         <b>{penaltyDetails?.penaltyAmount ? penaltyDetails.penaltyAmount : "0"}</b>
+                                      </td>
+                                    </tr> */}
+                                    <tr>
+                                      <td>GST Retention Amount</td>
+                                      <td className="btn_value">
+                                        <b>
+                                          {penaltyDetails?.penaltyAmount || "0"} (GST Retention Percentage - {penaltyDetails?.penaltyPercentage || 0}%)
+                                        </b>
                                       </td>
                                     </tr>
                                     <tr>
