@@ -7,7 +7,8 @@ import { FaCaretLeft, FaCheckCircle, FaExclamationTriangle } from "react-icons/f
 import SideBar from "../../components/SideBar";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { doHandler } from "../../redux/slices/poSlice";
 import { USER_VENDOR } from "../../constants/userConstants";
 import { actionHandlerBTN } from "../../Helpers/BTNChecklist";
 import { checkTypeArr, inputTypeChange } from "../../utils/smallFun";
@@ -112,7 +113,9 @@ const naOrDate = (v) => (v ? formatDate(v) : "--");
 
 const BillsMaterialHybrid = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { user, token } = useSelector((state) => state.auth);
+  const { isDO } = useSelector((state) => state.selectedPO);
   const { id } = useParams();
 
   const [data, setData] = useState(null);
@@ -162,6 +165,21 @@ const BillsMaterialHybrid = () => {
     getData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    (async () => {
+      if (id && token) {
+        try {
+          const res = await apiCallBack("GET", `po/details?id=${id}`, null, token);
+          if (res?.status && res?.data?.[0]?.isDO !== undefined) {
+            dispatch(doHandler(res.data[0].isDO));
+          }
+        } catch (err) {
+          console.error("Error checking isDO:", err);
+        }
+      }
+    })();
+  }, [id, token]);
 
   useEffect(() => {
     if (!data) return;
@@ -1192,7 +1210,9 @@ const BillsMaterialHybrid = () => {
                                 </table>
                               </div>
                               <div className="text-center">
-                                {user?.user_type === USER_VENDOR && <DynamicButton label="SUBMIT" onClick={handleSubmit} className="btn fw-bold btn-primary me-3" />}
+                                {(user?.user_type === USER_VENDOR || isDO) && (
+                                  <DynamicButton label="SUBMIT" onClick={handleSubmit} className="btn fw-bold btn-primary me-3" />
+                                )}
                                 <button className="btn btn-sm btn-primary me-3" type="button" onClick={() => navigate(`/invoice-and-payment-process/${id}`)}>
                                   BACK
                                 </button>
