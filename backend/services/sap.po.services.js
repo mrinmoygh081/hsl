@@ -10,17 +10,56 @@ const zpo_milestonePayload = async (payload) => {
   if (!payload || !Array.isArray(payload) || !payload.length) {
     throw new Error("Please send valid payload");
   }
+  // const pl = payload.map((obj) => ({
+  //   // C_PKEY: `${obj.EBELN}-${obj.MID}`,
+  //   EBELN: obj.EBELN,
+    // MID: obj.MID,
+    // PLAN_DATE: formatDate(obj.PLAN_DATE),
+    // MTEXT: obj.MTEXT || null,
+    // MO: obj.MO || null,
+  // }));
   const pl = payload.map((obj) => ({
-    // C_PKEY: `${obj.EBELN}-${obj.MID}`,
     EBELN: obj.EBELN,
     MID: obj.MID,
-    PLAN_DATE: formatDate(obj.PLAN_DATE),
+    PLAN_DATE: formatDate(obj.PLAN_DATE) || null,
     MTEXT: obj.MTEXT || null,
     MO: obj.MO || null,
+    BG_DATE: obj.BG_DATE || null,
+    ABG_DATE: obj.ABG_DATE || null,
+    DRAW_DATE: obj.DRAW_DATE || null,
+    QAP_DATE: obj.QAP_DATE || null,
+    INS_DATE: obj.INS_DATE || null,
+    ILMS_DATE: obj.ILMS_DATE || null,
+    SHIP_DATE: obj.SHIP_DATE || null,
+    DISPATCH_DATE: obj.DISPATCH_DATE || null,
+    JRI_DATE: obj.JRI_DATE || null,
+    LC_TYPE: obj.LC_TYPE || null,
+    LD_MIN: obj.LD_MIN || null,
+    LD_MAX: obj.LD_MAX || null,
+    BNK_GRNT: obj.BNK_GRNT || null,
+    BG_SUBMIT: obj.BG_SUBMIT || null,
+    TIME_DELIVERY: obj.TIME_DELIVERY || null,
+    ZZMODE_OF_TENDOR: obj.ZZMODE_OF_TENDOR || null,
+    ZZEPROC_EXEMPTION: obj.ZZEPROC_EXEMPTION || null,
+    ZZTYPE_PURCHASE: obj.ZZTYPE_PURCHASE || null,
+    ZZOWNERS_CHOICE: obj.ZZOWNERS_CHOICE || null,
+    ZZINTEGRITY_PART: obj.ZZINTEGRITY_PART || null,
+    ZZMSMEWOMEN: obj.ZZMSMEWOMEN || null,
+    ZZWORK_ORDER: obj.ZZWORK_ORDER || null,
+    ZZWRK_ORDER_ACCOUNT: obj.ZZWRK_ORDER_ACCOUNT || null,
+    ZZMSME: obj.ZZMSME || null,
+    ZVENDOR_CATEGORY: obj.ZVENDOR_CATEGORY || null,
+    ZZDEPT: obj.ZZDEPT || null,
+    ZZSTART_UP: obj.ZZSTART_UP || null,
+    ZZINDIGENOUS_CONTENT: obj.ZZINDIGENOUS_CONTENT || null,
+    ZZIMPORT: obj.ZZIMPORT || null,
+    ZZMSME_PREFERENCE: obj.ZZMSME_PREFERENCE || null,
+    ZZPURCHASE_PREFERENCE: obj.ZZPURCHASE_PREFERENCE || null,
+    AUFNR: obj.AUFNR || null,
   }));
 
   return pl;
-};
+};;
 
 const ekpoTablePayload = async (payload, poNo) => {
   if (!payload || !Array.isArray(payload) || !payload.length) {
