@@ -5,18 +5,65 @@ const { setActualSubmissionDate, create_reference_no, getPoDetails } = require("
 const { resSend } = require("../../lib/resSend");
 const { query, getQuery, poolClient, poolQuery } = require("../../config/pgDbConfig");
 const { generateQuery, getEpochTime, getDateString, sapToGetEpochTime } = require("../../lib/utils");
-const { INSERT, UPDATE, USER_TYPE_VENDOR, ASSIGNER, STAFF, FINANCE_NODAL, USER_TYPE_HSL_FINANCE, ACTION_SDBG, ACTION_DD, ACTION_IB, MID_SDBG } = require("../../lib/constant");
-const { EKKO, SDBG_ENTRY, SDBG, ACTUAL_SUBMISSION_DB, SDBG_SAVE, SDBG_RECOMMENDATION, EMPLAYEE_MASTER_PA0002 } = require("../../lib/tableName");
+const {
+  INSERT,
+  UPDATE,
+  USER_TYPE_VENDOR,
+  ASSIGNER,
+  STAFF,
+  FINANCE_NODAL,
+  USER_TYPE_HSL_FINANCE,
+  ACTION_SDBG,
+  ACTION_DD,
+  ACTION_IB,
+  MID_SDBG,
+  USER_TYPE_HSL,
+} = require("../../lib/constant");
+const {
+  EKKO,
+  SDBG_ENTRY,
+  SDBG,
+  ACTUAL_SUBMISSION_DB,
+  SDBG_SAVE,
+  SDBG_RECOMMENDATION,
+  EMPLAYEE_MASTER_PA0002,
+} = require("../../lib/tableName");
 const { FINANCE } = require("../../lib/depertmentMaster");
-const { ASSIGNED, RE_SUBMITTED, REJECTED, FORWARD_TO_FINANCE, RETURN_TO_DO, APPROVED, SUBMITTED, SAVED } = require("../../lib/status");
+const {
+  ASSIGNED,
+  RE_SUBMITTED,
+  REJECTED,
+  FORWARD_TO_FINANCE,
+  RETURN_TO_DO,
+  APPROVED,
+  SUBMITTED,
+  SAVED,
+} = require("../../lib/status");
 const { sendMail } = require("../../services/mail.services");
-const { BG_UPLOAD_BY_VENDOR, BG_ENTRY_BY_DO, BG_ASSIGN, BG_RETURN_TO_DO, BG_RECEIVED, BG_APPROVED_BANK_CONFIRM } = require("../../lib/event");
+const {
+  BG_UPLOAD_BY_VENDOR,
+  BG_ENTRY_BY_DO,
+  BG_ASSIGN,
+  BG_RETURN_TO_DO,
+  BG_RECEIVED,
+  BG_APPROVED_BANK_CONFIRM,
+} = require("../../lib/event");
 const { makeHttpRequest } = require("../../config/sapServerConfig");
 const { zfi_bgm_1_Payload } = require("../../services/sap.services");
 const { getUserDetailsQuery } = require("../../utils/mailFunc");
-const { getAssigneeList, checkIsApprovedRejected, insertSdbgEntrySave } = require("../../services/lastassignee.servces");
-const { sdbgPayloadVendor, sdbgEntryPayload } = require("../../services/sdbg.services");
-const { getPoBgTerms, getBgAmountWarning } = require("../../services/poBgTerms.services");
+const {
+  getAssigneeList,
+  checkIsApprovedRejected,
+  insertSdbgEntrySave,
+} = require("../../services/lastassignee.servces");
+const {
+  sdbgPayloadVendor,
+  sdbgEntryPayload,
+} = require("../../services/sdbg.services");
+const {
+  getPoBgTerms,
+  getBgAmountWarning,
+} = require("../../services/poBgTerms.services");
 const Message = require("../../utils/messages");
 const QueryBuilder = require("../../utils/QueryBuilder");
 
@@ -29,7 +76,11 @@ const submitSDBG = async (req, res) => {
 
     const tokenData = req.tokenData;
 
-    if (tokenData.user_type != USER_TYPE_VENDOR) {
+    console.log(22, tokenData.user_type, USER_TYPE_VENDOR, USER_TYPE_HSL);
+    if (
+      tokenData.user_type !== USER_TYPE_HSL &&
+      tokenData.user_type !== USER_TYPE_VENDOR
+    ) {
       return resSend(res, false, 200, Message.LOGIN_AS_VALID_USER, null, null);
     }
 
@@ -47,10 +98,17 @@ const submitSDBG = async (req, res) => {
     let action_type = payload.action_type;
     const firstTwoChars = action_type.slice(0, 2);
     action_type = firstTwoChars.toUpperCase();
-    const reference_no = create_reference_no(action_type, tokenData.vendor_code);
+    const reference_no = create_reference_no(
+      action_type,
+      tokenData.vendor_code,
+    );
     payload.reference_no = reference_no;
 
-    const poDetails = await getPoDetails(client, { ebeln: payload?.purchasing_doc_no }, "ernam");
+    const poDetails = await getPoDetails(
+      client,
+      { ebeln: payload?.purchasing_doc_no },
+      "ernam",
+    );
     payload.action_on = poDetails?.ernam;
     payload.assigned_to = poDetails?.ernam;
     payload.check_list_reference = reference_no;
@@ -63,20 +121,41 @@ const submitSDBG = async (req, res) => {
 
     const verifyStatus = new Set([SUBMITTED, RE_SUBMITTED]);
 
-    if (!sdbgPayload1.success && !sdbgPayload2.success && !verifyStatus.has(payload.status)) {
-      return resSend(res, false, 200, Message.VALIDATION_UNSUCCESSFULL, { sdbgPayload1, sdbgPayload2 });
+    if (
+      !sdbgPayload1.success &&
+      !sdbgPayload2.success &&
+      !verifyStatus.has(payload.status)
+    ) {
+      return resSend(res, false, 200, Message.VALIDATION_UNSUCCESSFULL, {
+        sdbgPayload1,
+        sdbgPayload2,
+      });
     }
 
     const qb1 = generateQuery(INSERT, SDBG, sdbgPayload1.data);
     const qb2 = generateQuery(INSERT, SDBG_ENTRY, sdbgPayload2.data);
-    await Promise.all([poolQuery({ client, query: qb1.q, values: qb1.val }), poolQuery({ client, query: qb2.q, values: qb2.val })]);
+    await Promise.all([
+      poolQuery({ client, query: qb1.q, values: qb1.val }),
+      poolQuery({ client, query: qb2.q, values: qb2.val }),
+    ]);
     await client.query("COMMIT");
 
     // BG value vs PO terms is a warning only, never blocks submission
-    const warning = await getBgAmountWarning(client, payload.purchasing_doc_no, payload.bg_ammount);
+    const warning = await getBgAmountWarning(
+      client,
+      payload.purchasing_doc_no,
+      payload.bg_ammount,
+    );
 
     handelEmail(payload, tokenData);
-    resSend(res, true, 200, Message.DATA_SEND_SUCCESSFULL, { reference_no, warning }, null);
+    resSend(
+      res,
+      true,
+      200,
+      Message.DATA_SEND_SUCCESSFULL,
+      { reference_no, warning },
+      null,
+    );
   } catch (error) {
     console.error("submitSDBG error", error, error.message);
     if (client) {
