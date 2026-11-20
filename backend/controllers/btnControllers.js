@@ -1015,6 +1015,10 @@ async function btnSubmitByDo(btnPayload, tokenData) {
 // ===============================
 const getExtractedData = async (req, res) => {
   // console.log(req);
+  const { invoice_date, po_no } = req.body;
+  const poNo = po_no;
+
+  // console.log(55, invoice_date, poNo);
   let client;
 
   try {
@@ -1042,6 +1046,13 @@ const getExtractedData = async (req, res) => {
       sub_total,
     } = invoiceData;
 
+    if (po_no !== poNo) {
+      return res.status(422).json({
+        success: false,
+        message: "Uploaded invoice doesnot matched with the PO",
+      });
+    }
+
     if (!po_no || !invoice_no || !gst_no) {
       return res.status(422).json({
         success: false,
@@ -1066,7 +1077,6 @@ const getExtractedData = async (req, res) => {
     );
 
     // STEP 5: Save extracted invoice data
-    const { invoice_date } = req.body;
 
     const insertQuery = `
       INSERT INTO temp_invoices (
@@ -1107,13 +1117,12 @@ const getExtractedData = async (req, res) => {
 
     const tempResult = await client.query(insertQuery, insertValues);
     const temp_inv_id = tempResult.rows[0].temp_inv_id;
-    
+
     // STEP 6: Check GST record
     const gstResult = await verifyGSTRecord(client, gst_no, invoice_date);
 
     // STEP 7: GST missing - ask for confirmation
     if (!gstResult.found) {
-      
       const penaltyDetails = calculateInvoice(invoiceData.sub_total, true);
       // console.log(666, penaltyDetails);
 
