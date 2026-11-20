@@ -52,7 +52,7 @@ const lfa1Payload = async (payload) => {
     POST_CODE: obj.POST_CODE1 || null,
     CITY: obj.CITY1 || null,
     COUNTRY: obj.COUNTRY || null,
-    DISTRICT:obj.DISTRICT || null,
+    DISTRICT: obj.DISTRICT || null,
     REGION: obj.REGION || null,
     REGION_DESC: obj.BEZEI || null,
     PHONE: obj.TELF1 || null,
@@ -77,9 +77,19 @@ const lfa1Payload = async (payload) => {
     XDELE: obj.XDELE || null,
     ZTREDS_TY: obj.ZTREDS_TY || null,
     ZTREDS_ID: obj.ZTREDS_ID || null,
+    // VENDOR_TYPE: , //need to add
+
+    purchasing_org: obj.EKROG || null,
+    po_currency: obj.WAERS || null,
+    customer_number: obj.KUNNR || null,
+    comapny_code: obj.BUKRS || null,
+    withholding_tax_type: obj.WITHT || null,
+    withholding_tax_code: obj.WT_WITHCD || null,
+    withholding_tax_rate: obj.QSATZ || null,
+    withholding_tax_desc: obj.TEXT40 || null,
   }));
   return pl;
-};;
+};
 
 const addUserPayload = async (obj) => {
   if (!obj || !Array.isArray(obj) || !obj.length) {
