@@ -77,7 +77,7 @@ const lfa1Payload = async (payload) => {
     XDELE: obj.XDELE || null,
     ZTREDS_TY: obj.ZTREDS_TY || null,
     ZTREDS_ID: obj.ZTREDS_ID || null,
-    // VENDOR_TYPE: , //need to add
+    vendor_type: obj.ZZVEND_CAT === "MICRO" ? "msme" : null, //if its micro or macro then 'msme' else nullneed to add
 
     purchasing_org: obj.EKROG || null,
     po_currency: obj.WAERS || null,

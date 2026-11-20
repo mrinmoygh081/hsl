@@ -53,6 +53,9 @@ const insertPOData = async (req, res) => {
         LIFNR: obj.LIFNR ? obj.LIFNR : null,
         EKORG: obj.EKORG ? obj.EKORG : null,
         EKGRP: obj.EKGRP ? obj.EKGRP : null,
+
+        ZTERM: obj.ZTERM ? obj.ZTERM : null,
+        TEXT1: obj.TEXT1 ? obj.TEXT1 : null,
       };
       const ekkoTableInsert = await generateInsertUpdateQuery(
         insertPayload,
