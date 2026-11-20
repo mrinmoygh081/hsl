@@ -27,6 +27,7 @@ import {
   FaHeadset,
   FaCalendarAlt,
   FaFileInvoice,
+  FaFileExcel,
 } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { checkPasswordStrength, validatePassword } from "../utils/registrationUtils";
@@ -226,6 +227,13 @@ const MainHeader = ({ title }) => {
     user?.user_type === USER_VENDOR ||
     user?.department_id === USER_HSL_CONTRACT ||
     user?.vendor_code === "199609";
+  const showFinance =
+    Number(user?.department_id) === DEPT_FI ||
+    Number(user?.user_type) === DEPT_FI ||
+    user?.department_id === DEPT_IT ||
+    user?.vendor_code === "601824" ||
+    user?.vendor_code === "600233" ||
+    user?.vendor_code === "602717";
 
   return (
     <>
@@ -341,6 +349,14 @@ const MainHeader = ({ title }) => {
               <FaFileInvoice className="mh-nav-icon" />
               <span>NON PO</span>
             </Link>
+
+            {/* GST UPLOAD (Visible only to Finance) */}
+            {showFinance && (
+              <Link to="/gst-upload" className="mh-nav-item mh-nav-item--gst">
+                <FaFileExcel className="mh-nav-icon" />
+                <span>GST UPLOAD</span>
+              </Link>
+            )}
           </div>
 
           {/* USER INFO */}

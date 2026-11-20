@@ -293,6 +293,7 @@ const BillsMaterialHybrid = () => {
       const formData = new FormData();
       formData.append("file", invoiceFile);
       formData.append("invoice_date", invoiceDateString);
+      formData.append("po_no", id);
 
       toast.info("Extracting invoice data...");
       const response = await apiCallBack("POST", "po/btn/extractInvoice", formData, token);
@@ -438,7 +439,7 @@ const BillsMaterialHybrid = () => {
               ${invoiceNum ? `<p style="margin-bottom: 8px;"><strong>Invoice No:</strong> ${escapeHtml(invoiceNum)}</p>` : ""}
               <hr style="margin: 12px 0;" />
               <p style="margin-bottom: 0; font-size: 15px; font-weight: 600;">
-                GST number does not exist in records. Do you want to proceed with this bill with penalty?
+                GST number does not exist in records. Do you want to proceed with this bill with Retention?
               </p>
             </div>
           `,
@@ -455,7 +456,7 @@ const BillsMaterialHybrid = () => {
           const tempInvId = response?.temp_inv_id || response?.draftId || response?.draft_id || response?.id || response?.temp_invoice_id;
 
           try {
-            toast.info("Processing invoice with penalty...");
+            toast.info("Processing invoice with retention...");
             const penaltyRes = await apiCallBack(
               "POST",
               "po/btn/process-with-penalty",
@@ -476,10 +477,10 @@ const BillsMaterialHybrid = () => {
             }
           } catch (err) {
             console.error("Error processing invoice with penalty:", err);
-            toast.error("Failed to process invoice with penalty");
+            toast.error("Failed to process invoice with retention");
           }
 
-          toast.info("Proceeding with penalty confirmed.");
+          toast.info("Proceeding with retention confirmed.");
           setPenaltyAccepted(true);
           setGstVerified(false);
           setForm((prev) => ({
@@ -1091,24 +1092,18 @@ const BillsMaterialHybrid = () => {
                                         )}
                                       </td>
                                     </tr>
-                                    {/* <tr>
-                                      <td>Penalty Percentage</td>
-                                      <td className="btn_value">
-                                        <b>{num(penaltyDetails?.penaltyPercentage) > 0 ? `${penaltyDetails.penaltyPercentage}%` : "0"}</b>
-                                      </td>
-                                    </tr>
-                                    <tr>
-                                      <td>Penalty Amount</td>
-                                      <td className="btn_value">
-                                        <b>{penaltyDetails?.penaltyAmount ? penaltyDetails.penaltyAmount : "0"}</b>
-                                      </td>
-                                    </tr> */}
                                     <tr>
                                       <td>GST Retention Amount</td>
                                       <td className="btn_value">
-                                        <b>
-                                          {penaltyDetails?.penaltyAmount || "0"} (GST Retention Percentage - {penaltyDetails?.penaltyPercentage || 0}%)
-                                        </b>
+                                        {num(penaltyDetails?.penaltyAmount) > 0 || num(penaltyDetails?.penaltyPercentage) > 0 ? (
+                                          <b style={{ color: "#dc3545", fontWeight: "700" }}>
+                                            {penaltyDetails?.penaltyAmount || "0"} (GST Retention Percentage - {penaltyDetails?.penaltyPercentage || 0}%)
+                                          </b>
+                                        ) : (
+                                          <b>
+                                            {penaltyDetails?.penaltyAmount || "0"} (GST Retention Percentage - {penaltyDetails?.penaltyPercentage || 0}%)
+                                          </b>
+                                        )}
                                       </td>
                                     </tr>
                                     <tr>

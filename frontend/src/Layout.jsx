@@ -73,6 +73,7 @@ const SyncComponent = lazy(() => import("./pages/SyncComponent"));
 const Authorisation = lazy(() => import("./pages/settings/Authorisation"));
 const ForgatePassword = lazy(() => import("./pages/ForgatePassword"));
 const NonPoBills = lazy(() => import("./pages/NonPoBills"));
+const GstUpload = lazy(() => import("./pages/GstUpload"));
 
 // Checklist
 const ClaimAgainstPBGSubmissionView = lazy(() => import("./pages/checklists/ClaimAgainstPBGSubmissionView"));
@@ -132,6 +133,7 @@ function Layout() {
           <Route path="/" element={<Navigate to="/dashboard/task-list" replace />} />
           <Route path="/po" element={<POs />} />
           <Route path="/non-po" element={<NonPoBills />} />
+          <Route path="/gst-upload" element={<GstUpload />} />
           <Route path="/wdc" element={<WBS />} />
           <Route path="/po/:id" element={<PODetails />} />
           <Route path="/poarchive/:id" element={<POArchived />} />
