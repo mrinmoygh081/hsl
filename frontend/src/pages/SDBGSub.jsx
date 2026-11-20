@@ -15,7 +15,7 @@ import { IoClose } from "react-icons/io5";
 import { ACTION_ABG, ACTION_DD, ACTION_IB, ACTION_O, ACTION_PBG, ACTION_SDBG, ACTION_RM, ACTION_MBG, BG_TYPES, BG_MODES, BG_CURRENCIES } from "../constants/BGconstants";
 import { logOutFun } from "../utils/logOutFun";
 import { logoutHandler } from "../redux/slices/loginSlice";
-import { poRemoveHandler } from "../redux/slices/poSlice";
+import { doHandler, poRemoveHandler } from "../redux/slices/poSlice";
 import { groupedByActionType, groupedByRefNo } from "../utils/groupedByReq";
 import jsPDF from "jspdf";
 import { checkTypeArr } from "../utils/smallFun";
@@ -181,6 +181,21 @@ const SDBGSub = () => {
     getSDBG();
     getSDBGcheckuser();
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      if (id && token) {
+        try {
+          const res = await apiCallBack("GET", `po/details?id=${id}`, null, token);
+          if (res?.status && res?.data?.[0]?.isDO !== undefined) {
+            dispatch(doHandler(res.data[0].isDO));
+          }
+        } catch (err) {
+          console.error("Error checking isDO:", err);
+        }
+      }
+    })();
+  }, [id, token]);
 
   useEffect(() => {
     if (id) {
@@ -654,8 +669,8 @@ const SDBGSub = () => {
                   <div className="row g-5 g-xl-8">
                     <div className="col-12">
                       <div className="screen_header">
-                        {/* Vendor  */}
-                        {user?.user_type === ASSIGNER && (
+                        {/* Vendor & DO */}
+                        {(user?.user_type === ASSIGNER || user?.user_type === USER_VENDOR || isDO) && (
                           <>
                             <button onClick={() => setIsPopup(true)} className="btn btn-sm fw-bold btn-primary">
                               ACTION
@@ -827,8 +842,8 @@ const SDBGSub = () => {
         </div>
       </div>
 
-      {/* vendor */}
-      {user?.user_type === 1 && (
+      {/* vendor & DO */}
+      {(user?.user_type === 1 || user?.user_type === USER_VENDOR || isDO) && (
         <div className={isPopup ? "popup active" : "popup"}>
           <div className="card card-xxl-stretch mb-5 mb-xxl-8">
             <div className="card-header border-0 pt-5">
