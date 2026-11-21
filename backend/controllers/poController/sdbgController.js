@@ -76,7 +76,6 @@ const submitSDBG = async (req, res) => {
 
     const tokenData = req.tokenData;
 
-    console.log(22, tokenData.user_type, USER_TYPE_VENDOR, USER_TYPE_HSL);
     if (
       tokenData.user_type !== USER_TYPE_HSL &&
       tokenData.user_type !== USER_TYPE_VENDOR
