@@ -86,7 +86,7 @@ router.post(
 );
 router.post(
   "/process-with-penalty",
-  // verifyAccessToken,
+  verifyAccessToken,
   processInvoiceWithPenalty,
 );
 
