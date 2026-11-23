@@ -6,7 +6,7 @@ const verifyGRNAmount = async (client, poNumber, invoiceNo, invoiceAmount) => {
     poNumber,
     invoiceNo,
   );
-  console.log(505, grnResult);
+
 
   if (!grnResult || grnResult.success === false) {
     return {
@@ -17,14 +17,14 @@ const verifyGRNAmount = async (client, poNumber, invoiceNo, invoiceAmount) => {
 
   // Get GRN records
   const grnRecords = grnResult?.data?.grn_nos || [];
-  console.log(61, grnRecords);
+
   if (!grnRecords.length) {
     return {
       matched: false,
       message: "No GRN details found",
     };
   }
-  console.log(62);
+
 
   let grnAmount = 0;
   let grnQuantity = 0;
@@ -49,11 +49,11 @@ const verifyGRNAmount = async (client, poNumber, invoiceNo, invoiceAmount) => {
   if (!Number.isFinite(amount)) {
     throw new Error("Invalid invoice amount");
   }
-  console.log(63);
+
 
   const difference = amount - grnAmount;
   //   const difference = 0;
-  console.log(64, amount, grnAmount, difference);
+
 
   // Currency comparison tolerance: 1 paisa.
 
@@ -61,7 +61,6 @@ const verifyGRNAmount = async (client, poNumber, invoiceNo, invoiceAmount) => {
 
   return {
     matched: amountMatched,
-
     message: amountMatched
       ? "Invoice amount matched with GRN report"
       : "Total claimed amount does not match with GRN report",
