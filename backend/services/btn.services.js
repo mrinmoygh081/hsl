@@ -202,8 +202,6 @@ async function getGrnDetails(client, values) {
   //  ON (ekpo.ebeln = mseg.ebeln AND ekpo.ebelp = mseg.ebelp AND ekpo.matnr = mseg.matnr)
 
   let grn_value = await poolQuery({ client, query: grn_value_q, values });
-  console.log(95, values);
-  console.log(96, grn_value);
   if (grn_value.length) {
     grn_value = grn_value.map((el) => ({
       ...el,
@@ -543,7 +541,6 @@ const getGrnIcgrnByInvoiceService = async (
       invoice_no,
     ]);
 
-    console.log(25, gate_entry_v);
     if (!gate_entry_v.length) {
       return {
         success: false,
@@ -555,14 +552,13 @@ const getGrnIcgrnByInvoiceService = async (
         },
       };
     }
-    console.log(26);
+
     // -----------------------------------------
     // 3. Get GRN
     // -----------------------------------------
 
     const grn_values = gate_entry_v.map((el) => el.grn_no);
     const grn_value = (await getGrnDetails(client, grn_values)) || [];
-    console.log(261, grn_value);
 
     if (!grn_value.length) {
       return {
@@ -575,7 +571,7 @@ const getGrnIcgrnByInvoiceService = async (
         },
       };
     }
-    console.log(27);
+
     // -----------------------------------------
     // 4. Find valid GE / FOR GET VALID GE IF SAME GE OF MULTIPLE INV NO
     // -----------------------------------------
@@ -592,14 +588,13 @@ const getGrnIcgrnByInvoiceService = async (
         break;
       }
     }
-    console.log(22, geDetails);
 
     if (geDetails) {
       gate_entry_v = geDetails;
     } else {
       gate_entry_v = gate_entry_v[0];
     }
-    console.log(28);
+
     // -----------------------------------------
     // 5. Separate GRN / ICGRN
     // -----------------------------------------
@@ -617,7 +612,7 @@ const getGrnIcgrnByInvoiceService = async (
     // -----------------------------------------
     // 6. Get ICGRN
     // -----------------------------------------
-    console.log(1155);
+
     // const icgrn_no = await getIcgrnDetails(client, icgrnNosArr, {
     //   EBELN: purchasing_doc_no,
     // });
@@ -672,7 +667,6 @@ const getGrnIcgrnByInvoiceService = async (
     // -----------------------------------------
 
     let CAPEX_IND = false;
-    console.log(29, onlyGrnItems);
 
     if (onlyGrnItems.length) {
       const totals = calculateTotalGrnValue(onlyGrnItems);
@@ -683,7 +677,8 @@ const getGrnIcgrnByInvoiceService = async (
       total_price += totals.totalPrice || 0;
       total_quantity += totals.totalQuantity;
     }
-
+    // console.log(total_price);
+    // console.log(total_quantity);
     // -----------------------------------------
     // 10. Returned GRN
     // -----------------------------------------
