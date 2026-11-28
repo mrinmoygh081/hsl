@@ -324,28 +324,7 @@ console.log("ACTION FIELDS:", {
     }
 
     if (response) {
-      // QAP notification for the currently assigned officer
-      if (
-        tokenData.user_type === USER_TYPE_VENDOR &&
-        [SUBMITTED, RE_SUBMITTED].includes(activity_type)
-      ) {
-        try {
-          const notification =
-            await createQAPSubmissionNotification(client, payload);
-
-          if (notification) {
-            console.log(
-              "QAP notification created:",
-              notification.id
-            );
-          }
-        } catch (notificationError) {
-          console.error(
-            "QAP notification creation failed:",
-            notificationError
-          );
-        }
-      }
+      
       handelMail(tokenData, payload, QAP_UPLOAD_BY_VENDOR);
       
       resSend(res, true, 200, "Inserted successfully", response, null);
