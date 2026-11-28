@@ -124,6 +124,7 @@ const statRoutes = require("./routes/statRoutes");
 const dataInsert = require("./routes/sap/dataInsert");
 const sapRoutes = require("./routes/sap/sapRoutes");
 const syncRoutes = require("./routes/syncRoutes");
+const missedMilestoneRoutes = require("./routes/missedMilestone.routes");
 const { vendorReminderMail, mailSendCornFn, drawingAutoAcknowledgeCorn } = require("./controllers/sapController/remaiderMailSendController");
 const { pymtFileTrans } = require("./utils/fileTransUtils");
 const { syncDataDownloadCorn } = require("./controllers/syncControllers2");
@@ -135,6 +136,7 @@ app.use("/api/v1/insert", dataInsert);
 app.use("/api/v1/sap", sapRoutes);
 app.use("/api/v1/sync", syncRoutes);
 app.use("/api/v1/stat", statRoutes);
+app.use("/api/v1/missed-milestone", missedMilestoneRoutes);
 
 /* -------------------------------------------------------------
    404 HANDLER
@@ -176,18 +178,38 @@ app.use((err, req, res, next) => {
 /* -------------------------------------------------------------
     CRON JOBS (SAFE INIT)
 -------------------------------------------------------------- */
-try {
-  if (isProd) {
-    syncDataDownloadCorn();
-    // syncFileCron(); never trun on
-    mailSendCornFn();
-    vendorReminderMail();
-    pymtFileTrans();
-    drawingAutoAcknowledgeCorn();
-    console.log("✓ Cron jobs initialized");
-  }
-} catch (err) {
-  console.error("❌ Cron job initialization failed:", err.message);
+if (isProd) {
+    try {
+        syncDataDownloadCorn();
+        // syncFileCron(); never turn on
+        mailSendCornFn();
+        vendorReminderMail();
+        pymtFileTrans();
+        drawingAutoAcknowledgeCorn();
+
+        console.log("✓ Existing Cron jobs initialized");
+
+    } catch (err) {
+        console.error(
+            "❌ Existing Cron job initialization failed:",
+            err.message
+        );
+    }
+
+    // MISSED MILESTONE CRON
+    try {
+        const {
+            initMissedMilestoneJob
+        } = require("./jobs/missedMilestone.job");
+
+        initMissedMilestoneJob();
+
+    } catch (err) {
+        console.error(
+            "❌ Missed Milestone Cron initialization failed:",
+            err.message
+        );
+    }
 }
 
 /* -------------------------------------------------------------
