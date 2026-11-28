@@ -491,127 +491,147 @@ const get_latest_activity = async (client,
   }
 };
 
+
+
 const getActualAndCurrentDetails = async (client, values) => {
-
-  // eslint-disable-next-line no-useless-catch
   try {
-    const placeholders = values.map((_, i) => `$${i + 1}`).join(", ");
-    const getActualAndCurrentQuery =
-      `SELECT * FROM ((SELECT DISTINCT ON (t_contractula_sub.ebeln)
-		      t_contractula_sub.ebeln as purchasing_doc_no,
-          t_activity.reference_no,
-          t_activity.status,
-          t_activity.created_at,
-      	  t_act_sub.actualsubmissiondate,
-      	  t_contractula_sub.plan_date,
-      	  'sdbg' as flag
-      FROM
-        zpo_milestone as t_contractula_sub
- LEFT JOIN
-         sdbg as t_activity
-      	ON( t_contractula_sub.ebeln = t_activity.purchasing_doc_no )
-      LEFT JOIN
-      	actualsubmissiondate as t_act_sub
-      	ON( t_act_sub.purchasing_doc_no = t_activity.purchasing_doc_no AND t_act_sub.milestoneid = ${parseInt(MID_SDBG)} )
-      
-      WHERE 
-        t_contractula_sub.mid = '${MID_SDBG}'
-      ORDER BY
-		  t_contractula_sub.ebeln,
-          t_activity.purchasing_doc_no, 
-          t_activity.reference_no, 
-          t_activity.created_at DESC)
+    if (!values || !values.length) {
+      return [];
+    }
 
-      UNION ALL
+    const placeholders = values
+      .map((_, i) => `$${i + 1}`)
+      .join(", ");
 
-      (SELECT DISTINCT ON (t_contractula_sub.ebeln)
-          t_contractula_sub.ebeln as purchasing_doc_no,
-          t_activity.reference_no,
-          t_activity.status,
-          t_activity.created_at,
-      	  t_act_sub.actualsubmissiondate,
-      	  t_contractula_sub.plan_date,
-      	  'drawing' as flag
-      FROM
-        zpo_milestone as t_contractula_sub
- LEFT JOIN
-         drawing as t_activity
-      	ON( t_contractula_sub.ebeln = t_activity.purchasing_doc_no )
-      LEFT JOIN
-      	actualsubmissiondate as t_act_sub
-      	ON( t_act_sub.purchasing_doc_no = t_activity.purchasing_doc_no AND t_act_sub.milestoneid = ${parseInt(MID_DRAWING)} )
-      
-      WHERE 
-        t_contractula_sub.mid = '${MID_DRAWING}'
-      ORDER BY
-          t_contractula_sub.ebeln,
-          t_activity.purchasing_doc_no, 
-          t_activity.reference_no, 
-          t_activity.created_at DESC)
-      UNION ALL
+    const getActualAndCurrentQuery = `
+      WITH milestone_data AS (
+          SELECT
+              ebeln,
+              bg_date,
+              abg_date,
+              draw_date,
+              qap_date,
+              ins_date,
+              ilms_date
+          FROM zpo_milestone
+          WHERE ebeln IN (${placeholders})
+      ),
 
-      (SELECT DISTINCT ON (t_contractula_sub.ebeln)
-          t_contractula_sub.ebeln as purchasing_doc_no,
-          t_activity.reference_no,
-          t_activity.status,
-          t_activity.created_at,
-      	  t_act_sub.actualsubmissiondate,
-      	  t_contractula_sub.plan_date,
-      	  'qap' as flag
-      FROM
-        zpo_milestone as t_contractula_sub
- 	  LEFT JOIN
-         qap_submission as t_activity
-      	ON( t_contractula_sub.ebeln = t_activity.purchasing_doc_no )
-      LEFT JOIN
-      	actualsubmissiondate as t_act_sub
-      	ON( t_act_sub.purchasing_doc_no = t_activity.purchasing_doc_no AND t_act_sub.milestoneid = ${parseInt(MID_QAP)} )
-      
-      WHERE 
-        t_contractula_sub.mid = '${MID_QAP}'
-      ORDER BY
-          t_contractula_sub.ebeln,
-          t_activity.purchasing_doc_no, 
-          t_activity.reference_no, 
-          t_activity.created_at DESC)
-      UNION ALL
+      activity_data AS (
 
-      (SELECT DISTINCT ON (t_contractula_sub.ebeln)
-          t_contractula_sub.ebeln as purchasing_doc_no,
-          t_activity.reference_no,
-          t_activity.status,
-          t_activity.created_at,
-      	  t_act_sub.actualsubmissiondate,
-      	  t_contractula_sub.plan_date,
-      	  'ilms' as flag
-      FROM
-        zpo_milestone as t_contractula_sub
- LEFT JOIN
-         ilms as t_activity
-      	ON( t_contractula_sub.ebeln = t_activity.purchasing_doc_no )
-      LEFT JOIN
-      	actualsubmissiondate as t_act_sub
-      	ON( t_act_sub.purchasing_doc_no = t_activity.purchasing_doc_no AND t_act_sub.milestoneid =  ${parseInt(MID_ILMS)} )
-      
-      WHERE 
-        t_contractula_sub.mid = '${MID_ILMS}'
-      ORDER BY
-          t_contractula_sub.ebeln,
-          t_activity.purchasing_doc_no, 
-          t_activity.reference_no, 
-          t_activity.created_at DESC)) AS result
-        WHERE 
-      	result.purchasing_doc_no IN(${placeholders})`;
+          -- SDBG
+          SELECT
+              zm.ebeln AS purchasing_doc_no,
+              a.reference_no,
+              a.status,
+              a.created_at,
+              act.actualsubmissiondate,
+              zm.bg_date AS plan_date,
+              'sdbg' AS flag,
+              ROW_NUMBER() OVER (
+                  PARTITION BY zm.ebeln
+                  ORDER BY a.created_at DESC NULLS LAST
+              ) AS rn
+          FROM milestone_data zm
+          LEFT JOIN sdbg a
+              ON a.purchasing_doc_no = zm.ebeln
+          LEFT JOIN actualsubmissiondate act
+              ON act.purchasing_doc_no = zm.ebeln
+             AND act.milestoneid = ${parseInt(MID_SDBG)}
 
-    const result = await poolQuery({ client, query: getActualAndCurrentQuery, values });
+          UNION ALL
+
+          -- DRAWING
+          SELECT
+              zm.ebeln AS purchasing_doc_no,
+              a.reference_no,
+              a.status,
+              a.created_at,
+              act.actualsubmissiondate,
+              zm.draw_date AS plan_date,
+              'drawing' AS flag,
+              ROW_NUMBER() OVER (
+                  PARTITION BY zm.ebeln
+                  ORDER BY a.created_at DESC NULLS LAST
+              ) AS rn
+          FROM milestone_data zm
+          LEFT JOIN drawing a
+              ON a.purchasing_doc_no = zm.ebeln
+          LEFT JOIN actualsubmissiondate act
+              ON act.purchasing_doc_no = zm.ebeln
+             AND act.milestoneid = ${parseInt(MID_DRAWING)}
+
+          UNION ALL
+
+          -- QAP
+          SELECT
+              zm.ebeln AS purchasing_doc_no,
+              a.reference_no,
+              a.status,
+              a.created_at,
+              act.actualsubmissiondate,
+              zm.qap_date AS plan_date,
+              'qap' AS flag,
+              ROW_NUMBER() OVER (
+                  PARTITION BY zm.ebeln
+                  ORDER BY a.created_at DESC NULLS LAST
+              ) AS rn
+          FROM milestone_data zm
+          LEFT JOIN qap_submission a
+              ON a.purchasing_doc_no = zm.ebeln
+          LEFT JOIN actualsubmissiondate act
+              ON act.purchasing_doc_no = zm.ebeln
+             AND act.milestoneid = ${parseInt(MID_QAP)}
+
+          UNION ALL
+
+          -- ILMS
+          SELECT
+              zm.ebeln AS purchasing_doc_no,
+              a.reference_no,
+              a.status,
+              a.created_at,
+              act.actualsubmissiondate,
+              zm.ilms_date AS plan_date,
+              'ilms' AS flag,
+              ROW_NUMBER() OVER (
+                  PARTITION BY zm.ebeln
+                  ORDER BY a.created_at DESC NULLS LAST
+              ) AS rn
+          FROM milestone_data zm
+          LEFT JOIN ilms a
+              ON a.purchasing_doc_no = zm.ebeln
+          LEFT JOIN actualsubmissiondate act
+              ON act.purchasing_doc_no = zm.ebeln
+             AND act.milestoneid = ${parseInt(MID_ILMS)}
+      )
+
+      SELECT
+          purchasing_doc_no,
+          reference_no,
+          status,
+          created_at,
+          actualsubmissiondate,
+          plan_date,
+          flag
+      FROM activity_data
+      WHERE rn = 1
+    `;
+
+    const result = await poolQuery({
+      client,
+      query: getActualAndCurrentQuery,
+      values
+    });
 
     return result;
 
   } catch (error) {
     throw error;
   }
+};
 
-}
+
 const getPoWithLineItems = async (client, values, limit, offSet, whereCondQuery) => {
   // eslint-disable-next-line no-useless-catch
   try {
