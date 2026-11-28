@@ -101,6 +101,7 @@ const addUserPayload = async (obj) => {
     PHONE: obj.PHONE || null,
     EMAIL: obj.EMAIL || null,
     PERSG: obj.PERSG || null,
+    DEPARTMENT: obj.DEPARTMENT_ID || null,
   }));
   return pl;
 };
